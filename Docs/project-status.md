@@ -25,7 +25,7 @@ pass and the date guard rejects an October 27 launch before any market requests.
 270-request study and summary preserve first arrivals, gaps and completed-bar revisions privately.
 The 09:25 automation must still select tomorrow's candidate and launch it; no live qualification occurred.
 
-Second offline increment prepares the collector batch reducer, SQL repository, five additive tables
+Second offline increment prepares the collector batch reducer, SQL repository, additive evidence tables
 and immutable evidence guards. First completed receipts survive repeated/backfilled reads; revised
 completed values latch conflicts. Appends fence owner/generation against the database clock and commit
 receipt/derived evidence atomically. Migration052 is prepared only. Fifty-four focused tests pass;
@@ -39,6 +39,13 @@ pass; collector Release succeeds with 258 existing compiler warnings, SSDT datab
 No dependency-security warnings emitted (not a fresh audit). Migration052 remains unapplied; native
 SQL/transport/supervisor verification, trader subscription producer and local strategy integration
 remain outstanding. No collector launch, market request, installed-runtime change or financial action.
+
+Fourth source increment connects actual persistence/price/volume/structure judgments to recovered
+minute confirmation. It preserves elapsed horizons, five-minute VWAP buckets and strict latest expiry;
+diagnostics identify logical/calculation times, recovered inputs, families and reference age. Eighty
+focused tests pass, no skips, including parity against V1 at five-minute boundaries and restored/weak/
+missing/conflicted/expired evidence. This is pure evaluation, not installed entry authority. Local
+consumer, successor review/cutover, native SQL and morning source qualification remain outstanding.
 
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 

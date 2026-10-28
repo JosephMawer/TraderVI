@@ -1044,6 +1044,7 @@ public sealed class DelphiWorkflow
 
             var report = new DelphiReportBuilder
             {
+                IntradayDecisionBoundary = DelphiReportBuilder.DailyIntradayBoundary,
                 RecommendationDate = recommendationDate,
                 MarketDataAsOf = marketDataAsOf,
                 Regime = regime,

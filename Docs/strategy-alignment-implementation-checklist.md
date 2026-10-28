@@ -25,8 +25,10 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
   Forty-one focused tests pass (no skips); original on-time window/legacy cadence behavior is preserved.
   Subsequent full Core: 3,238 passed / nine skipped / zero failures; no native operations or installation.
   This boundary accepts deterministic evaluator judgments; it is not connected to runtime publication.
-- [ ] Connect the successor evaluator's actual four-family judgments to that recovery boundary and
-  complete end-to-end data/window maturity tests; do not treat an offline pair result as order authority.
+- [x] Connect the successor evaluator's actual four-family judgments to the recovery boundary, with
+  exact duration windows, immutable evidence provenance and explicit successor identity. Tests compare
+  five-minute-boundary measurements with V1 and reject gaps, weak/expired pairs and later-bar leakage.
+  This pure evaluator is not yet wired to production decisions; an offline pair grants no order authority.
 - [x] Prepare durable receipt/first-observation/conflict storage, bounded multi-bar recovery reducer,
   database-clock fenced ownership and atomic append/coherent read repository. Additive migration052
   and database project definitions are synchronized; 54 focused tests and SSDT Release build pass.

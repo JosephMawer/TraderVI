@@ -92,6 +92,10 @@ Changes to policy/source/model require the normal explicit review; a process res
 
 Keep 20/60/120/180-minute indicator horizons. Minute confirmation does not turn four original five-minute
 legs into four one-minute legs. Keep complete-path session VWAP and its unavailable semantics unchanged.
+Implementation preserves VWAP's original opening-anchored completed five-minute typical-price/volume
+buckets. Between those boundaries, use the last completed five-minute VWAP reference, while requiring
+the complete minute path from open through the current endpoint. Publish the reference's actual through
+time. This avoids silently substituting minute-weighted VWAP for the accepted indicator.
 Historical context recovery must re-evaluate both stock and benchmark coverage. No automatic lowering
 of the three-of-four rule. Opening-entry/top-three buying is deferred.
 

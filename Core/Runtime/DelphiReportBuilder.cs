@@ -22,6 +22,20 @@ namespace Core.Runtime;
 /// </summary>
 public sealed class DelphiReportBuilder
 {
+    public const string DailyIntradayBoundary = "Daily picks are candidates, not buy orders. The explicitly approved intraday strategy controls confirmation, source freshness and execution.";
+    public string IntradayDecisionBoundary { get; set; } = DailyIntradayBoundary;
+
+    public static string DescribeMinuteConfirmation(Core.Trader.DelphiLive.DelphiLiveMinutePair pair)
+    {
+        var latest = pair.Latest;
+        return $"Minute confirmation: {pair.Confirmation.Status}; endpoints {pair.Previous.Judgment.EndUtc:O} / {latest.Judgment.EndUtc:O}; " +
+            $"calculated {latest.Judgment.CalculatedUtc:O}; expires {pair.Confirmation.ExpiresUtc:O}; " +
+            $"votes {pair.Previous.Judgment.SupportiveFamilies}/4 then {latest.Judgment.SupportiveFamilies}/4; " +
+            $"families [{string.Join(", ", latest.Families.Select(f => $"{f.Family}={f.State}"))}]; " +
+            $"VWAP {latest.Measurements.Structure.SessionVwap.Availability} through {latest.Measurements.VwapThroughUtc:O}; " +
+            $"recovered inputs {pair.Confirmation.RecoveredObservationIds.Length}; source {latest.Judgment.SourceContract}; " +
+            $"policy {latest.Judgment.PolicyIdentity}. Signal evidence only; account, order, price and financial authority checks remain required.";
+    }
     // ── Inputs (set before calling Build) ──
     public DateTime RecommendationDate { get; set; }
     public DateTime MarketDataAsOf { get; set; }
@@ -389,6 +403,7 @@ public sealed class DelphiReportBuilder
         sb.AppendLine(new string('═', 80));
         sb.AppendLine("DELPHI DIAGNOSTIC REPORT");
         sb.AppendLine(new string('═', 80));
+        sb.AppendLine(IntradayDecisionBoundary);
 
         sb.AppendLine("\n── Evaluation Dates ──");
         sb.AppendLine($"  Recommendation date: {RecommendationDate:yyyy-MM-dd}  (run date; database PickDate/EvalDate)");
@@ -691,6 +706,7 @@ public sealed class DelphiReportBuilder
         sb.AppendLine(new string('═', 60));
         sb.AppendLine("DELPHI MARKET SUMMARY");
         sb.AppendLine(new string('═', 60));
+        sb.AppendLine(IntradayDecisionBoundary);
         sb.AppendLine($"\nRecommendation date: {RecommendationDate:yyyy-MM-dd}  |  Market data as of: {MarketDataAsOf:yyyy-MM-dd}");
         sb.AppendLine($"Strategy: {StrategyVersionName}  |  {StrategyDecisionRef ?? "unidentified"} · {ShortCommit(StrategyInitialCodeCommit)}");
 
