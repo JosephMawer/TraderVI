@@ -59,6 +59,15 @@ artifacts. Runtime Core/WPF/engine DLLs still match the reviewed 81dd33f3 candid
 cutover occurred. Native local SQL input loading, collector ownership cutover and successor adoption
 remain unfinished; these tests do not establish installed one-minute buying.
 
+Sixth source increment reads stock/XIU books, latched conflicts and the adopted daily source under one
+SQL transaction, without importing Paper lifecycle state. It reconstructs complete five-minute closing
+bars for held protection and preserves their actual recovery times. An optional collector subscription
+producer reads revision-verified Real holding/pending-order projections; absent daily candidates cannot
+remove those positions. 35 focused tests pass, no skips; isolated collector Release builds successfully.
+Native SQL rehearsal, compatible legacy polling ownership, successor adoption and cutover remain open.
+No migration, collector launch or installation occurred. The debug-symbol file touched by the earlier
+default-output build was restored from the hash-verified installed candidate; runtime DLLs were unchanged.
+
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
 Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.

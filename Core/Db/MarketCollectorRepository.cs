@@ -142,7 +142,7 @@ VALUES(@SourceContract,@Symbol,@SessionOpenUtc,@Start,@RequestId);
         await tx.CommitAsync(ct); return book;
     }
 
-    private static async Task<DelphiLiveMinuteEvidenceBook?> ReadAsync(SqlConnection c, SqlTransaction tx,
+    internal static async Task<DelphiLiveMinuteEvidenceBook?> ReadAsync(SqlConnection c, SqlTransaction tx,
         string sourceContract, string symbol, DateTime sessionOpenUtc, CancellationToken ct)
     {
         var scope = new { SourceContract = sourceContract, Symbol = symbol, SessionOpenUtc = sessionOpenUtc };

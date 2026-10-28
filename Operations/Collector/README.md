@@ -11,7 +11,12 @@ Configuration fields (PascalCase) are `CalendarPath`, `SubscriptionPath`, `Contr
 capacity/freshness qualification must settle the package values. The subscription JSON contains UTC
 `SessionOpenUtc`, `SessionCloseUtc`, and arrays `Candidates`, `Holdings`, `PendingExits`. An unavailable
 or wrongly dated subscription file blocks requests. The producer must atomically publish the complete
-union, preserving holdings/exits when candidate inputs change or entries are paused.
+union, preserving holdings/exits when candidate inputs change or entries are paused. Optional
+`UseVerifiedRealSubscriptions: true` refreshes that file every 30 seconds from the trader's
+revision-verified `EngineRealObservation` projection and adopted daily sources. It performs no broker
+reads. Missing daily candidates retain holdings and pending orders; an integrity/read failure reports
+attention and leaves the previous complete file intact. Legacy Paper subscription integration remains
+part of the pending ownership cutover.
 
 The collector reads one completed minute at a time; each bounded TMX response includes the current
 session's available history for recovery. No catch-up request burst or automatic retry exists. XIU,
@@ -31,6 +36,6 @@ hidden, owns an exclusive supervisor lock and never clears a stop. It is not reg
 builds. Startup registration and live use are part of the guarded cutover, not these source changes.
 
 Migration052 remains unapplied and now includes immutable request intents. Native SQL concurrency,
-crash/idempotency and permissions rehearsal, trader subscription publication, local strategy consumers,
+crash/idempotency and permissions rehearsal, native subscription/local-consumer verification,
 source qualification and compatible installation are still required. Do not launch alongside the
 installed intraday poller. Do not replace the approved runtime until ownership/cutover checks pass.

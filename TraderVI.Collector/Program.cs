@@ -10,7 +10,10 @@ using System.Threading.Tasks;
 namespace TraderVI.Collector;
 
 internal sealed record CollectorConfiguration(string CalendarPath, string SubscriptionPath, string ControlDirectory,
-    string SourceContract, CollectorLimits Limits);
+    string SourceContract, CollectorLimits Limits)
+{
+    public bool UseVerifiedRealSubscriptions { get; init; }
+}
 
 internal static class Program
 {
@@ -35,6 +38,7 @@ internal static class Program
             Console.CancelKeyPress += (_, e) => { e.Cancel = true; stop.Cancel(); };
             string statusPath = Path.Combine(config.ControlDirectory, "status.json");
             string stopPath = Path.Combine(config.ControlDirectory, "stop.request");
+            DateTime nextSubscriptionRead = DateTime.MinValue;
             try
             {
                 while (!stop.IsCancellationRequested && !File.Exists(stopPath))
@@ -48,6 +52,14 @@ internal static class Program
                         else
                         {
                             var bounds = calendar.GetSessionBounds(date);
+                            if (config.UseVerifiedRealSubscriptions && now >= nextSubscriptionRead)
+                            {
+                                nextSubscriptionRead = now.AddSeconds(30);
+                                var current = await new CollectorSubscriptionRepository().ReadAsync(date, bounds, stop.Token);
+                                string temporary = config.SubscriptionPath + ".writing";
+                                File.WriteAllText(temporary, JsonSerializer.Serialize(current));
+                                File.Move(temporary, config.SubscriptionPath, true);
+                            }
                             var subscriptions = JsonSerializer.Deserialize<CollectorSubscriptionSnapshot>(File.ReadAllText(config.SubscriptionPath), options)
                                 ?? throw new InvalidDataException();
                             if (subscriptions.SessionOpenUtc != bounds.OpenUtc || subscriptions.SessionCloseUtc != bounds.CloseUtc)

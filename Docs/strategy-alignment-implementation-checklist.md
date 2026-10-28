@@ -38,13 +38,17 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
 - [x] Implement separate collector executable, bounded source adapter, persisted pre-request intents,
   subscription-union contract and health/stop controls. Prepare bounded supervisor; 62 focused tests,
   collector Release and SSDT database build pass. No native host/supervisor launch or installed cutover.
-- [ ] Connect the trader's durable subscription producer (candidates/XIU/holdings/exits), qualify native
-  supervision/recovery and prove no competing intraday polling owner at cutover.
+- [x] Connect the collector to the trader's revision-verified Real subscription projection, keeping
+  holdings/pending orders when daily candidates are absent; native execution remains unverified.
+- [ ] Qualify native supervision/recovery, include every legacy consumer's subscriptions and prove no
+  competing intraday polling owner at cutover.
 - [x] Wire the explicit successor into account-specific recommendation/quote/order-deadline checks and
   review descriptions, preserving legacy null serialization and independent account confirmation.
   Synthetic execution tests cover pause, uncertain orders, restart, expiry and protection without entry history.
-- [ ] Wire native local publication/input loading and explicit adoption/cutover; retain independent
-  Paper lifecycle, existing legacy policies and broker execution/protection reads.
+- [x] Implement local SQL book/input loading and recovered five-minute protection bars for the explicit
+  minute successor. Offline tests cover missing/conflicted context, identity and admission profiles.
+- [ ] Verify native local loading and implement explicit adoption/cutover; retain independent Paper
+  lifecycle, existing legacy policies and broker execution/protection reads.
 - [ ] Validate restart while collector current; collection outage recovered current pair; weak/stale pair;
   missing benchmark; gaps/conflicts; clock/revision/source changes; lease fencing/crash boundaries;
   pause persistence; uncertain orders/idempotency; held protection; next-session preservation.

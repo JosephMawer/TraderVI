@@ -89,11 +89,12 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
             { warnings.Add("A reviewed TSX calendar with coverage for this session is required."); }
             Guid? daily = await c.QuerySingleOrDefaultAsync<Guid?>("SELECT VersionId FROM dbo.StrategyVersion WHERE IsActive=1", transaction: t);
             Guid? run = null;
+            PaperComparisonSource? adoptedSource = null;
             DateTime? candidateEffective = null;
             var candidates = ImmutableArray<TradingCandidate>.Empty;
             if (bounds is not null && calendar is not null)
             {
-                var adopted = comparison is null ? null : await PaperComparisonRepository.ReadSourceAsync(c, t, comparison.BatchId, date.ToDateTime(TimeOnly.MinValue), default);
+                var adopted = adoptedSource = comparison is null ? null : await PaperComparisonRepository.ReadSourceAsync(c, t, comparison.BatchId, date.ToDateTime(TimeOnly.MinValue), default);
                 bool sourceMatches = comparison is null || adopted is not null && adopted.DailyStrategyVersionId == assignment.Strategy.Daily.StrategyVersionId &&
                     adopted.PublishedUtc <= now && adopted.AdoptedUtc <= now && adopted.EffectiveUtc <= now;
                 if (adopted is not null) candidateEffective = adopted.EffectiveUtc > comparison!.EffectiveUtc ? adopted.EffectiveUtc : comparison.EffectiveUtc;
@@ -185,6 +186,37 @@ AND s.TradingDate=@Date AND e.BarEndUtc>=COALESCE(
                 foreach (var group in source.GroupBy(b => b.Symbol, StringComparer.OrdinalIgnoreCase))
                     bars[group.Key] = group.Select(b => new TradingPriceBar(b.EvidenceId, Utc(b.StartUtc), Utc(b.ReceivedUtc), b.Minutes, b.Open, b.High, b.Low, b.Close)).ToImmutableArray();
             }
+            ImmutableArray<TradingMinuteObservation>? minuteInputs = null;
+            if (assignment.Strategy.MinuteEntry is { } minute && bounds is not null)
+            {
+                minuteInputs = [];
+                bool installed = await c.QuerySingleAsync<bool>("SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.MarketCollectorObservation',N'U') IS NOT NULL AND OBJECT_ID(N'dbo.MarketCollectorConflict',N'U') IS NOT NULL AND OBJECT_ID(N'dbo.MarketCollectorBook',N'U') IS NOT NULL THEN 1 ELSE 0 END AS bit)", transaction: t);
+                if (!installed) warnings.Add("Independent collector storage is not installed; minute entries are unavailable.");
+                else
+                {
+                    var selected = adoptedSource is not null && comparison is not null
+                        ? PaperGateComparison.SelectLive(adoptedSource, comparison.Profile).Keys : Enumerable.Empty<string>();
+                    var required = selected.Concat(financial.Holdings.Select(h => marketSymbols?.GetValueOrDefault(h.Symbol) ?? h.Symbol))
+                        .Append("XIU").Distinct(StringComparer.Ordinal).OrderBy(s => s, StringComparer.Ordinal).ToArray();
+                    var books = new Dictionary<string, DelphiLiveMinuteEvidenceBook>(StringComparer.Ordinal);
+                    // Reuse this serializable transaction: stock, XIU, conflicts and adopted daily facts
+                    // share one committed read boundary. Never read the benchmark on another connection.
+                    foreach (string symbol in required)
+                        if (await MarketCollectorRepository.ReadAsync(c, t, minute.SourceContract, symbol, bounds.OpenUtc, default) is { } book)
+                            books.Add(symbol, book);
+                    foreach (var holding in financial.Holdings)
+                    {
+                        string symbol = marketSymbols?.GetValueOrDefault(holding.Symbol) ?? holding.Symbol;
+                        var historical = bars.GetValueOrDefault(symbol, []).Where(b => b.StartUtc < bounds.OpenUtc);
+                        bars[symbol] = historical.Concat(books.TryGetValue(symbol, out var book)
+                            ? CollectorLocalEvidence.ProtectionBars(book, now) : []).ToImmutableArray();
+                    }
+                    if (comparison is not null && adoptedSource is not null && run is { } currentRun)
+                        minuteInputs = CollectorLocalEvidence.Bind(assignment.Strategy, comparison, adoptedSource, currentRun,
+                            bounds.OpenUtc, bounds.CloseUtc, now, books);
+                    else warnings.Add("Minute entries require the exact reviewed comparison's adopted daily source and baseline context.");
+                }
+            }
             var ordinals = ImmutableDictionary.CreateBuilder<Guid, int>();
             if (calendar is not null && bounds is not null)
                 foreach (var h in financial.Holdings)
@@ -203,7 +235,7 @@ AND s.TradingDate=@Date AND e.BarEndUtc>=COALESCE(
             var input = new TradingRecommendationInput(Guid.NewGuid(), assignment, now, date, bounds?.OpenUtc ?? now.AddDays(1), bounds?.CloseUtc ?? now.AddDays(1).AddHours(6.5),
                 daily, run, ImplementationIdentity, report, financial.Fingerprint, paused, financial.Holdings, financial.Fills, candidates, bars.ToImmutable(),
                 liveInputs, ordinals.ToImmutable(), memory, warnings.ToImmutable())
-                { CandidateEffectiveUtc = candidateEffective, PriorProtectionSessions = priorProtectionSessions.ToImmutable() };
+                { CandidateEffectiveUtc = candidateEffective, PriorProtectionSessions = priorProtectionSessions.ToImmutable(), MinuteInputs = minuteInputs };
             return input;
     }
     private sealed class Session(SqlConnection c, SqlTransaction t, TradingRecommendationInput input, Guid? prior) : ITradingRecommendationSession
