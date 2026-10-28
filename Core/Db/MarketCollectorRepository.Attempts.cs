@@ -34,7 +34,7 @@ public sealed partial class MarketCollectorRepository : IIntradayCollectorStore
         await FenceAsync(c, tx, lease, ct);
         var result = await c.QuerySingleOrDefaultAsync<CollectorAttempt>(new CommandDefinition("""
 DECLARE @now datetime2=SYSUTCDATETIME();
-IF @now<=@EndUtc OR @now>=@SessionCloseUtc OR @now>=DATEADD(MINUTE,1,@EndUtc)
+IF @now<=@EndUtc OR @now>=DATEADD(MINUTE,1,@EndUtc)
  OR EXISTS(SELECT 1 FROM dbo.MarketCollectorAttempt WITH(UPDLOCK,HOLDLOCK)
   WHERE SourceContract=@SourceContract AND SessionOpenUtc=@SessionOpenUtc AND Symbol=@Symbol AND ExpectedEndUtc=@EndUtc)
  OR (SELECT COUNT_BIG(*) FROM dbo.MarketCollectorAttempt WITH(UPDLOCK,HOLDLOCK)

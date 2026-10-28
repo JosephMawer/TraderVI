@@ -96,7 +96,9 @@ public sealed class IntradayCollector
             if (symbols.Length > limits.MaximumSymbols) return new("SubscriptionBudgetExceeded", 0, 0, 0);
             DateTime now = clock();
             if (now < createdUtc) throw new InvalidOperationException("Collector clock moved backwards.");
-            if (now <= subscriptions.SessionOpenUtc || now >= subscriptions.SessionCloseUtc) return new("OutsideSession", 0, 0, 0);
+            // Retrieve the bar ending at close within its original deadline. This is evidence
+            // collection only; it does not extend the trading session or any entry authority.
+            if (now <= subscriptions.SessionOpenUtc || now >= subscriptions.SessionCloseUtc.Add(limits.DeadlineOffset)) return new("OutsideSession", 0, 0, 0);
             // A restart cannot immediately repeat an in-flight request from a previous owner.
             // Persisted history remains readable during this transport cooldown; confirmation is not reset.
             if (now < createdUtc.AddMinutes(1)) return new("StartupTransportCooldown", 0, 0, 0);
@@ -105,12 +107,13 @@ public sealed class IntradayCollector
             if (!await store.RenewAsync(lease, ct)) { lease = null; return new("LeaseLost", 0, 0, 0); }
             var end = new DateTime(now.Ticks - now.Ticks % TimeSpan.TicksPerMinute, DateTimeKind.Utc);
             if (end <= subscriptions.SessionOpenUtc || now <= end) return new("WaitingForCompletedMinute", 0, 0, 0);
+            if (now >= end.Add(limits.DeadlineOffset)) return new("MinuteDeadlineElapsed", 0, 0, 0);
             int attempted = 0, saved = 0, failed = 0;
             foreach (string symbol in symbols)
             {
                 ct.ThrowIfCancellationRequested();
                 now = clock();
-                if (now >= end.Add(limits.DeadlineOffset) || now >= subscriptions.SessionCloseUtc) break;
+                if (now >= end.Add(limits.DeadlineOffset)) break;
                 if (lastStarts.TryGetValue(symbol, out var prior) && now < prior.AddMinutes(1)) continue;
                 if (!await store.RenewAsync(lease, ct)) { lease = null; return new("LeaseLost", attempted, saved, failed); }
                 var attempt = await store.ReserveAsync(lease, subscriptions, symbol, end, limits.MaximumRequestsPerSession, ct);
@@ -141,7 +144,8 @@ public sealed class IntradayCollector
                 await store.SaveAsync(lease, receipt, ct);
                 saved++; if (receipt.FailureCode is not null) failed++;
             }
-            return new(failed > 0 ? "SourceAttention" : "Collected", attempted, saved, failed);
+            return new(failed > 0 ? "SourceAttention" : attempted == 0 ? "NoNewRequestAdmitted" :
+                attempted < symbols.Length ? "PartialCollection" : "Collected", attempted, saved, failed);
         }
         finally { gate.Release(); }
     }

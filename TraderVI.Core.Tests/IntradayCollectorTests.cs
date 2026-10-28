@@ -41,6 +41,7 @@ public sealed class IntradayCollectorTests
         rig.Source.AfterRead = () => rig.Now = rig.Now.AddSeconds(45);
         var tick = await rig.Worker.TickAsync(Subscriptions);
         Assert.Equal(1, tick.Attempted);
+        Assert.Equal("PartialCollection", tick.State);
         Assert.Equal(Open.AddMinutes(2), Assert.Single(rig.Store.Saved).ExpectedEndUtc);
         Assert.Empty(rig.Store.Saved[0].Bars);
     }
@@ -74,11 +75,34 @@ public sealed class IntradayCollectorTests
     {
         var rig = new Rig(); rig.Now = Open.AddMinutes(2).AddSeconds(5); rig.Store.DenyLease = true;
         Assert.Equal("OtherCollectorOwnsLease", (await rig.Worker.TickAsync(Subscriptions)).State);
-        rig.Now = Subscriptions.SessionCloseUtc;
+        rig.Now = Subscriptions.SessionCloseUtc.Add(Limits.DeadlineOffset);
         Assert.Equal("OutsideSession", (await rig.Worker.TickAsync(Subscriptions)).State);
         rig.Now = Open.AddMinutes(2).AddSeconds(5);
         var small = new IntradayCollector(rig.Store, rig.Source, Limits with { MaximumSymbols = 2 }, () => rig.Now);
         Assert.Equal("SubscriptionBudgetExceeded", (await small.TickAsync(Subscriptions)).State);
+        Assert.Empty(rig.Source.Reads);
+    }
+
+    [Fact]
+    public async Task ClosingMinuteIsCollectedWithinOriginalDeadlineWithoutInventingAnAfterHoursEndpoint()
+    {
+        var rig = new Rig(); rig.Now = Subscriptions.SessionCloseUtc.AddSeconds(5);
+        var result = await rig.Worker.TickAsync(Subscriptions);
+        Assert.Equal(4, result.Saved);
+        Assert.All(rig.Store.Saved, b => Assert.Equal(Subscriptions.SessionCloseUtc, b.ExpectedEndUtc));
+        Assert.Equal("NoNewRequestAdmitted", (await rig.Worker.TickAsync(Subscriptions)).State);
+        rig.Now = Subscriptions.SessionCloseUtc.Add(Limits.DeadlineOffset);
+        Assert.Equal("OutsideSession", (await rig.Worker.TickAsync(Subscriptions)).State);
+        rig.Now = Subscriptions.SessionCloseUtc.AddMinutes(1).AddSeconds(5);
+        Assert.Equal("OutsideSession", (await rig.Worker.TickAsync(Subscriptions)).State);
+        Assert.Equal(4, rig.Source.Reads.Count);
+    }
+
+    [Fact]
+    public async Task ExpiredEndpointReportsNoCoverageInsteadOfCollected()
+    {
+        var rig = new Rig(); rig.Now = Open.AddMinutes(2).AddSeconds(45);
+        Assert.Equal("MinuteDeadlineElapsed", (await rig.Worker.TickAsync(Subscriptions)).State);
         Assert.Empty(rig.Source.Reads);
     }
 

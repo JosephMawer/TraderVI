@@ -103,6 +103,11 @@ guarded install/rollback package remain unfinished. Review also identified a pen
 the collector currently stops at session close before retrieving the minute ending at close. Correct
 collection/repository bounds together and test it without extending the trading entry window.
 
+October 28 morning follow-up: closing-minute collection now remains eligible only within its original
+sub-minute deadline; SQL reservation permits that final endpoint, with no after-close trading change.
+Expired/no-request/partial cycles no longer report full collection. Eighteen collector/relay tests pass;
+native close-boundary execution and installation remain separate checks.
+
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
 Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.
