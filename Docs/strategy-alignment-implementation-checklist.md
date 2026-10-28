@@ -32,9 +32,9 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
 - [x] Prepare durable receipt/first-observation/conflict storage, bounded multi-bar recovery reducer,
   database-clock fenced ownership and atomic append/coherent read repository. Additive migration052
   and database project definitions are synchronized; 54 focused tests and SSDT Release build pass.
-- [ ] Rehearse SQL ownership/takeover, transaction/crash/idempotent retry, immutable guards and reader
+- [x] Rehearse SQL ownership/takeover, transaction/crash/idempotent retry, immutable guards and reader
   isolation in an explicitly authorized isolated database before production migration/cutover.
-  Migration052 remains unapplied; offline tests do not prove native SQL behavior or installed ownership.
+  Explicit isolated rehearsal passed October28 08:50; production installation is recorded separately below.
 - [x] Implement separate collector executable, bounded source adapter, persisted pre-request intents,
   subscription-union contract and health/stop controls. Prepare bounded supervisor; 62 focused tests,
   collector Release and SSDT database build pass. No native host/supervisor launch or installed cutover.
@@ -63,21 +63,25 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
 - [ ] Validate restart while collector current; collection outage recovered current pair; weak/stale pair;
   missing benchmark; gaps/conflicts; clock/revision/source changes; lease fencing/crash boundaries;
   pause persistence; uncertain orders/idempotency; held protection; next-session preservation.
-- [ ] Run focused/full Core and affected Release builds; report skips/compiler/security warnings and
+- [x] Run focused/full Core and affected Release builds; report skips/compiler/security warnings and
   whether SSDT/schema validation ran. Commit each reviewed increment and prepare manifest/rollback.
-- [ ] Install only a coherent qualified slice under authorized controlled cutover with verified backup,
-  preserved financial/history state and compatible rollback. Do not strand the approved five-minute
-  runtime awaiting an unattended strategy/build review. Otherwise stage the package and report why.
+- [x] Install the approved collector/legacy-routing slice with migration052 and verified backup at
+  October28 09:19. Preserve original financial/history state and rollback evidence. This does not
+  qualify one-minute adoption or prove healthy native collection; see current project status.
+- [ ] Complete operational cutover verification and resolve the pre-existing Real archive hold,
+  including native storage failures/coverage and Joseph's existing-strategy build review. The operator
+  is present, but financial execution/protection remains unverified and blocked.
 - [ ] Joseph explicitly reviews/adopts the successor and financially activates it in the app; verify
   native collector ownership, publication, decision freshness, protection and buy readiness afterwards.
 
-**October 28 qualification tooling:** [fixed-date runner](../Operations/TmxQualification/README.md)
+**October 28 qualification tooling:** use the installed collector's saved SQL evidence as described in
+the [study guide](../Operations/TmxQualification/README.md); do not duplicate provider requests.
+The original [fixed-date runner](../Operations/TmxQualification/README.md)
 is prepared; eight offline checks pass, summary script parses, and an outside-window invocation is
-verified to refuse before network/file writes. Native network sampling has not run. The 09:25 automation
-must select the candidate, review the runner and use its exact launch command; permission failures are
-reported rather than bypassed. Diagnostic outputs stay in ignored private artifacts.
+verified to refuse before network/file writes. The standalone sampler has not run; the installed
+collector now owns requests. Diagnostic outputs stay in ignored private artifacts.
 
-**October 28 qualification plan (read-only):** use the bounded sampler for XIU, RY and one current
+**Original fallback plan (superseded while the installed collector is active):** bounded sampler for XIU, RY and one current
 candidate. Sample consecutive minutes in 09:30–10:00, 11:00–11:15, 13:00–13:15 and 15:30–16:00 Toronto;
 at most one request per symbol per 60 seconds, three sequential requests per sample, 270 total requests
 maximum, 20-second request timeout, no automatic retries, exclusive sampler ownership. Skip missed slots
@@ -87,9 +91,9 @@ age/missing-slot streaks/duplicates/revisions and HTTP failures separately. Late
 not erase earlier gaps. Do not synthesize no-trade bars. Cross-symbol sampling establishes neither
 full-universe capacity nor venue completeness. Source adoption remains blocked if that evidence is absent.
 
-At 08:00 hand off completed versus unfinished items, migration/install status and exact app actions.
-At 09:25 the scheduled preparation starts the reviewed sampler only if its source and offline checks
-are ready; at 16:05 summarize qualification and remove the day-only monitoring. No trading mutation,
+The morning handoff distinguishes completed versus unfinished work and exact app actions.
+The scheduled preparation observes the installed collector; at 16:05 summarize qualification and
+remove the day-only monitoring. No trading mutation,
 SQL writes, pipeline rerun, provider purchase or changed approved source is part of the diagnostic.
 
 ADR-0103 source work and validation are consolidated in the [implementation/cutover review](reviews/independent-engine-implementation-20261022.md).

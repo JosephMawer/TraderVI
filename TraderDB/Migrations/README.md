@@ -1,8 +1,11 @@
 # Manual database migrations
 
-## Prepared independent collector storage — October 27 evening
+## Independent collector storage — applied October 28 morning
 
-`20261028_052_AddIndependentCollectorEvidence.sql` is prepared, **not applied**. ADR-0111 adds isolated
+`20261028_052_AddIndependentCollectorEvidence.sql` was applied under Joseph's explicit approval after
+a fresh checksum/RESTORE VERIFYONLY backup and hash-matched backup copy. Six tables and five guards
+were verified by the installed read-only helper; installation receipts remain private under
+`artifacts/collector-install-20261028`. Remote backup synchronization is not established. ADR-0111 adds isolated
 collector lease/session/request/first-observation/conflict tables and immutable evidence triggers.
 The runtime repository fences each append with the database clock and owner generation, commits the
 request and derived evidence atomically, and reads one coherent session boundary. These tables do not

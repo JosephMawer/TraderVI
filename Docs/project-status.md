@@ -1,5 +1,40 @@
 # TraderVI Project Status
 
+## October 28 morning — collector installed; execution recovery still blocked
+
+Joseph approved migration052 and the collector cutover. At 09:19 Toronto the guarded installation
+started the independent collector, bounded supervisor and runtime built from `6c1e8f13`, with legacy
+five-minute requests routed through the collector. A fresh checksum/RESTORE VERIFYONLY backup and
+hash-matched backup copy preceded the manually applied additive migration; six tables and five guards
+were verified through the read-only helper. Remote backup synchronization is not proven. Two earlier
+installation attempts rolled the binaries back safely (SQLCMD argument failure before migration,
+then an insufficient supervisor startup wait after migration); the successful attempt reused the
+verified backup/schema without replaying migration. Private receipts: `artifacts/collector-install-20261028/`.
+
+Validation before installation: 3,346 Core tests passed, ten native/opt-in skips; isolated WPF/engine
+and collector Release builds succeeded with 260/258 compiler warnings. SSDT schema build passed without
+warnings/errors. Dependency audit was disabled; this is not a complete solution/security assessment.
+The approved isolated storage rehearsal passed earlier at 08:50. The supervisor is running for this
+login; no reboot/login startup task was installed.
+
+The dashboard was relaunched visibly without restarting engine/collector. Financial execution is
+not approved for this build. A pre-existing Real `ArchiveVerificationFailed` hold discovered October27
+16:18 also remains: initial "build review only" readiness was incorrect. The operator's review reports
+that risk history cannot change. At 09:52, offline reconstruction of the failing adjacent broker
+revisions verifies original root/full checksums and unchanged preserved values, but the historical
+build-review transition validator rejects representation differences. Correction and fresh scoped
+recovery/clearance remain pending; automatic holding protection and buy readiness are not verified.
+
+At 09:52 the collector has 32 candidates plus XIU and the held symbol subscribed, with a current writer
+lease and persisted minute observations. Some reserved requests lack receipts and transient
+`CollectorAttention` was observed; live storage/source health remains under investigation. Timely
+first arrivals, late recovery and conflicts are separate evidence. The five-minute same-chat monitor
+uses `Operations/TmxQualification/CollectorSourceSummary.sql`; the separate three-symbol sampler is
+not launched alongside the collector. One-minute financial adoption remains blocked pending live
+source/capacity/venue qualification and Joseph's explicit updated-strategy review.
+
+The following overnight entries are historical implementation checkpoints, not current installation claims.
+
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 
 Joseph accepts ADR-0111: separate intraday collector/local consumers, preserved confirmation across

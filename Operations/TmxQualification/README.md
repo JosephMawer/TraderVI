@@ -1,5 +1,24 @@
 # October 28 minute-source study
 
+## Installed collector observation — October 28 morning
+
+The independent collector is installed. Do **not** launch the separate sampler below while it owns
+intraday collection. Inspect `artifacts/collector-install-20261028/control/status.json` and
+`subscriptions.json`, then submit [CollectorSourceSummary.sql](CollectorSourceSummary.sql) through
+the installed read-only SQL helper. Verify its receipt SHA256 and restore the previous mailbox only
+if it still contains your query. Keep captures private in `artifacts/minute-source-check-20261028`.
+
+Compare every subscribed candidate, XIU and held symbols across captures. RY is unsampled unless it
+actually appears in subscriptions. Missing candidate subscriptions after the first five-minute checkpoint
+need attention. Separate reserved requests without receipts, failed receipts, first on-time arrivals,
+late backfill, gaps and conflicts. A current lease or running process is not source qualification.
+Do not infer no trades from missing bars, or count repeated/recovered bars as new on-time observations.
+The same-chat five-minute follow-up ends at 16:05 Toronto with an evidence/uncertainty report. Actual
+Real evaluation/protection readiness requires separate read-only execution diagnostics and user review.
+
+The original standalone fallback below retains its original bounded authorization and requires proof
+that it cannot overlap an active collector; an unhealthy collector is not permission to start it.
+
 Read-only diagnostic for ADR-0111. This is separate from the production collector and never publishes
 strategy inputs, writes SQL, authenticates to a broker or grants financial authority. It has a fixed
 October 28, 2026 session window, three symbols, 90 sampling slots and 270 attempted-request ceiling.
