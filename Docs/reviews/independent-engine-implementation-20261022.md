@@ -2,12 +2,46 @@
 
 ## October 28 collector and execution recovery
 
-Consolidated from the day's status checkpoints on October 28. The latest verified checkpoint is
-13:45 Toronto; earlier pending/blocked statements below describe their original times and are superseded
+Consolidated from the day's status checkpoints on October 28. The last verified in-session execution
+checkpoint is 15:45 Toronto; earlier pending/blocked statements below describe their original times and are superseded
 by the successful recovery and resume. No historical evidence or uncertainty is discarded. The
 [status summary](../project-status.md) owns current state and the
 [collector checklist](../strategy-alignment-implementation-checklist.md#independent-collector-and-recovered-confirmation--october-27-overnight)
 owns remaining acceptance. Broader documentation/learning consolidation remains in its existing chat.
+
+### October 28 monitoring closeout — saved evidence through 15:45 Toronto
+
+The engine independently bought ASTL after its five-minute signal reached two consecutive qualifying
+observations at 14:40. By 14:43 its holding was recorded and all three owned orders were reconciled.
+The read-only broker capture at 14:46:48 independently reports one holding, zero pending orders and
+matching history/holdings. Together with the earlier reconciled CAE protective exit, these are actual
+account outcomes, not merely shared signals or submitted orders.
+
+The last saved in-session diagnostic evaluates at 15:45:05: `NoRecommendation`, no new-risk, quote-read
+or account-risk blocks, new buys not stopped, and three of three orders reconciled. ASTL's saved
+protection matches, its last usable bid is 15:43:53 and its next check was due 15:48:53; no exit was
+latched. This verifies protection at that checkpoint, not uninterrupted protection through the close.
+
+The 15:45 monitoring tool call returned about 134 minutes later. The planned 16:05 closing check was
+missed. Its execution-status result is timestamped 17:59:32 and reports waiting for regular trading
+hours; it is not a 15:45 status or proof of closing holdings. No further market/broker requests were
+made for closeout. The staged SQL query was not invoked; the mailbox was restored only after its hash
+still matched the monitor's query, and the restored hash matches its saved predecessor. The day-only
+activity heartbeat was deleted at closeout after 18:02 Toronto. No engine/collector restart or financial
+action was performed by this monitor.
+
+Source qualification remains **unproven**. The latest successful routine SQL capture was at 15:27:28,
+covering the 15:25 publication: BTE had one strong observation, not a confirmed entry. Intermittent SQL
+deadlocks limited later detailed captures; those monitoring failures do not establish execution failure.
+The collector had 32 candidate subscriptions plus XIU, including held ASTL; RY was unsampled. BTE's
+140 conflicts, sparse/missing intervals, first-arrival versus backfill timing, and unreceipted attempts
+remain explicit limitations. The investigation below isolates one anomalous response but does not
+prove venue/currency identity, full coverage, sustained capacity or safe automatic recovery. One-minute
+adoption remains unapproved; the cross-path quarantine/recovery design is still a proposal.
+
+Private evidence: `artifacts/minute-source-check-20261028/watch-checkpoint.json`,
+`watch-result-1526.json`, `execution-status-1545.json`, and
+`artifacts/minute-source-check-20261027/execution-diagnostics-20261028T194528346Z.json`.
 
 ### BTE saved-source investigation — October 28, 15:35 Toronto
 
