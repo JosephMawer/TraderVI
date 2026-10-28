@@ -21,8 +21,9 @@ The dashboard was relaunched visibly without restarting engine/collector. Financ
 not approved for this build. A pre-existing Real `ArchiveVerificationFailed` hold discovered October27
 16:18 also remains: initial "build review only" readiness was incorrect. The operator's review reports
 that risk history cannot change. At 09:52, offline reconstruction of the failing adjacent broker
-revisions verifies original root/full checksums and unchanged preserved values, but the historical
-build-review transition validator rejects representation differences. Correction and fresh scoped
+revisions verifies original root/full checksums and unchanged preserved values, but cannot reproduce
+the original build-review previous-session fingerprint. This is not yet proven to be only a harmless
+representation difference; the pre-cutover binary also rejects it. Correction and fresh scoped
 recovery/clearance remain pending; automatic holding protection and buy readiness are not verified.
 
 At 09:52 the collector has 32 candidates plus XIU and the held symbol subscribed, with a current writer
@@ -33,16 +34,29 @@ uses `Operations/TmxQualification/CollectorSourceSummary.sql`; the separate thre
 not launched alongside the collector. One-minute financial adoption remains blocked pending live
 source/capacity/venue qualification and Joseph's explicit updated-strategy review.
 
-The following overnight entries are historical implementation checkpoints, not current installation claims.
-
 October28 10:06: the isolated native SQL rehearsal reproduces a collector append failure when Dapper
 rounds a valid sub-millisecond fetch timestamp to SQL `datetime` before comparing it with the exact
 `datetime2` request intent. Explicit `datetime2` fetch/validation parameters preserve the strict fence;
 the same native regression now passes. Ten focused offline tests pass with one native opt-in skip;
-collector Release passes with 258 compiler warnings, no errors (dependency audit disabled). This
-correction is prepared; installation and subsequent production receipt verification remain pending.
+collector Release passes with 258 compiler warnings, no errors (dependency audit disabled).
+Correction `74438d6e` was installed at 10:09:45 through a normal collector-only stop/start; trading
+binaries and financial approval were unchanged. At 10:13 the bounded read-only check finds 68/68
+saved receipts across 34 symbols for the first two completed post-install rounds, zero missing or
+failed receipts. Earlier missing evidence remains missing; this is bounded recovery evidence, not
+full-day source qualification. The active supervisor manifest is now
+`artifacts/collector-precision-20261028/supervisor.json`, using the original control/config paths.
 The broker archive fingerprint failure is separate and still unresolved; preserved state equality
 alone does not establish the missing original approval fingerprint.
+
+The operator's specific build-review error is separately explained by original saved evidence:
+the managed session still carries October27 risk state, while the risk journal has advanced to
+October28. Revision, trading date, session reference, last completed session and through-time differ.
+Build review correctly refuses that mismatch. An independently verified risk-state synchronization
+is needed before review; do not weaken the equality check or clear the archive hold. Neither native
+recovery/clearance nor financial approval/enable was performed during this diagnosis. Private
+hash-verified archive reconstruction and comparison: `artifacts/archive-review-20261028/`.
+
+The following overnight entries are historical implementation checkpoints, not current installation claims.
 
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 
