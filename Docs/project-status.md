@@ -1,16 +1,22 @@
 # TraderVI Project Status
 
-## October 28 — collector and execution repairs installed; Real recovery in progress
+## October 28 — Real recovery passed; normal app restored; financial review pending
 
-Current checkpoint at 13:19 Toronto: execution repair `7430d875` was installed at 12:21:31 with 128
-runtime files verified (seven changed). The exact Real recovery run started at 13:07 and has verified
-more than 1,500 broker revisions without failure so far; it is still running, not cleared. The engine is
-in Real recovery maintenance with financial execution Off and the dashboard closed. Automatic
-holding protection and buy readiness are not yet verified. The independent collector remains running.
-The guarded completion script waits for this exact recovery proof, clears only its matching Real
-holds while preserving Paper holds, then restores normal mode and the visible app. Joseph must still
-perform the final changed-build review and resume. Private installation/recovery receipts:
-`artifacts/execution-repair-20261028/maintenance-cutover/` and `recovery-wait-*.json`.
+Current checkpoint at 13:43 Toronto: execution repair `7430d875` was installed at 12:21:31 with 128
+runtime files verified (seven changed). The exact Real recovery run started at 13:07 and completed at
+13:35:54, verifying 75,897 records. Native clearance removed both matching Real holds; no Global holds
+remain, and all nine Paper incident identities are unchanged. The guarded restoration restarted the
+engine in normal mode and reopened the dashboard at 13:36:12, with financial execution Off. Joseph
+must still perform the final changed-build review and resume; automatic holding protection and buy
+readiness are not yet verified. The independent collector remained running throughout. Private
+receipts: `artifacts/execution-repair-20261028/maintenance-cutover/`, `maintenance-postclear-integrity.json`
+and `normal-restoration/completed.json`.
+
+At 13:43 the read-only approved-policy input check finds the 13:40 five-minute endpoint published:
+28 valid observations, five invalid, none mature or confirmed eligible. Publication has resumed;
+this is not an actual Real evaluation or proof of working protection. Receipt:
+`artifacts/execution-repair-20261028/readiness-result.json`, query SHA256
+`275C76A6D6A09CB01D1F68FC980900C58688E7F2518F2420114530B11B960F25`.
 
 The 13:19 bounded read-only source capture covers 34 symbols with a current collector lease. BTE has 140
 conflicting completed bars; its latest accepted completed endpoint is 12:14 despite recent responses.
