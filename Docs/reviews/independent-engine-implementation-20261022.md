@@ -5,8 +5,8 @@
 **Design alignment in progress; not implementation or financial activation authority.** Joseph accepts
 validated stored history/backfill for indicators, a separate collection/recovery process as the direction,
 unchanged VWAP and three-of-four support, and deferral of the buy-at-open alternative. He wants continuous
-operation across trading-engine restarts and questions the initial blanket reset of fresh confirmation.
-The precise continuity boundary below remains open before nightly implementation. None of these design
+operation across trading-engine restarts and rejects an automatic two-new-observation wait after validated
+gap recovery. The recovered-confirmation interpretation below remains open before nightly implementation. None of these design
 choices changes the installed ADR-0053 rulebook yet.
 
 - Separate persistent indicator history from fresh entry confirmation. The current database retains
@@ -14,14 +14,20 @@ choices changes the installed ADR-0053 rulebook yet.
   confirmation under ADR-0053. This is a deliberate eligibility rule, not simply deletion of all prices.
   Accepted direction: restore verified earlier observations, obtain validated gap history if available,
   and use it only for decisions made after receipt. Keep original event time, first receipt, source,
-  revisions and gaps. Two genuinely fresh qualifying observations remain required. The initial proposal
-  reset this count on every trading-engine restart; Joseph now asks whether uninterrupted collection
-  can preserve/reconstruct it. Recommended refinement, awaiting alignment: reset for a break in qualified
-  observations or changed policy/source, not merely a process restart. Timely immutable collector records
+  revisions and gaps. Accepted: uninterrupted qualified collector evidence can preserve/reconstruct
+  confirmation across a trading-engine restart without two additional observations. The initial blanket
+  reset-on-restart proposal is superseded. Timely immutable collector records
   may support rebuilding the sequence while the trader was stopped, but an order is considered only now,
   with a still-current qualifying signal, fresh executable quote and recovered account/order/risk state.
   Never replay missed orders, renew an old signal's expiry or treat delayed backfill as on-time confirmation.
-  A genuine observation gap can be backfilled for context, followed by two new qualifying observations.
+  Joseph also rejects the later proposal that a genuine collection gap must always be followed by two
+  new qualifying observations: after validated context recovery, he wants a still-current qualifying
+  signal to be actionable. Recommended interpretation, pending alignment: retain two consecutive
+  qualifying observations, allow validated recovered bars to reconstruct those states, and require the
+  latest signal to pass current freshness and execution checks. This expands backfill beyond indicator
+  context; it does not erase actual receipt times or retrospectively classify recovered signals as timely.
+  Whether this is the intended persistence rule, rather than a recovery-only single-observation override,
+  remains open. Exact freshness, revision and completeness contracts must be settled before implementation.
 - Design a separately supervised market-data collector with one durable writer/lease and no order
   authority, feeding existing durable evidence for independent Real/Paper consumers. It could survive an
   execution-engine restart; it cannot survive laptop sleep/power loss on the same laptop, and cannot
@@ -29,6 +35,11 @@ choices changes the installed ADR-0053 rulebook yet.
   for current coupled collection/session/lease/publication ownership; it is not just a second polling loop.
   Persistent context recovery is useful with or without process separation. Backfill remains necessary
   when the collector itself or the network is unavailable.
+- Proposed ownership boundary: the collector alone polls and persists shared intraday stock/benchmark
+  bars and performs their backfill; the trading engine computes indicators and confirmation from local
+  evidence. Broker account/order reconciliation, fresh executable quotes and protective bids remain
+  trading-engine responsibilities. The separate nightly Hermes daily-data workflow is outside this
+  extraction unless explicitly brought into scope. Local bars never replace required broker checks.
 - Accepted: retain VWAP as a valid historical reference when its full path can be established. Current missing
   VWAP is not a universal buy veto: other references can still qualify structure, and three other
   families can qualify strength. A rolling/partial-session average or softer vote would be a distinct
