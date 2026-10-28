@@ -55,6 +55,11 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
   required; this source implementation does not approve or enable the installed account.
 - [ ] Verify native local loading and qualified adoption/cutover; retain independent Paper
   lifecycle, existing legacy policies and broker execution/protection reads.
+- [x] Run the explicitly approved isolated native collector-storage rehearsal (October 28 08:50);
+  ownership, request/crash recovery, immutable/conflicting evidence and reader isolation pass.
+  This does not apply or qualify the production migration/cutover.
+- [ ] Include the completed session-closing minute in the collector's bounded final read; correct
+  matching SQL reservation bounds and test without extending the trading entry cutoff.
 - [ ] Validate restart while collector current; collection outage recovered current pair; weak/stale pair;
   missing benchmark; gaps/conflicts; clock/revision/source changes; lease fencing/crash boundaries;
   pause persistence; uncertain orders/idempotency; held protection; next-session preservation.

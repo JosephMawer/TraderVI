@@ -43,9 +43,10 @@ reservations, crash/idempotent recovery, conflicts, immutable records and transa
 It never connects to TraderDB or constructs market/broker clients. Ordinary test runs skip it. This
 qualifies repository behavior, not the production migration's backup/stop preconditions.
 
-Migration052 remains unapplied and now includes immutable request intents. Native SQL concurrency,
-crash/idempotency and permissions rehearsal, native subscription/local-consumer verification,
-source qualification and compatible installation are still required. Do not launch alongside the
+The isolated native rehearsal passed October 28 at 08:50 Toronto under explicit authorization;
+its synthetic database is retained. Migration052 remains unapplied. Native subscription/local-consumer
+verification, production migration preconditions, source qualification and compatible installation
+are still required. Do not launch alongside the
 installed intraday poller. Do not replace the approved runtime until ownership/cutover checks pass.
 
 ## Legacy compatibility during cutover

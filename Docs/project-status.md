@@ -88,7 +88,20 @@ pass; full Core passes 3,344 with ten native/opt-in skips (1m35s). A new lost-ac
 compared collection identity after deserialization; corrected content/allowance assertions pass.
 Isolated WPF/engine Release passes with 260 compiler warnings, zero errors (dependency audit disabled).
 No qualification packet, native adoption, schema change, restart or runtime installation occurred.
-Native storage authorization remains pending; source freshness/full-universe capacity remain unproven.
+At the source checkpoint native storage authorization was pending; source freshness/full-universe
+capacity remain unproven.
+
+October 28 08:50 Toronto: after Joseph approved the isolated SQL rehearsal, its opt-in native test
+passed (one passed, no skips). It created/retained only its uniquely named synthetic collector database;
+ownership contention, durable attempts/budget, crash recovery, takeover fencing, immutable first
+observations, conflict persistence and transactional reader isolation passed. Private console evidence:
+`artifacts/collector-native-sql-rehearsal.log`. No TraderDB migration or market/broker operation ran.
+The overnight window has expired; no cutover started. The 09:25 TMX study preparation remains active.
+Source checkpoint `cb620bef` is committed; the installed approved five-minute build remains 81dd33f3.
+Collector source qualification, full-universe capacity, native local consumer/ownership checks and
+guarded install/rollback package remain unfinished. Review also identified a pending boundary fix:
+the collector currently stops at session close before retrieving the minute ending at close. Correct
+collection/repository bounds together and test it without extending the trading entry window.
 
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
