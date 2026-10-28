@@ -1,0 +1,48 @@
+name: Sync TraderVI planning
+
+on:
+  issues:
+    types: [opened, reopened, closed, labeled, unlabeled]
+  label:
+    types: [edited, deleted]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+  push:
+    branches: [master]
+    paths: ['.github/workflows/planning-sync.yml', 'Operations/GitHubPlanning/**']
+  pull_request:
+    paths: ['.github/workflows/planning-sync.yml', 'Operations/GitHubPlanning/**']
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s Operations/GitHubPlanning -p 'test_*.py' -v
+
+  sync:
+    if: github.repository == 'JosephMawer/TraderVI' && github.event_name != 'pull_request'
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: tradervi-planning-sync
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: master
+          persist-credentials: false
+      - name: Reconcile labels to Planning
+        env:
+          TRADERVI_PROJECT_TOKEN: ${{ secrets.TRADERVI_PROJECT_TOKEN }}
+          GH_REPO_TOKEN: ${{ github.token }}
+        run: python3 Operations/GitHubPlanning/sync_planning.py
