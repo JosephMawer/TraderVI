@@ -44,7 +44,13 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
 - [ ] Joseph explicitly reviews/adopts the successor and financially activates it in the app; verify
   native collector ownership, publication, decision freshness, protection and buy readiness afterwards.
 
-**October 28 qualification plan (read-only):** prepare a bounded sampler for XIU, RY and one current
+**October 28 qualification tooling:** [fixed-date runner](../Operations/TmxQualification/README.md)
+is prepared; eight offline checks pass, summary script parses, and an outside-window invocation is
+verified to refuse before network/file writes. Native network sampling has not run. The 09:25 automation
+must select the candidate, review the runner and use its exact launch command; permission failures are
+reported rather than bypassed. Diagnostic outputs stay in ignored private artifacts.
+
+**October 28 qualification plan (read-only):** use the bounded sampler for XIU, RY and one current
 candidate. Sample consecutive minutes in 09:30–10:00, 11:00–11:15, 13:00–13:15 and 15:30–16:00 Toronto;
 at most one request per symbol per 60 seconds, three sequential requests per sample, 270 total requests
 maximum, 20-second request timeout, no automatic retries, exclusive sampler ownership. Skip missed slots

@@ -19,6 +19,11 @@ restart/recovered pair, original receipt/expiry, duplicate/skipped endpoints, we
 changes, future evidence and conflicts. No database/market/broker operations, full-suite/SSDT validation
 or runtime installation occurred in this increment. Source evaluator/collector integration remains open.
 
+October 28 TMX diagnostic runner is prepared under `Operations/TmxQualification`: eight offline checks
+pass and the date guard rejects an October 27 launch before any market requests. The bounded 90-slot /
+270-request study and summary preserve first arrivals, gaps and completed-bar revisions privately.
+The 09:25 automation must still select tomorrow's candidate and launch it; no live qualification occurred.
+
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
 Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.
