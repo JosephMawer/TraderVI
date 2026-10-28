@@ -131,6 +131,13 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             next.Approval.Review.Validate(next.Account, next.SavedAt);
             return;
         }
+        foreach (var order in next.Orders.Skip(prior.Orders.Length).Where(o => o.Side == "BUY"))
+        {
+            if (next.Strategy.Strategy.MinuteEntry is not null && order.SignalExpiresUtc is null ||
+                order.SignalExpiresUtc is { } deadline && (deadline.Kind != DateTimeKind.Utc ||
+                    deadline <= order.CreatedAt.UtcDateTime || deadline - order.CreatedAt.UtcDateTime >= TimeSpan.FromMinutes(1)))
+                throw new InvalidOperationException("A new minute buy must preserve its current original signal deadline.");
+        }
         if (prior.NewBuysStopped != next.NewBuysStopped &&
             (next.Event != (next.NewBuysStopped ? "OperatorStoppedNewBuys" : "OperatorResumedBuying") ||
              next.Orders.Length != prior.Orders.Length) ||

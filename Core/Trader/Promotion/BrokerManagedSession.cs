@@ -103,6 +103,8 @@ public sealed record BrokerStrategyOrder(Guid RequestId, Guid DecisionId, Guid? 
     [JsonIgnore] public string ExternalId => "order-" + RequestId.ToString("D");
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerBuyReference? BuyReference { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DateTime? SignalExpiresUtc { get; init; }
 }
 public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long Revision, Guid RevisionId,
     Guid? PreviousRevisionId, string Event, DateTimeOffset SavedAt, BrokerExecutionApproval Approval,

@@ -56,6 +56,7 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
             long revision = buys.SessionRevision;
             if (order.Side == "BUY")
             {
+                RequireSignalWindow(order);
                 var managedSafety = await safety.AcquireManagedAsync(ct);
                 safetyLease = managedSafety;
                 if (safetyLease.BlockReason is not null) throw BrokerOrderFailureEvidence.Tag(safetyLease.BlockReason, BrokerOrderCheck.SharedSafetyBlocked);
@@ -97,6 +98,7 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
                 {
                     CheckRevision(revision);
                     RequirePurchaseWindow(projected.Risk);
+                    RequireSignalWindow(order);
                     var recheck = ManualBuyChecks.Validate(context, clock.GetUtcNow(), order.Quantity);
                     if (recheck is not null) throw BrokerOrderFailureEvidence.Tag(recheck, BrokerOrderCheck.ManualBuyValidation, recheck);
                     if (order.BuyReference is not null) BrokerBuyReference.RequireQuote(context.Quote, clock.GetUtcNow());
@@ -105,6 +107,7 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
                     // The durable journal write may itself cross the cutoff. Never transmit then;
                     // the original reserved intent/journal remains available for operator recovery.
                     RequirePurchaseWindow(projected.Risk);
+                    RequireSignalWindow(order);
                     if (order.BuyReference is not null)
                     {
                         // A slow durable journal must not let a checked quote expire or cross the close.
@@ -155,6 +158,12 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
             finally { orderGate.Release(); }
             throw;
         }
+    }
+    private void RequireSignalWindow(BrokerStrategyOrder order)
+    {
+        if (order.SignalExpiresUtc is { } deadline &&
+            (deadline.Kind != DateTimeKind.Utc || deadline <= order.CreatedAt.UtcDateTime || clock.GetUtcNow().UtcDateTime > deadline))
+            throw new InvalidOperationException("The original minute signal expired; a new broker quote cannot renew it.");
     }
     private void CheckRevision(long revision)
     {

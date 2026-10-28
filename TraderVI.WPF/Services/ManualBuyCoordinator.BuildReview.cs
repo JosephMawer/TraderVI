@@ -37,6 +37,7 @@ public sealed partial class ManualBuyCoordinator
             storage.BaselineInstalled && storage.ContinuationInstalled && storage.SessionInstalled && storage.ImmutableStorageVerified,
             BrokerManagedSessionComposition.ImplementationIdentity,Environment.UserName,executionCalendar!,DateTimeOffset.UtcNow);
         string summary=$"Updated build review\nExact strategy: {normal.Review.Strategy.Strategy.Name} · {normal.Review.Strategy.GateProfile}\n" +
+            normal.Review.Strategy.Strategy.EntryReviewDescription + "\n" +
             $"Previous build: {BrokerAccountImport.Hash(proposal.Review.PreviousImplementation)[..16]}\nNew build: {BrokerAccountImport.Hash(proposal.Review.ImplementationIdentity)[..16]}\n" +
             $"Original purchase ceiling remains {saved.EffectiveReview.PurchaseCeiling:N2} CAD. Fresh cash {projected.Import.Plan.Observation.Cash:N2} CAD.\n" +
             $"Original daily reference {projected.Risk.SessionReference.Value:N2} CAD; drawdown reference {projected.Risk.DrawdownReference.Value:N2} CAD; all source dates and history retained.\n" +

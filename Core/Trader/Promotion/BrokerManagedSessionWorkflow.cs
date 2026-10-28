@@ -311,6 +311,9 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         state = await Save(lease, state with { Memory = result.Memory, Protection = replay.Protection, LatestDecision = trace }, "StrategyEvaluated", ct);
         if (recommendation is null) return state;
         bool sell = recommendation.Action == "Sell";
+        if (!sell && state.Strategy.Strategy.MinuteEntry is not null &&
+            (recommendation.SignalExpiresUtc is null || clock.GetUtcNow().UtcDateTime > recommendation.SignalExpiresUtc))
+            return await SaveDecisionOutcome(lease, state, "MinuteSignalExpiredBeforeReservation", ct);
         if (!sell && (state.NewBuysStopped || trialPurchasesEnded || !currentRiskDay || !account.NewRiskBlocks.IsEmpty || state.Memory.DailyLossHold || state.Memory.CapitalReviewRequired))
             return await SaveDecisionOutcome(lease, state, "NewRiskBlockedBeforeReservation", ct);
         string security;
@@ -335,11 +338,22 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         {
             try
             {
-                if (!state.Memory.Symbols.TryGetValue(recommendation.Symbol, out var symbolState) ||
-                    symbolState.LastLiveResult?.ConfirmationStartedBarEndUtc is not { } started ||
-                    symbolState.LiveSessionId is not { } liveSession)
+                if (!state.Memory.Symbols.TryGetValue(recommendation.Symbol, out var symbolState))
                     throw new InvalidOperationException("The independent confirmation episode must be identified before fixing its broker ask.");
-                var episode = BrokerManagedStrategy.StableId($"{state.SessionId:D}:{liveSession:D}:{recommendation.Symbol}:{recommendation.CandidateId}:{started:O}");
+                Guid episode;
+                if (state.Strategy.Strategy.MinuteEntry is { } minute)
+                {
+                    var signal = symbolState.MinuteSignal;
+                    if (signal is not { Confirmed: true, EpisodeStartUtc: not null } || signal.PolicyIdentity != minute.Identity)
+                        throw new InvalidOperationException("The current minute confirmation episode is missing or changed.");
+                    episode = BrokerManagedStrategy.StableId($"{state.SessionId:D}:{minute.Identity}:{signal.SessionOpenUtc:O}:{recommendation.Symbol}:{recommendation.CandidateId}:{signal.EpisodeStartUtc:O}");
+                }
+                else
+                {
+                    if (symbolState.LastLiveResult?.ConfirmationStartedBarEndUtc is not { } started || symbolState.LiveSessionId is not { } liveSession)
+                        throw new InvalidOperationException("The independent confirmation episode must be identified before fixing its broker ask.");
+                    episode = BrokerManagedStrategy.StableId($"{state.SessionId:D}:{liveSession:D}:{recommendation.Symbol}:{recommendation.CandidateId}:{started:O}");
+                }
                 buyReference = (state.BuyReferences ?? []).SingleOrDefault(r => r.EpisodeId == episode);
                 if (buyReference is null)
                 {
@@ -364,7 +378,8 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             return await SaveDecisionOutcome(lease, state, quantity < 1 ? "InvalidOrderQuantity" : "PurchaseCeilingOrCashExceeded", ct);
         return await Submit(lease, state, new BrokerStrategyOrder(BrokerManagedStrategy.StableId(decisionId.ToString("D")), decisionId,
             recommendation.PositionId, security, recommendation.Symbol, sell ? "SELL" : "BUY", quantity,
-            price, sell ? recommendation.Reason : recommendation.Kind, recommendation.PositionTarget, clock.GetUtcNow()) { BuyReference = buyReference }, ct, evaluatedDecision: true,
+            price, sell ? recommendation.Reason : recommendation.Kind, recommendation.PositionTarget, clock.GetUtcNow())
+            { BuyReference = buyReference, SignalExpiresUtc = recommendation.SignalExpiresUtc }, ct, evaluatedDecision: true,
             referenceQuote: !sell && input.Assignment.Strategy.Family == TradingStrategyFamily.DelphiLive
                 ? TradingRecommendationEngine.Quote(input, recommendation.Symbol) : null);
     }
@@ -385,12 +400,18 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         }
         await using var preflight = prepared;
         ct.ThrowIfCancellationRequested();
+        if (order.Side == "BUY" && order.SignalExpiresUtc is { } signalDeadline && clock.GetUtcNow().UtcDateTime > signalDeadline)
+            return await SaveDecisionOutcome(lease, state, "MinuteSignalExpiredBeforeReservation", ct);
         if (order.Side == "BUY" && state.EffectiveReview.NoTransferScope is { LimitedFirstSessionTrial: true } trial &&
             (trial.Session != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(clock.GetUtcNow().UtcDateTime)) ||
              trial.PurchaseExpiresAt is null || clock.GetUtcNow() >= trial.PurchaseExpiresAt))
             return await Save(lease, Outcome(state, evaluatedDecision, "PermissionExpiredBeforeReservation") with { Blocks = state.Blocks.Add("Limited first-session purchase permission ended; no order was reserved or sent.") },
                 "TrialPurchasesEnded", ct);
         state = await Save(lease, Outcome(state, evaluatedDecision, "IntentReserved") with { Orders = state.Orders.Add(order) }, "OrderIntentReserved", ct);
+        if (order.Side == "BUY" && order.SignalExpiresUtc is { } sendDeadline && clock.GetUtcNow().UtcDateTime > sendDeadline)
+            return await Save(lease, Outcome(state, evaluatedDecision, "MinuteSignalExpiredAfterReservationNoSend") with
+                { Phase = BrokerManagedPhase.NeedsAttention, Blocks = ["Minute signal expired after intent save. No transmission attempted; reconcile the original intent before further orders."] },
+                "ReservedMinuteBuyExpiredBeforeSend", CancellationToken.None);
         if (order.Side == "BUY" && state.EffectiveReview.NoTransferScope is { LimitedFirstSessionTrial: true } beforeSend &&
             (beforeSend.Session != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(clock.GetUtcNow().UtcDateTime)) ||
              beforeSend.PurchaseExpiresAt is null || clock.GetUtcNow() >= beforeSend.PurchaseExpiresAt))
@@ -434,7 +455,8 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             ExecutionSelection = selected is null ? null : selected.Symbol == e.Symbol && selected.Action is "Buy" or "Add"
                 ? "Selected" : selected?.Action == "Sell" ? "DeferredForProtectiveExit" : "DeferredForEarlierRecommendation"
         }).ToImmutableArray(), quotes?.Attempts ?? [], result.EntryRiskBlocks ?? [], outcome, selected?.Symbol, selected?.Action)
-        { QuoteReadBlocks = quotes?.NewRiskBlocks ?? [], MarketInputs = TradingMarketInputTrace.Capture(input, result) } : null;
+        { QuoteReadBlocks = quotes?.NewRiskBlocks ?? [], MarketInputs = TradingMarketInputTrace.Capture(input, result),
+            MinuteEvidence = result.MinuteEvidence } : null;
 
     private Task<BrokerManagedSession> SaveDecisionOutcome(IBrokerManagedSessionLease lease, BrokerManagedSession state,
         string outcome, CancellationToken ct) => state.LatestDecision is null ? Task.FromResult(state)

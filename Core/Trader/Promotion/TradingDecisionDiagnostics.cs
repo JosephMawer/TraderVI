@@ -5,6 +5,11 @@ using System.Linq;
 
 namespace Core.Trader.Promotion;
 
+public sealed record TradingMinuteDecisionTrace(DelphiLive.DelphiLiveRecoveredJudgment Previous,
+    DelphiLive.DelphiLiveRecoveredJudgment Latest, DelphiLive.DelphiLiveRecoveredConfirmationResult Confirmation,
+    string InputSha256, ImmutableArray<DelphiLive.DelphiLiveFamilyJudgment> Families,
+    DateTime VwapThroughUtc, DelphiLive.DelphiLiveMeasurementAvailability VwapAvailability);
+
 // Private, account-scoped SQL evidence. No credentials, provider text or balances. The explicitly
 // approved rejected-buy comparison is the only diagnostic that retains quote prices (ADR-0100).
 // These observations never grant permission or participate in trading decisions.
@@ -24,6 +29,13 @@ public sealed record TradingMarketInputTrace(int SuppliedObservations, int Evalu
     public static TradingMarketInputTrace? Capture(TradingRecommendationInput input, TradingRecommendationResult result)
     {
         if (input.Assignment.Strategy.Family != TradingStrategyFamily.DelphiLive) return null;
+        if (input.Assignment.Strategy.MinuteEntry is not null)
+        {
+            var minutes = result.MinuteEvidence ?? [];
+            return new(input.MinuteInputs?.Length ?? 0, minutes.Length,
+                minutes.Count(m => m.Latest.Valid && m.Confirmation.Status is not DelphiLive.DelphiLiveRecoveredConfirmationStatus.ExpiredLatest),
+                minutes.Select(m => (DateTime?)m.Latest.EndUtc).DefaultIfEmpty().Max());
+        }
         var policy = input.Assignment.Strategy.ReadLivePolicy();
         // Reads are incremental. A poll with no new rows may still have fresh evaluated memory.
         var consumed = result.Memory.Symbols.Values.Where(s => s.LastLiveResult is not null &&
@@ -38,6 +50,8 @@ public sealed record BrokerDecisionTrace(DateTime EvaluatedUtc, DateTimeOffset R
     ImmutableArray<TradingEntryDecision> Entries, ImmutableArray<TradingQuoteAttempt> QuoteAttempts,
     ImmutableArray<string> NewRiskBlocks, string SelectionOutcome, string? SelectedSymbol, string? SelectedAction)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ImmutableArray<TradingMinuteDecisionTrace>? MinuteEvidence { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public TradingMarketInputTrace? MarketInputs { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -59,6 +73,8 @@ public sealed record BrokerDecisionTrace(DateTime EvaluatedUtc, DateTimeOffset R
         "IntentReserved" => "Original order intent saved; transmission is not confirmed.",
         "PermissionExpiredAfterReservationNoSend" => "Permission expired after the original intent was saved. No transmission attempted.",
         "PermissionExpiredBeforeReservation" => "Purchase permission expired before order reservation.",
+        "MinuteSignalExpiredBeforeReservation" => "Minute signal expired before order reservation; no order sent.",
+        "MinuteSignalExpiredAfterReservationNoSend" => "Minute signal expired after saving its original intent. No order sent; intent recovery is required.",
         "QuoteObservationPending" => "Confirmed signals are awaiting quote checks.",
         _ => EntrySummary
     };
@@ -75,6 +91,12 @@ public sealed record BrokerDecisionTrace(DateTime EvaluatedUtc, DateTimeOffset R
     private static string Label(string outcome) => outcome switch
     {
         "Recommended" => "Buy recommendations",
+        "MinuteNotQualifying" => "Minute observations that do not meet confirmation rules",
+        "MinuteExpiredLatest" => "Minute observations waiting for current evidence",
+        "MinuteInvalidEvidence" => "Minute observations blocked by missing or conflicted evidence",
+        "MinuteContractMismatch" => "Minute source or policy mismatch",
+        "MinuteSessionMismatch" => "Minute evidence from another session",
+        "MinuteExpiredDuringQuote" => "Signals that expired during quote checks",
         "SignalTooOld" => "Confirmed signals waiting for fresh evidence",
         "SignalOutsideSession" => "Signals outside this session",
         "NewRiskBlocked" => "Confirmed signals blocked by account/risk readiness",

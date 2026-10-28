@@ -40,8 +40,11 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
   collector Release and SSDT database build pass. No native host/supervisor launch or installed cutover.
 - [ ] Connect the trader's durable subscription producer (candidates/XIU/holdings/exits), qualify native
   supervision/recovery and prove no competing intraday polling owner at cutover.
-- [ ] Wire local publication/Real consumers and successor strategy identity/review display; retain
-  independent Paper lifecycle, existing legacy policies and broker execution/protection reads.
+- [x] Wire the explicit successor into account-specific recommendation/quote/order-deadline checks and
+  review descriptions, preserving legacy null serialization and independent account confirmation.
+  Synthetic execution tests cover pause, uncertain orders, restart, expiry and protection without entry history.
+- [ ] Wire native local publication/input loading and explicit adoption/cutover; retain independent
+  Paper lifecycle, existing legacy policies and broker execution/protection reads.
 - [ ] Validate restart while collector current; collection outage recovered current pair; weak/stale pair;
   missing benchmark; gaps/conflicts; clock/revision/source changes; lease fencing/crash boundaries;
   pause persistence; uncertain orders/idempotency; held protection; next-session preservation.

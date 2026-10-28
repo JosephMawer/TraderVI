@@ -8,7 +8,7 @@ using System.Linq;
 namespace Core.Trader.Promotion;
 
 /// <summary>Account-specific advice. No paper account, order writer, SQL connection or WPF dependency.</summary>
-public static class TradingRecommendationEngine
+public static partial class TradingRecommendationEngine
 {
     public static TradingRecommendationResult Evaluate(TradingRecommendationInput input)
         => BrokerMarketSymbols.Evaluate(input, EvaluateCore);
@@ -27,6 +27,7 @@ public static class TradingRecommendationEngine
         var warnings = input.SourceWarnings.ToBuilder();
         var rows = ImmutableArray.CreateBuilder<TradingRecommendation>();
         var entries = ImmutableArray.CreateBuilder<TradingEntryDecision>();
+        var minuteEvidence = ImmutableArray.CreateBuilder<TradingMinuteDecisionTrace>();
         var memory = input.PreviousMemory;
         if (memory.TradingDate != input.TradingDate)
             memory = memory with { TradingDate = input.TradingDate, DailyLossHold = false };
@@ -96,7 +97,7 @@ public static class TradingRecommendationEngine
         if (strategy.Family == TradingStrategyFamily.DailyShadow)
             Shadow(input, nav, riskAllowed, symbols, rows, warnings);
         else
-            Live(input, nav, riskAllowed, symbols, rows, warnings, entries);
+            Live(input, nav, riskAllowed, symbols, rows, warnings, entries, minuteEvidence);
         memory = memory with { Symbols = symbols.ToImmutable() };
         if(strategy.Family==TradingStrategyFamily.DailyShadow && riskAllowed && nav is >0m &&
             input.EvaluatedUtc>=input.SessionOpenUtc.AddMinutes(20) && input.EvaluatedUtc<input.SessionCloseUtc)
@@ -104,6 +105,7 @@ public static class TradingRecommendationEngine
         return new(rows.Any(r => r.Action is "Buy" or "Add" or "Sell") ? "Recommendations ready" : warnings.Count > 0 ? "Waiting / review notes" : "No qualifying action",
             rows.ToImmutable(), warnings.Distinct().ToImmutableArray(), memory)
         {
+            MinuteEvidence = strategy.MinuteEntry is null ? null : minuteEvidence.ToImmutable(),
             EntryDecisions = strategy.Family == TradingStrategyFamily.DelphiLive ? entries.ToImmutable() : null,
             EntryRiskBlocks = strategy.Family == TradingStrategyFamily.DelphiLive ? entryBlocks.Distinct().ToImmutableArray() : null
         };
@@ -233,7 +235,8 @@ public static class TradingRecommendationEngine
 
     private static void Live(TradingRecommendationInput input, decimal? nav, bool riskAllowed,
         ImmutableDictionary<string,TradingSymbolState>.Builder states, ImmutableArray<TradingRecommendation>.Builder rows,
-        ImmutableArray<string>.Builder warnings, ImmutableArray<TradingEntryDecision>.Builder entries)
+        ImmutableArray<string>.Builder warnings, ImmutableArray<TradingEntryDecision>.Builder entries,
+        ImmutableArray<TradingMinuteDecisionTrace>.Builder minuteEvidence)
     {
         var policy=input.Assignment.Strategy.ReadLivePolicy();
         var results=new Dictionary<string,DelphiLiveEvaluationResult>(StringComparer.OrdinalIgnoreCase);
@@ -314,6 +317,11 @@ public static class TradingRecommendationEngine
             rows.Add(new(holding.Symbol,exit is null?"Hold":"Sell",exit is null?0:holding.Quantity,quote?.Bid,
                 exit??"No protective exit established",holding.PositionId,null,observed?.CurrentStockObservationId,
                 quote?.ReceivedUtc,exit is null?"Holding":"RiskExit"));
+        }
+        if (input.Assignment.Strategy.MinuteEntry is not null)
+        {
+            MinuteEntries(input, nav, riskAllowed, states, rows, warnings, entries, minuteEvidence);
+            return;
         }
         if(!riskAllowed || nav is null)
         {

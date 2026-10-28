@@ -47,6 +47,18 @@ focused tests pass, no skips, including parity against V1 at five-minute boundar
 missing/conflicted/expired evidence. This is pure evaluation, not installed entry authority. Local
 consumer, successor review/cutover, native SQL and morning source qualification remain outstanding.
 
+Fifth source increment wires recovered minute entries into account-specific recommendations, quote
+selection, immutable broker intent deadlines and the final transmission check. Saved price episodes
+survive missing inputs/restarts; new trace fields retain both judgments and input hashes. Legacy null
+fields/strategy fingerprints remain compatible and review text distinguishes the explicit successor.
+562 focused tests pass with no skips, including synthetic managed-order uncertainty/restart, expiry
+before/after intent/journal saving and held-bid protection without minute history. Isolated WPF/engine
+Release succeeds (260 compiler warnings, no dependency-security warning; audit disabled for restore).
+An initial default-output WPF build failed on the running Core.dll lock; subsequent builds use isolated
+artifacts. Runtime Core/WPF/engine DLLs still match the reviewed 81dd33f3 candidate copy. No restart or
+cutover occurred. Native local SQL input loading, collector ownership cutover and successor adoption
+remain unfinished; these tests do not establish installed one-minute buying.
+
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
 Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.

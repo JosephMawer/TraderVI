@@ -24,7 +24,17 @@ public sealed record TradingActualFill(Guid TradeId, Guid PositionId, string Sym
 public sealed record TradingSymbolState(Guid? PositionId, SystemShadowTrailingState? ShadowProtection,
     DelphiLiveProfitProtectionState? LiveProtection, DelphiLiveEvaluationState? LiveEvaluation,
     Guid? LiveSessionId, DateTime? LastLiveBarUtc, int? LiveEpoch,
-    DelphiLiveEvaluationResult? LastLiveResult = null, string? ExitReason = null);
+    DelphiLiveEvaluationResult? LastLiveResult = null, string? ExitReason = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public TradingMinuteSignalState? MinuteSignal { get; init; }
+}
+public sealed record TradingMinuteSignalState(string PolicyIdentity, DateTime SessionOpenUtc,
+    DateTime LastEndUtc, DateTime? EpisodeStartUtc, DateTime? ExpiresUtc, bool Confirmed);
+/// <summary>Raw local evidence and frozen daily context, never another portfolio's signal result.</summary>
+public sealed record TradingMinuteObservation(DelphiLiveMinuteEvidenceBook Stock, DelphiLiveMinuteEvidenceBook Xiu,
+    DelphiLiveVolatilityRulerMeasurements Rulers, decimal? PreviousStockClose, decimal? PreviousXiuClose,
+    DelphiLiveDailySetupQuality? DailySetup);
 public sealed record TradingRecommendationMemory(DateOnly? TradingDate, bool DailyLossHold,
     bool CapitalReviewRequired, decimal? HighestClosingValue,
     ImmutableDictionary<string, TradingSymbolState> Symbols)
@@ -47,7 +57,11 @@ public sealed record TradingRecommendationMemory(DateOnly? TradingDate, bool Dai
 
 public sealed record TradingRecommendation(string Symbol, string Action, int Quantity, decimal? ReferencePrice,
     string Reason, Guid? PositionId, Guid? CandidateId, Guid? EvidenceId, DateTime? EvidenceUtc,
-    string Kind, decimal? PositionTarget = null);
+    string Kind, decimal? PositionTarget = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public DateTime? SignalExpiresUtc { get; init; }
+}
 
 public sealed record TradingProtectionSession(DateTime CloseUtc, int SessionsBeforeCurrent);
 
@@ -67,6 +81,8 @@ public sealed record TradingRecommendationInput(Guid BatchId, TradingStrategyAss
     public ImmutableArray<TradingProtectionSession> PriorProtectionSessions { get; init; } = [];
     public DateTime? CandidateEffectiveUtc { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ImmutableArray<TradingMinuteObservation>? MinuteInputs { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ImmutableDictionary<string, string>? BrokerMarketSymbols { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ImmutableDictionary<string, string>? BrokerHoldingSecurityIds { get; init; }
@@ -75,6 +91,8 @@ public sealed record TradingRecommendationInput(Guid BatchId, TradingStrategyAss
 public sealed record TradingRecommendationResult(string Status, ImmutableArray<TradingRecommendation> Recommendations,
     ImmutableArray<string> Warnings, TradingRecommendationMemory Memory)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ImmutableArray<TradingMinuteDecisionTrace>? MinuteEvidence { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ImmutableArray<TradingEntryDecision>? EntryDecisions { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

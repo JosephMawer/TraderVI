@@ -50,6 +50,9 @@ public sealed class TradingRecommendationQuoteSource : ITradingRecommendationQuo
             s.Value.LastLiveBarUtc>=input.SessionOpenUtc && input.EvaluatedUtc-s.Value.LastLiveBarUtc<=policy.BarInterval+policy.CollectionOffset)
             .Select(s=>s.Key):Enumerable.Empty<string>();
         var eligibleSymbols = eligible.ToImmutableArray();
+        if (input.Assignment.Strategy.MinuteEntry is not null)
+            eligibleSymbols = canBuy ? preliminary.Memory.Symbols.Where(s => s.Value.MinuteSignal is { Confirmed: true } minute &&
+                minute.ExpiresUtc >= input.EvaluatedUtc && minute.SessionOpenUtc == input.SessionOpenUtc).Select(s => s.Key).ToImmutableArray() : [];
         if (live)
             foreach (var symbol in preliminary.Memory.Symbols.Where(s => s.Value.LastLiveResult?.ConfirmedLiveEligible == true)
                 .Select(s => s.Key).Except(eligibleSymbols, StringComparer.OrdinalIgnoreCase))
@@ -65,6 +68,9 @@ public sealed class TradingRecommendationQuoteSource : ITradingRecommendationQuo
         foreach (var symbol in symbols)
         {
             DateTime requested = clock.GetUtcNow().UtcDateTime;
+            if (input.Assignment.Strategy.MinuteEntry is not null && !input.CurrentHoldings.Any(h => h.Symbol == symbol) &&
+                preliminary.Memory.Symbols.GetValueOrDefault(symbol)?.MinuteSignal?.ExpiresUtc is { } expires && requested > expires)
+            { attempts.Add(new(symbol, null, null, "NotRequestedMinuteExpired")); continue; }
             if(requested>=deadline)
             { attempts.Add(new(symbol, null, null, "NotRequestedQuoteWindowEnded")); continue; }
             try

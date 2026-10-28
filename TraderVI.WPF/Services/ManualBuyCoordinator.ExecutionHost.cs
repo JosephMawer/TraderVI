@@ -298,6 +298,7 @@ public sealed partial class ManualBuyCoordinator
                     pauseBuying.Content = saved.NewBuysStopped ? "Resume new buys after checks" : "Pause new buys · keep protection";
                     enable.Content = "Resume stopped execution host";
                     summary.Text = lines + $"Ongoing management approved {agreement.ApprovedAt:g}\nStrategy: {saved.Strategy.Strategy.Name}\n" +
+                        saved.Strategy.Strategy.EntryReviewDescription + "\n" +
                         (saved.NewBuysStopped ? "New buys paused · existing exit/protection rules active when checks pass.\n" : "New buying allowed after all current checks.\n") +
                         $"Remaining cumulative purchase allowance: {saved.EffectiveReview.PurchaseCeiling - saved.CommittedPurchaseCost:N2} CAD\n" +
                         "Daily account, source, models/configuration, calendar, integrity and risk checks are automatic. No daily approval is needed for this unchanged agreement.\n" +
@@ -464,6 +465,7 @@ public sealed partial class ManualBuyCoordinator
                 reviewExpiry.CancelAfter(remaining);
             }
             summary.Text = $"Exact strategy: {exact.Strategy.Strategy.Name}\nProfile: {exact.Strategy.GateProfile}\n" +
+                exact.Strategy.Strategy.EntryReviewDescription + "\n" +
                 $"Current Normal source checked: {normal[0].Snapshot.UpdatedUtc.ToLocalTime():g}\n" +
                 $"Actual available purchase ceiling: {firstReview.PurchaseCeiling:N2} CAD\n" +
                 (evidence?.NoTransferScope?.TrialCarry is { } carried
