@@ -8,7 +8,16 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
-**October 27 evening priority:** implement ADR-0111's independent collector and validated recovered
+**October 28 afternoon priority:** monitor the restored, approved five-minute Real runtime and qualify
+the installed collector's evidence through today's close. Finish source/capacity/venue and native
+recovery acceptance before proposing one-minute adoption. Engineering is implemented and the collector
+is installed; this does not complete successor qualification or financial adoption. Keep three-of-four,
+VWAP, longer indicator windows and protection unchanged; buy-at-open remains deferred. The
+[collector checklist](strategy-alignment-implementation-checklist.md#independent-collector-and-recovered-confirmation--october-27-overnight)
+owns remaining work, and [status](project-status.md) owns dated outcomes. Broader documentation
+consolidation and learning continue in their existing chat.
+
+**Earlier October 27 evening priority (historical):** implement ADR-0111's independent collector and validated recovered
 confirmation, preserving the working approved runtime until a coherent cutover is possible. Prepare
 the one-minute successor and October 28 source qualification; retain three-of-four, VWAP, elapsed
 windows and existing protection. Buy-at-open is deferred. Engineering completion, live source proof

@@ -504,6 +504,13 @@ Earlier S19/S26 implementations remain closed milestones, not proof of this new 
 
 ## Source coverage and incremental review
 
+October28 bounded handoff: [Update Delphi Live approval and data](codex://threads/01a17b08-7bd0-77b3-bb45-42137b2331f6)
+consolidated its collector installation, execution repairs, recovery and resumed protection evidence
+in the [October28 review](reviews/independent-engine-implementation-20261022.md#october-28-collector-and-execution-recovery),
+with current state in status and acceptance in the collector checklist. It did not continue or close
+the learning/inventory work owned by [Consolidate TraderVI documentation](codex://threads/01a16bd2-6486-7c83-b03e-ac2a055bd0b8).
+Existing source IDs, older handoffs and that chat's open Paper-fill discussion remain unchanged.
+
 The inventory below is ordered by chat start, oldest first; overlapping updates were reconciled by
 their actual dated events, with October 14 collection evidence taking precedence over October 9
 handoffs. The August chat contributes its September continuation only. All three pinned chats are

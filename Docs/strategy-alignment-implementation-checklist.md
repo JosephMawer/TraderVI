@@ -68,9 +68,14 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
 - [x] Install the approved collector/legacy-routing slice with migration052 and verified backup at
   October28 09:19. Preserve original financial/history state and rollback evidence. This does not
   qualify one-minute adoption or prove healthy native collection; see current project status.
-- [ ] Complete operational cutover verification and resolve the pre-existing Real archive hold,
-  including native storage failures/coverage and Joseph's existing-strategy build review. The operator
-  is present, but financial execution/protection remains unverified and blocked.
+- [x] Resolve the pre-existing Real archive hold with exact historical approval evidence and native
+  scoped recovery; synchronize verified daily risk before build review without weakening its checks.
+  Joseph's existing-strategy review/resume and an actual protective exit are verified October28.
+  [Dated evidence](reviews/independent-engine-implementation-20261022.md#october-28-collector-and-execution-recovery).
+- [x] Correct and natively verify collector timestamp persistence; retain earlier missing receipts as missing.
+- [ ] Complete source/coverage and broader operational acceptance: conflicts, missing/late intervals,
+  every legacy consumer's subscriptions, native restart/outage recovery and reboot/login supervision.
+  The collector's continued operation during trader maintenance proves only that observed separation.
 - [ ] Joseph explicitly reviews/adopts the successor and financially activates it in the app; verify
   native collector ownership, publication, decision freshness, protection and buy readiness afterwards.
 

@@ -30,7 +30,7 @@ Daily market data -> Hermes -> SQL market history
                                                                 v
                                                       Delphi daily selection
                                                                 |
-Intraday market data -> shared inputs in the independent engine <-+
+Collector's local SQL -> shared inputs in the trading engine <---+
                           |                      |
                           v                      v
                     Paper portfolios      Real approved strategy
@@ -47,8 +47,10 @@ Hermes collects daily market history. Hercules trains candidate models; training
 automatically select them. Delphi combines selected models with deterministic indicators and
 gates to produce daily candidates. Intraday rules evaluate fresh observations separately.
 
-The independent engine owns background collection, Real execution, Paper processing and audit
-schedules. Closing the dashboard leaves it running; stopping the engine is a separate action.
+The separate collector owns shared intraday requests and evidence storage. The trading engine owns
+Real execution, Paper processing and audits, with legacy requests routed through the collector.
+Broker quotes/protective bids remain execution-owned. Closing the dashboard leaves these hosts running;
+stopping the trading engine does not stop the collector. See [current installation evidence](Docs/project-status.md).
 SQL stores market facts and durable trading/research records; protected local journals and
 continuity records also participate in recovery. The dashboard is the operator's review and
 control surface. Scheduled nightly work has separate preparation and validation procedures.

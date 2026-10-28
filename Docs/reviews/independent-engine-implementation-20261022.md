@@ -1,5 +1,127 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
+## October 28 collector and execution recovery
+
+Consolidated from the day's status checkpoints on October 28. The latest verified checkpoint is
+13:45 Toronto; earlier pending/blocked statements below describe their original times and are superseded
+by the successful recovery and resume. No historical evidence or uncertainty is discarded. The
+[status summary](../project-status.md) owns current state and the
+[collector checklist](../strategy-alignment-implementation-checklist.md#independent-collector-and-recovered-confirmation--october-27-overnight)
+owns remaining acceptance. Broader documentation/learning consolidation remains in its existing chat.
+
+### Latest verified result and preceding checkpoints
+
+At 13:43 Joseph completed the repaired build review and resumed the existing five-minute strategy.
+Native diagnostics show a successful Real evaluation, matching saved CAE protection and a usable
+`BrokerProtectionBidV1` bid received at 13:43:46. The engine independently submitted the protective sell
+and received acknowledgement. By 13:45 both owned orders are reconciled and no holdings remain in its
+account projection. The installed read-only broker helper independently reports zero holdings, zero
+pending orders and matching broker history/holdings at 13:44:55. Acknowledgement alone was not treated
+as a fill. The fresh 13:45 decision evaluates 33 symbols with 33 fresh inputs, no decision-level or account
+risk blocks and `NoRecommendation`; new buys are not stopped. This proves resumed evaluation and an
+actual protective exit, not a new qualifying buy or one-minute strategy activation. Private diagnostics:
+`artifacts/minute-source-check-20261027/execution-diagnostics-20261028T174408250Z.json`,
+`execution-diagnostics-20261028T174510649Z.json`; broker capture `6c8bd452f9f841ee8057e8edc18c2fa0`.
+
+Recovery checkpoint at 13:43 Toronto: execution repair `7430d875` was installed at 12:21:31 with 128
+runtime files verified (seven changed). The exact Real recovery run started at 13:07 and completed at
+13:35:54, verifying 75,897 records. Native clearance removed both matching Real holds; no Global holds
+remain, and all nine Paper incident identities are unchanged. The guarded restoration restarted the
+engine in normal mode and reopened the dashboard at 13:36:12, with financial execution Off. Joseph
+must still perform the final changed-build review and resume; automatic holding protection and buy
+readiness are not yet verified. The independent collector remained running throughout. Private
+receipts: `artifacts/execution-repair-20261028/maintenance-cutover/`, `maintenance-postclear-integrity.json`
+and `normal-restoration/completed.json`.
+
+At 13:43 the read-only approved-policy input check finds the 13:40 five-minute endpoint published:
+28 valid observations, five invalid, none mature or confirmed eligible. Publication has resumed;
+this is not an actual Real evaluation or proof of working protection. Receipt:
+`artifacts/execution-repair-20261028/readiness-result.json`, query SHA256
+`275C76A6D6A09CB01D1F68FC980900C58688E7F2518F2420114530B11B960F25`.
+
+The 13:19 bounded read-only source capture covers 34 symbols with a current collector lease. BTE has 140
+conflicting completed bars; its latest accepted completed endpoint is 12:14 despite recent responses.
+Other symbols have differing missing/late intervals, which do not establish no trades. This is not a
+qualified one-minute source. First-arrival timing remains separate from recovered context, and the
+existing five-minute strategy is retained. Private receipt: `artifacts/minute-source-check-20261028/collector-summary-1319.json`
+(query SHA256 `855A33D24FDAEF2FE2915DF8CE56D2A6BCAEA87816DDD288F039E21EBB5FE9F1`).
+
+The following morning entries preserve the earlier diagnosis and validation checkpoints.
+
+Joseph approved migration052 and the collector cutover. At 09:19 Toronto the guarded installation
+started the independent collector, bounded supervisor and runtime built from `6c1e8f13`, with legacy
+five-minute requests routed through the collector. A fresh checksum/RESTORE VERIFYONLY backup and
+hash-matched backup copy preceded the manually applied additive migration; six tables and five guards
+were verified through the read-only helper. Remote backup synchronization is not proven. Two earlier
+installation attempts rolled the binaries back safely (SQLCMD argument failure before migration,
+then an insufficient supervisor startup wait after migration); the successful attempt reused the
+verified backup/schema without replaying migration. Private receipts: `artifacts/collector-install-20261028/`.
+
+Validation before installation: 3,346 Core tests passed, ten native/opt-in skips; isolated WPF/engine
+and collector Release builds succeeded with 260/258 compiler warnings. SSDT schema build passed without
+warnings/errors. Dependency audit was disabled; this is not a complete solution/security assessment.
+The approved isolated storage rehearsal passed earlier at 08:50. The supervisor is running for this
+login; no reboot/login startup task was installed.
+
+The dashboard was relaunched visibly without restarting engine/collector. Financial execution is
+not approved for this build. A pre-existing Real `ArchiveVerificationFailed` hold discovered October27
+16:18 also remains: initial "build review only" readiness was incorrect. The operator's review reports
+that risk history cannot change. At 09:52, offline reconstruction of the failing adjacent broker
+revisions verifies original root/full checksums and unchanged preserved values, but cannot reproduce
+the original build-review previous-session fingerprint. This is not yet proven to be only a harmless
+representation difference; the pre-cutover binary also rejects it. Correction and fresh scoped
+recovery/clearance remain pending; automatic holding protection and buy readiness are not verified.
+
+At 09:52 the collector has 32 candidates plus XIU and the held symbol subscribed, with a current writer
+lease and persisted minute observations. Some reserved requests lack receipts and transient
+`CollectorAttention` was observed; live storage/source health remains under investigation. Timely
+first arrivals, late recovery and conflicts are separate evidence. The five-minute same-chat monitor
+uses `Operations/TmxQualification/CollectorSourceSummary.sql`; the separate three-symbol sampler is
+not launched alongside the collector. One-minute financial adoption remains blocked pending live
+source/capacity/venue qualification and Joseph's explicit updated-strategy review.
+
+October28 10:06: the isolated native SQL rehearsal reproduces a collector append failure when Dapper
+rounds a valid sub-millisecond fetch timestamp to SQL `datetime` before comparing it with the exact
+`datetime2` request intent. Explicit `datetime2` fetch/validation parameters preserve the strict fence;
+the same native regression now passes. Ten focused offline tests pass with one native opt-in skip;
+collector Release passes with 258 compiler warnings, no errors (dependency audit disabled).
+Correction `74438d6e` was installed at 10:09:45 through a normal collector-only stop/start; trading
+binaries and financial approval were unchanged. At 10:13 the bounded read-only check finds 68/68
+saved receipts across 34 symbols for the first two completed post-install rounds, zero missing or
+failed receipts. Earlier missing evidence remains missing; this is bounded recovery evidence, not
+full-day source qualification. The active supervisor manifest is now
+`artifacts/collector-precision-20261028/supervisor.json`, using the original control/config paths.
+The broker archive fingerprint failure is separate and still unresolved; preserved state equality
+alone does not establish the missing original approval fingerprint.
+
+The operator's specific build-review error is separately explained by original saved evidence:
+the managed session still carries October27 risk state, while the risk journal has advanced to
+October28. Revision, trading date, session reference, last completed session and through-time differ.
+Build review correctly refuses that mismatch. An independently verified risk-state synchronization
+is needed before review; do not weaken the equality check or clear the archive hold. Neither native
+recovery/clearance nor financial approval/enable was performed during this diagnosis. Private
+hash-verified archive reconstruction and comparison: `artifacts/archive-review-20261028/`.
+
+October28 late-morning execution repair: separate stopped-session risk synchronization is implemented
+and tested, **not installed**. It replays existing closing/opening receipts, appends their exact resulting
+risk projection and preserves the original approval, orders, protection, memory and controls. Build
+review's risk equality check remains. The bounded read-only production query returned nine original
+risk receipts; offline replay of the two relevant receipts exactly reproduces today's saved risk state.
+Query SHA256 `78FFFCDC0C4D81753B5F728D94C144598AC6653191753BCEBF298F46B0372EF3`;
+private evidence `artifacts/execution-repair-20261028/`. No production synchronization was invoked.
+Sixty-one focused tests pass, including invested protection preservation and lost-acknowledgement
+recovery. WPF/engine Release builds pass with260 compiler warnings and no errors; dependency audit
+was disabled. Parallel full-suite runs encountered timing-sensitive failures that pass in isolation;
+the final full Core run with test collections serialized passes3,361 tests with ten native/opt-in skips.
+The separate legacy approval
+fingerprint has now been reproduced exactly: protection retained additional evaluation dictionaries
+outside Memory. Audit-only recovery now reconstructs their order while retaining typed scalar
+serialization and requiring the original UTF-8 SHA256. The original3034→3035 transition passes the
+complete validator offline, and92 focused history/risk tests pass. Earlier exploratory hash comparisons
+incorrectly used the database UTF-16 helper; corrected diagnostic evidence is saved with the repair.
+Collector-only recovery is still the last installed correction. Fresh native recovery, clearance and
+financial build approval remain pending; Real buying/protection remain unverified.
+
 ## October 27 follow-up design discussion — historical context and opening entries
 
 **Accepted October 27 evening; overnight implementation authorized, financial activation reserved.** Joseph accepts
