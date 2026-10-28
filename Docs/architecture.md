@@ -71,6 +71,11 @@ Rule:
 - The WPF Project Docs tab is read-only, defaults to `Docs/project-status.md`, reloads edited files on Refresh, and opens HTTP(S) links only after a click
 - The reader has no SQL, market-data, model, artifact, or trading side effect
 
+### Architecture workspace
+- The WPF Architecture tab is a read-only, dated explanatory map with four views and persistent component descriptions.
+- Shared definitions and connections live in `TraderVI.WPF/Architecture/architecture.json`; native WPF renders them without a service or database dependency.
+- See [maintenance and offline validation](architecture-view.md) when responsibilities, process ownership, evidence paths or AI authority change. Operational truth remains in project status and the governing decisions.
+
 ### Granville Market Timing Layer
 - Rule-based market-level overlay on top of ML signals
 - `GranvilleComposite` aggregates all `IGranvilleIndicatorGroup` implementations

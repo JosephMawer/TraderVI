@@ -106,6 +106,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BFB57C10-3E6D-46FD-99F2-40E624C12E09}"
 	ProjectSection(SolutionItems) = preProject
 		Docs\architecture.md = Docs\architecture.md
+		Docs\architecture-view.md = Docs\architecture-view.md
 		Docs\briefing-style.md = Docs\briefing-style.md
 		Docs\templates\executive-brief.md = Docs\templates\executive-brief.md
 		Docs\calibration-implementation-checklist.md = Docs\calibration-implementation-checklist.md

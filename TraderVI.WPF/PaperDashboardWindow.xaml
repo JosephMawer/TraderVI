@@ -339,6 +339,9 @@
       <TabItem Header="Settings" x:Name="SettingsTab" views:WorkspaceNavigationState.Icon="&#xE713;">
         <views:GlobalSettingsView x:Name="SettingsTabView"/>
       </TabItem>
+      <TabItem Header="Architecture" views:WorkspaceNavigationState.Icon="&#xE756;">
+        <views:ArchitectureView/>
+      </TabItem>
       <TabItem Header="Project Docs" views:WorkspaceNavigationState.Icon="&#xE8A5;">
         <views:ProjectDocsView/>
       </TabItem>

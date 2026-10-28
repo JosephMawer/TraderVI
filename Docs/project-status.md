@@ -31,6 +31,12 @@ owns acceptance. Read-only same-chat activity/source monitoring runs every five 
 Toronto today, alerts only meaningful changes and produces a closing report; it grants no runtime or
 financial changes. Broader documentation cleanup stays with **Consolidate TraderVI documentation**.
 
+**Architecture UI prepared (October 28; not installed):** four native WPF views, shared structured
+content and persistent keyboard-accessible descriptions are implemented. Offline WPF checks, catalog
+tests, serialized Core suite and isolated Release build pass. The guide cites the 13:45 checkpoint
+above and labels AI implementation history separately; it performs no runtime reads or actions.
+[Maintenance, validation limits and later update checklist](architecture-view.md).
+
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 
 The following overnight entries are historical implementation checkpoints, not current installation claims.

@@ -6,6 +6,10 @@ Start with the [system map](../README.md#system-map). This reference is being re
 implementation notes below are historical checkpoints, not fresh runtime evidence. Current
 operational facts belong in [project status](project-status.md).
 
+The WPF [Architecture guide](architecture-view.md) presents a dated, structured projection of these
+responsibilities. When ownership, data paths or authority change, review its shared catalog in the
+same checkpoint; the guide does not replace operational status or the governing decisions.
+
 ## Paper and Real share rules, not account state
 
 A **strategy** is the identified rulebook: selection, entry, exit, sizing, risk and data
