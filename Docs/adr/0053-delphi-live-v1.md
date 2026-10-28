@@ -1,5 +1,11 @@
 # ADR-0053: Delphi Live V1
 
+**Prospective recovery/cadence successor (October 27, 2026):**
+[ADR-0111](0111-independent-collector-and-recovered-confirmation.md) accepts an independent collector
+and validated recovered two-observation confirmation without an extra wait. It supersedes blanket
+restart reset/fresh-only recovery for the new reviewed successor only; frozen V1 and installed policies
+remain unchanged until explicit adoption and source qualification.
+
 **Prospective protection extension (October 17, 2026):** [ADR-0090](0090-progressive-individual-profit-trailing.md)
 adds disabled-by-default progressive protection through new saved policy IDs. Original V1 remains
 unchanged; existing stronger floors, pending protective sells and separate fill-quote ownership survive.

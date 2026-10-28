@@ -9,17 +9,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 Accepted direction: validated stored history and separately identified backfill for current indicators,
 an independent collector/recovery process, unchanged VWAP and three-of-four support. Opening-entry
-strategy work is explicitly deferred. Accepted: timely uninterrupted collector evidence preserves or
-reconstructs confirmation across trader restarts without two additional observations. Joseph also rejects
-a mandatory two-new-observation wait after a genuine collection gap is recovered. Recommended interpretation,
-still open: keep two consecutive qualifying observations but allow validated recovered bars to establish
-them, subject to a still-current latest signal and fresh quote/account/order/risk checks. This expands
-backfill beyond context; a recovery-only single-observation override is not yet agreed. No missed-order
-replay, refreshed stale authority or retrospective claim of on-time observation is permitted.
-Proposed collector ownership covers shared intraday bars/backfill; broker checks remain with execution,
-and nightly daily-data collection stays outside this extraction. Settle the persistence interpretation
-and collector freshness/history/source/revision/ownership contracts before implementation;
-the installed strategy is unchanged. [Discussion record](independent-engine-implementation-20261022.md#october-27-follow-up-design-discussion--historical-context-and-opening-entries).
+strategy work is explicitly deferred. The persistence/ownership decision is now accepted in
+[ADR-0111](../adr/0111-independent-collector-and-recovered-confirmation.md): validated recovered bars may
+establish both consecutive qualifying observations with no extra wait, subject to a current latest
+signal and unchanged execution checks. Remaining source qualification is tracked below. Implementation
+belongs to the collector section of the strategy checklist; installed behavior is unchanged.
 
 ### One-minute Delphi confirmation source — October 27, 2026
 

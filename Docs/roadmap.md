@@ -8,6 +8,12 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
+**October 27 evening priority:** implement ADR-0111's independent collector and validated recovered
+confirmation, preserving the working approved runtime until a coherent cutover is possible. Prepare
+the one-minute successor and October 28 source qualification; retain three-of-four, VWAP, elapsed
+windows and existing protection. Buy-at-open is deferred. Engineering completion, live source proof
+and Joseph's financial adoption are separate. The collector section of the strategy checklist owns work.
+
 **October27 priority:** restart integrity recovery and Joseph's initial ongoing approval are complete.
 ADR-0110 corrects the fatal classification of isolated ticker-source failures; authorized recovery
 publication and prospective source adoption are verified. Ongoing Delphi Live and

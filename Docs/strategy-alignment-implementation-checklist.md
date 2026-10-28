@@ -10,6 +10,51 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+### Independent collector and recovered confirmation — October 27 overnight
+
+[ADR-0111](adr/0111-independent-collector-and-recovered-confirmation.md) owns the accepted direction.
+Target: reviewable, tested engineering package by 08:00 Toronto October 28; actual source qualification
+and Joseph's updated-strategy financial activation cannot be claimed complete overnight.
+
+- [x] Accept independent intraday collection/local consumption and validated recovered two-observation
+  confirmation without an extra wait; retain three-of-four, VWAP, elapsed indicator windows and protection.
+- [x] Schedule this chat's overnight implementation continuation through 08:00 and October 28 09:25
+  TMX qualification preparation. Local laptop/app must remain running; tool permissions still apply.
+- [ ] Implement/test recovery-aware windows and independent confirmation with original availability
+  times, present-decision provenance, exact policy/source/session identity and unexpired latest endpoint.
+- [ ] Implement durable evidence and request/revision/gap records, fenced collector ownership and
+  coherent committed read boundaries. Prepare individually reviewed additive SQL migration; synchronize
+  database project/runtime repositories and rehearse against isolated fixtures before production.
+- [ ] Extract separately supervised collector host and subscription union (candidates/XIU/holdings/exits),
+  bounded fresh-priority backfill and health/stop controls. Prove no competing intraday polling owner.
+- [ ] Wire local publication/Real consumers and successor strategy identity/review display; retain
+  independent Paper lifecycle, existing legacy policies and broker execution/protection reads.
+- [ ] Validate restart while collector current; collection outage recovered current pair; weak/stale pair;
+  missing benchmark; gaps/conflicts; clock/revision/source changes; lease fencing/crash boundaries;
+  pause persistence; uncertain orders/idempotency; held protection; next-session preservation.
+- [ ] Run focused/full Core and affected Release builds; report skips/compiler/security warnings and
+  whether SSDT/schema validation ran. Commit each reviewed increment and prepare manifest/rollback.
+- [ ] Install only a coherent qualified slice under authorized controlled cutover with verified backup,
+  preserved financial/history state and compatible rollback. Do not strand the approved five-minute
+  runtime awaiting an unattended strategy/build review. Otherwise stage the package and report why.
+- [ ] Joseph explicitly reviews/adopts the successor and financially activates it in the app; verify
+  native collector ownership, publication, decision freshness, protection and buy readiness afterwards.
+
+**October 28 qualification plan (read-only):** prepare a bounded sampler for XIU, RY and one current
+candidate. Sample consecutive minutes in 09:30–10:00, 11:00–11:15, 13:00–13:15 and 15:30–16:00 Toronto;
+at most one request per symbol per 60 seconds, three sequential requests per sample, 270 total requests
+maximum, 20-second request timeout, no automatic retries, exclusive sampler ownership. Skip missed slots
+instead of catch-up bursts. Persist raw responses privately and original first completed arrival times;
+use request start to exclude forming bars, even if they finish before receipt. Report coverage/arrival
+age/missing-slot streaks/duplicates/revisions and HTTP failures separately. Later complete history does
+not erase earlier gaps. Do not synthesize no-trade bars. Cross-symbol sampling establishes neither
+full-universe capacity nor venue completeness. Source adoption remains blocked if that evidence is absent.
+
+At 08:00 hand off completed versus unfinished items, migration/install status and exact app actions.
+At 09:25 the scheduled preparation starts the reviewed sampler only if its source and offline checks
+are ready; at 16:05 summarize qualification and remove the day-only monitoring. No trading mutation,
+SQL writes, pipeline rerun, provider purchase or changed approved source is part of the diagnostic.
+
 ADR-0103 source work and validation are consolidated in the [implementation/cutover review](reviews/independent-engine-implementation-20261022.md).
 The overnight target was missed. Completed source work is separate from installed acceptance.
 

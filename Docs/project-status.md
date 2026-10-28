@@ -1,5 +1,17 @@
 # TraderVI Project Status
 
+## October 27 evening — collector design accepted; overnight engineering scheduled
+
+Joseph accepts ADR-0111: separate intraday collector/local consumers, preserved confirmation across
+trader restarts, and two consecutive qualifying observations reconstructed from validated backfill
+without an additional wait. The latest signal must still be current and all financial checks remain.
+Three-of-four, VWAP and elapsed indicator horizons stay unchanged; opening-entry strategy is deferred.
+The [collector checklist](strategy-alignment-implementation-checklist.md#independent-collector-and-recovered-confirmation--october-27-overnight)
+owns the implementation/cutover sequence. No successor runtime or schema is installed at this checkpoint.
+Same-chat overnight continuation runs every 30 minutes through October 28 08:00 Toronto; TMX study
+preparation is scheduled for 09:25. The October 27 watch is finished/deleted. Live source qualification
+and Joseph's explicit successor financial review remain separate from the overnight engineering target.
+
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
 Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.

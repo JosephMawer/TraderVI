@@ -5,6 +5,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 ## architecture
 
 - [ADR-0110](0110-nightly-isolated-symbol-warnings.md) — Continue nightly stages after isolated ticker-source warnings
+- [ADR-0111](0111-independent-collector-and-recovered-confirmation.md) — Separate intraday collector and current confirmation reconstructed across downtime
 
 - [ADR-0109](0109-explicit-ongoing-delphi-live-management.md) — Explicit ongoing no-transfer management and checked restart
 
@@ -124,6 +125,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-pipeline
+
+- [ADR-0111](0111-independent-collector-and-recovered-confirmation.md) — Durable intraday collection and bounded validated backfill
 
 - [ADR-0110](0110-nightly-isolated-symbol-warnings.md) — Individual source failures remain visible without blocking other tickers
 
@@ -278,6 +281,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## risk-management
 
+- [ADR-0111](0111-independent-collector-and-recovered-confirmation.md) — Preserve protection and current execution checks during evidence recovery
+
 - [ADR-0109](0109-explicit-ongoing-delphi-live-management.md) — Bounded no-transfer agreement with preserved daily/cumulative risk history
 
 - [ADR-0107](0107-build-review-within-existing-dated-permission.md) — Preserve expiry/history and require separate operator approval and enable after repair
@@ -358,6 +363,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## decision-engine
+
+- [ADR-0111](0111-independent-collector-and-recovered-confirmation.md) — Two recovered qualifying observations without an additional wait
 
 - [ADR-0100](0100-live-entry-and-order-decision-traces.md) — Observe existing entry predicates without changing decisions
 

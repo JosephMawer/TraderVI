@@ -5,6 +5,12 @@
 
 ## Progressive individual profit protection
 
+The prospective [ADR-0111](adr/0111-independent-collector-and-recovered-confirmation.md) collector/minute
+successor preserves protection while restoring validated indicator and two-observation confirmation
+history across downtime. Backfill may establish a current pair without an extra wait, but cannot renew
+an expired latest signal, replay missed orders or rewrite on-time research evidence. Three-of-four,
+VWAP and elapsed indicator horizons remain. It is not installed or financially adopted.
+
 [ADR-0090](adr/0090-progressive-individual-profit-trailing.md) accepts a prospective deterministic risk
 extension across Daily Shadow and Delphi Live portfolio variants. `UseProgressiveProfitProtection`
 defaults false; saved V1 identities and fixed comparison profiles remain unchanged. The narrow

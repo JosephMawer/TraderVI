@@ -2,12 +2,14 @@
 
 ## October 27 follow-up design discussion — historical context and opening entries
 
-**Design alignment in progress; not implementation or financial activation authority.** Joseph accepts
+**Accepted October 27 evening; overnight implementation authorized, financial activation reserved.** Joseph accepts
 validated stored history/backfill for indicators, a separate collection/recovery process as the direction,
 unchanged VWAP and three-of-four support, and deferral of the buy-at-open alternative. He wants continuous
 operation across trading-engine restarts and rejects an automatic two-new-observation wait after validated
-gap recovery. The recovered-confirmation interpretation below remains open before nightly implementation. None of these design
-choices changes the installed ADR-0053 rulebook yet.
+gap recovery. He explicitly confirms that two consecutive qualifying observations remain required and
+validated backfill may establish both without an additional wait. [ADR-0111](../adr/0111-independent-collector-and-recovered-confirmation.md)
+owns the accepted prospective contract; the collector section of the strategy checklist owns the nightly
+implementation plan. None of these choices changes the installed ADR-0053 rulebook yet.
 
 - Separate persistent indicator history from fresh entry confirmation. The current database retains
   evidence; recovery creates a new continuity epoch and resets operational rolling buffers/ordinary
@@ -22,12 +24,12 @@ choices changes the installed ADR-0053 rulebook yet.
   Never replay missed orders, renew an old signal's expiry or treat delayed backfill as on-time confirmation.
   Joseph also rejects the later proposal that a genuine collection gap must always be followed by two
   new qualifying observations: after validated context recovery, he wants a still-current qualifying
-  signal to be actionable. Recommended interpretation, pending alignment: retain two consecutive
+  signal to be actionable. Accepted final interpretation: retain two consecutive
   qualifying observations, allow validated recovered bars to reconstruct those states, and require the
   latest signal to pass current freshness and execution checks. This expands backfill beyond indicator
   context; it does not erase actual receipt times or retrospectively classify recovered signals as timely.
-  Whether this is the intended persistence rule, rather than a recovery-only single-observation override,
-  remains open. Exact freshness, revision and completeness contracts must be settled before implementation.
+  A recovery-only single-observation override is not part of this direction. Exact source scheduling,
+  freshness and coverage qualification remain required before adoption; ADR-0111 defines the boundaries.
 - Design a separately supervised market-data collector with one durable writer/lease and no order
   authority, feeding existing durable evidence for independent Real/Paper consumers. It could survive an
   execution-engine restart; it cannot survive laptop sleep/power loss on the same laptop, and cannot
@@ -35,7 +37,7 @@ choices changes the installed ADR-0053 rulebook yet.
   for current coupled collection/session/lease/publication ownership; it is not just a second polling loop.
   Persistent context recovery is useful with or without process separation. Backfill remains necessary
   when the collector itself or the network is unavailable.
-- Proposed ownership boundary: the collector alone polls and persists shared intraday stock/benchmark
+- Accepted ownership boundary: the collector alone polls and persists shared intraday stock/benchmark
   bars and performs their backfill; the trading engine computes indicators and confirmation from local
   evidence. Broker account/order reconciliation, fresh executable quotes and protective bids remain
   trading-engine responsibilities. The separate nightly Hermes daily-data workflow is outside this
