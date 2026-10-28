@@ -17,6 +17,14 @@ belongs to the collector section of the strategy checklist; installed behavior i
 
 ### One-minute Delphi confirmation source — October 27, 2026
 
+October 28 BTE evidence adds an unresolved identity/recovery boundary: one anomalous raw minute
+response changed 140 completed bars, while later responses and all 56 five-minute inputs behind the
+15:25 signal agree. The minute conflict remains latched; legacy entry checks do not consume that book.
+Before source qualification, establish instrument/venue/currency identity and decide a reviewed recovery
+rule and whether an incident in one interval should also block another interval's entries. Same-provider
+agreement alone cannot settle that choice. No cross-path veto or conflict clearance is authorized.
+[Saved-response comparison and limits](independent-engine-implementation-20261022.md#bte-saved-source-investigation--october-28-1535-toronto).
+
 Joseph requested two consecutive genuinely fresh minute observations while preserving longer indicator
 windows. The October23 sample was sparse/delayed, but twelve authorized October27 reads at10:42–10:47
 show fresh advancing minute data, with latest completed bars about9seconds old in the final sample.

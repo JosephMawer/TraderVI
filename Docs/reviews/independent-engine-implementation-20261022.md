@@ -9,7 +9,50 @@ by the successful recovery and resume. No historical evidence or uncertainty is 
 [collector checklist](../strategy-alignment-implementation-checklist.md#independent-collector-and-recovered-confirmation--october-27-overnight)
 owns remaining acceptance. Broader documentation/learning consolidation remains in its existing chat.
 
-### Latest verified result and preceding checkpoints
+### BTE saved-source investigation — October 28, 15:35 Toronto
+
+Read-only comparison, with the engine left running, isolates the minute conflict to a saved TMX
+response fetched at **12:15:36 Toronto**. It changed all OHLCV fields (open/high/low/close/volume)
+for 140 previously accepted completed minutes between 09:30 and 11:59. Those changed values are in
+the raw response: comparison against normalized storage finds no parser differences. The 12:14
+response, the next four responses starting 12:16, and the saved 15:31 response agree with all 153
+previously accepted minute observations. An opening-bar anchor scan across 343 stored BTE responses
+finds 342 matching responses and this one anomaly; it is not a full comparison of every response row.
+
+The conflicting response's historical price scale and different volumes, together with its latest
+timestamp of 12:00 despite a 12:15 fetch, suggest a different venue/currency feed or upstream routing
+problem. **That underlying provider cause is not proven:** the saved response has timestamps/OHLCV,
+but no authoritative exchange/currency/security identity. No provider contact or new market request
+was performed. The conflict is not explained by an unfinished target bar: it changed completed history.
+
+All **56 saved five-minute receipts** through the 15:25 endpoint match exactly, across all OHLCV fields,
+when compared with the available minute rows in the saved 15:31 response. Forty windows contain five
+minute rows; sixteen are sparse. Matching sparse aggregates does not prove that missing minutes had
+no trades or qualify the minute source. All 56 content-addressed BTE stock bars actually referenced by
+the approved policy's 15:25 input match those original five-minute receipts. Stored receipt/observation
+hashes (217) and all 56 input-fragment hashes verify. Thus there is **no observed contamination of that
+five-minute signal by the anomalous response**, not independent proof of market/venue correctness.
+At 15:25 the saved result has three supportive families (persistence, price movement, volume), one
+consecutive strong observation, and no confirmed entry. Price structure is positive-leaning but not
+supportive; session VWAP remains unavailable with `MissingExactEndpoint`. No indicator or rule was changed.
+
+The installed legacy path requests separate five-minute TMX bars through the collector relay; it does
+not aggregate the quarantined minute book. Its repository also rejects changed canonical five-minute
+bars, in addition to the adapter's within-response duplicate check. The minute book latches any completed
+revision and stops admitting further observations even after responses normalize, explaining the frozen
+12:14 accepted endpoint. Do not clear those conflicts or treat later agreement as automatic requalification.
+Remaining source work: prove instrument/venue/currency identity, define reviewed anomaly recovery, and
+decide whether cross-path source incidents should block legacy entries. These are unresolved source-safety
+choices, not authorized changes to today's approved strategy.
+
+Private evidence/reproduction: `artifacts/minute-source-check-20261028/bte-investigation-result.json`,
+`bte-followup-result.json`, `Compare-BteSavedEvidence.ps1`, `bte-comparison-summary.json`.
+Reviewed query SHA256 values: `EDCE482C39EDBF053B509933E6B92175919F122F1E32CACDCF80D9BC255117D9`
+and `E34B577497D1F33D2DE6685ADBB2C3307F934CBEDBF2DA0651DAFD3ED811EF1B`.
+Both installed-helper receipts match; mailboxes restored only while still matching the submitted query.
+No runtime, strategy, database records, collector conflict state or broker orders were changed.
+
+### Earlier execution and collection checkpoints
 
 At 13:43 Joseph completed the repaired build review and resumed the existing five-minute strategy.
 Native diagnostics show a successful Real evaluation, matching saved CAE protection and a usable
