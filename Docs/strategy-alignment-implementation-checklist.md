@@ -20,8 +20,12 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
   confirmation without an extra wait; retain three-of-four, VWAP, elapsed indicator windows and protection.
 - [x] Schedule this chat's overnight implementation continuation through 08:00 and October 28 09:25
   TMX qualification preparation. Local laptop/app must remain running; tool permissions still apply.
-- [ ] Implement/test recovery-aware windows and independent confirmation with original availability
+- [x] Implement/test offline recovery-aware windows and confirmation boundary with original availability
   times, present-decision provenance, exact policy/source/session identity and unexpired latest endpoint.
+  Forty-one focused tests pass (no skips); original on-time window/legacy cadence behavior is preserved.
+  This boundary accepts deterministic evaluator judgments; it is not connected to runtime publication.
+- [ ] Connect the successor evaluator's actual four-family judgments to that recovery boundary and
+  complete end-to-end data/window maturity tests; do not treat an offline pair result as order authority.
 - [ ] Implement durable evidence and request/revision/gap records, fenced collector ownership and
   coherent committed read boundaries. Prepare individually reviewed additive SQL migration; synchronize
   database project/runtime repositories and rehearse against isolated fixtures before production.

@@ -12,6 +12,13 @@ Same-chat overnight continuation runs every 30 minutes through October 28 08:00 
 preparation is scheduled for 09:25. The October 27 watch is finished/deleted. Live source qualification
 and Joseph's explicit successor financial review remain separate from the overnight engineering target.
 
+First offline increment implements recovery-aware duration windows and a current two-judgment
+confirmation boundary. Forty-one focused Core tests pass, no skips; 264 existing compiler warnings,
+no dependency-security warnings emitted with no restore (not a fresh dependency audit). Tests cover
+restart/recovered pair, original receipt/expiry, duplicate/skipped endpoints, weak votes, identity
+changes, future evidence and conflicts. No database/market/broker operations, full-suite/SSDT validation
+or runtime installation occurred in this increment. Source evaluator/collector integration remains open.
+
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
 Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.
