@@ -98,9 +98,15 @@ IF NOT EXISTS(SELECT 1 FROM dbo.MarketCollectorBook WITH(UPDLOCK,HOLDLOCK)
         var next = DelphiLiveCollectorBatches.Apply(saved, batch);
         await c.ExecuteAsync(new CommandDefinition("""
 IF @ValidatedUtc>SYSUTCDATETIME() THROW 54561,'Collector validation timestamp is in the future.',1;
+IF NOT EXISTS(SELECT 1 FROM dbo.MarketCollectorAttempt WHERE RequestId=@RequestId
+ AND SourceContract=@SourceContract AND Symbol=@Symbol AND SessionOpenUtc=@SessionOpenUtc
+ AND SessionCloseUtc=@SessionCloseUtc AND ExpectedEndUtc=@ExpectedEndUtc AND OwnerId=@OwnerId AND FencingToken=@FencingToken
+ AND ReservedUtc<=@FetchStartedUtc)
+ THROW 54573,'Collector receipt requires its original fenced request intent.',1;
 INSERT dbo.MarketCollectorRequest(RequestId,SourceContract,Symbol,SessionOpenUtc,OwnerId,FencingToken,ContentHash,ContentJson)
 VALUES(@RequestId,@SourceContract,@Symbol,@SessionOpenUtc,@OwnerId,@FencingToken,@Hash,@Json);
-""", new { batch.RequestId, batch.SourceContract, batch.Symbol, batch.SessionOpenUtc, batch.ValidatedUtc,
+""", new { batch.RequestId, batch.SourceContract, batch.Symbol, batch.SessionOpenUtc, batch.SessionCloseUtc,
+            batch.ExpectedEndUtc, batch.FetchStartedUtc, batch.ValidatedUtc,
             lease.OwnerId, lease.FencingToken, Hash = hash, Json = json }, tx, cancellationToken: ct));
         var savedIds = saved.Observations.Select(o => o.ObservationId).ToHashSet();
         foreach (var o in next.Observations.Where(o => !savedIds.Contains(o.ObservationId)))

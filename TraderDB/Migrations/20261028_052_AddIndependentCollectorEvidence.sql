@@ -19,7 +19,7 @@ IF EXISTS(SELECT 1 FROM dbo.DelphiLiveHostLease WHERE IsHeld=1 AND ExpiresUtc>SY
  THROW 54569,'Stop all existing market writers before migration.',1;
 IF OBJECT_ID(N'dbo.MarketCollectorLease') IS NOT NULL OR OBJECT_ID(N'dbo.MarketCollectorBook') IS NOT NULL
  OR OBJECT_ID(N'dbo.MarketCollectorRequest') IS NOT NULL OR OBJECT_ID(N'dbo.MarketCollectorObservation') IS NOT NULL
- OR OBJECT_ID(N'dbo.MarketCollectorConflict') IS NOT NULL
+ OR OBJECT_ID(N'dbo.MarketCollectorConflict') IS NOT NULL OR OBJECT_ID(N'dbo.MarketCollectorAttempt') IS NOT NULL
  THROW 54570,'Collector objects already exist; inspect rather than replay migration.',1;
 GO
 CREATE TABLE [dbo].[MarketCollectorLease]
@@ -30,6 +30,23 @@ CREATE TABLE [dbo].[MarketCollectorLease]
     [ExpiresUtc] DATETIME2 NOT NULL,
     CONSTRAINT [PK_MarketCollectorLease] PRIMARY KEY ([SourceContract]),
     CONSTRAINT [CK_MarketCollectorLease_Fence] CHECK ([FencingToken]>0)
+);
+GO
+
+CREATE TABLE [dbo].[MarketCollectorAttempt]
+(
+    [RequestId] UNIQUEIDENTIFIER NOT NULL,
+    [SourceContract] NVARCHAR(128) COLLATE Latin1_General_100_BIN2 NOT NULL,
+    [Symbol] NVARCHAR(20) COLLATE Latin1_General_100_BIN2 NOT NULL,
+    [SessionOpenUtc] DATETIME2 NOT NULL,
+    [SessionCloseUtc] DATETIME2 NOT NULL,
+    [ExpectedEndUtc] DATETIME2 NOT NULL,
+    [ReservedUtc] DATETIME2 NOT NULL,
+    [OwnerId] UNIQUEIDENTIFIER NOT NULL,
+    [FencingToken] BIGINT NOT NULL,
+    CONSTRAINT [PK_MarketCollectorAttempt] PRIMARY KEY ([RequestId]),
+    CONSTRAINT [UQ_MarketCollectorAttempt_Slot] UNIQUE ([SourceContract],[SessionOpenUtc],[Symbol],[ExpectedEndUtc]),
+    CONSTRAINT [CK_MarketCollectorAttempt_Bounds] CHECK ([ExpectedEndUtc]>[SessionOpenUtc] AND [ExpectedEndUtc]<=[SessionCloseUtc] AND [ReservedUtc]>[ExpectedEndUtc] AND [FencingToken]>0)
 );
 GO
 
@@ -57,6 +74,7 @@ CREATE TABLE [dbo].[MarketCollectorRequest]
     [ContentJson] NVARCHAR(MAX) NOT NULL,
     [RecordedUtc] DATETIME2 NOT NULL CONSTRAINT [DF_MarketCollectorRequest_Recorded] DEFAULT SYSUTCDATETIME(),
     CONSTRAINT [PK_MarketCollectorRequest] PRIMARY KEY ([RequestId]),
+    CONSTRAINT [FK_MarketCollectorRequest_Attempt] FOREIGN KEY ([RequestId]) REFERENCES [dbo].[MarketCollectorAttempt]([RequestId]),
     CONSTRAINT [UQ_MarketCollectorRequest_Sequence] UNIQUE ([Sequence]),
     CONSTRAINT [UQ_MarketCollectorRequest_Scope] UNIQUE ([RequestId],[SourceContract],[Symbol],[SessionOpenUtc]),
     CONSTRAINT [FK_MarketCollectorRequest_Book] FOREIGN KEY ([SourceContract],[Symbol],[SessionOpenUtc]) REFERENCES [dbo].[MarketCollectorBook]([SourceContract],[Symbol],[SessionOpenUtc]),
@@ -94,6 +112,14 @@ CREATE TABLE [dbo].[MarketCollectorConflict]
 );
 GO
 
+CREATE TRIGGER [dbo].[TR_MarketCollectorAttempt_Immutable] ON [dbo].[MarketCollectorAttempt]
+INSTEAD OF UPDATE,DELETE AS
+BEGIN
+    SET NOCOUNT ON;
+    THROW 54572,'Collector request attempts cannot be erased or retried.',1;
+END;
+GO
+
 CREATE TRIGGER [dbo].[TR_MarketCollectorBook_Immutable] ON [dbo].[MarketCollectorBook]
 INSTEAD OF UPDATE,DELETE AS
 BEGIN
@@ -126,7 +152,8 @@ BEGIN
 END;
 GO
 
-IF OBJECT_ID(N'dbo.MarketCollectorLease',N'U') IS NULL OR OBJECT_ID(N'dbo.MarketCollectorBook',N'U') IS NULL
+IF OBJECT_ID(N'dbo.MarketCollectorAttempt',N'U') IS NULL OR OBJECT_ID(N'dbo.TR_MarketCollectorAttempt_Immutable',N'TR') IS NULL
+ OR OBJECT_ID(N'dbo.MarketCollectorLease',N'U') IS NULL OR OBJECT_ID(N'dbo.MarketCollectorBook',N'U') IS NULL
  OR OBJECT_ID(N'dbo.MarketCollectorRequest',N'U') IS NULL OR OBJECT_ID(N'dbo.MarketCollectorObservation',N'U') IS NULL
  OR OBJECT_ID(N'dbo.MarketCollectorConflict',N'U') IS NULL
  OR OBJECT_ID(N'dbo.TR_MarketCollectorBook_Immutable',N'TR') IS NULL

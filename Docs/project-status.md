@@ -32,6 +32,14 @@ receipt/derived evidence atomically. Migration052 is prepared only. Fifty-four f
 SSDT Release validates/builds the database project with no warnings/errors. This is not a full solution
 build or native SQL rehearsal. No migration, collector launch, external request or installation ran.
 
+Third source increment adds `TraderVI.Collector`, the bounded no-retry TMX adapter, a single-flight
+collection loop, durable pre-request intents and a separately invoked bounded supervisor. The dated
+subscription union retains XIU/holdings/exits independently of candidates. Sixty-two focused tests
+pass; collector Release succeeds with 258 existing compiler warnings, SSDT database build passes.
+No dependency-security warnings emitted (not a fresh audit). Migration052 remains unapplied; native
+SQL/transport/supervisor verification, trader subscription producer and local strategy integration
+remain outstanding. No collector launch, market request, installed-runtime change or financial action.
+
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
 Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.

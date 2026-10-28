@@ -33,8 +33,11 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
 - [ ] Rehearse SQL ownership/takeover, transaction/crash/idempotent retry, immutable guards and reader
   isolation in an explicitly authorized isolated database before production migration/cutover.
   Migration052 remains unapplied; offline tests do not prove native SQL behavior or installed ownership.
-- [ ] Extract separately supervised collector host and subscription union (candidates/XIU/holdings/exits),
-  bounded fresh-priority backfill and health/stop controls. Prove no competing intraday polling owner.
+- [x] Implement separate collector executable, bounded source adapter, persisted pre-request intents,
+  subscription-union contract and health/stop controls. Prepare bounded supervisor; 62 focused tests,
+  collector Release and SSDT database build pass. No native host/supervisor launch or installed cutover.
+- [ ] Connect the trader's durable subscription producer (candidates/XIU/holdings/exits), qualify native
+  supervision/recovery and prove no competing intraday polling owner at cutover.
 - [ ] Wire local publication/Real consumers and successor strategy identity/review display; retain
   independent Paper lifecycle, existing legacy policies and broker execution/protection reads.
 - [ ] Validate restart while collector current; collection outage recovered current pair; weak/stale pair;

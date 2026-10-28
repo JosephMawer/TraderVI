@@ -1,0 +1,36 @@
+# Independent collector package — prepared, not installed
+
+ADR-0111 separates shared intraday requests from trading. `TraderVI.Collector` references Core but
+constructs no broker, credentials, order adapter, financial journal or execution host. Its explicit
+`--run <absolute-config-path>` entrypoint reads a reviewed calendar, a dated subscription union and
+bounded settings. `--check-config` validates configuration/calendar without SQL or market access.
+
+Configuration fields (PascalCase) are `CalendarPath`, `SubscriptionPath`, `ControlDirectory`,
+`SourceContract` (`TmxMinuteCollectorV1`) and `Limits` (`DeadlineOffset`, `RequestTimeout`,
+`MaximumSymbols`, `MaximumRequestsPerSession`). There are no selected production defaults; provider
+capacity/freshness qualification must settle the package values. The subscription JSON contains UTC
+`SessionOpenUtc`, `SessionCloseUtc`, and arrays `Candidates`, `Holdings`, `PendingExits`. An unavailable
+or wrongly dated subscription file blocks requests. The producer must atomically publish the complete
+union, preserving holdings/exits when candidate inputs change or entries are paused.
+
+The collector reads one completed minute at a time; each bounded TMX response includes the current
+session's available history for recovery. No catch-up request burst or automatic retry exists. XIU,
+holdings and pending exits precede candidates. A deadline/capacity shortfall is a qualification failure,
+not permission to omit symbols silently or relax freshness. Transport startup waits one minute to
+avoid repeating a prior process's request; durable history and confirmation are not reset by that wait.
+Each SQL request intent is committed before HTTP and consumes the session budget even if the process
+crashes. Receipts retain that intent identity and owner generation. Lease loss fences the write.
+
+`status.json` records dated activity without prices; `stop.request` requests a draining stop and remains
+present across restarts. Removing a deliberate stop is an explicit operational action. The supervisor
+`Watch-Collector.ps1` requires a reviewed manifest with executable/configuration absolute paths,
+`ConfigurationSha256`, a complete `Files` array (`RelativePath`/`Sha256`) for every runtime file,
+matching control directory and an explicit maximum of zero to five restarts. Keep configuration/control
+files outside that immutable runtime directory. It starts
+hidden, owns an exclusive supervisor lock and never clears a stop. It is not registered or launched by
+builds. Startup registration and live use are part of the guarded cutover, not these source changes.
+
+Migration052 remains unapplied and now includes immutable request intents. Native SQL concurrency,
+crash/idempotency and permissions rehearsal, trader subscription publication, local strategy consumers,
+source qualification and compatible installation are still required. Do not launch alongside the
+installed intraday poller. Do not replace the approved runtime until ownership/cutover checks pass.

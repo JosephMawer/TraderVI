@@ -152,6 +152,8 @@
     <Build Include="dbo/Triggers/DelphiLiveEvaluation_ArchiveImmutable.sql" />
     <Build Include="dbo/Tables/EngineMarketCycle.sql" />
     <Build Include="dbo/Tables/MarketCollectorLease.sql" />
+    <Build Include="dbo/Tables/MarketCollectorAttempt.sql" />
+    <Build Include="dbo/Triggers/MarketCollectorAttempt_Immutable.sql" />
     <Build Include="dbo/Tables/MarketCollectorBook.sql" />
     <Build Include="dbo/Tables/MarketCollectorRequest.sql" />
     <Build Include="dbo/Tables/MarketCollectorObservation.sql" />
