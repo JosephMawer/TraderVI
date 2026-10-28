@@ -7,15 +7,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### Indicator history recovery and opening-entry alternative — October 27, 2026
 
-Joseph asks to discuss preserving useful intraday context before implementing minute confirmation.
-Proposed: restore verified stored history and separately identified validated backfill for current
-indicators, while requiring two new qualifying observations after recovery. Consider an independently
-supervised collector to survive execution-engine restarts; preserve single-writer ownership and no
-collector order authority. Decide history eligibility, source/volume consistency, revisions, gaps and
-fresh-confirmation boundaries. A separate proposal would enter the top two or three overnight picks
-near the open with defined protection, replacing intraday confirmation for that strategy only. Neither
-proposal changes the running strategy; top count, opening conditions, loss/trailing settings and
-performance comparison remain open. [Discussion record](independent-engine-implementation-20261022.md#october-27-follow-up-design-discussion--historical-context-and-opening-entries).
+Accepted direction: validated stored history and separately identified backfill for current indicators,
+an independent collector/recovery process, unchanged VWAP and three-of-four support. Opening-entry
+strategy work is explicitly deferred. Still open: whether timely uninterrupted collector evidence can
+preserve/reconstruct confirmation across a trading-engine restart without two additional observations.
+Recommended boundary: continuity follows qualified observations, not trader process lifetime; current
+signal/quote/account/order checks still apply, no missed-order replay or refreshed stale authority, and
+backfilled gaps supply context only. A genuine data gap then requires two fresh qualifying observations.
+Settle this refinement and collector history/source/revision/ownership contracts before implementation;
+the installed strategy is unchanged. [Discussion record](independent-engine-implementation-20261022.md#october-27-follow-up-design-discussion--historical-context-and-opening-entries).
 
 ### One-minute Delphi confirmation source — October 27, 2026
 
