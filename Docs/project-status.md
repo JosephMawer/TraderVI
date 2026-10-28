@@ -1,8 +1,20 @@
 # TraderVI Project Status
 
-## October 28 — Real recovery passed; normal app restored; financial review pending
+## October 28 — repaired runtime resumed; protective exit reconciled; buy evaluation running
 
-Current checkpoint at 13:43 Toronto: execution repair `7430d875` was installed at 12:21:31 with 128
+At 13:43 Joseph completed the repaired build review and resumed the existing five-minute strategy.
+Native diagnostics show a successful Real evaluation, matching saved CAE protection and a usable
+`BrokerProtectionBidV1` bid received at 13:43:46. The engine independently submitted the protective sell
+and received acknowledgement. By 13:45 both owned orders are reconciled and no holdings remain in its
+account projection. The installed read-only broker helper independently reports zero holdings, zero
+pending orders and matching broker history/holdings at 13:44:55. Acknowledgement alone was not treated
+as a fill. The fresh 13:45 decision evaluates 33 symbols with 33 fresh inputs, no decision-level or account
+risk blocks and `NoRecommendation`; new buys are not stopped. This proves resumed evaluation and an
+actual protective exit, not a new qualifying buy or one-minute strategy activation. Private diagnostics:
+`artifacts/minute-source-check-20261027/execution-diagnostics-20261028T174408250Z.json`,
+`execution-diagnostics-20261028T174510649Z.json`; broker capture `6c8bd452f9f841ee8057e8edc18c2fa0`.
+
+Recovery checkpoint at 13:43 Toronto: execution repair `7430d875` was installed at 12:21:31 with 128
 runtime files verified (seven changed). The exact Real recovery run started at 13:07 and completed at
 13:35:54, verifying 75,897 records. Native clearance removed both matching Real holds; no Global holds
 remain, and all nine Paper incident identities are unchanged. The guarded restoration restarted the
