@@ -18,7 +18,8 @@ using TraderVI.WPF.Architecture;
 using TraderVI.WPF.Views;
 
 // Instantiate only the actual explanatory view and navigation style; never the production App/window.
-// Rendering is offscreen. No process launch, database, account, model, service or network access.
+// Default checks render offscreen; --interactive opens only the explanatory control.
+// No production process launch, database, account, model, service or network access.
 internal static class Program
 {
     private static int checks;
@@ -31,11 +32,37 @@ internal static class Program
 
     private static void Run(string[] args)
     {
-        string output = args.Length == 0 ? "artifacts/architecture-view/screenshots" : args[0];
-        Directory.CreateDirectory(output);
         var app = new Application();
         app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("Views/WorkspaceStyles.xaml", UriKind.Relative) });
         var view = new ArchitectureView();
+        if (args is ["--interactive"])
+        {
+            var content = new DockPanel();
+            var notice = new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(32, 47, 64)), Padding = new Thickness(20, 10, 20, 10),
+                Child = new TextBlock
+                {
+                    Text = "OFFLINE INTERACTIVE PREVIEW · No connection to the trading app, engine, broker or database. Close this window when finished.",
+                    Foreground = Brushes.White, TextWrapping = TextWrapping.Wrap
+                }
+            };
+            DockPanel.SetDock(notice, Dock.Top);
+            content.Children.Add(notice);
+            content.Children.Add(view);
+            app.Run(new Window
+            {
+                Title = "TraderVI Architecture — isolated interactive preview",
+                Width = 1280, Height = 820, MinWidth = 680, MinHeight = 600,
+                FontFamily = new FontFamily("Segoe UI"), Background = new SolidColorBrush(Color.FromRgb(17, 21, 27)),
+                WindowStartupLocation = WindowStartupLocation.CenterScreen, Content = content
+            });
+            return;
+        }
+        if (args.Length > 1 || args.Any(a => a.StartsWith("--", StringComparison.Ordinal)))
+            throw new ArgumentException("Usage: ArchitectureViewChecks [screenshot-directory | --interactive]");
+        string output = args.Length == 0 ? "artifacts/architecture-view/screenshots" : args[0];
+        Directory.CreateDirectory(output);
         var tabs = (TabControl)view.FindName("ViewTabs");
         var details = (FlowDocumentScrollViewer)view.FindName("Details");
         var mapScroll = (ScrollViewer)view.FindName("MapScroll");

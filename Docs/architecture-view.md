@@ -88,6 +88,18 @@ all tabs/cards, automation invocation/names, Enter/Space routed events, F6 handl
 connection targets, sidebar selection/collapse, map scrolling, adaptive layout and 96/144/192-DPI
 bitmap renders. It checks the actual production navigation markup without constructing its window.
 
+For an interactive preview, run the same isolated host with an explicit mode:
+
+```powershell
+dotnet run --project Tools/ArchitectureViewChecks/ArchitectureViewChecks.csproj --artifacts-path artifacts/architecture-view/check-build -- --interactive
+```
+
+This opens a separate window labelled **isolated interactive preview**, with the real Architecture
+control and an offline banner. Try all tabs, card/connection selection, Enter/Space, F6, scrolling and
+resizing. It does not construct the production dashboard or its connection/status controls. Closing
+the preview exits only this helper. The default mode still runs the offscreen checks; interactive
+mode does not run those checks or generate screenshots. No production app update is needed to use it.
+
 October 28 validation: eight catalog tests pass; **250** offline WPF assertions pass; all four wide
 and narrow previews were generated and representative collector/AI/compact renders visually reviewed.
 The serialized Core suite passes **3,369**, with **ten** opt-in native tests skipped. Isolated WPF
