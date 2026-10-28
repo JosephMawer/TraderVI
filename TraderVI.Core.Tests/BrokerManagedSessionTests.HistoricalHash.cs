@@ -17,6 +17,48 @@ namespace TraderVI.Core.Tests;
 public sealed partial class BrokerManagedSessionTests
 {
     [Fact]
+    public async Task InvestedBuildApprovalRecoversProtectionDictionaryOrderAndTypedScalarsWithExactUtf8Hash()
+    {
+        var x = await RiskSyncFixture();
+        var prior = await x.Workflow().SynchronizeAsync(x.Prior.BindingId);
+        var result = JsonSerializer.Deserialize<global::Core.Trader.DelphiLive.DelphiLiveEvaluationResult>(
+            """{"Counterfactuals":[],"RawValues":{"A":1,"B":2},"DerivedFacts":{"C":"x","D":"y"}}""")!;
+        var protection = prior.Protection[0];
+        prior = prior with { Protection = [protection with { State = protection.State with { LastLiveResult = result } }] };
+        x.F.Store.State = prior; x.F.RunningImplementation = "repaired-hash-build";
+        var current = x.Original.Existing.Current with { PreparedUtc = x.F.Now.UtcDateTime,
+            Strategy = prior.Strategy with { Strategy = prior.Strategy.Strategy with { ImplementationIdentity = x.F.ImplementationIdentity } } };
+        var proposal = BrokerImplementationReviewWorkflow.Prepare(prior, current, x.F.Now, x.Account, true,
+            x.F.ImplementationIdentity, "fixture", SelectedSessionCalendar(), x.F.Now);
+        var next = await new BrokerImplementationReviewWorkflow(x.F.Store, x.F, x.Original.Existing.Grants,
+            SelectedSessionCalendar(), new HostClock(x.F)).ApproveAsync(proposal);
+        string typed = JsonSerializer.Serialize(prior);
+        using var document = JsonDocument.Parse(typed);
+        var values = document.RootElement.GetProperty("Protection")[0].GetProperty("State")
+            .GetProperty("LastLiveResult").GetProperty("RawValues");
+        string reversed = "{" + string.Join(",", values.EnumerateObject().Reverse()
+            .Select(p => JsonSerializer.Serialize(p.Name) + ":" + p.Value.GetRawText())) + "}";
+        string original = typed.Replace(values.GetRawText(), reversed, StringComparison.Ordinal);
+        string expected = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(original)));
+        Assert.NotEqual(global::Core.Runtime.EngineStrategySettings.Hash(original), expected); // Database roots use UTF-16; approval hashes use UTF-8.
+        next = next with { ImplementationReview = next.ImplementationReview! with { PreviousSessionHash = expected } };
+        string nextOriginal = JsonSerializer.Serialize(next).Replace(values.GetRawText(), reversed, StringComparison.Ordinal);
+        var before = global::Core.Runtime.EngineArchiveCodec.Pack(typed);
+        var after = global::Core.Runtime.EngineArchiveCodec.Pack(nextOriginal);
+        string a = global::Core.Runtime.EngineArchiveCodec.Restore(before.Manifest, before.Contents);
+        string b = global::Core.Runtime.EngineArchiveCodec.Restore(after.Manifest, after.Contents);
+        Assert.NotEqual(expected, Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
+            BrokerHistoricalStateHash.RestoreMemoryRepresentation(typed, b)))));
+        var proof = BrokerHistoricalStateHash.Create(prior, a, next, b);
+        Assert.True(BrokerHistoricalStateHash.Matches(prior, expected, proof));
+        Assert.False(BrokerHistoricalStateHash.Matches(prior, new string('A', 64), proof));
+        BrokerManagedSessionRepository.ValidateNext(prior, next, SelectedSessionCalendar(), proof);
+        Assert.ThrowsAny<Exception>(() => BrokerManagedSessionRepository.ValidateNext(prior, next, SelectedSessionCalendar()));
+        Assert.Equal(typed, JsonSerializer.Serialize(prior)); Assert.Equal(0, x.F.Transport.Sent);
+        Assert.Null(x.Original.Existing.Grants.Value);
+    }
+
+    [Fact]
     public async Task PackedArchiveEscapingAndHistoricalMemoryOrderRetainExactApprovalHash()
     {
         var fixture = ContinuedFixture();

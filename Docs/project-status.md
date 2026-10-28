@@ -58,6 +58,26 @@ hash-verified archive reconstruction and comparison: `artifacts/archive-review-2
 
 The following overnight entries are historical implementation checkpoints, not current installation claims.
 
+October28 late-morning execution repair: separate stopped-session risk synchronization is implemented
+and tested, **not installed**. It replays existing closing/opening receipts, appends their exact resulting
+risk projection and preserves the original approval, orders, protection, memory and controls. Build
+review's risk equality check remains. The bounded read-only production query returned nine original
+risk receipts; offline replay of the two relevant receipts exactly reproduces today's saved risk state.
+Query SHA256 `78FFFCDC0C4D81753B5F728D94C144598AC6653191753BCEBF298F46B0372EF3`;
+private evidence `artifacts/execution-repair-20261028/`. No production synchronization was invoked.
+Sixty-one focused tests pass, including invested protection preservation and lost-acknowledgement
+recovery. WPF/engine Release builds pass with260 compiler warnings and no errors; dependency audit
+was disabled. Parallel full-suite runs encountered timing-sensitive failures that pass in isolation;
+the final full Core run with test collections serialized passes3,361 tests with ten native/opt-in skips.
+The separate legacy approval
+fingerprint has now been reproduced exactly: protection retained additional evaluation dictionaries
+outside Memory. Audit-only recovery now reconstructs their order while retaining typed scalar
+serialization and requiring the original UTF-8 SHA256. The original3034→3035 transition passes the
+complete validator offline, and92 focused history/risk tests pass. Earlier exploratory hash comparisons
+incorrectly used the database UTF-16 helper; corrected diagnostic evidence is saved with the repair.
+Collector-only recovery is still the last installed correction. Fresh native recovery, clearance and
+financial build approval remain pending; Real buying/protection remain unverified.
+
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 
 Joseph accepts ADR-0111: separate intraday collector/local consumers, preserved confirmation across

@@ -129,6 +129,8 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerImplementationReview? ImplementationReview { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerRiskStateSynchronization? RiskSynchronization { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerOngoingManagement? OngoingManagement { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerMinuteStrategyAdoption? MinuteAdoption { get; init; }

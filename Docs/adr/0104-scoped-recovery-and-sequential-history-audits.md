@@ -70,6 +70,16 @@ historical proof also tries the typed prior serialization with Memory represente
 immutable receipt. This preserves every value and still requires the exact original SHA256; it does
 not rewrite history or relax current approval/write validation.
 
+October28 correction: an invested session also preserves `LastLiveResult` dictionaries in each
+holding's protection state. Memory-only recovery missed part of an original approval's process-dependent
+ordering. An additional audit-only candidate retains every scalar byte from typed prior serialization
+and restores object property order from the exact adjacent immutable record, including protection.
+Arrays retain their positions and values are checked unchanged; duplicate property names are rejected.
+Acceptance still requires the exact original UTF-8 SHA256. Database root checksums use their separate
+UTF-16 contract. Original revision3034→3035 passes the complete transition validator with this correction
+using hash-verified private evidence; fresh native recovery and exact-head clearance remain separate
+operational requirements. No approval, history or protective stop is reset.
+
 The October26 repair also exposes the need for an explicit stable recovery window: shared inputs keep
 advancing during a market-hours Real pass, and the unchanged clearance guard correctly rejects its
 older heads. The explicit `--recover-real` maintenance host schedules only continuity and Real audit

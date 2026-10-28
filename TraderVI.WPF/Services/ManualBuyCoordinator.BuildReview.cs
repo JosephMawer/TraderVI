@@ -31,6 +31,14 @@ public sealed partial class ManualBuyCoordinator
             : new BrokerNoTransferRiskEvidenceSource(scope ?? throw new InvalidOperationException("Recover today's original permission."), executionCalendar!);
         var components=CreateManagedComponents(connection,connection,connection,journal,journal,
             orderGate,account,executionCalendar!,risk);
+        if (saved.OngoingManagement is not null)
+        {
+            stage("verifying existing daily risk receipts and synchronizing the stopped session without changing permission");
+            saved = await new BrokerRiskStateSynchronizationWorkflow(
+                new BrokerManagedSessionRepository(executionCalendar!, sharedStorage: true),
+                new BrokerAccountRiskContinuationRepository(executionCalendar!), components.AccountSource,
+                HostGrants(), executionCalendar!).SynchronizeAsync(binding.BindingId, ct); check();
+        }
         stage("rechecking the actual account, original orders, protection and preserved risk history");
         var projected=await components.AccountSource.SynchronizeAsync(saved.Orders,ct); check();
         var proposal=BrokerImplementationReviewWorkflow.Prepare(saved,normal.Review,normal.Updated,projected,

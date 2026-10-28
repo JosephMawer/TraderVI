@@ -40,6 +40,11 @@ internal sealed class BrokerHistoricalStateHash
         // Both stored records already matched their typed values above; the original SHA256 must
         // still match exactly, and this evidence is never available to current approval writes.
         evidence.representations.Add(Hash(RestoreMemoryRepresentation(JsonSerializer.Serialize(prior), nextJson)));
+        // Invested sessions also retain evaluation dictionaries in Protection.State, outside Memory.
+        // Recover property order throughout the typed prior, retaining its scalar serialization
+        // (not archive JSON-node timestamp escaping). The adjacent record supplies names/order only.
+        // This is an additional exact UTF-8 hash candidate, never a substitute for the saved hash.
+        evidence.representations.Add(Hash(RestorePropertyOrder(JsonSerializer.Serialize(prior), nextJson)));
         return evidence;
     }
 
@@ -103,6 +108,37 @@ internal sealed class BrokerHistoricalStateHash
         int start = priorJson.IndexOf(memoryJson, StringComparison.Ordinal);
         if (start < 0 || start != priorJson.LastIndexOf(memoryJson, StringComparison.Ordinal)) return priorJson;
         return priorJson[..start] + represented + priorJson[(start + memoryJson.Length)..];
+    }
+
+    internal static string RestorePropertyOrder(string priorJson, string witnessJson)
+    {
+        using var before = JsonDocument.Parse(priorJson);
+        using var witness = JsonDocument.Parse(witnessJson);
+        string represented = Reorder(before.RootElement, witness.RootElement);
+        using var check = JsonDocument.Parse(represented);
+        if (!JsonElement.DeepEquals(before.RootElement, check.RootElement))
+            throw new InvalidDataException("Historical state values changed during property-order recovery.");
+        return represented;
+
+        static string Reorder(JsonElement original, JsonElement following)
+        {
+            if (original.ValueKind == JsonValueKind.Object && following.ValueKind == JsonValueKind.Object)
+            {
+                var oldNames = original.EnumerateObject().Select(p => p.Name).ToArray();
+                var nextNames = following.EnumerateObject().Select(p => p.Name).ToArray();
+                if (oldNames.Distinct(StringComparer.Ordinal).Count() != oldNames.Length ||
+                    nextNames.Distinct(StringComparer.Ordinal).Count() != nextNames.Length)
+                    throw new InvalidDataException("Ambiguous historical property order.");
+                var names = oldNames.Order(StringComparer.Ordinal).SequenceEqual(nextNames.Order(StringComparer.Ordinal))
+                    ? nextNames : oldNames;
+                return "{" + string.Join(",", names.Select(name => JsonSerializer.Serialize(name) + ":" +
+                    (following.TryGetProperty(name, out var value) ? Reorder(original.GetProperty(name), value)
+                        : original.GetProperty(name).GetRawText()))) + "}";
+            }
+            if (original.ValueKind == JsonValueKind.Array && following.ValueKind == JsonValueKind.Array && original.GetArrayLength() == following.GetArrayLength())
+                return "[" + string.Join(",", Enumerable.Range(0, original.GetArrayLength()).Select(i => Reorder(original[i], following[i]))) + "]";
+            return original.GetRawText();
+        }
     }
     private static string Represent(JsonElement original, JsonElement following)
     {

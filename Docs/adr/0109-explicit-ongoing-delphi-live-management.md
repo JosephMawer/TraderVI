@@ -55,6 +55,17 @@ cannot attach themselves to the new agreement. Approval does not enable the host
 The operator approves the repaired build in Execution setup and resumes its reviewed host separately.
 Legacy dated/cash-only review restrictions remain intact for those scopes.
 
+October28 repair: a stopped ongoing session may synchronize already-saved ordinary risk receipts
+before preparing a changed-build review. Read at most64 exact receipts backwards from the fresh
+account's risk revision to the saved session's revision, then replay them forwards through the existing
+closing/opening/hold policy. Each resulting state must match its original receipt, and the final state
+must match the fresh account. Append a separate `RiskStateSynchronized` revision retaining the proof;
+preserve permission, cumulative allowance, orders, protection, memory, phase and buy controls exactly.
+Require the host off, unchanged reconciled account and fresh current evidence. Missing, forked or altered
+receipts fail closed. This step grants no build approval or execution permission and cannot clear an
+integrity finding. The subsequent build review still requires identical risk state; it cannot itself
+advance a day or reset a reference. No new schema or risk-journal event is introduced by synchronization.
+
 ## Accepted execution-price policy
 
 Joseph approves a fresh broker ask as the fixed reference, at most 0.25% upward movement before
