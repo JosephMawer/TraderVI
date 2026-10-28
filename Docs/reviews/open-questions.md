@@ -5,6 +5,18 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Indicator history recovery and opening-entry alternative — October 27, 2026
+
+Joseph asks to discuss preserving useful intraday context before implementing minute confirmation.
+Proposed: restore verified stored history and separately identified validated backfill for current
+indicators, while requiring two new qualifying observations after recovery. Consider an independently
+supervised collector to survive execution-engine restarts; preserve single-writer ownership and no
+collector order authority. Decide history eligibility, source/volume consistency, revisions, gaps and
+fresh-confirmation boundaries. A separate proposal would enter the top two or three overnight picks
+near the open with defined protection, replacing intraday confirmation for that strategy only. Neither
+proposal changes the running strategy; top count, opening conditions, loss/trailing settings and
+performance comparison remain open. [Discussion record](independent-engine-implementation-20261022.md#october-27-follow-up-design-discussion--historical-context-and-opening-entries).
+
 ### One-minute Delphi confirmation source — October 27, 2026
 
 Joseph requested two consecutive genuinely fresh minute observations while preserving longer indicator

@@ -1,5 +1,47 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
+## October 27 follow-up design discussion — historical context and opening entries
+
+**Open design, not implementation or financial activation authority.** Joseph asks to discuss recovery
+before proceeding with the minute successor. Preserve the accepted three-of-four rule for that strategy.
+The new proposals change the next-session discussion agenda, not the installed rulebook:
+
+- Separate persistent indicator history from fresh entry confirmation. The current database retains
+  evidence; recovery creates a new continuity epoch and resets operational rolling buffers/ordinary
+  confirmation under ADR-0053. This is a deliberate eligibility rule, not simply deletion of all prices.
+  Proposed successor: restore verified earlier observations, obtain validated gap history if available,
+  and use it only for decisions made after receipt. Keep original event time, first receipt, source,
+  revisions and gaps. Start entry confirmation at zero on recovery and require two genuinely fresh
+  qualifying observations at the approved cadence. Never create trades for missed checkpoints or
+  treat historical bars as fresh confirmations. Restore financial/order state independently before buys.
+- Consider a separately supervised market-data collector with one durable writer/lease and no order
+  authority, feeding existing durable evidence for independent Real/Paper consumers. It could survive an
+  execution-engine restart; it cannot survive laptop sleep/power loss on the same laptop, and cannot
+  execute app-managed protective sales while the execution engine is stopped. Extraction must account
+  for current coupled collection/session/lease/publication ownership; it is not just a second polling loop.
+  Persistent context recovery is useful with or without process separation. Backfill remains necessary
+  when the collector itself or the network is unavailable.
+- Retain VWAP as a valid historical reference when its full path can be established. Current missing
+  VWAP is not a universal buy veto: other references can still qualify structure, and three other
+  families can qualify strength. A rolling/partial-session average or softer vote would be a distinct
+  proposed policy change. Do not fabricate VWAP or silently lower the required votes when data is absent.
+- Separately investigate an opening-entry strategy: buy the top two or three overnight picks promptly
+  after valid opening quotes, with defined sizing, initial loss protection and trailing-profit behavior.
+  This would use the daily ranking for entry instead of the accepted intraday confirmation gate; it must
+  be a separately identified strategy, not a hidden exception to three-of-four. Overnight ranking alone
+  does not establish profitable immediate opening execution. Define which rank/lens, opening gaps/spread,
+  existing holdings, position count, exit/re-entry and protection timing before comparing it prospectively.
+  No stop percentage, top-two/top-three choice or opening financial authority is accepted here.
+
+Recommended discussion order: agree context-versus-confirmation recovery; choose collector ownership
+and source qualification plan for October 28; then compare confirmed momentum and opening-entry designs.
+Do not weaken VWAP or spend on another source simply to compensate for restart-induced loss of context.
+Minute integration remains subsequent work after its contracts and source qualification are settled.
+[Wealthsimple's official real-time charting description](https://www.wealthsimple.com/en-ca/learn/real-time-charting-performance-insights)
+includes Canadian live quotes; blanket claims of
+15-minute delay are inappropriate. That product capability does not qualify the app's specific adapter
+for complete historical minute bars, volume/venue consistency or sustained delivery.
+
 ## October 27 closing signal review — selectivity, missing evidence and minute successor
 
 Joseph requests an explanation of today's unqualified signals and whether entry rules are too restrictive.
