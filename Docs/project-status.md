@@ -16,8 +16,9 @@ First offline increment implements recovery-aware duration windows and a current
 confirmation boundary. Forty-one focused Core tests pass, no skips; 264 existing compiler warnings,
 no dependency-security warnings emitted with no restore (not a fresh dependency audit). Tests cover
 restart/recovered pair, original receipt/expiry, duplicate/skipped endpoints, weak votes, identity
-changes, future evidence and conflicts. No database/market/broker operations, full-suite/SSDT validation
-or runtime installation occurred in this increment. Source evaluator/collector integration remains open.
+changes, future evidence and conflicts. The subsequent full Core run passes 3,238 tests with nine skipped
+(1m43s); no failures. No database/market/broker operations, SSDT validation or runtime installation
+occurred in this increment. Source evaluator/collector integration remains open.
 
 October 28 TMX diagnostic runner is prepared under `Operations/TmxQualification`: eight offline checks
 pass and the date guard rejects an October 27 launch before any market requests. The bounded 90-slot /

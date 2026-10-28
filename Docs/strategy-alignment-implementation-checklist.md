@@ -23,6 +23,7 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
 - [x] Implement/test offline recovery-aware windows and confirmation boundary with original availability
   times, present-decision provenance, exact policy/source/session identity and unexpired latest endpoint.
   Forty-one focused tests pass (no skips); original on-time window/legacy cadence behavior is preserved.
+  Subsequent full Core: 3,238 passed / nine skipped / zero failures; no native operations or installation.
   This boundary accepts deterministic evaluator judgments; it is not connected to runtime publication.
 - [ ] Connect the successor evaluator's actual four-family judgments to that recovery boundary and
   complete end-to-end data/window maturity tests; do not treat an offline pair result as order authority.
