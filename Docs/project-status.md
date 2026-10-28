@@ -31,11 +31,17 @@ owns acceptance. Read-only same-chat activity/source monitoring runs every five 
 Toronto today, alerts only meaningful changes and produces a closing report; it grants no runtime or
 financial changes. Broader documentation cleanup stays with **Consolidate TraderVI documentation**.
 
-**Architecture UI prepared (October 28; not installed):** four native WPF views, shared structured
-content and persistent keyboard-accessible descriptions are implemented. Offline WPF checks, catalog
-tests, serialized Core suite and isolated Release build pass. The guide cites the 13:45 checkpoint
-above and labels AI implementation history separately; it performs no runtime reads or actions.
-[Maintenance, validation limits and later update checklist](architecture-view.md).
+**Architecture UI installed (October 28, verified 15:30 Toronto):** the explicitly authorized UI-only
+update replaced only `TraderVI.WPF.dll` and its symbols in the standard Release folder, retaining
+202 other fingerprinted runtime files and the exact saved execution grant. Collector and engine
+retained their original process IDs/start times; local status and execution status both remained
+Running. The dashboard was closed normally, restarted, and reopened once more at Joseph's request;
+the Architecture navigation entry and collector-description pane were observed in the running app.
+The embedded guide still cites the 13:45 operational checkpoint and historical AI limits; it is not
+live status. Prior offline checks pass; physical DPI transitions and screen-reader acceptance remain
+unverified. No settings/approvals, background hosts or database schema were changed.
+Private backup/fingerprint/status receipts: `artifacts/architecture-ui-update-20261028/`.
+[Content maintenance and validation scope](architecture-view.md).
 
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 

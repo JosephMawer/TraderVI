@@ -1,8 +1,8 @@
 # Maintaining the WPF Architecture view
 
 The Architecture workspace explains component ownership and evidence boundaries. It is an embedded,
-reviewed repository guide, never live execution status. The first version is prepared in source on
-October 28, 2026; installation is a separate coordinated app update.
+reviewed repository guide, never live execution status. The first version was prepared and installed
+on October 28, 2026. [Project status](project-status.md) owns the dated UI-only installation evidence.
 
 ## Implementation and choice
 
@@ -108,9 +108,19 @@ an approved test-dependency restore; dependency audit was disabled, so this is n
 audit. No solution-wide/SSDT claim is made; no database schema changed.
 
 Offscreen rendering and routed-key/automation checks do not qualify physical multi-monitor DPI
-transitions, an actual screen reader, or keyboard focus through the running production shell. At the
-later coordinated update, smoke-check sidebar access, all four tabs, keyboard focus/F6, details
-scrolling and resizing on the operator's display. Use the existing normal update/build-review workflow;
-an isolated build is not an installation and cannot inherit execution approval. This UI work did not
-restart the app/engine, change settings, poll services, read production accounts, train models or run
-database operations.
+transitions, an actual screen reader, or keyboard focus through the running production shell. For
+future coordinated updates, smoke-check sidebar access, all four tabs, keyboard focus/F6, details
+scrolling and resizing on the operator's display. An isolated build is not itself an installation
+and cannot inherit execution approval. The original implementation/testing did not restart the
+app/engine, change settings, poll services, read production accounts, train models or run database
+operations.
+
+The subsequent explicitly authorized UI-only installation closed the dashboard normally and replaced
+only its DLL and symbols, preserving the installed executable, Core, engine, collector, dependency
+manifests, routing configuration and execution grant. Runtime source comparison confirmed no Core,
+engine or collector changes; the prepared UI's dependency/runtime manifests matched the installed
+ones. The saved engine grant and background process continuity were checked before/after, with local
+read-only engine and execution status. The running dashboard's Architecture entry and persistent
+collector-description pane were observed. This bounded check does not extend the offline tests into
+a full native accessibility/DPI acceptance claim. Future changes require their own compatibility
+review; do not generalize this two-file update into permission to replace shared runtime files.
