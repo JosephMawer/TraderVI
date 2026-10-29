@@ -135,6 +135,66 @@ due different symbol collations; the corrected read explicitly uses the collecto
 Initial lifecycle reason paths returned null; the final query uses the actual lifecycle.snapshot.reasonCode
 contract and confirms the reasons above. No schema, runtime or financial changes occur in this diagnosis.
 
+### October 29 second-source comparison
+
+Joseph explicitly requests comparison with another source to distinguish inactive stocks from missing
+TMX data and identify needed repairs. Twelve bounded Yahoo chart reads (one- and five-minute for the
+same six names) succeed at 12:58:42–44 Toronto. Requests cover today's 09:30–12:40 session context;
+analysis pins 12:25–12:30, not the fetch time. All responses attest to the requested `.TO` ticker, TOR,
+CAD, EQUITY and America/Toronto. Four normalized company names match exactly; the other two have
+matching name stems with provider naming differences. Null chart slots are not counted as trades.
+The initial sandbox connection attempt fails without an HTTP response; the approved external read
+succeeds. No runtime host, SQL write, credentials, strategy or account permissions are changed.
+
+Four names have no complete, positive-volume minute or five-minute record in Yahoo's target window.
+Three had no minute rows in the earlier saved TMX request; the fourth lacked a minute subscription
+but its legacy five-minute request had no target bar. This is consistent with inactivity on the covered
+market, not proof of no trades anywhere. Yahoo is another delivery path, not necessarily independent
+upstream evidence: [TMX's Yahoo data agreement](https://www.tmx.com/en/newsroom/press-releases?id=878&year=2020)
+describes TMX intraday market data supplied to Yahoo. Common omissions and venue differences remain possible.
+
+The other two names have positive-volume Yahoo minute records at 12:27 and 12:26, respectively, and
+completed Yahoo bars stamped 12:25. Each five-minute record has the same OHLCV as its single populated
+minute. Both minute records also match the original saved TMX minute evidence: exact volume, OHLC
+within CAD0.00001 to account for Yahoo floating-point representation. This is evidence of actual
+reported trading in the affected period, not a zero-volume carried-forward chart point.
+
+Four authorized raw TMX reads at 13:01:51–52 compare request ends 12:32 and 12:40 for those two names.
+With the original 12:32 end, TMX returns only the trailing 12:27/12:26 record in the target bucket,
+with values matching Yahoo's 12:25 aggregate. Extending the second name to 12:40 includes later 12:34
+activity and yields an aligned 12:25 record with those same values. The first name's two responses
+are byte-identical: its latest record remains 12:27 without later activity in the requested window.
+Thus the provider's final sparse bar representation can omit the expected aligned timestamp even
+when its underlying trade values exist. The installed ADR-0089 adapter deliberately quarantines
+such off-grid records; it is following its current contract rather than losing a correctly aligned bar.
+
+This is a concrete source-contract/interpretation issue to address before claiming complete signal
+coverage. Do not simply round the last timestamp: these two single-minute examples do not prove that
+every trailing record is a complete bucket, especially buckets with multiple populated minutes.
+Qualification must cover final-bar meaning, no-trade versus unavailable intervals, multi-minute
+aggregation, instrument/venue identity and original availability/deadlines. Broader matching is not
+assumed: of 120 shared complete minutes across the five available saved TMX responses, 108 match
+Yahoo under the stated tolerance/exact-volume comparison. The remaining 12 require separate
+investigation; later receipt times and possible corrections prevent treating them as proven corruption.
+Neither a Yahoo fallback nor minute aggregation is adopted by this investigation.
+
+Buying impact is bounded: both active names were excluded from that original five-minute observation;
+no retrospective comparison proves a complete qualifying signal or a missed profitable purchase.
+At 13:03:05 native diagnostics still report Running/fresh evaluation/no confirmed entry, zero holds,
+worker failures, account/quote blocks, NewBuysStopped false, matching protection and 5/5 reconciled orders.
+The read does not repair the original observation's deadline or replay a trade.
+
+Private evidence is in `artifacts/missing-bars-20261029/`: `yahoo-20261029T165842585Z/` and
+`tmx-20261029T170151395Z/` preserve raw responses and SHA256 manifests; `saved-source-comparison.json`
+and `tmx-window-comparison.json` retain aggregate comparisons. Target query hash
+`3FD5CA1A656BC2C98FE8E5EEFE52437862B21E12F5EEDD07282E3DEFB6B03EE3` matches receipt
+`result-20261029T165239063Z-e187c51107bb4b469a80c6f7a8b4baf6.json`; stored-evidence query hash
+`25E6550368C2379FDDAC1B8CB5140C95E01F2E0B09946CEC5ACC90DB81B59693` matches receipt
+`result-20261029T165940212Z-bc92cbe4d01843c9976bf52f64ff42af.json`. Stored receipt hashes are checked.
+An offline comparison first rejected an absent subscription, then used an incorrect local-time cast
+for UTC window bounds; both analysis defects were corrected before conclusions, with explicit UTC
+DateTimeOffset bounds and null handling. No additional provider fetch was needed for those corrections.
+
 ## October 29 intraday alias repair and monitoring limits
 
 The market watch identifies a separate minute-collector degradation beginning around 11:01 Toronto:

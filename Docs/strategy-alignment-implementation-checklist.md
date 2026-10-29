@@ -76,6 +76,10 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
 - [ ] Complete source/coverage and broader operational acceptance: conflicts, missing/late intervals,
   every legacy consumer's subscriptions, native restart/outage recovery and reboot/login supervision.
   The collector's continued operation during trader maintenance proves only that observed separation.
+  October 29 second-source evidence identifies sparse final records containing reported trades but
+  lacking the legacy adapter's aligned timestamp. Qualify final-bar meaning and inactive versus missing
+  intervals before adopting a mapping, aggregation or alternate source; two matching single-minute
+  cases do not qualify general relabeling. [Comparison](reviews/independent-engine-implementation-20261022.md#october-29-second-source-comparison).
 - [ ] Joseph explicitly reviews/adopts the successor and financially activates it in the app; verify
   native collector ownership, publication, decision freshness, protection and buy readiness afterwards.
 

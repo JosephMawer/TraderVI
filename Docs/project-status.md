@@ -26,6 +26,13 @@ or stale source records; they do not prove whether actual trading was absent or 
 Those names cannot create a buy from that observation. At12:35 none of the36 observed names has a
 confirmed entry, including the29 with valid observations. At12:43 Real remains Running with fresh12:40
 inputs and no global buy/risk/quote block. [Source-gap breakdown](reviews/independent-engine-implementation-20261022.md#october-29-missing-five-minute-bars-and-entry-impact).
+Joseph then authorizes a second-source comparison. Yahoo's 12:58 read shows no recorded trades in
+the target window for four of the six names, but positive-volume minutes and completed five-minute
+bars for two. Those two minutes match saved TMX values; fresh TMX reads reproduce off-grid final
+records with the same values. One becomes an aligned 12:25 bar when later activity is included.
+This identifies a sparse final-bar interpretation/coverage issue, not universal absence of trading.
+No source adapter or policy is changed; source qualification remains open. Real is Running without
+global buy/risk/quote blocks at 13:03. [Comparison and limits](reviews/independent-engine-implementation-20261022.md#october-29-second-source-comparison).
 [Diagnosis and limits](reviews/independent-engine-implementation-20261022.md#october-29-collector-clock-rejection).
 
 ## October 29 — intraday market-input blockage repaired; collector degradation remains
