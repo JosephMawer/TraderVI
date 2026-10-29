@@ -1,6 +1,6 @@
 # ADR-0115: Exact audit prefix hash reuse
 
-- **Status:** Accepted implementation under the requested recovery-performance repair; not installed
+- **Status:** Accepted; installed October 29 at 00:06 Toronto, same recovery resumed; final recovery/new-format acceptance pending
 - **Date:** 2026-10-28
 - **Domains:** architecture, data-pipeline
 - **Amends:** [ADR-0104](0104-scoped-recovery-and-sequential-history-audits.md), specifically repeated hashing of unchanged version-2 prefixes

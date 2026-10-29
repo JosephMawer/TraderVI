@@ -164,12 +164,17 @@ The overnight target was missed. Completed source work is separate from installe
   preserves original fingerprints using bounded exact-prefix SHA-256 state clones inside one guarded
   reader. Fifty-one focused tests and 3,369 serial Core tests pass (ten native skips); Release WPF/engine
   build passes. Identical synthetic quote-append workloads improve approximately 4x/24x/39x.
-- [ ] Review/install the candidate with applicable operational authority, preserve durable cursor and
-  Real grant, and verify actual recovery throughput and original checks. Early changes/cold reads and
-  the separate legacy input scan limit whole-run gains; no production speedup or completion ETA is
-  established. This source repair does not complete native Paper activity or weekly-capacity acceptance.
+- [x] Review/install the candidate with applicable operational authority and preserve durable cursor and
+  Real grant. Joseph explicitly approves; `cdbf777c` Core installed October 29 00:06 with normal engine/
+  dashboard restart, unchanged collector and byte-identical grant. Same recovery resumes.
+- [ ] Complete native recovery performance/guard acceptance. Initial adjacent-segment observations are
+  2.74 revisions/s after versus 1.69/s before installation, not a controlled whole-run benchmark or ETA.
+  Early changes/cold reads and the separate legacy input scan limit gains. This installed repair does
+  not complete native Paper activity or weekly-capacity acceptance.
+- [ ] Obtain Joseph's normal review of the installed strategy/build before Real execution resumes;
+  post-install ExecutionStatus is Blocked because the build changed. Preserved grant is not new approval.
   No archive deletion or silent conversion. The existing follow-up continues beyond hold clearance.
-  [Evidence and progress](reviews/independent-engine-implementation-20261022.md#october-28-recovery-performance-repair--source-validation).
+  [Evidence and progress](reviews/independent-engine-implementation-20261022.md#october-29-recovery-repair-installation--0006-toronto).
 - [ ] Finish remaining native concurrency/latency/restore acceptance. Recovery completion does not
   clear holds, qualify all interruption scenarios or grant financial authority.
 - [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine

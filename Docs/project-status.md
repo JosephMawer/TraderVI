@@ -1,5 +1,20 @@
 # TraderVI Project Status
 
+## October 29 — faster recovery installed; Real build review required
+
+At 00:06 Toronto, Joseph's explicitly approved normal engine/dashboard restart installed the tested
+Core repair from `cdbf777c`. The same Paper recovery resumed from its saved cursor; the separate
+collector remained running and the saved execution grant is byte-identical. Real execution now reports
+**Blocked: installed build changed** and requires Joseph's normal strategy/build review before resuming.
+No financial approval was applied by the agent.
+
+At 00:11:13, recovery is Running with 23,558 verified units and the same ten expected Paper holds.
+The observed post-install interval advanced 616 revisions in 225 seconds (2.74/s), versus 488 in
+290 seconds (1.69/s) immediately before installation. These are different adjacent segments of the
+same portfolio, not a controlled benchmark or whole-run ETA. Clearance, resumed Paper workers and
+actual new version-3 revisions remain pending; morning readiness is not established.
+[Installation evidence and limits](reviews/independent-engine-implementation-20261022.md#october-29-recovery-repair-installation--0006-toronto).
+
 ## October 28 — collector installed; five-minute Real execution restored
 
 **Latest verified state: 13:45 Toronto.** Joseph reviewed the repaired build and resumed the existing
@@ -191,7 +206,8 @@ uses bounded exact SHA-256 prefix-state reuse while still requiring every origin
 Fifty-one focused tests and the serial Core suite pass (3,369 passed, ten native skips). Isolated Release
 WPF/engine builds pass with 260 existing compiler warnings and zero errors; dependency audit disabled,
 no full-solution/SSDT claim. Identical synthetic quote-append cases improve approximately 4x/24x/39x.
-The candidate is **not installed**; current recovery, Real grant and collector remain unchanged.
+At this source-validation checkpoint the candidate was not installed; the October 29 installation
+and its Real build-review requirement are recorded above.
 [Benchmark scope, preserved checks and operational work](reviews/independent-engine-implementation-20261022.md#october-28-recovery-performance-repair--source-validation).
 
 ## October 27 evening — collector design accepted; overnight engineering scheduled

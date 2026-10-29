@@ -146,11 +146,43 @@ full remainder; the frozen legacy input scan is separate. Logs, comparison recei
 under `artifacts/paper-recovery-20261028/`; `prefix-full-tests.log`, `prefix-tests-final.log`,
 `prefix-release-build.log` and `profiling/*-adjacent.log` preserve reproducibility and limits.
 
-The candidate is not installed. A normal drained stop can preserve the saved audit cursor, followed by
+At this source-validation checkpoint the candidate is not installed. A normal drained stop can preserve the saved audit cursor, followed by
 fresh preceding-state hydration in the new reader. Replacing shared Core changes Real's build identity;
 that may require Joseph's exact-build review before Real resumes. Preserve its grant/history rather
 than authorizing that review automatically. Native continuation, speed, hold clearance, resumed workers
 and new-format Paper revision/checkpoint evidence remain distinct outstanding acceptance steps.
+
+### October 29 recovery repair installation — 00:06 Toronto
+
+Joseph explicitly approves installing the tested faster build with a normal engine/dashboard restart
+and saved-cursor continuation, knowing that Real may require a new build review. The guarded installer
+checks clean committed source `cdbf777c3862c4a58ed48ed807f7dc2d775c21ad`, process ownership, file hashes,
+grant/calendar hashes and the exact expected incident set. An initial preflight timestamp comparison
+incorrectly compares a parsed DateTime with a string; it rejects before shutdown or replacement. After
+verifying unchanged process identity, comparison uses UTC ticks and the corrected preflight passes.
+
+Installation finishes at 00:06:31. Only Core.dll/Core.pdb change; 128 other runtime files and the saved
+execution grant remain byte-identical. Engine 14216 starts normally at 00:06:24 and dashboard 40632 at
+00:06:31; collector 36848 retains its October 28 10:09:43 start. The same recovery remains Running,
+with 22,510 verified before the drain and 22,513 saved after draining/resuming. No duplicate pass,
+schema change, portfolio reset or financial review/enable occurs. Real ExecutionStatus explicitly
+reports Blocked because the installed build changed; Joseph must review the saved strategy/build
+through the normal app flow before execution resumes. The existing grant is preserved, not renewed.
+
+At 00:07:28 the pass has 22,942 verified units; at 00:11:13 it has 23,558, second portfolio next
+revision 16,621, with the same ten expected holds. That interval advances 616 revisions in 224.9 s
+(2.74/s). The pre-install 00:01:27–00:06:16 interval advanced 488 in 289.6 s (1.69/s). The approximately
+1.6x observed difference compares different adjacent archive segments under normal host activity;
+it is not a controlled speedup, the synthetic 4x–39x result or a whole-run ETA. Earlier-field changes,
+cold reads, transition checks, scheduling and the separate legacy-input scan still limit throughput.
+No completed proof, clearance, resumed affected workers or new-format Paper activity is claimed.
+
+Private evidence: `artifacts/paper-recovery-20261028/prefix-installation/` contains `completed.json`,
+before/after controls, previous Core backups, `progress-01.json` and `progress-03.json`; the pre-install
+comparison is `pre-switch-20261029T0401-IntegrityStatus.json`. A sandboxed progress-02 control exits 1
+without a receipt while all owners remain alive; the outside-sandbox read succeeds to a fresh filename.
+The installer must not be rerun. The existing follow-up was updated with the new process identities,
+installation state and Real review blocker; it continues guarded clearance and actual new-format proof.
 
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 

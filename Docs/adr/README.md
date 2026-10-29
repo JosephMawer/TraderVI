@@ -41,7 +41,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 
 | # | Title | Status | Domains |
 |---|---|---|---|
-| [0115](0115-exact-audit-prefix-hash-reuse.md) | Exact audit prefix hash reuse | Accepted; not installed | architecture, data-pipeline |
+| [0115](0115-exact-audit-prefix-hash-reuse.md) | Exact audit prefix hash reuse | Accepted; installed, recovery acceptance pending | architecture, data-pipeline |
 | [0114](0114-explicit-nightly-preparation-date.md) | Explicit nightly preparation date | Accepted | architecture, data-pipeline |
 | [0113](0113-nightly-data-audit-report.md) | Nightly data-quality audit and report | Accepted | architecture, data-pipeline, user-interface |
 | [0112](0112-repository-documentation-outside-desktop.md) | Read documentation and architecture on GitHub | Accepted; supersedes ADR-0036 | architecture, user-interface |
