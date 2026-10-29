@@ -35,7 +35,42 @@ public sealed class EngineVerificationTests
         string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".json");
         await Assert.ThrowsAsync<ArgumentException>(() => EngineControlCommand.RunAsync("EnableExecution", path));
         await Assert.ThrowsAsync<ArgumentException>(() => EngineControlCommand.RunAsync("ClearIntegrityHolds", path));
+        await Assert.ThrowsAsync<ArgumentException>(() => EngineControlCommand.RunAsync("ResumePaperPendingRecovery", path));
         Assert.False(File.Exists(path));
+    }
+
+    [Fact]
+    public async Task TemporaryPaperCommandUsesExplicitTypedRequestAndCannotReplayItsReceipt()
+    {
+        string output = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".json");
+        string input = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".json");
+        var request = new EngineResumePaperPendingRecovery(Guid.NewGuid(), [Guid.NewGuid(), Guid.NewGuid()], DateTime.UtcNow.AddHours(1), "Paper only");
+        var client = new PaperClient(request);
+        try
+        {
+            await File.WriteAllTextAsync(input, JsonSerializer.Serialize(request));
+            await EngineControlCommand.RunAsync("ResumePaperPendingRecovery", output, input, client);
+            Assert.Equal(1, client.Calls);
+            await Assert.ThrowsAsync<IOException>(() => EngineControlCommand.RunAsync("ResumePaperPendingRecovery", output, input, client));
+            Assert.Equal(1, client.Calls);
+            Assert.Throws<InvalidOperationException>(() => EngineRecoveryMaintenance.RequireOperation(EngineOperation.ResumePaperPendingRecovery));
+        }
+        finally { File.Delete(input); File.Delete(output); }
+    }
+
+    private sealed class PaperClient(EngineResumePaperPendingRecovery expected) : IEngineRpc
+    {
+        public int Calls;
+        public Task<T> CallAsync<T>(EngineOperation operation, object payload = null, CancellationToken ct = default)
+        {
+            Assert.Equal(EngineOperation.ResumePaperPendingRecovery, operation);
+            var request = Assert.IsType<EngineResumePaperPendingRecovery>(payload);
+            Assert.Equal(expected.RecoveryRunId, request.RecoveryRunId);
+            Assert.Equal<Guid>(expected.Incidents, request.Incidents);
+            Assert.Equal(expected.ExpiresUtc, request.ExpiresUtc);
+            Calls++;
+            return Task.FromResult((T)(object)JsonSerializer.SerializeToElement(true));
+        }
     }
 
     [Theory]

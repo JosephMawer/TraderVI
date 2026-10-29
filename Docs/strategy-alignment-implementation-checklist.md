@@ -164,6 +164,11 @@ The overnight target was missed. Completed source work is separate from installe
 - [ ] Resolve the separate October 29 02:10 post-reboot Global EngineRecoveryRequired incident through
   an authorized verified recovery path, then recheck workers. The earlier ten-hold clearance and worker
   success remain completed historical checkpoints; they do not clear this later continuity incident.
+- [x] Implement/test the requested temporary Paper continuation under ADR-0116, without falsely
+  resolving incidents or changing Real authority. Full Core3,374passed/10SQLskips and final39focused
+  tests pass; Release WPF/engine builds. New errors, expiry or restart stop the permission.
+- [ ] Install/activate the explicit temporary Paper continuation and verify resumed Paper workers;
+  retain unverified-history and research restrictions until real recovery clearance is established.
 - [ ] Prove actual new Paper revision advancement using version-3 roots and matching current checkpoints.
   Installed code, Waiting status and cleared holds alone do not qualify this. Observe the next eligible
   session if no legitimate off-hours work exists; do not manufacture writes or replay expired buys.

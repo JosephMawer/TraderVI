@@ -17,7 +17,8 @@ public enum EngineOperation
     PendingOrders, Securities, BuyContext, SellContext, BuyOrder, SellOrder, SellInventory, OrderHistory, ActivityCheckpoint,
     Orders, PrepareBuy, SubmitBuy, CheckBuy, SellAll, CheckSell, Reconcile,
     ExecutionStatus, EnableExecution, DisableExecution, LiveCommand, PollTrackedPaper, PollShadowPaper,
-    IntegrityStatus, VerifyRecovery, ClearIntegrityHolds, ExecutionDiagnostics, VerifyRealRecovery, VerifyPaperRecovery
+    IntegrityStatus, VerifyRecovery, ClearIntegrityHolds, ExecutionDiagnostics, VerifyRealRecovery, VerifyPaperRecovery,
+    ResumePaperPendingRecovery
 }
 
 public sealed record EngineClearIntegrityHolds(Guid RecoveryRunId, System.Collections.Immutable.ImmutableArray<Guid> Incidents, string Reason)

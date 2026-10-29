@@ -123,6 +123,22 @@ internal static class Program
                 if (request.Operation == EngineOperation.PollTrackedPaper) return await auxiliary.PollTrackedAsync().ConfigureAwait(false);
                 if (request.Operation == EngineOperation.PollShadowPaper) return await auxiliary.PollShadowAsync().ConfigureAwait(false);
                 if (request.Operation == EngineOperation.IntegrityStatus) return await new EngineIntegrityRepository().ReadStatusAsync().ConfigureAwait(false);
+                if (request.Operation == EngineOperation.ResumePaperPendingRecovery)
+                {
+                    if (stopping || verificationOnly) throw new InvalidOperationException("Temporary Paper continuation requires the normal running engine.");
+                    var financial = (Core.Trader.Promotion.BrokerExecutionHostStatus)await broker.DispatchAsync(
+                        request with { Operation = EngineOperation.ExecutionStatus }).ConfigureAwait(false);
+                    if (financial.State != "Off") throw new InvalidOperationException("Leave Real execution Off before requesting temporary Paper continuation.");
+                    await continuity.VerifyAsync().ConfigureAwait(false);
+                    var observation = await new EngineContinuityRepository().ReadAsync(CancellationToken.None).ConfigureAwait(false);
+                    var status = await new EngineIntegrityRepository().ReadStatusAsync().ConfigureAwait(false);
+                    var command = request.Payload.Deserialize<EngineResumePaperPendingRecovery>() ?? throw new ArgumentException("Missing Paper continuation request.");
+                    var permission = EnginePaperRecoveryContinuation.Prepare(command, status, observation.Database, DateTime.UtcNow);
+                    EnginePaperRecoveryContinuationGate.Activate(permission);
+                    await market.NotifyAsync(new("Warning", "PaperRecoveryContinuation",
+                        $"Temporary Paper continuation until {permission.ExpiresUtc:O}. Historical integrity remains unverified; Real and research holds remain.")).ConfigureAwait(false);
+                    return permission;
+                }
                 if (request.Operation is EngineOperation.VerifyRecovery or EngineOperation.VerifyRealRecovery or EngineOperation.VerifyPaperRecovery)
                 {
                     await continuity.VerifyAsync().ConfigureAwait(false);

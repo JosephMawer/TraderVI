@@ -13,6 +13,11 @@ paper research, prioritizing operational availability while keeping real trading
 
 ## Decision
 
+October 29 amendment: [ADR-0116](0116-temporary-paper-continuation-during-reboot-recovery.md)
+adds an explicit expiring Paper-only continuation for an exact reboot/pending incident set.
+This supersedes the Paper operational block only while that permission applies; historical
+verification and clearance proof requirements below remain unchanged.
+
 Use a fresh sequential reader for each fixed-boundary audit pass. Read the immutable paper membership
 change index once per portfolio, fetch/hash/decode each distinct referenced content once, and carry the
 previous verified state forward. Page original revision headers and legacy inputs. Retain no additional

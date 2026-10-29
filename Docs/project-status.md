@@ -1,5 +1,23 @@
 # TraderVI Project Status
 
+## October 29 — reboot recovery running; temporary Paper continuation prepared
+
+Joseph authorizes fixing the reboot hold, then requests temporary relief rather than another
+multi-hour operational block. Full native recovery `270d506a-ed15-49d4-a1ce-de7bd215abdc` starts
+at 02:23 Toronto, preserves the previous completed proof, and advances to 3,649 verified units in
+the first observed sample. Real execution is now Off, with no enabled host permission. Original
+reboot and this pass's pending incidents remain unresolved. No previous clearance is replayed.
+
+[ADR-0116](adr/0116-temporary-paper-continuation-during-reboot-recovery.md) implements an explicit
+expiring Paper continuation for exactly those two incidents. It retains actual-error stops,
+current-state checks, visible unverified history, and Real/research restrictions. Core validation
+passes 3,374 tests (10 native SQL skips); after preserving existing desktop method signatures,
+39 focused tests pass. Release WPF/engine passes with 260 existing compiler warnings, zero errors;
+dependency audit disabled, no full solution/SSDT claim. Installation/activation and all-three actual
+new-format writes remain pending. The first proposed permission expires at October 29 market close.
+The permanent recovery/storage/performance redesign is deferred to the weekend GitHub story;
+TMX issue #3 remains separate. [Detailed evidence](reviews/independent-engine-implementation-20261022.md#october-29-temporary-paper-continuation-preparation).
+
 ## October 29 — laptop reboot creates a new global continuity hold
 
 Joseph reports restarting the laptop and manually runs the supplied installed startup commands.

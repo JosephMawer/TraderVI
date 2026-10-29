@@ -274,6 +274,9 @@ follow-up continues this final proof and alerts on new failures; missed observat
 
 ### October 29 user reboot — 02:10 Toronto
 
+The later subsection below supersedes this check's lack of recovery authority; its observations
+remain the original reboot evidence.
+
 Joseph reports a laptop restart, requests startup commands, then confirms running them and asks for
 status/new holds. Read-only preparation found SQL Server running, no TraderVI processes, matching
 collector runtime/configuration manifest hashes and no stop.request. Commands start the installed
@@ -295,6 +298,37 @@ Real ExecutionStatus still requires changed-build review. No old receipt is reus
 incident, and no new verification/clearance, restart or financial action is issued during the check.
 Further global recovery needs applicable operational authority; pre-reboot worker proof is historical.
 The follow-up retains all-three new-format acceptance and must use these fresh process identities.
+
+### October 29 temporary Paper continuation preparation
+
+Joseph explicitly requests fixing the reboot hold and restoring all three original Paper portfolios.
+Native VerifyRecovery starts full pass `270d506a-ed15-49d4-a1ce-de7bd215abdc` at02:23 Toronto.
+Private evidence is `artifacts/reboot-recovery-20261029/`: the first preflight stops before mutation
+because Real status is Off rather than the earlier Blocked status. A second reviewed preflight
+requires Off and the original exact single incident. Its start command succeeds and returns a GUID;
+the wrapper then expects a full run object and stops. No start is repeated: a fresh IntegrityStatus
+confirms that exact run Running at3,649 verified units and the original reboot incident plus its
+expected pending incident. `start-result.json`, `integrity-after-start-observed.json` and `started.json`
+preserve the outcome; previous receipts remain intact.
+
+Joseph then rejects multi-hour blocking and requests temporary removal of holds, followed by a
+weekend redesign story. ADR-0116's explicit expiring simulation permission allows Paper and its
+shared input producer without resolving the incidents, certifying history or enabling Real/research.
+Any additional/changed incident, expiry or process restart ends the exception. Current checkpoint,
+append, freshness, risk, immutable-guard and native clearance checks remain in place. A continuing
+audit retains its fixed boundary; resumed writes may require further proof before eventual clearance.
+
+Validation: initial39-test scope was37 before command/compatibility tests were added. The broader
+suite first exposed a test assertion comparing ImmutableArray backing identity instead of contents;
+correcting the assertion yields3,374passed/10native SQL skipped/0failed. An explicit compatibility
+adapter preserves the installed desktop's original method signatures; final39focused tests pass,
+including reflection coverage of those signatures. A test-only namespace qualification compile error
+is corrected before that final pass. Final Release WPF/engine builds with260existing compiler warnings,
+zero errors; NuGet audit disabled, no complete-solution/SSDT claim. Logs are `core-tests-corrected.log`,
+`focused-final-corrected.log`, and `release-final.log` in the private evidence directory. Prepared
+installer has parser validation and replaces only the reviewed Core/engine assemblies, checks original
+processes/files/grant/calendar, stops normally, retains collector ownership, resumes the same audit and
+requests the exact permission with Real Off. Installation/activation remains pending at this checkpoint.
 
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 

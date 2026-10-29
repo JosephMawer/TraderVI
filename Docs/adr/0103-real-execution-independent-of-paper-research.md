@@ -27,6 +27,10 @@ contracts below now govern implementation; native acceptance and retention remai
 
 ## Accepted historical audit policy
 
+[ADR-0116](0116-temporary-paper-continuation-during-reboot-recovery.md) narrowly amends the
+Paper operational hold for an explicitly selected, expiring reboot continuation. Real authority,
+historical coverage and verified clearance requirements remain unchanged.
+
 - Check new history after each trading session, including any unverified backlog. Target complete
   older-archive coverage weekly in bounded, resumable batches outside market hours; qualify capacity.
   Verify affected state after abnormal recovery, restore or migration before relying on it.

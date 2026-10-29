@@ -18,11 +18,21 @@ public sealed record EngineIntegrityIncident(Guid IncidentId, EngineIntegritySco
 public sealed record EngineIntegrityAccess(bool NewExposureAllowed, bool ProtectionAllowed, ImmutableArray<Guid> Incidents)
 {
     public static EngineIntegrityAccess Evaluate(ImmutableArray<EngineIntegrityIncident> open, EngineIntegrityScope scope, Guid? owner)
+        => Evaluate(open, scope, owner, paperSharedInputs: false);
+
+    internal static EngineIntegrityAccess Evaluate(ImmutableArray<EngineIntegrityIncident> open, EngineIntegrityScope scope, Guid? owner,
+        bool paperSharedInputs)
+        => EvaluateWithContinuation(open, scope, owner, EnginePaperRecoveryContinuationGate.Current, DateTime.UtcNow, paperSharedInputs);
+
+    internal static EngineIntegrityAccess EvaluateWithContinuation(ImmutableArray<EngineIntegrityIncident> open,
+        EngineIntegrityScope scope, Guid? owner, EnginePaperRecoveryContinuation? permission, DateTime nowUtc,
+        bool paperSharedInputs = false)
     {
         var affected = open.Where(i => i.Scope == EngineIntegrityScope.Global ||
             (i.Scope == scope || scope == EngineIntegrityScope.Research && i.Scope == EngineIntegrityScope.Paper) &&
             (i.OwnerId is null || owner is null || i.OwnerId == owner)).ToArray();
-        return new(affected.Length == 0, affected.All(i => !i.ProtectionUntrusted), affected.Select(i => i.IncidentId).ToImmutableArray());
+        bool temporaryPaper = permission?.Allows(open, scope, nowUtc, paperSharedInputs) == true;
+        return new(temporaryPaper || affected.Length == 0, temporaryPaper || affected.All(i => !i.ProtectionUntrusted), affected.Select(i => i.IncidentId).ToImmutableArray());
     }
 }
 
@@ -93,12 +103,15 @@ public sealed record EngineAuditRun(Guid RunId, EngineAuditPlan Plan, EngineAudi
 public sealed record EngineIntegrityStatus(ImmutableArray<EngineIntegrityIncident> Incidents,
     ImmutableArray<EngineAuditRun> Runs)
 {
+    public EnginePaperRecoveryContinuation? PaperContinuation { get; init; }
     public string Summary(DateTime now)
     {
         int incomplete = Runs.Count(r => r.Status != "Complete");
         var last = Runs.Where(r => r.Plan.Kind == EngineAuditKind.Archive && r.Status == "Complete")
             .Select(r => (DateTime?)r.Plan.BoundaryUtc).Max();
-        return $"Integrity: {Incidents.Length} unresolved incident(s); {incomplete} incomplete latest audit(s). " +
+        return (PaperContinuation?.Matches(Incidents, now) == true
+            ? $"Temporary Paper continuation until {PaperContinuation.ExpiresUtc:O}; historical integrity remains unverified. Real and research holds remain. " : "") +
+            $"Integrity: {Incidents.Length} unresolved incident(s); {incomplete} incomplete latest audit(s). " +
             (last is null ? "Older archive has no completed audit." :
                 $"Older archive verified through {last:yyyy-MM-dd HH:mm} UTC" + (now - last > TimeSpan.FromDays(7) ? " (overdue)." : "."));
     }

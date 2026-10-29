@@ -50,12 +50,19 @@ ORDER BY i.DiscoveredUtc,i.IncidentId;
             { OriginDiscoveredUtc = r.OriginDiscoveredUtc is DateTime origin ? DateTime.SpecifyKind(origin, DateTimeKind.Utc) : null,
                 OriginEvidenceKey = r.OriginEvidenceKey }).ToImmutableArray();
     }
-    public async Task<EngineIntegrityAccess> ReadAccessAsync(EngineIntegrityScope scope, Guid? owner, CancellationToken ct = default)
+    public Task<EngineIntegrityAccess> ReadAccessAsync(EngineIntegrityScope scope, Guid? owner, CancellationToken ct = default)
+        => ReadAccessCoreAsync(scope, owner, ct, paperSharedInputs: false);
+
+    public Task<EngineIntegrityAccess> ReadPaperSharedInputAccessAsync(CancellationToken ct = default)
+        => ReadAccessCoreAsync(EngineIntegrityScope.Global, null, ct, paperSharedInputs: true);
+
+    private async Task<EngineIntegrityAccess> ReadAccessCoreAsync(EngineIntegrityScope scope, Guid? owner, CancellationToken ct,
+        bool paperSharedInputs)
     {
         await using var c = await OpenAsync(ct);
         if (!await InstalledAsync(c, null, ct)) throw new InvalidOperationException("Independent integrity storage is not installed.");
         if (!await RequiredGuardsAsync(c, null, ct)) throw new InvalidOperationException("Immutable history guards are unavailable.");
-        return EngineIntegrityAccess.Evaluate(await ReadOpenAsync(c, null, ct), scope, owner);
+        return EngineIntegrityAccess.Evaluate(await ReadOpenAsync(c, null, ct), scope, owner, paperSharedInputs);
     }
     internal static async Task<string?> ManualBuyBlockAsync(SqlConnection c, SqlTransaction t, bool required, CancellationToken ct)
     {
@@ -115,7 +122,7 @@ SELECT a.* FROM dbo.EngineAuditRun a JOIN
  (SELECT RunId,ROW_NUMBER() OVER(PARTITION BY Kind,Status,ISNULL(JSON_VALUE(PlanJson,'$.Scope'),'0') ORDER BY BoundaryUtc DESC,UpdatedUtc DESC) n
  FROM dbo.EngineAuditRun) r ON r.RunId=a.RunId WHERE r.n=1;
 """, cancellationToken: ct));
-        return new(incidents, rows.Select(Decode).ToImmutableArray());
+        return new(incidents, rows.Select(Decode).ToImmutableArray()) { PaperContinuation = EnginePaperRecoveryContinuationGate.Current };
     }
     public async Task<bool> GuardsAvailableAsync(CancellationToken ct = default)
     {

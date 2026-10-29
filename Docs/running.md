@@ -81,6 +81,20 @@ authorized. Preparing the software tonight grants no tomorrow permission. Paper 
 review does not reopen its lifetime history. Do not edit protected permission files or treat a historical
 recovery pass as financial approval. Changed holdings/orders/transfers or strategy require separate recovery.
 
+## Temporary Paper operation during reboot recovery
+
+ADR-0116 adds `--control ResumePaperPendingRecovery <new-private-output.json> <private-input.json>`
+to a normal engine. This is an operator-authorized simulation workflow, not a routine status check.
+Input identifies `RecoveryRunId`, the exact two `Incidents`, `ExpiresUtc` (UTC, at most 24 hours),
+and `Reason`. Real execution must be Off. Only an exact startup-continuity hold and its selected
+full recovery's pending hold qualify; current continuity, database identity and guards must pass.
+The permission expires on time, restart or any changed incident set. It keeps the incidents visible
+and never authorizes Real trading, research qualification, or verified clearance. Shared inputs and
+Paper processing may resume while history verification continues. Inspect the unique native receipt
+and IntegrityStatus.PaperContinuation; an uncertain outcome must not be retried blindly. New writes
+can advance heads beyond the running audit's boundary, so clearance may still require further proof.
+Installed availability is recorded in project status; do not infer installation from this procedure.
+
 ## Read-only local database diagnostics
 
 Use the operator-authorized [fixed installed helper](../Operations/ReadOnlyChecks/README.md) for
