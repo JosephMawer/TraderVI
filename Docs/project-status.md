@@ -114,7 +114,7 @@ October 29 using October 28 data, with real publication timestamps. XIU and SPY 
 DataAudit ran after Hermes and saved its full report plus an identical first comparison baseline:
 **2 errors and 9 warnings** — one stale active symbol, one lagging symbol, eight missing usable sector
 mappings, and one orphan-symbol flag. The orphan is the deliberately separate SPY benchmark under
-ADR-0058, so it is a known audit false positive requiring follow-up; it is not missing benchmark data.
+ADR-0058, so it was identified as an audit false positive (correction below), not missing benchmark data.
 The data-quality findings need review; no classification/data repair or audit-rule change was performed.
 First-baseline verification proves storage and stage integration; real cross-night change comparison
 remains unobserved (covered offline). Report wording was subsequently clarified in `460ebec0`; seven
@@ -122,10 +122,40 @@ report tests pass. That wording change was not part of the already captured oper
 
 The task's trigger start boundary alone was advanced, preserving actions, principal, settings and
 all-seven-days recurrence. October 29 00:30 is skipped; verified next start is **October 30 00:30:30
-Toronto**. Source changes are locally committed, not yet pushed. No engine/collector installation,
+Toronto**. Source changes were locally committed at this operational checkpoint. No engine/collector installation,
 model training, schema operation or broker action was performed. Backup success does not establish
 remote OneDrive synchronization or restore proof. Full private status, audit baseline, task XML backup,
 schedule and database receipts: `artifacts/nightly-data-audit-20261028/early-operation/`.
+
+**Audit correction and morning-readiness investigation (October 28, 22:14–22:20 Toronto):** the SPY
+missing-parent exception now implements ADR-0058 without weakening unknown-symbol or duplicate checks.
+Report version 2 makes the interpretation change explicit; the first v2 scan refreshes the baseline
+without calling a removed false positive a data repair. Thirty-three focused audit/benchmark tests,
+126 nightly assertions in both PowerShell runtimes, and the isolated Release DataAudit build pass.
+Build: 258 existing compiler warnings, zero errors; dependency audit disabled, no full-suite/SSDT claim.
+An offline invocation of the corrected auditor against the installed read-only helper's hash-verified
+current aggregate snapshot reports **1 error and 9 warnings**, removing only SPY. The original nightly
+report/baseline is preserved; the next scheduled source capture uses the corrected audit.
+
+The remaining error concerns the old WM listing. The issuer's [October 15 announcement](https://www.sundaylakegold.com/news-events/news-releases/wallbridge-mining-company-limited-completes-name-change-to-sunday-lake-gold-corp--and-20-to-1-share-consolidation)
+records the SNDY ticker and a 20-for-1 consolidation, with trading expected about October 19. Local
+successor onboarding/history alignment needs explicit review; simply renaming or stitching raw bars
+would be unsafe. RCTR's warning is a lagging/sparse provider-history issue, not evidence of delisting;
+the [Canadian issuer still lists the ETF](https://www.firsttrust.ca/Retail/Etf/ETFHome.aspx?Type=CanadaSector).
+RCTR is outside stock-only selection, and WM is excluded by feature-input validation. Neither is in
+tomorrow's saved candidates or picks. All eight mapping warnings share the unrecognized TMX label
+`Media & Telecommunications`; the expected sector series is current, but those stocks use the existing
+explicit XIU fallback. Fixing that mapping requires source normalization and a reviewed database refresh.
+No symbol, history or sector-mapping repair, collector rerun or publication rerun was performed.
+
+**Readiness is scoped:** tomorrow's Valid official preparation exists; the engine is Running and Real
+execution reports waiting for regular hours. Nine unresolved integrity incidents remain, all Paper-scoped
+and discovered October 22–27; no unresolved Global or Broker incident is present. The same notice and
+blocked Paper/research workers were already captured at 21:33, before tonight's early run. Paper protection,
+paper/research inputs, research history and Shadow protection remain restricted. These are pre-existing
+recovery blockers, not new DataAudit gates; this is not an all-system-ready claim. Real's fresh session
+checks still apply. No incident clearance, broker command, host restart or schema change was performed.
+Private snapshot, corrected report, native status and query receipts: `artifacts/audit-followup-20261028/`.
 
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 

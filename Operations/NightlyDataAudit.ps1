@@ -2,7 +2,7 @@
 function ConvertFrom-DataAuditReport {
     param([string] $Json)
     $document = $Json | ConvertFrom-Json
-    if ($document.SchemaVersion -ne 1) { throw 'Unsupported DataAudit report schema.' }
+    if ($document.SchemaVersion -notin @(1,2)) { throw 'Unsupported DataAudit report schema.' }
     $run = $document.Run
     if ([datetime]$run.CompletedUtc -lt [datetime]$run.StartedUtc) { throw 'Invalid audit timestamps.' }
     $options = $run.Options
@@ -50,7 +50,11 @@ function Save-NightlyDataAuditReport {
         foreach ($name in @('StaleWarningSessions','StaleErrorSessions','SectorMappingMaxAgeDays')) {
             if ($current.Run.Options.$name -ne $previous.Run.Options.$name) { $sameOptions = $false }
         }
-        if (-not $sameOptions -or $null -eq $report.MarketDataAsOf -or $null -eq $previous.Run.Report.MarketDataAsOf -or
+        if ($current.SchemaVersion -ne $previous.SchemaVersion) {
+            $comparison.State = 'Unavailable'
+            $comparison.Message = 'Audit rule/report versions differ; baseline refreshed without claiming resolved data problems.'
+        }
+        elseif (-not $sameOptions -or $null -eq $report.MarketDataAsOf -or $null -eq $previous.Run.Report.MarketDataAsOf -or
             [datetime]$report.MarketDataAsOf -lt [datetime]$previous.Run.Report.MarketDataAsOf) {
             $comparison.State = 'Unavailable'
             $comparison.Message = 'Audit options or market dates are not comparable; no change comparison is claimed.'

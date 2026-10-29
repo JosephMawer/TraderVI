@@ -86,8 +86,8 @@ Set-Item Function:Assert-NightlyCopy $script:OriginalAssertCopy
 function Result([int] $ExitCode=0, [string] $Output='') {
     [pscustomobject]@{ Completed=$true; ExitCode=$ExitCode; StandardOutput=$Output; StandardError='' }
 }
-function AuditJson([object[]] $Findings=@(), [int] $WarningSessions=2) {
-    return @{ SchemaVersion=1; Run=@{
+function AuditJson([object[]] $Findings=@(), [int] $WarningSessions=2, [int] $SchemaVersion=2) {
+    return @{ SchemaVersion=$SchemaVersion; Run=@{
         StartedUtc='2026-10-28T05:00:00Z'; CompletedUtc='2026-10-28T05:01:00Z'
         Options=@{StaleWarningSessions=$WarningSessions; StaleErrorSessions=5; SectorMappingMaxAgeDays=14}
         Report=@{MarketDataAsOf='2026-10-27T00:00:00'; TotalSymbols=10; ActiveSymbols=8; ActiveStocks=7; ActiveEtfs=1
@@ -233,6 +233,13 @@ $same = Save-NightlyDataAuditReport (AuditJson @($errorFinding,$otherFinding)) 2
 Assert ($same.Comparison.NewFindings.Count -eq 0 -and $same.Comparison.WorsenedFindings.Count -eq 0) 'Unchanged findings do not create change alerts.'
 $clear = Save-NightlyDataAuditReport (AuditJson) 0
 Assert ($clear.Comparison.ResolvedFindings.Count -eq 2) 'Findings no longer observed remain explicit.'
+$legacy = Save-NightlyDataAuditReport (AuditJson @($errorFinding) 2 1) 2
+$newRules = Save-NightlyDataAuditReport (AuditJson) 0
+Assert ($newRules.Comparison.State -eq 'Unavailable' -and $newRules.Comparison.ResolvedFindings.Count -eq 0) 'Changed audit rules cannot claim legacy findings were repaired.'
+Assert ($newRules.Comparison.Message -match 'versions differ') 'Version transition is explained explicitly.'
+$nextRules = Save-NightlyDataAuditReport (AuditJson) 0
+Assert ($nextRules.Comparison.State -eq 'Compared') 'Comparisons resume after the first current-version baseline.'
+Assert-Throws { ConvertFrom-DataAuditReport (AuditJson @() 2 3) } 'Unsupported DataAudit report schema'
 $differentOptions = Save-NightlyDataAuditReport (AuditJson @() 3) 0
 Assert ($differentOptions.Comparison.State -eq 'Unavailable') 'Changed thresholds cannot imply improvement.'
 $corruptBaseline = Join-Path $comparisonDirectory 'data-audit-last-completed.json'

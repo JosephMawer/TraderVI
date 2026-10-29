@@ -39,6 +39,13 @@ baseline or incompatible options/dates explicitly makes comparison unavailable. 
 one severity is not labelled escalation. Changes to check semantics require review of the report schema
 and comparison compatibility; a review date does not prove clean data.
 
+**October 28 compatibility correction:** ADR-0058 intentionally stores SPY outside the TSX Symbols
+universe. Exempt only that canonical benchmark from missing-parent findings, retaining other orphan
+and duplicate checks. Emit report version 2 to identify this changed interpretation; accept saved
+versions 1 and 2, but make comparisons unavailable across versions. A completed new-version report
+becomes the next baseline without presenting a rule correction as repaired market data. No audit
+threshold, trading gate, database repair or benchmark-validation rule changes.
+
 The audit does not qualify intraday collection, broker execution, model quality or financial authority.
 Remove its WPF view/view model and navigation entry; preserve Core checks, tests and the console project.
 The installed task reads repository scripts directly, so this authorized addition applies at its next

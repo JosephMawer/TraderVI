@@ -30,7 +30,7 @@ try
 
     if (json)
     {
-        Console.WriteLine(JsonSerializer.Serialize(new { SchemaVersion = 1, Run = result },
+        Console.WriteLine(JsonSerializer.Serialize(new { SchemaVersion = 2, Run = result },
             new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } }));
         return report.ErrorCount > 0 ? 2 : report.WarningCount > 0 ? 1 : 0;
     }

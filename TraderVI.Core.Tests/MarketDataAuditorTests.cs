@@ -107,6 +107,21 @@ public sealed class MarketDataAuditorTests
         ], ignoreOrder: true);
     }
 
+    [Theory]
+    [InlineData("SPY")]
+    [InlineData("spy")]
+    public void Analyze_StandaloneSpyBenchmark_IsNotAnOrphanButRetainsIntegrityChecks(string symbol)
+    {
+        var report = MarketDataAuditor.Analyze(Snapshot(
+            orphans: [new(symbol, 200, Sessions[^1]), new("UNKNOWN", 20, Sessions[^1]), new("SPY:US", 20, Sessions[^1])],
+            duplicates: [new(symbol, 1, 1)]), utcNow: Now);
+
+        report.Findings.ShouldNotContain(f => f.Code == "BARS.ORPHAN_SYMBOL" && f.Symbol == symbol);
+        report.Findings.ShouldContain(f => f.Code == "BARS.ORPHAN_SYMBOL" && f.Symbol == "UNKNOWN");
+        report.Findings.ShouldContain(f => f.Code == "BARS.ORPHAN_SYMBOL" && f.Symbol == "SPY:US");
+        report.Findings.ShouldContain(f => f.Code == "BARS.DUPLICATE_SYMBOL_DATE" && f.Symbol == symbol);
+    }
+
     private static MarketDataAuditSnapshot Snapshot(
         IReadOnlyList<AuditedSymbol>? symbols = null,
         IReadOnlyList<AuditedSectorMapping>? mappings = null,

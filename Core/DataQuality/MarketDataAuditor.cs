@@ -1,6 +1,7 @@
 #nullable enable
 
 using Core.TMX;
+using Core.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -243,6 +244,10 @@ public static class MarketDataAuditor
 
         foreach (OrphanDailyBarSummary orphan in snapshot.OrphanDailyBars)
         {
+            // ADR-0058 stores the SPY benchmark separately from the TSX trading universe.
+            // Only its missing Symbols parent is intentional; other integrity checks still apply.
+            if (string.Equals(orphan.Symbol, SpyBenchmarkIngestion.Symbol, StringComparison.OrdinalIgnoreCase))
+                continue;
             findings.Add(new AuditFinding(
                 AuditSeverity.Error,
                 "BARS.ORPHAN_SYMBOL",

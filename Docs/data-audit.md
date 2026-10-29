@@ -28,6 +28,10 @@ Every row in `dbo.Symbols` is inspected, including inactive history. The audit r
 - missing or stale history for referenced TSX sector indices;
 - invalid OHLC invariants, negative volume, duplicate symbol/date bars, and orphan bars or mappings.
 
+The canonical SPY benchmark intentionally has no `dbo.Symbols` parent under ADR-0058. Its absence
+from that TSX universe is exempt from the orphan-bar check only; unknown symbols and duplicate
+observations still produce findings. Hermes and Delphi retain their independent benchmark validation.
+
 Freshness is measured in completed XIU trading sessions, not calendar days. By default, two missed sessions are a warning and five are an error. Adjusted closes may legitimately sit outside the raw daily high/low after distributions or corporate actions, so that relationship is not treated as corruption.
 
 ## Running
@@ -38,14 +42,16 @@ Run after Hermes and its backup have completed, when no data import is in progre
 dotnet run --project DataAudit
 ```
 
-`--json` emits the complete version-1 report, including run times, options, market date and findings,
+`--json` emits the complete version-2 report, including run times, options, market date and findings,
 instead of the human-readable report. Exit codes are unchanged. The CLI still writes no report files.
 The nightly runner captures this output in its private run log and `stages[].dataAudit` in `status.json`,
 so `Operations/Get-TraderVINightlyStatus.ps1` shows findings even if later stages produce long logs.
 The runner maintains `data-audit-last-completed.json` beside status for comparison. New issues and
 warning-to-error escalations are highlighted; unchanged findings remain visible. A first scan establishes
-a baseline. Changed options, regressed/missing market dates or an unreadable baseline disable comparison
+a baseline. Changed rule/report versions or options, regressed/missing market dates or an unreadable baseline disable comparison
 explicitly. A failed/incomplete scan never replaces the last valid baseline.
+Version 2 corrects SPY's orphan false positive. The runner still reads version 1, but does not claim
+resolved data problems across the rule change; comparisons resume after a completed version-2 baseline.
 
 Completed scans with warnings or errors make the nightly result **Attention**; failure to run, timeout
 or invalid output makes it **Failed**. Delphi and Athena continue in either case under their existing
