@@ -19,12 +19,19 @@ attention and leaves the previous complete file intact. Legacy Paper subscriptio
 part of the pending ownership cutover.
 
 The collector reads one completed minute at a time; each bounded TMX response includes the current
-session's available history for recovery. No catch-up request burst or automatic retry exists. XIU,
+session's available history for recovery. No catch-up request burst or automatic network retry exists. XIU,
 holdings and pending exits precede candidates. A deadline/capacity shortfall is a qualification failure,
 not permission to omit symbols silently or relax freshness. Transport startup waits one minute to
 avoid repeating a prior process's request; durable history and confirmation are not reset by that wait.
 Each SQL request intent is committed before HTTP and consumes the session budget even if the process
 crashes. Receipts retain that intent identity and owner generation. Lease loss fences the write.
+
+The October29 source repair allows at most two25ms waits before retrying the identical receipt save
+when SQL explicitly rejects a validation timestamp ahead of its clock (54561). The failed transaction
+is disposed before waiting; every guard runs again. It never changes the timestamp or refetches data,
+and does not retry other SQL errors. A persistent clock mismatch remains an error. Attention status
+includes `Failure.Stage`, `ExceptionType` and `SqlErrors`, without private exception messages. See
+[current installation evidence](../../Docs/project-status.md); source availability does not establish deployment.
 
 `status.json` records dated activity without prices; `stop.request` requests a draining stop and remains
 present across restarts. Removing a deliberate stop is an explicit operational action. The supervisor

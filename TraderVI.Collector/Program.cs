@@ -62,6 +62,7 @@ internal static class Program
                 {
                     if (legacy.IsFaulted) await legacy; // A failed listener requires a supervised restart.
                     CollectorTickResult status;
+                    string stage = "Session";
                     try
                     {
                         var now = DateTime.UtcNow;
@@ -72,21 +73,28 @@ internal static class Program
                             var bounds = calendar.GetSessionBounds(date);
                             if (config.UseVerifiedRealSubscriptions && now >= nextSubscriptionRead)
                             {
+                                stage = "SubscriptionRefresh";
                                 nextSubscriptionRead = now.AddSeconds(30);
                                 var current = await new CollectorSubscriptionRepository().ReadAsync(date, bounds, stop.Token);
                                 string temporary = config.SubscriptionPath + ".writing";
                                 File.WriteAllText(temporary, JsonSerializer.Serialize(current));
                                 File.Move(temporary, config.SubscriptionPath, true);
                             }
+                            stage = "SubscriptionRead";
                             var subscriptions = JsonSerializer.Deserialize<CollectorSubscriptionSnapshot>(File.ReadAllText(config.SubscriptionPath), options)
                                 ?? throw new InvalidDataException();
                             if (subscriptions.SessionOpenUtc != bounds.OpenUtc || subscriptions.SessionCloseUtc != bounds.CloseUtc)
                                 throw new InvalidDataException("Subscriptions do not match the reviewed current session.");
+                            stage = "Collection";
                             status = await worker.TickAsync(subscriptions, stop.Token);
                         }
                     }
                     catch (OperationCanceledException) when (stop.IsCancellationRequested) { break; }
-                    catch { status = new("CollectorAttention", 0, 0, 0); }
+                    catch (Exception error)
+                    {
+                        status = new("CollectorAttention", 0, 0, 0)
+                        { Failure = CollectorFailureDiagnostic.From(stage, error) };
+                    }
                     SaveStatus(statusPath, status);
                     await Task.Delay(status.State == "CollectorAttention" ? TimeSpan.FromSeconds(10) : TimeSpan.FromSeconds(1), stop.Token);
                 }

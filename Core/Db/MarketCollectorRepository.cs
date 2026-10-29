@@ -62,7 +62,11 @@ WHERE SourceContract=@SourceContract AND OwnerId=@OwnerId AND FencingToken=@Fenc
 """, lease, cancellationToken: ct));
     }
 
-    public async Task<DelphiLiveMinuteEvidenceBook> AppendAsync(MarketCollectorLease lease,
+    public Task<DelphiLiveMinuteEvidenceBook> AppendAsync(MarketCollectorLease lease,
+        DelphiLiveCollectorBatch batch, CancellationToken ct = default) =>
+        CollectorReceiptClockRetry.RunAsync(token => AppendOnceAsync(lease, batch, token), ct);
+
+    private async Task<DelphiLiveMinuteEvidenceBook> AppendOnceAsync(MarketCollectorLease lease,
         DelphiLiveCollectorBatch batch, CancellationToken ct = default)
     {
         Lease(lease); DelphiLiveCollectorBatches.Validate(batch);

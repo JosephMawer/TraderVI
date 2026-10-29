@@ -1,5 +1,55 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
+## October 29 collector clock rejection
+
+Following Joseph's request to diagnose and fix collection, a 35-second exception-only EventPipe
+capture observes the original collector18832 without restarting or suspending it. The sandbox first
+denies its diagnostic pipe; the explicitly approved outside-sandbox capture succeeds. At12:08:20,
+12:08:31 and12:08:41 Toronto, SQL54561's exact "validation timestamp is in the future" rejection
+propagates through the collector. There are24 propagated events across those three passes, not24
+independent failed requests. This identifies the hidden error behind the current `CollectorAttention`;
+it does not quantify the application/database clock difference or prove every earlier gap had that cause.
+The previous datetime2 precision repair remains installed and is preserved.
+
+The source repair keeps the original receipt and exact SQL guard. Only54561 (optionally accompanied
+by SQL's statement-terminated3621) may retry after rollback/disposal of its transaction, twice at25ms.
+Each attempt independently rechecks writer lease, intent identity, hashes, chronology and database
+time. There is no accepted future-time tolerance, timestamp rewrite, second network request, general
+timeout/deadlock retry or recovery of lost historical receipt coverage. A persistent rejection fails
+after at most50ms of scheduled waiting. Actual SQL work and scheduler delays are additional elapsed time.
+Cancellation and all other errors propagate. This is a bounded retry of an explicitly rejected,
+idempotent storage operation under ADR-0111, not a change to signal freshness or financial authority.
+
+The host's attention status now carries phase, exception type and SQL error numbers. It excludes
+messages, connection details, prices, symbols and account payloads. Focused regression tests cover
+unchanged identity/time, transaction disposal before waiting, persistent rejection, cancellation,
+other failures and diagnostic privacy. All50 focused tests pass on current source. A separate package
+is built from the installed collector's74438d6e source with only these five source files overlaid;
+the same50 tests pass with its exact Core.dll. Release build passes with258 existing compiler warnings;
+dependency audit was disabled, so no security-scan conclusion is made. No schema change or native
+SQL-write rehearsal was run. SQL project/full solution validation is not claimed.
+
+At12:05 the verified native Real diagnostic still evaluates36 symbols with fresh five-minute memory,
+no confirmed entry, no global buy/risk/quote block and matching protection. This freshness count is not
+proof that every stock/benchmark pair is complete or that a buy should occur. The currently approved
+legacy feed uses the collector's separate relay; the failing minute persistence loop is not a blanket
+buying switch. Missing minute records reduce evidence and future successor qualification. Neither
+these records nor a working host can prove whether an opportunity existed in unsaved data. The earlier
+alias-related shared-input interruption and partial provider gaps remain separate disclosed coverage limits.
+
+The prepared package preserves116 of121 runtime files and all configuration, while changing only Core
+and collector host binaries/symbols. Installation would normally stop/restart only the collector and
+its supervisor, retain the engine/dashboard and saved execution grant, and update the existing startup
+manifest so established startup commands continue to work. The original package/manifest are retained.
+This may briefly interrupt the legacy feed and starts the existing one-minute transport cooldown.
+**Installation and actual restored coverage are pending, not inferred from tests.**
+
+Private evidence: `artifacts/collector-diagnosis-20261029/` contains bounded trace events, current-source
+and exact-candidate tests, candidate source/package/manifest, preflight plan and reviewed installer.
+The installer refuses an existing attempt receipt, changed ownership or hashes; it never force-kills
+a process or modifies financial permissions. Fresh native status and completed-minute receipt coverage
+are required after an authorized installation.
+
 ## October 29 intraday alias repair and monitoring limits
 
 The market watch identifies a separate minute-collector degradation beginning around 11:01 Toronto:
@@ -7,7 +57,9 @@ saved request receipts fall from 34 per minute to roughly 0–10, with reserved 
 receipts and repeated `CollectorAttention`. Some observations continue to advance; that alone does
 not establish healthy coverage. All 121 files of the dedicated collector precision runtime and its
 configuration match the installed manifest. Stored observation checksum and chronology checks pass.
-The collector's outer exception handler omits the underlying error, so its root cause remains unresolved.
+At that checkpoint the outer exception handler omits the underlying error. The later
+[12:08 diagnosis](#october-29-collector-clock-rejection) identifies the repeated clock rejection;
+restored collection remains unverified until the prepared replacement runs.
 
 At 11:22 the shared market-input worker begins repeatedly failing; its latest publication remains the
 11:15 bar. Real's host still reports Running but explicitly waits for fresh inputs, preventing fresh buy

@@ -59,7 +59,10 @@ public interface IIntradayCollectorSource
     Task<DelphiLiveCollectorBatch> FetchAsync(CollectorAttempt attempt, TimeSpan deadlineOffset, CancellationToken ct);
 }
 
-public sealed record CollectorTickResult(string State, int Attempted, int Saved, int Failed);
+public sealed record CollectorTickResult(string State, int Attempted, int Saved, int Failed)
+{
+    public CollectorFailureDiagnostic? Failure { get; init; }
+}
 
 /// <summary>
 /// Single-flight collector loop with no account/order capability. Fresh endpoints have priority;

@@ -1,5 +1,21 @@
 # TraderVI Project Status
 
+## October 29 — collector clock rejection diagnosed; replacement prepared
+
+At 12:08 Toronto, a bounded exception trace of the existing collector identifies repeated SQL54561:
+the database rejects its validation timestamp as being in the future. Three failed passes produce
+24 propagated exception events with that exact guard message; these are not 24 independent requests.
+The size and underlying cause of the clock difference have not been measured.
+
+A focused repair retries only this explicit, rolled-back save rejection, using the identical receipt
+after at most two 25ms waits. Every SQL timestamp, ownership and evidence check still applies; no
+network request, price or timestamp is changed. Persistent clock errors still stop the pass. Status
+also gains safe error type/SQL codes and phase, without private exception text. Fifty focused tests
+pass both on current source and against the exact prepared collector Core binary. The Release package
+uses installed collector source74438d6e plus only the repair; 116 of121 runtime files are unchanged.
+It is **not installed or operationally verified**. Collector-only deployment/coverage verification remains.
+[Diagnosis and limits](reviews/independent-engine-implementation-20261022.md#october-29-collector-clock-rejection).
+
 ## October 29 — intraday market-input blockage repaired; collector degradation remains
 
 At 11:46 Toronto, Joseph's approved one-entry Broker alias repair resolves a newly unrecognized
