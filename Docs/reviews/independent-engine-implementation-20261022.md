@@ -135,6 +135,32 @@ due different symbol collations; the corrected read explicitly uses the collecto
 Initial lifecycle reason paths returned null; the final query uses the actual lifecycle.snapshot.reasonCode
 contract and confirms the reasons above. No schema, runtime or financial changes occur in this diagnosis.
 
+### October 29 recurring minute-admission shortfall
+
+Monitoring through 13:29 finds a separate scheduling boundary after the clock-save repair. All
+reserved requests still have receipts and no source failure in the examined window. However,
+13:12/13:13/13:14 admit 31/32/31 of the usual 34 subscriptions; after recovery, 13:20/13:21 admit
+33/30 and 13:23–13:26 admit 28/32/28/33. These omitted minute slots remain missing coverage.
+
+For the last four minutes, all 15 omitted slots have a previous fetch start whose one-minute
+repeat boundary falls 44.255–44.912 seconds after the target minute. The collector stops admitting
+at 45 seconds, checks at least 60 seconds between starts, and the host waits one second between
+ordinary passes. Other requests are admitted as late as 44.906 seconds. This strongly supports
+boundary scheduling pressure: the next permitted start leaves only 88–745ms before admission closes.
+It does not establish that every earlier omission had this cause or authorize shortening the
+provider interval, extending evidence deadlines, concurrent fetching or runtime replacement.
+
+Brief stale-input evaluations at 13:22:16 and 13:27:10 recover to fresh evaluations at 13:22:54 and
+13:27:47. At the latter check Real remains Running, with zero holds, worker/account/quote blocks,
+NewBuysStopped false, matching protection and 5/5 orders reconciled. The legacy five-minute relay
+continues; this minute collection shortfall is not a demonstrated global buying block. Partial stock
+bar coverage remains separately diagnosed. Collector scheduling/capacity qualification remains open.
+
+Read-only `MissingAdmissions-1327.sql` SHA256
+`7BB9C2CE6C8E3EC2A2AEF95C4B56B5D35CF54CDA9EB4BF6AB5AA969BBE78D5AF` matches private receipt
+`result-20261029T172907937Z-77a05c9ce75b4f28952f42d923fe5c4c.json`. Coverage/timing queries and
+native captures are preserved in `artifacts/market-watch-20261029/`; no operational changes performed.
+
 ### October 29 second-source comparison
 
 Joseph explicitly requests comparison with another source to distinguish inactive stocks from missing

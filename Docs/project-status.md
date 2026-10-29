@@ -33,6 +33,12 @@ records with the same values. One becomes an aligned 12:25 bar when later activi
 This identifies a sparse final-bar interpretation/coverage issue, not universal absence of trading.
 No source adapter or policy is changed; source qualification remains open. Real is Running without
 global buy/risk/quote blocks at 13:03. [Comparison and limits](reviews/independent-engine-implementation-20261022.md#october-29-second-source-comparison).
+At 13:29, monitoring identifies a separate recurring request-admission shortfall: 13:23–13:26
+attempt 28/32/28/33 of the usual 34 stocks, while saving every attempted receipt. All 15 omitted
+slots become repeat-eligible only 44.255–44.912 seconds into the minute, just before the 45-second
+deadline; this supports a scheduling-boundary problem rather than renewed SQL-save failure.
+Real still evaluates fresh inputs at 13:27:47 with no global buy block. Native scheduling/capacity
+acceptance remains open. [Admission evidence](reviews/independent-engine-implementation-20261022.md#october-29-recurring-minute-admission-shortfall).
 [Diagnosis and limits](reviews/independent-engine-implementation-20261022.md#october-29-collector-clock-rejection).
 
 ## October 29 — intraday market-input blockage repaired; collector degradation remains
