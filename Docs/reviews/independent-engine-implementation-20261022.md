@@ -81,6 +81,60 @@ evidence is retained outside that directory. The installer must not be replayed.
 automation receives the new owner/manifest and verification baseline. No further restart, financial
 activation, schema change, order action, backfill or GitHub push is performed by this repair.
 
+## October 29 missing five-minute bars and entry impact
+
+Joseph requests the remaining missing bars investigated. Read-only diagnosis pins the12:30 Toronto
+publication: six of36 tracked names lack the completed12:25–12:30 stock bar, while their benchmark
+bars are present/on-time. All six collection requests finish around12:32:23–24, well before the12:37
+deadline, with one provider attempt/request each. Each saved response reports `StaleNoNewBar`, zero
+returned bars in the exact logical window and zero new persisted bars. All six receipt hashes match.
+The actual provider window begins at09:30 and extends to12:32, confirming the accepted session/observed-
+end context is already applied. This is not a narrow-window regression or a new collector SQL save failure.
+
+The last aligned provider bar starts between12:00 and12:20. Every response also records a trailing
+off-grid timestamp, ranging from12:17 to12:27. Under ADR-0089, these supplemental timestamps are
+retained for diagnosis but cannot be relabeled as completed five-minute bars. Available separate
+minute receipts saved before12:32 corroborate the sparse/stale pattern: three names have zero minute
+rows in12:25–12:30, with latest source rows at12:17/12:19; two have exactly one row each, at12:26 or12:27.
+All five available minute receipt hashes match and report no source error. The sixth name has no
+minute subscription/receipt in this window, so it provides no minute cross-check. Its legacy five-minute
+request nevertheless succeeds; the absent minute subscription does not explain that stale legacy response.
+The known requirement to include all legacy subscriptions remains in the collector checklist.
+
+These saved records establish what TMX delivered and what the app accepted. They cannot distinguish
+an actual no-trade interval from delayed/incomplete provider data. Historical ADR-0089 comparisons found
+similar sparse supplementary rows, but those older experiments do not prove today's exchange activity.
+No external requests, backfill, synthetic flat bars, timestamp rounding or relaxed entry gate are used.
+Further source qualification must establish sparse-trading semantics and independent coverage before
+changing construction or eligibility of completed bars.
+
+The actual stored evaluation confirms the buying impact. All six12:30 names have ObservationIsValid,
+FamiliesMature and ConfirmedLiveEligible false. Five have at least three consecutive misses, and one
+has its first miss. Four have a daily setup in all three profiles at that checkpoint; observed holdings
+and other tracked names are not automatically entry candidates. By12:35, seven distinct names have
+invalid observations, one has a valid but immature observation and28 have valid mature observations.
+None is confirmed eligible across the saved profiles. One mature name has begun strong confirmation
+but cannot yet create a buy; the others have Watching/Weakening states. Counts grouped by lifecycle
+can overlap across profiles and must not be summed as unique stocks.
+
+At12:43:18 the qualified native Real diagnostic confirms fresh12:40 inputs, Running, NoRecommendation,
+NewBuysStopped false, zero account/quote blocks, matching protection and five of five owned orders
+reconciled. There are zero integrity holds and consecutive worker failures. Thus missing bars prevent
+eligible signals for the affected names, while no blanket permission/engine block explains buying
+across all names. No confirmed buy was being suppressed globally in this sample. The missing values
+cannot establish whether an otherwise valid or profitable trade would have existed.
+
+Private queries and evidence: `artifacts/missing-bars-20261029/Diagnosis-v2.sql` hash
+`A0F4AC80D96142B8D66A7DAB59947012941D67AD9ACDE71D4762E06ED5586C36`, receipt
+`result-20261029T163804088Z-3a8c7748a35d4261a520cac237a4b912.json`;
+`CauseAndImpact.sql` hash`51AB103BAECAE6D01F5EE3E132DF7CDB0B927030BB1572B83AF196AF013682DB`,
+receipt`result-20261029T163938146Z-b0e21c0af69044f2bc4613c6e2a7c239.json`;
+`EntryImpact.sql` hash`672AC82A362667EA269836699BBEEE1AA0AE136378B4EFF0AFBE37EE027B2D45`,
+receipt`result-20261029T164231196Z-13a1a6067fd44bd6b0d0a3d89ce7383f.json`. The first query failed468
+due different symbol collations; the corrected read explicitly uses the collector's binary collation.
+Initial lifecycle reason paths returned null; the final query uses the actual lifecycle.snapshot.reasonCode
+contract and confirms the reasons above. No schema, runtime or financial changes occur in this diagnosis.
+
 ## October 29 intraday alias repair and monitoring limits
 
 The market watch identifies a separate minute-collector degradation beginning around 11:01 Toronto:

@@ -20,6 +20,12 @@ Running with fresh inputs, no global buy/risk/quote block, matching protection a
 there are zero holds and worker failures. All three Paper v3 heads continue advancing. This verifies
 initial collection recovery, not whole-session source qualification. Five names still lack an exact
 stock bar in the12:25 five-minute publication; provider gaps and earlier missed coverage remain separate.
+The subsequent missing-bar diagnosis traces all six misses in the12:30 publication to successful,
+on-time TMX responses lacking the exact completed stock bar. Available minute receipts show sparse
+or stale source records; they do not prove whether actual trading was absent or the feed was incomplete.
+Those names cannot create a buy from that observation. At12:35 none of the36 observed names has a
+confirmed entry, including the29 with valid observations. At12:43 Real remains Running with fresh12:40
+inputs and no global buy/risk/quote block. [Source-gap breakdown](reviews/independent-engine-implementation-20261022.md#october-29-missing-five-minute-bars-and-entry-impact).
 [Diagnosis and limits](reviews/independent-engine-implementation-20261022.md#october-29-collector-clock-rejection).
 
 ## October 29 — intraday market-input blockage repaired; collector degradation remains
