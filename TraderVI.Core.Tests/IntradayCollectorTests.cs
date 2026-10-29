@@ -107,6 +107,86 @@ public sealed class IntradayCollectorTests
     }
 
     [Fact]
+    public async Task WakesForSubsecondEligibilityRatherThanSkippingTheLastAdmissionWindow()
+    {
+        var rig = new Rig();
+        var one = Subscriptions with { Candidates = [], Holdings = [], PendingExits = [] };
+        rig.Now = Open.AddMinutes(2).AddMilliseconds(44200);
+        Assert.Equal(1, (await rig.Worker.TickAsync(one)).Saved);
+        rig.Now = Open.AddMinutes(3).AddMilliseconds(43950);
+        var waiting = await rig.Worker.TickAsync(one);
+        Assert.Equal(0, waiting.Attempted);
+        Assert.Equal(TimeSpan.FromMilliseconds(250), waiting.PollDelay(rig.Now));
+        rig.Now += waiting.PollDelay(rig.Now);
+        Assert.Equal(1, (await rig.Worker.TickAsync(one)).Saved);
+        Assert.Equal(2, rig.Source.Reads.Count);
+        Assert.Equal(TimeSpan.FromMinutes(1), rig.Source.Starts[1] - rig.Source.Starts[0]);
+    }
+
+    [Fact]
+    public async Task CompletedSlotIsNotReservedAgainWithinMinuteButNewMinuteStillRuns()
+    {
+        var rig = new Rig(); rig.Now = Open.AddMinutes(2).AddSeconds(5);
+        await rig.Worker.TickAsync(Subscriptions);
+        int reservations = rig.Store.Reservations;
+        rig.Now = Open.AddMinutes(2).AddSeconds(44);
+        await rig.Worker.TickAsync(Subscriptions);
+        Assert.Equal(reservations, rig.Store.Reservations);
+        rig.Now = Open.AddMinutes(3).AddSeconds(5);
+        Assert.Equal(4, (await rig.Worker.TickAsync(Subscriptions)).Saved);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task FullSessionThirtyFourSymbolsRetainsRateAndDeadlineWithVariableLatency(bool scheduled)
+    {
+        var rig = new Rig(Limits with { MaximumSymbols = 34, MaximumRequestsPerSession = 20000 });
+        var subscriptions = Subscriptions with
+        { Candidates = Enumerable.Range(0, 31).Select(i => "C" + i).ToImmutableArray() };
+        rig.Store.BeforeRenew = () => rig.Now = rig.Now.AddMilliseconds(2);
+        rig.Store.BeforeReserve = () => rig.Now = rig.Now.AddMilliseconds(4);
+        rig.Store.AfterSave = () => rig.Now = rig.Now.AddMilliseconds(4);
+        rig.Source.AfterRead = () => rig.Now = rig.Now.AddMilliseconds(60 + rig.Source.Reads.Count % 7 * 10);
+        rig.Now = Open.AddMinutes(2).AddSeconds(5);
+        var stop = Subscriptions.SessionCloseUtc.AddSeconds(45);
+        while (rig.Now < stop)
+        {
+            var result = await rig.Worker.TickAsync(subscriptions);
+            // File/status work and timer overshoot are not free in the native host.
+            rig.Now = rig.Now.AddMilliseconds(3);
+            rig.Now += scheduled ? result.PollDelay(rig.Now) : TimeSpan.FromSeconds(1);
+            rig.Now = rig.Now.AddMilliseconds(1 + rig.Source.Reads.Count % 5);
+        }
+        var counts = rig.Store.Saved.GroupBy(b => b.ExpectedEndUtc).Select(g => g.Count()).ToArray();
+        Assert.Equal(389, counts.Length); // Minute endpoints 2 through 390, including close.
+        if (scheduled) Assert.All(counts, count => Assert.Equal(34, count));
+        else Assert.Contains(counts, count => count < 34); // Same workload reproduces old polling drift.
+        foreach (var group in rig.Store.Saved.GroupBy(b => b.Symbol))
+        {
+            var requests = group.OrderBy(b => b.FetchStartedUtc).ToArray();
+            for (int i = 1; i < requests.Length; i++)
+                Assert.True(requests[i].FetchStartedUtc - requests[i - 1].FetchStartedUtc >= TimeSpan.FromMinutes(1));
+        }
+        if (scheduled)
+            Assert.All(rig.Store.Saved, b => Assert.True(b.ReceivedUtc < b.ExpectedEndUtc.Add(Limits.DeadlineOffset)));
+        else
+            Assert.Contains(rig.Store.Saved, b => b.ReceivedUtc >= b.ExpectedEndUtc.Add(Limits.DeadlineOffset));
+        Assert.Equal(rig.Store.Saved.Count, rig.Store.Attempts.Select(a => (a.Symbol, a.ExpectedEndUtc)).Distinct().Count());
+    }
+
+    [Fact]
+    public void PollDelayPreservesFailureBackoffAndBoundsOverdueWakeups()
+    {
+        Assert.Equal(TimeSpan.FromSeconds(10), new CollectorTickResult("CollectorAttention", 0, 0, 0)
+            { NextPollUtc = Open }.PollDelay(Open));
+        Assert.Equal(TimeSpan.FromMilliseconds(1), new CollectorTickResult("Collected", 1, 1, 0)
+            { NextPollUtc = Open }.PollDelay(Open));
+        Assert.Equal(TimeSpan.FromSeconds(1), new CollectorTickResult("Collected", 1, 1, 0)
+            { NextPollUtc = Open.AddMinutes(1) }.PollDelay(Open));
+    }
+
+    [Fact]
     public async Task OverlappingTicksAndStopAreSerialized()
     {
         var rig = new Rig(); rig.Now = Open.AddMinutes(2).AddSeconds(5);
@@ -143,21 +223,23 @@ public sealed class IntradayCollectorTests
         public Store Store { get; }
         public Source Source { get; }
         public IntradayCollector Worker { get; }
-        public Rig() { Store = new(() => Now); Source = new(Store, () => Now); Worker = new(Store, Source, Limits, () => Now); }
+        public Rig(CollectorLimits? limits = null) { Store = new(() => Now); Source = new(Store, () => Now); Worker = new(Store, Source, limits ?? Limits, () => Now); }
     }
     private sealed class Store(Func<DateTime> clock) : IIntradayCollectorStore
     {
         public Guid? CurrentOwner; public bool DenyLease;
+        public Action? BeforeRenew, BeforeReserve, AfterSave; public int Reservations;
         public List<CollectorAttempt> Attempts = []; public List<DelphiLiveCollectorBatch> Saved = [];
         public Task<MarketCollectorLease?> AcquireAsync(string source, Guid owner, CancellationToken ct)
         {
             if (DenyLease) return Task.FromResult<MarketCollectorLease?>(null);
             CurrentOwner = owner; return Task.FromResult<MarketCollectorLease?>(new(source, owner, 1, clock().AddMinutes(2)));
         }
-        public Task<bool> RenewAsync(MarketCollectorLease lease, CancellationToken ct) => Task.FromResult(CurrentOwner == lease.OwnerId);
+        public Task<bool> RenewAsync(MarketCollectorLease lease, CancellationToken ct) { BeforeRenew?.Invoke(); return Task.FromResult(CurrentOwner == lease.OwnerId); }
         public Task ReleaseAsync(MarketCollectorLease lease, CancellationToken ct) { if (CurrentOwner == lease.OwnerId) CurrentOwner = null; return Task.CompletedTask; }
         public Task<CollectorAttempt?> ReserveAsync(MarketCollectorLease lease, CollectorSubscriptionSnapshot s, string symbol, DateTime end, int budget, CancellationToken ct)
         {
+            Reservations++; BeforeReserve?.Invoke();
             if (Attempts.Count >= budget || Attempts.Any(a => a.Symbol == symbol && a.ExpectedEndUtc == end)) return Task.FromResult<CollectorAttempt?>(null);
             var attempt = new CollectorAttempt(Guid.NewGuid(), lease.SourceContract, symbol, s.SessionOpenUtc, s.SessionCloseUtc, end, clock());
             Attempts.Add(attempt); return Task.FromResult<CollectorAttempt?>(attempt);
@@ -165,16 +247,17 @@ public sealed class IntradayCollectorTests
         public Task SaveAsync(MarketCollectorLease lease, DelphiLiveCollectorBatch batch, CancellationToken ct)
         {
             if (CurrentOwner != lease.OwnerId) throw new InvalidOperationException("Fenced out");
-            Saved.Add(batch); return Task.CompletedTask;
+            Saved.Add(batch); AfterSave?.Invoke(); return Task.CompletedTask;
         }
     }
     private sealed class Source(Store store, Func<DateTime> clock) : IIntradayCollectorSource
     {
         public string SourceContract => "SyntheticV1";
         public List<string> Reads = []; public bool Fail; public Action? AfterRead; public Func<Task>? Wait;
+        public List<DateTime> Starts = [];
         public async Task<DelphiLiveCollectorBatch> FetchAsync(CollectorAttempt a, TimeSpan offset, CancellationToken ct)
         {
-            Assert.Contains(a, store.Attempts); Reads.Add(a.Symbol); var started = clock();
+            Assert.Contains(a, store.Attempts); Reads.Add(a.Symbol); var started = clock(); Starts.Add(started);
             if (Wait is not null) await Wait();
             if (Fail) throw new InvalidOperationException("Synthetic failure");
             AfterRead?.Invoke();

@@ -41,6 +41,17 @@ Real still evaluates fresh inputs at 13:27:47 with no global buy block. Native s
 acceptance remains open. [Admission evidence](reviews/independent-engine-implementation-20261022.md#october-29-recurring-minute-admission-shortfall).
 [Diagnosis and limits](reviews/independent-engine-implementation-20261022.md#october-29-collector-clock-rejection).
 
+At 13:50, the requested scheduling repair is source-tested and packaged, **not installed**. The host
+wakes at the next pending request's eligibility time instead of always waiting another second;
+already-attempted minute slots avoid redundant reservation calls. The 60-second request spacing,
+45-second deadline, durable intent, budgets and source policy remain unchanged. All 55 focused tests
+pass on current source and the exact candidate Core binary. A full-session synthetic comparison
+checks all 34 subscriptions at each of 389 eligible endpoints with the new schedule, while fixed
+one-second polling misses slots on the same workload. Native capacity remains unverified. Installing
+requires a collector-only restart and its existing startup cooldown; the engine and financial grant
+are preserved. At 13:46:22, unchanged live execution is Running with fresh inputs and no global buying
+block. [Repair scope and validation](reviews/independent-engine-implementation-20261022.md#october-29-collector-scheduling-repair).
+
 ## October 29 — intraday market-input blockage repaired; collector degradation remains
 
 At 11:46 Toronto, Joseph's approved one-entry Broker alias repair resolves a newly unrecognized

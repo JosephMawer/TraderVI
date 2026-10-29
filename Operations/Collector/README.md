@@ -26,6 +26,13 @@ avoid repeating a prior process's request; durable history and confirmation are 
 Each SQL request intent is committed before HTTP and consumes the session budget even if the process
 crashes. Receipts retain that intent identity and owner generation. Lease loss fences the write.
 
+The scheduling repair exposes `NextPollUtc` for pending request eligibility. The host waits up to
+one second, shortening that wait for a rolling 60-second request boundary; already reserved slots
+avoid repeated reservation work in the same process. SQL intent/fencing remains authoritative after
+restart. Error backoff remains ten seconds. This removes fixed-poll delay accumulation without relaxing
+spacing or deadlines; slow providers, SQL or scheduling can still cause explicit coverage shortfalls.
+See current status for the distinction between source tests, installed runtime and measured coverage.
+
 The October29 source repair allows at most two25ms waits before retrying the identical receipt save
 when SQL explicitly rejects a validation timestamp ahead of its clock (54561). The failed transaction
 is disposed before waiting; every guard runs again. It never changes the timestamp or refetches data,

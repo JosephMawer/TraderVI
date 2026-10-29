@@ -96,7 +96,7 @@ internal static class Program
                         { Failure = CollectorFailureDiagnostic.From(stage, error) };
                     }
                     SaveStatus(statusPath, status);
-                    await Task.Delay(status.State == "CollectorAttention" ? TimeSpan.FromSeconds(10) : TimeSpan.FromSeconds(1), stop.Token);
+                    await Task.Delay(status.PollDelay(DateTime.UtcNow), stop.Token);
                 }
             }
             catch (OperationCanceledException) when (stop.IsCancellationRequested) { }

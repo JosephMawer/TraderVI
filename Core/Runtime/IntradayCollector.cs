@@ -62,6 +62,15 @@ public interface IIntradayCollectorSource
 public sealed record CollectorTickResult(string State, int Attempted, int Saved, int Failed)
 {
     public CollectorFailureDiagnostic? Failure { get; init; }
+    public DateTime? NextPollUtc { get; init; }
+
+    public TimeSpan PollDelay(DateTime nowUtc)
+    {
+        DelphiLiveFiveMinuteBar.RequireUtc(nowUtc, nameof(nowUtc));
+        if (State == "CollectorAttention") return TimeSpan.FromSeconds(10);
+        if (NextPollUtc is not { } next) return TimeSpan.FromSeconds(1);
+        return TimeSpan.FromMilliseconds(System.Math.Clamp((next - nowUtc).TotalMilliseconds, 1, 1000));
+    }
 }
 
 /// <summary>
@@ -77,6 +86,7 @@ public sealed class IntradayCollector
     private readonly Guid owner = Guid.NewGuid();
     private readonly SemaphoreSlim gate = new(1, 1);
     private readonly System.Collections.Generic.Dictionary<string, DateTime> lastStarts = new(StringComparer.Ordinal);
+    private readonly System.Collections.Generic.Dictionary<string, DateTime> attemptedEnds = new(StringComparer.Ordinal);
     private readonly DateTime createdUtc;
     private MarketCollectorLease? lease;
 
@@ -117,10 +127,12 @@ public sealed class IntradayCollector
                 ct.ThrowIfCancellationRequested();
                 now = clock();
                 if (now >= end.Add(limits.DeadlineOffset)) break;
+                if (attemptedEnds.TryGetValue(symbol, out var attemptedEnd) && attemptedEnd >= end) continue;
                 if (lastStarts.TryGetValue(symbol, out var prior) && now < prior.AddMinutes(1)) continue;
                 if (!await store.RenewAsync(lease, ct)) { lease = null; return new("LeaseLost", attempted, saved, failed); }
                 var attempt = await store.ReserveAsync(lease, subscriptions, symbol, end, limits.MaximumRequestsPerSession, ct);
                 if (attempt is null) continue;
+                attemptedEnds[symbol] = end;
                 attempted++;
                 var started = clock(); lastStarts[symbol] = started;
                 DelphiLiveCollectorBatch receipt;
@@ -148,9 +160,32 @@ public sealed class IntradayCollector
                 saved++; if (receipt.FailureCode is not null) failed++;
             }
             return new(failed > 0 ? "SourceAttention" : attempted == 0 ? "NoNewRequestAdmitted" :
-                attempted < symbols.Length ? "PartialCollection" : "Collected", attempted, saved, failed);
+                attempted < symbols.Length ? "PartialCollection" : "Collected", attempted, saved, failed)
+            { NextPollUtc = NextPoll(symbols, end, clock()) };
         }
         finally { gate.Release(); }
+    }
+
+    private DateTime NextPoll(ImmutableArray<string> symbols, DateTime end, DateTime now)
+    {
+        DateTime nextMinute = end.AddMinutes(1).AddTicks(1);
+        DateTime next = nextMinute;
+        foreach (string symbol in symbols)
+        {
+            bool attempted = attemptedEnds.TryGetValue(symbol, out var previousEnd) && previousEnd >= end;
+            // A completed slot waits for the next endpoint. A pending slot wakes at its exact
+            // rolling-rate boundary instead of accumulating a whole host-poll interval each minute.
+            DateTime eligible = attempted ? nextMinute : now.AddSeconds(1);
+            if (lastStarts.TryGetValue(symbol, out var previousStart))
+            {
+                DateTime rateBoundary = previousStart.AddMinutes(1);
+                if (attempted && rateBoundary > nextMinute || !attempted && rateBoundary > now)
+                    eligible = rateBoundary;
+            }
+            if (!attempted && eligible >= end.Add(limits.DeadlineOffset)) eligible = nextMinute;
+            if (eligible < next) next = eligible;
+        }
+        return next;
     }
 
     public async Task StopAsync(CancellationToken ct = default)

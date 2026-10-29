@@ -161,6 +161,42 @@ Read-only `MissingAdmissions-1327.sql` SHA256
 `result-20261029T172907937Z-77a05c9ce75b4f28952f42d923fe5c4c.json`. Coverage/timing queries and
 native captures are preserved in `artifacts/market-watch-20261029/`; no operational changes performed.
 
+### October 29 collector scheduling repair
+
+Joseph requests fixing the recurring admission shortfall while preserving trading. The source repair
+adds a next-poll deadline based on pending symbols' rolling 60-second eligibility, with bounded
+1ms–1s host waits and the existing ten-second error backoff. Successful durable reservations are
+remembered for their minute endpoint, avoiding redundant reservation/lease work for those slots.
+The database remains authoritative for reservations, fencing and budgets, including after restart;
+null reservations are not cached as successful. The repair does not shorten request spacing, extend
+the 45-second evidence deadline, add concurrency or network retries, or reinterpret sparse TMX bars.
+
+Fifty-five focused collector, receipt, relay and minute-evidence tests pass on current source and on
+the exact packaged Core binary. The full-session simulation uses 34 symbols, 389 eligible endpoints
+(after startup through close), variable 60–120ms fetch latency, 2ms renew/4ms reserve/4ms save costs,
+3ms host work and 1–5ms timer overshoot. Adaptive polling saves all 13,226 receipts before their
+deadlines with at least 60 seconds between starts and no duplicate slots. Fixed one-second polling
+on the same workload misses slots and produces late receipts. Other tests preserve restart cooldown,
+ownership fencing, slow-response limits, closing-minute collection, cancellation and backoff. This is
+bounded synthetic qualification, not a guarantee under arbitrary provider/SQL delays or a native
+full-session capacity result. The previous fixed poll still runs until installation is authorized.
+
+The isolated Release candidate derives from the installed collector source plus only this scheduler
+and host-delay change. Five runtime files differ; 116 of 121 remain byte-identical. The engine Core
+and saved financial grant match their previous hashes. The build has 258 existing nullable-context
+compiler warnings, zero errors; dependency-security audit was disabled, not requalified. An initial
+isolated test restore was blocked by sandbox network permissions; the approved restore/test succeeds.
+No SQL rehearsal, schema change, external market read, runtime replacement or trading action was run.
+
+Private evidence and a syntax-checked, guarded installer are in
+`artifacts/collector-scheduling-20261029/`. Installation is **prepared, not executed**: normal collector
+drain, manifest replacement, hidden supervisor launch, exact owner/package/configuration and unchanged
+engine/grant checks. The collector restart briefly interrupts its legacy shared feed and restarts the
+minute transport's one-minute cooldown; it does not require an engine/dashboard restart or renewed
+trading authority. Actual post-install receipts and ongoing fresh execution must be verified separately.
+The 13:46 native capture confirms Running/fresh evaluation, zero holds/worker/account/quote blocks,
+NewBuysStopped false, matching protection and 5/5 reconciled orders while code work proceeds.
+
 ### October 29 second-source comparison
 
 Joseph explicitly requests comparison with another source to distinguish inactive stocks from missing
