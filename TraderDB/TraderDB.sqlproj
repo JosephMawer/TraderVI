@@ -285,5 +285,6 @@
     <None Include="Migrations/20261022_050_AddIndependentIntegrityAudits.sql" />
     <None Include="Migrations/20261022_051_AddPaperWorkingState.sql" />
     <None Include="Migrations/20261028_052_AddIndependentCollectorEvidence.sql" />
+    <None Include="Migrations/20261029_053_AddVerifiedCurrentHoldingAlias.sql" />
   </ItemGroup>
 </Project>

@@ -41,7 +41,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 
 | # | Title | Status | Domains |
 |---|---|---|---|
-| [0116](0116-temporary-paper-continuation-during-reboot-recovery.md) | Temporary Paper continuation during reboot recovery | Implemented and tested; installation pending | architecture, data-pipeline |
+| [0116](0116-temporary-paper-continuation-during-reboot-recovery.md) | Temporary Paper continuation during reboot recovery | Installed; run subsequently cleared by native proof | architecture, data-pipeline |
 | [0115](0115-exact-audit-prefix-hash-reuse.md) | Exact audit prefix hash reuse | Accepted; installed, recovery acceptance pending | architecture, data-pipeline |
 | [0114](0114-explicit-nightly-preparation-date.md) | Explicit nightly preparation date | Accepted | architecture, data-pipeline |
 | [0113](0113-nightly-data-audit-report.md) | Nightly data-quality audit and report | Accepted | architecture, data-pipeline, user-interface |

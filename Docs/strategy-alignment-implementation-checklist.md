@@ -161,19 +161,21 @@ The overnight target was missed. Completed source work is separate from installe
   Their shared query's missing ORDER BY separator is repaired and read-only validated, then installed
   with Joseph's explicit approval at 01:33:44. Samples at 01:33:41 and 01:34:18 show all five affected
   workers completing with zero failures; native Paper/Research consumer receipts confirm processing.
-- [ ] Resolve the separate October 29 02:10 post-reboot Global EngineRecoveryRequired incident through
-  an authorized verified recovery path, then recheck workers. The earlier ten-hold clearance and worker
-  success remain completed historical checkpoints; they do not clear this later continuity incident.
+- [x] Resolve the separate October29 post-reboot incident through full verified recovery: all299,036
+  units complete; native clearance resolves both incidents at09:28:08. Zero remain at09:36.
+  Worker recheck finds a separate market-input failure at09:30; clearance is not morning readiness.
 - [x] Implement/test the requested temporary Paper continuation under ADR-0116, without falsely
   resolving incidents or changing Real authority. Full Core3,374passed/10SQLskips and final39focused
   tests pass; Release WPF/engine builds. New errors, expiry or restart stop the permission.
-- [ ] Install/activate the explicit temporary Paper continuation and verify resumed Paper workers;
-  retain unverified-history and research restrictions until real recovery clearance is established.
+- [x] Install/activate temporary Paper continuation at02:49; Paper inputs/protection resume while
+  research remains held. Actual native clearance at09:28 subsequently restores normal incident access.
+- [ ] Resolve the market-open input failure and missing current-session risk opening evidence.
+  Migration053's one verified missing broker alias is prepared/read-only checked, not yet applied.
 - [ ] Prove actual new Paper revision advancement using version-3 roots and matching current checkpoints.
   Installed code, Waiting status and cleared holds alone do not qualify this. Observe the next eligible
   session if no legitimate off-hours work exists; do not manufacture writes or replay expired buys.
-  At 01:34 all three are active for October 29 but still have zero new v3 revisions; expired queued
-  Paper inputs correctly produce NotActionableLate receipts. Continue through eligible fresh activity.
+  At09:37 all three still have zero new v3 revisions and matching v2 checkpoints. Market-input failure
+  now prevents session initialization; this is no longer just an off-hours eligibility limitation.
 - [x] Develop/test the first historical recovery performance repair while the existing pass continues,
   following Joseph's request to fix it before waiting. [ADR-0115](adr/0115-exact-audit-prefix-hash-reuse.md)
   preserves original fingerprints using bounded exact-prefix SHA-256 state clones inside one guarded

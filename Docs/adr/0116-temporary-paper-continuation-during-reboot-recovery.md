@@ -1,6 +1,6 @@
 # ADR-0116: Temporary Paper continuation during reboot recovery
 
-- **Status:** Implemented and tested; installation pending
+- **Status:** Installed October29 02:49; actual native clearance supersedes this run's exception at09:28
 - **Date:** October 29, 2026
 - **Domains:** architecture, data-pipeline
 - **Related:** ADR-0103, ADR-0104, ADR-0115

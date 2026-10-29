@@ -330,6 +330,48 @@ installer has parser validation and replaces only the reviewed Core/engine assem
 processes/files/grant/calendar, stops normally, retains collector ownership, resumes the same audit and
 requests the exact permission with Real Off. Installation/activation remains pending at this checkpoint.
 
+### October 29 installation, clearance and market-open blockers
+
+`artifacts/reboot-recovery-20261029/installation/completed.json` records the approved02:49 installation
+of1c299f04: four files replaced,126 retained, saved grant unchanged, collector18832 retained,
+engine11716/dashboard18640 started normally. Same full recovery270d506a advances18867→18887 around
+restart. Temporary Paper permission expires16:00; research/Real remain restricted at that point.
+The full run later completes299036units. `clearance-receipt.json` and `clear-result.json=true`
+prove native clearance of both reboot incidents at09:28:08. No old proof/clearance was replayed.
+Preflight UTC/local timestamp normalization was corrected before the clearance command executed.
+
+`ready-01-*` at09:29 shows zero incidents, healthy affected workers and Real Off. User requests visible
+app startup: engine/collector are reused, dashboard18912 opens09:31; older hidden18640 remains.
+`account-review-20261029T133627712-*` is the second post-clearance sample: zero incidents and Real Off,
+but market inputs now have13 InvalidOperationException failures since09:30. This supersedes the
+pre-open health claim. No session freeze exists forOctober29; all-three v3 acceptance remains unmet.
+Prepared format SQL hash6BF7C5DE…7E1950, receipt
+`result-20261029T133742995Z-69db07a28f8042a581f08ff2c9869cf6.json`, confirms unchanged boundaries
+6936/24998/5853, v2 roots, matching checkpoints and zero newv3. Missed coverage is not repaired.
+
+Fixed broker read at09:37 succeeds, with history/holding agreement and no pending orders; it grants
+no execution authority. Risk continuation sequence10 records yesterday's close at09:32. No today
+opening receipt exists, and aggregate SQL at09:40 finds no required held-security09:30 five-minute bar.
+This explains a concrete unsatisfied build-review prerequisite; the generic dialog also covers other
+account comparisons, so successful approval is not yet claimed.
+
+Collection investigation identifies one unmapped tracked Real symbol, although the current verified
+managed observation has a canonical name. All Paper/managed-observation symbols resolve; the legacy
+tracked copy does not. The policy checksum also passes after correcting the diagnostic to compare
+binary SHA256 with binary SHA256 (the earlier binary-versus-hex-text comparison was invalid).
+Migration053 implements ADR0088's reviewed additive alias path, retaining every financial record.
+Its exact candidate SELECT verifies the current head, observation and position-content checksums,
+matching security identity and saved CAD/EQUITY/XTSE listing. Read-only preflight hash
+DF218E2E8D9E1585BADB771A173525D777EDD7F81614714E6AF186D280BEF471 returns exactly one candidate
+in `result-20261029T135049041Z-52be6420e5ce4d17afacba3c0736cf45.json`. Existing aliases are saved
+in `result-20261029T135146601Z-f6957e5201414373b0d5d3053dc30c0b.json`, verified query hash
+4CC26F9E88FB99EC1029D66C0FB7FFD0D2826986DD90504FD593BCE083ADCFCE. SQL160 parsing passes.
+Application and prospective recovery remain pending; no host restart or permission change is proposed.
+
+Weekend simplification story is [#19](https://github.com/JosephMawer/TraderVI/issues/19); board placement
+was not completed after browser approval timed out. The follow-up now tracks these current blockers
+and actual all-three v3 proof, not the obsolete running-recovery instructions. No source was pushed.
+
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 
 The engine independently bought ASTL after its five-minute signal reached two consecutive qualifying

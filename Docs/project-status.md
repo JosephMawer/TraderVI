@@ -1,6 +1,33 @@
 # TraderVI Project Status
 
-## October 29 — reboot recovery running; temporary Paper continuation prepared
+## October 29 — reboot holds cleared; market-open restoration still blocked
+
+The approved temporary Paper continuation from `1c299f04` installed at 02:49 Toronto with a normal
+engine/dashboard restart; collector18832 and the saved Real grant were unchanged. Four runtime files
+changed, 126 remained byte-identical. The same full recovery resumed, completed all 299,036 units,
+and native guarded clearance resolved both reboot incidents at **09:28:08**. Zero open incidents
+remain at 09:36. Engine11716 and collector18832 remain running; Joseph requested a visible dashboard,
+opened as18912 at09:31. Real remains Off pending his own review/enable.
+
+**Morning readiness is not established.** Workers were healthy at09:29, but market inputs began
+failing with InvalidOperationException at09:30. No October29 session freeze exists; all three original
+Paper heads remain version2 with zero new v3 revisions and matching checkpoints at09:37. Broker reads
+succeed with matching history/holdings and no pending orders. The risk journal records yesterday's
+close but lacks today's opening value; the held security's required opening bar is absent at09:40.
+The build-review dialog reports a generic account-refresh/risk error rather than the exact condition.
+
+Read-only investigation identifies one unresolved tracked Real broker symbol, while the verified
+managed observation already uses its canonical market name. Migration053 prepares one additive alias
+under ADR0088; its exact candidate query passes saved listing/security/current-head/checksum guards.
+SQL parsing passes, and the existing alias table is saved privately. **Application is pending.**
+No account, order, risk, historical observation or financial permission is changed by preparation.
+Missed market-open coverage is retained, not backfilled into on-time evidence.
+
+[Weekend redesign story #19](https://github.com/JosephMawer/TraderVI/issues/19) contains the plain-language
+hold/fingerprint/storage/performance breakdown and acceptance criteria. Project-board placement remains
+unverified after browser approval timed out. Issue#3 remains separate. [Operational evidence](reviews/independent-engine-implementation-20261022.md#october-29-installation-clearance-and-market-open-blockers).
+
+## October 29 — reboot recovery and temporary continuation preparation (earlier checkpoint)
 
 Joseph authorizes fixing the reboot hold, then requests temporary relief rather than another
 multi-hour operational block. Full native recovery `270d506a-ed15-49d4-a1ce-de7bd215abdc` starts
@@ -13,8 +40,9 @@ expiring Paper continuation for exactly those two incidents. It retains actual-e
 current-state checks, visible unverified history, and Real/research restrictions. Core validation
 passes 3,374 tests (10 native SQL skips); after preserving existing desktop method signatures,
 39 focused tests pass. Release WPF/engine passes with 260 existing compiler warnings, zero errors;
-dependency audit disabled, no full solution/SSDT claim. Installation/activation and all-three actual
-new-format writes remain pending. The first proposed permission expires at October 29 market close.
+dependency audit disabled, no full solution/SSDT claim. Installation/activation were pending at this
+preparation checkpoint; the later installation/clearance is recorded above. All-three actual
+new-format writes remain pending. The first proposed permission expires at October29 market close.
 The permanent recovery/storage/performance redesign is deferred to the weekend GitHub story;
 TMX issue #3 remains separate. [Detailed evidence](reviews/independent-engine-implementation-20261022.md#october-29-temporary-paper-continuation-preparation).
 
