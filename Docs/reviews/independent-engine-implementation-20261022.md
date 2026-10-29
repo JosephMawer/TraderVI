@@ -1,5 +1,45 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
+## October 29 intraday alias repair and monitoring limits
+
+The market watch identifies a separate minute-collector degradation beginning around 11:01 Toronto:
+saved request receipts fall from 34 per minute to roughly 0–10, with reserved requests lacking committed
+receipts and repeated `CollectorAttention`. Some observations continue to advance; that alone does
+not establish healthy coverage. All 121 files of the dedicated collector precision runtime and its
+configuration match the installed manifest. Stored observation checksum and chronology checks pass.
+The collector's outer exception handler omits the underlying error, so its root cause remains unresolved.
+
+At 11:22 the shared market-input worker begins repeatedly failing; its latest publication remains the
+11:15 bar. Real's host still reports Running but explicitly waits for fresh inputs, preventing fresh buy
+evaluation. All three Paper heads stop advancing after 11:21. Read-only diagnosis finds one unresolved
+tracked Real stock name. The current managed holding, saved listing/security identity and canonical
+market name verify exactly one missing Broker alias under ADR-0088. No suffix is inferred without evidence.
+
+Joseph explicitly approves this one alias repair and a verified backup. A fresh full backup passes
+`RESTORE VERIFYONLY WITH CHECKSUM`; the staging and established backup-destination copies have matching
+SHA-256 hashes. Cloud synchronization and a restore drill are not verified by those checks. The first
+write attempt rejects an advanced broker head (54802) before insertion; an independent alias-table
+comparison proves no change. The reviewed follow-up acquires the exact current head inside the same
+serializable transaction, retaining the original listing/checksum guards and additionally pinning the
+approved alias pair. This avoids the external preflight race while holding the checked head through insertion.
+
+The command succeeds at 11:46 against revision 4350. Independent verification finds exactly one added
+alias and preserves both existing rows. Engine11716 and collector18832 continue without a restart;
+no account, order, risk reference or execution permission is changed by the repair. Market-worker
+failures clear and all three Paper heads advance again using version3 with matching checkpoints.
+The first post-repair Paper-protection SQL failure clears on the next sample. The 11:45 shared bar
+publishes at 11:47:20 (cycle259); at 11:48:15 Real confirms fresh shared inputs evaluated, with no
+confirmed entry signal. All workers have zero consecutive failures, no integrity holds remain, and
+native protection checks match with five owned orders reconciled. This proves resumed evaluation,
+not a new purchase. Paper heads advance to 7013/26009/5931 with version3 and matching checkpoints.
+Samples at 11:47:10 and 11:48:19 retain the same hosts and zero worker failures. The minute collector
+still reports `CollectorAttention`; its reduced coverage is not resolved by the alias repair.
+
+Private evidence: `artifacts/market-watch-20261029/alias-repair/` contains the reviewed scripts, rejected
+and successful command receipts, backup verification and exact alias before/after verification.
+`artifacts/market-watch-20261029/findings.md` retains dated monitoring evidence and query hashes.
+Missed session coverage remains missed; this repair does not qualify the separate minute collector.
+
 ## October 28 collector and execution recovery
 
 Consolidated from the day's status checkpoints on October 28. The last verified in-session execution

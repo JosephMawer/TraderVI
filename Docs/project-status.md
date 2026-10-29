@@ -1,5 +1,20 @@
 # TraderVI Project Status
 
+## October 29 — intraday market-input blockage repaired; collector degradation remains
+
+At 11:46 Toronto, Joseph's approved one-entry Broker alias repair resolves a newly unrecognized
+tracked Real holding name. A full backup passes checksum verification, and its backup copy matches.
+Independent reads prove exactly one alias added and both previous mappings preserved. No hosts,
+orders, account state or trading permissions are changed by the repair. An initial stale-head rejection
+changes nothing; the successful transaction locks and verifies the current head and approved identity.
+
+Fresh shared inputs resume at 11:47:20. At 11:48:15 Real is Running and evaluating fresh inputs, with
+no confirmed entry signal, no integrity holds and zero consecutive worker failures. All three Paper
+portfolios advance again with version3 roots and matching checkpoints. The interruption's missing
+coverage remains missing. **The separate minute collector degradation remains unresolved:** repeated
+`CollectorAttention` errors reduce saved request coverage despite some advancing observations.
+Daytime monitoring continues. [Evidence and operational limits](reviews/independent-engine-implementation-20261022.md#october-29-intraday-alias-repair-and-monitoring-limits).
+
 ## October 29 — Paper restoration verified; Real execution resumed
 
 After Joseph reports completing his own review/enable, the10:19 Toronto native control confirms
