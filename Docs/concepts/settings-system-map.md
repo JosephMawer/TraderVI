@@ -81,7 +81,7 @@ flowchart LR
 
 The guarded nightly runner sequences Hermes, Delphi and Athena; WPF hosts the scheduled intraday
 monitors. Hercules training, Oracle provider options and service scheduling are not centralized editors
-yet. Project Docs explains these contracts. Sandbox is an explicit diagnostic/backfill tool, not an
+yet. The repository documentation on GitHub explains these contracts. Sandbox is an explicit diagnostic/backfill tool, not an
 operating strategy. Broker execution and Sentinel remain future work. A model selection changes what
 Delphi loads; it does not train Hercules or alter the policies assigned to downstream accounts. Daily
 selection also does not rewrite an existing frozen Shadow session.

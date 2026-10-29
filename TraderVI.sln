@@ -44,6 +44,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Docs\adr\0109-explicit-ongoing-delphi-live-management.md = Docs\adr\0109-explicit-ongoing-delphi-live-management.md
 		Docs\adr\0110-nightly-isolated-symbol-warnings.md = Docs\adr\0110-nightly-isolated-symbol-warnings.md
 		Docs\adr\0111-independent-collector-and-recovered-confirmation.md = Docs\adr\0111-independent-collector-and-recovered-confirmation.md
+		Docs\adr\0112-repository-documentation-outside-desktop.md = Docs\adr\0112-repository-documentation-outside-desktop.md
 		Operations\Collector\README.md = Operations\Collector\README.md
 		Docs\adr\0104-scoped-recovery-and-sequential-history-audits.md = Docs\adr\0104-scoped-recovery-and-sequential-history-audits.md
 		Docs\concepts\independent-real-processing-design.md = Docs\concepts\independent-real-processing-design.md

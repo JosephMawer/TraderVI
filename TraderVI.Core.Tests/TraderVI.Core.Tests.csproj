@@ -23,8 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
-    <Compile Include="..\TraderVI.WPF\Architecture\ArchitectureCatalog.cs" Link="Presentation\ArchitectureCatalog.cs" />
-    <EmbeddedResource Include="..\TraderVI.WPF\Architecture\architecture.json" LogicalName="TraderVI.Architecture.json" />
     <Compile Include="..\Hermes\SymbolCollection.cs" Link="Collection\SymbolCollection.cs" />
     <Compile Include="..\Sandbox\Probes\IProbe.cs" Link="Diagnostics\IProbe.cs" />
     <Compile Include="..\Sandbox\Probes\TmxOneMinuteFreshnessProbe.cs" Link="Diagnostics\TmxOneMinuteFreshnessProbe.cs" />

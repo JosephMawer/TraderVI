@@ -41,6 +41,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0112](0112-repository-documentation-outside-desktop.md) | Read documentation and architecture on GitHub | Accepted; supersedes ADR-0036 | architecture, user-interface |
 | [0110](0110-nightly-isolated-symbol-warnings.md) | Continue nightly work after isolated ticker-source failures | Operational recovery verified October27; ticker warnings preserved, all stages complete | architecture, data-pipeline |
 | [0109](0109-explicit-ongoing-delphi-live-management.md) | Explicit ongoing Delphi Live management | Installed; ongoing approval saved October27; native lifecycle qualification pending | architecture, risk-management, user-interface, market-microstructure |
 | [0108](0108-strategy-workspace-and-independent-account-evidence.md) | Strategy workspace and independent account evidence | Installed October 24; offline verification complete; desktop visual review pending | user-interface |
@@ -120,7 +121,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 | [0033](0033-tabbed-desktop-shell-and-shared-workflows.md) | Tabbed desktop shell and shared application workflows | Accepted | architecture, data-pipeline, risk-management |
 | [0034](0034-delphi-shared-workflow-and-desktop-tab.md) | Delphi shared workflow and desktop tab | Accepted | architecture, data-pipeline, decision-engine, risk-management |
 | [0035](0035-delphi-operator-workspace-and-presentation-snapshot.md) | Delphi operator workspace and presentation snapshot | Accepted | architecture, data-pipeline, decision-engine |
-| [0036](0036-native-project-documentation-reader.md) | Native read-only project documentation reader | Accepted | architecture |
+| [0036](0036-native-project-documentation-reader.md) | Native read-only project documentation reader | Superseded by ADR-0112 | architecture |
 | [0037](0037-operator-confirmed-delphi-paper-entry.md) | Operator-confirmed Delphi pick to paper position | Accepted | architecture, market-microstructure, risk-management |
 | [0038](0038-cohort-weighted-official-prediction-scorecards.md) | Cohort-weighted official prediction scorecards | Accepted | architecture, decision-engine, machine-learning, math-statistics |
 | [0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) | Unified Ghost/Real dashboard and scorecard workspace | Accepted | architecture, data-pipeline, market-microstructure, risk-management |

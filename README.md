@@ -10,6 +10,7 @@ one possible input. A paper result, recommendation or approval is not an actual 
 ## Start here
 
 - **Understand the system:** the map below, then [Paper and Real](Docs/system-design.md#paper-and-real-share-rules-not-account-state).
+- **Explore the architecture:** the [architecture guide](Docs/architecture-view.md) contains four maps and linked component explanations, readable directly on GitHub.
 - **See what is true now:** the opening [status summary](Docs/project-status.md), with dated evidence.
 - **Choose or resume work:** the relevant [roadmap](Docs/roadmap.md) entry and its owning checklist.
   Use the [session register](Docs/session-work-register.md) only to recover a chat or unfinished idea.

@@ -6,9 +6,10 @@ Start with the [system map](../README.md#system-map). This reference is being re
 implementation notes below are historical checkpoints, not fresh runtime evidence. Current
 operational facts belong in [project status](project-status.md).
 
-The WPF [Architecture guide](architecture-view.md) presents a dated, structured projection of these
-responsibilities. When ownership, data paths or authority change, review its shared catalog in the
-same checkpoint; the guide does not replace operational status or the governing decisions.
+The repository [architecture guide](architecture-view.md) presents a dated, structured projection of
+these responsibilities in GitHub-readable Markdown and Mermaid. When ownership, data paths or authority
+change, review its maps and component descriptions in the same checkpoint; the guide does not replace
+operational status or the governing decisions.
 
 ## Paper and Real share rules, not account state
 
@@ -598,7 +599,7 @@ fields and an immutable Ghost-to-Real reconciliation audit; its manually reporte
 distinct from the later broker execution journal. Its decision policy consumes completed 15-minute
 bars. ADR-0103 moved scheduled tracked, Shadow and opt-in AI work into
 `IndependentAuxiliaryPaperService` under the engine lifetime; the old requirement to keep WPF open
-for those schedules is superseded. The saved Delphi workspace, Scorecards and Project Docs remain
+for those schedules is superseded. The saved Delphi workspace and Scorecards remain
 inspection surfaces; a confirmed official Delphi action retains its documented database effects.
 
 ## Delphi Live flow

@@ -697,7 +697,7 @@ Migration 028 was applied with a fresh verified backup and preservation checks o
 reapply it. The updated Debug and Release desktop outputs are ready for the next app launch.
 Migration 027 was applied with a verified backup on 2026-09-07; do not reapply it. The updated Release
 desktop app is installed in the build output and was launched successfully. Settings is in the main tab
-bar between Scorecards and Project Docs. No settings assignment was seeded during rollout.
+bar after Scorecards. No settings assignment was seeded during rollout.
 See [ADR-0060](adr/0060-central-settings-and-scoped-configuration.md), the
 [system map](concepts/settings-system-map.md) and the
 [implementation and rollout review](reviews/central-settings-implementation-20260907.md).
@@ -1165,7 +1165,7 @@ wrote 112 valid three-session mark outcomes and 112 valid excursion outcomes;
 the two prediction definitions and delayed-intraday definition still have zero
 outcomes, so their performance sections remain correctly unavailable.
 
-The Project Docs tab discovers Markdown throughout the repository except `.git`, `.vs`, `bin`, `obj`, `packages`, and `node_modules`. It groups documents by folder, searches title/path/content, opens `Docs/project-status.md` by default, and reloads external edits with Refresh. Relative Markdown links and heading fragments navigate inside the tab only after safe repository resolution. Clicking an HTTP(S) link opens the system browser; merely loading, searching, or refreshing documentation never opens a web page. The reader does not write files or access SQL, models, or market services.
+Read project documentation on GitHub, starting with [README](../README.md), [project status](project-status.md) and the [architecture guide](architecture-view.md). The desktop Docs and Architecture sections and their supporting code are removed from source under [ADR-0112](adr/0112-repository-documentation-outside-desktop.md). The architecture guide preserves the former maps and component descriptions; it is dated explanatory documentation, not live runtime status. See project status for the installation boundary.
 
 `Run official Delphi` first shows a confirmation describing the operation: it reads local market data and registered model files, appends immutable calibration evidence, and replaces same-date operational picks and supporting records. It does not place a broker order or create a paper position. Do not confirm it merely to test the interface; use focused builds and tests instead.
 

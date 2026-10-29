@@ -4,6 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0112](0112-repository-documentation-outside-desktop.md) — Retire desktop Docs and Architecture; maintain repository documentation on GitHub
 - [ADR-0110](0110-nightly-isolated-symbol-warnings.md) — Continue nightly stages after isolated ticker-source warnings
 - [ADR-0111](0111-independent-collector-and-recovered-confirmation.md) — Separate intraday collector and current confirmation reconstructed across downtime
 
@@ -105,7 +106,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0033](0033-tabbed-desktop-shell-and-shared-workflows.md) — Tabbed desktop shell and shared application workflows
 - [ADR-0034](0034-delphi-shared-workflow-and-desktop-tab.md) — Delphi shared workflow and desktop tab
 - [ADR-0035](0035-delphi-operator-workspace-and-presentation-snapshot.md) — Delphi operator workspace and presentation snapshot
-- [ADR-0036](0036-native-project-documentation-reader.md) — Native read-only project documentation reader
+- [ADR-0036](0036-native-project-documentation-reader.md) — Native read-only project documentation reader (superseded by ADR-0112)
 - [ADR-0037](0037-operator-confirmed-delphi-paper-entry.md) — Operator-confirmed Delphi pick to paper position
 - [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md) — Cohort-weighted official prediction scorecards
 - [ADR-0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) — Unified Ghost/Real dashboard and scorecard workspace
@@ -445,6 +446,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## user-interface
 
+- [ADR-0112](0112-repository-documentation-outside-desktop.md) — Remove redundant documentation UI and preserve the architecture guide in Markdown
 - [ADR-0109](0109-explicit-ongoing-delphi-live-management.md) — Initial ongoing approval/start and persistent pause-new-buys controls
 
 - [ADR-0108](0108-strategy-workspace-and-independent-account-evidence.md) — Default Strategy workspace, secondary Account directory and independent Paper/Real evidence

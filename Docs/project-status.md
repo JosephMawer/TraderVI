@@ -41,7 +41,19 @@ The embedded guide still cites the 13:45 operational checkpoint and historical A
 live status. Prior offline checks pass; physical DPI transitions and screen-reader acceptance remain
 unverified. No settings/approvals, background hosts or database schema were changed.
 Private backup/fingerprint/status receipts: `artifacts/architecture-ui-update-20261028/`.
-[Content maintenance and validation scope](architecture-view.md).
+[Preserved guide and historical validation scope](architecture-view.md#historical-desktop-implementation-and-installation).
+
+**Docs and Architecture retired in source (October 28, not installed):** Joseph accepted reading both
+on GitHub. [ADR-0112](adr/0112-repository-documentation-outside-desktop.md) supersedes the in-app reader;
+both sidebar entries, dedicated implementation/resources, tests and preview host are removed. The
+[repository architecture guide](architecture-view.md) preserves all 32 component explanations, four
+maps and 43 relationships with their original evidence dates. Content-preservation, local link/anchor,
+diagram-endpoint and navigation checks pass. Isolated WPF Release passes with zero errors and 260
+existing compiler warnings; 20 focused workspace tests pass, no skips. Test compilation also emits
+existing warnings. Initial sandbox test restore failed on NuGet access; the approved restore succeeds.
+No dependency-security warnings were emitted, but audit was disabled, so this is not a security audit.
+No full-suite/SSDT run, GitHub rendering verification, push, runtime installation/restart, database or
+market/broker operation occurred. The earlier installed UI remains until a separately authorized update.
 
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 

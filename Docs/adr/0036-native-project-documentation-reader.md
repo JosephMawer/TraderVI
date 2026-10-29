@@ -1,6 +1,6 @@
 # ADR-0036: Native read-only project documentation reader
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0112](0112-repository-documentation-outside-desktop.md) on 2026-10-28
 - **Date:** 2026-08-27
 - **Domains:** architecture
 - **Related:** ADR-0017, ADR-0033, ADR-0035
