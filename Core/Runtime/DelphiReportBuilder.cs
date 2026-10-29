@@ -406,7 +406,7 @@ public sealed class DelphiReportBuilder
         sb.AppendLine(IntradayDecisionBoundary);
 
         sb.AppendLine("\n── Evaluation Dates ──");
-        sb.AppendLine($"  Recommendation date: {RecommendationDate:yyyy-MM-dd}  (run date; database PickDate/EvalDate)");
+        sb.AppendLine($"  Recommendation date: {RecommendationDate:yyyy-MM-dd}  (preparation date; database PickDate/EvalDate)");
         sb.AppendLine($"  Market data as of:    {MarketDataAsOf:yyyy-MM-dd}  (latest completed TSX session)");
         sb.AppendLine($"  Strategy identity:    {StrategyVersionName}  ({StrategyDecisionRef ?? "unidentified"} · {ShortCommit(StrategyInitialCodeCommit)})");
         sb.AppendLine("  Continuation ranking: RScomp + OBV tilt; DirectionEdge and composite tiebreakers");

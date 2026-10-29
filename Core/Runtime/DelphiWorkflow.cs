@@ -69,7 +69,7 @@ public sealed class DelphiWorkflow
             DateTime runStartedUtc = utcNow();
             CalibrationRunPurpose calibrationPurpose = options.Purpose;
 
-            // The recommendation date is the run date and remains the persistence key for
+            // The recommendation date is the preparation date and remains the persistence key for
             // DailyPick, DecisionDossier, and GranvilleIndicatorLog. The market-data date is
             // reported separately once the canonical XIU session has been loaded.
             DateTime recommendationDate = (options.RecommendationDate ?? DateTime.Today).Date;
@@ -306,7 +306,7 @@ public sealed class DelphiWorkflow
             var adLine = historical is null ? await new AdvanceDeclineRepository().GetRecentAsync(200) : historical.Breadth.Where(x => x.Date.Date < recommendationDate).OrderBy(x => x.Date).TakeLast(200).ToList();
 
             Console.WriteLine("Evaluation Dates:");
-            Console.WriteLine($"  Recommendation date: {recommendationDate:yyyy-MM-dd} (run date; database PickDate/EvalDate)");
+            Console.WriteLine($"  Recommendation date: {recommendationDate:yyyy-MM-dd} (preparation date; database PickDate/EvalDate)");
             Console.WriteLine($"  Market data as of:    {marketDataAsOf:yyyy-MM-dd} (latest completed TSX session)");
             Console.WriteLine();
 
