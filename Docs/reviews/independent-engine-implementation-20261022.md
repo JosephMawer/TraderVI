@@ -42,13 +42,44 @@ and collector host binaries/symbols. Installation would normally stop/restart on
 its supervisor, retain the engine/dashboard and saved execution grant, and update the existing startup
 manifest so established startup commands continue to work. The original package/manifest are retained.
 This may briefly interrupt the legacy feed and starts the existing one-minute transport cooldown.
-**Installation and actual restored coverage are pending, not inferred from tests.**
+At preparation, installation and actual restored coverage remained pending.
 
 Private evidence: `artifacts/collector-diagnosis-20261029/` contains bounded trace events, current-source
 and exact-candidate tests, candidate source/package/manifest, preflight plan and reviewed installer.
 The installer refuses an existing attempt receipt, changed ownership or hashes; it never force-kills
 a process or modifies financial permissions. Fresh native status and completed-minute receipt coverage
 are required after an authorized installation.
+
+### Authorized installation and initial native verification
+
+Joseph explicitly approves installation and verification. The first preflight rejects a string-versus-
+DateTime comparison before any receipt directory, stop request or manifest change. Independent checks
+prove all three exact owner timestamps match; the comparison is corrected to UTC DateTime equality.
+No ownership check is relaxed. The normal stop/restart then completes at12:25:57 Toronto. Collector29552
+starts12:25:54 under supervisor21336. Engine11716 and both dashboard processes retain their starts;
+the trading Core and saved execution grant remain byte-identical. The established supervisor manifest
+now points to the new package, preserving the original manifest/runtime and startup command.
+
+The existing one-minute startup cooldown remains. Completed requests for12:27,12:28 and12:29 each
+have34 reserved and34 saved receipts, zero abandoned requests and zero saved failure codes. The exact
+post-install query hash is34C69BF7F23318A56CF862A635C10C421AAD91EA41EDFD068FBE50CDCA7968FA,
+receipt `result-20261029T163002387Z-851340b65dd64a04a4920af9f75a1cb9.json` under the private read-only mailbox.
+This establishes restored receipt coverage for those three minutes, not that every response contains
+every expected market bar, nor full-session reliability. No historical records are relabeled or repaired.
+
+Two verified native status captures at12:26:21 and12:29:51 show zero holds or consecutive worker failures.
+The latter evaluates fresh inputs at12:29:48, with no confirmed entry, NewBuysStopped false, no account
+or quote blocks, matching protection and five of five owned orders reconciled. Shared cycle267's12:25
+bar publishes12:27:20 after restart. All three Paper heads continue with v3/checkpoint agreement.
+The12:25 publication still has31 exact clean pairs and five missing current stock bars (four MonitoringLost,
+one Degraded); all five benchmark observations are present/on-time. Missing pair evidence may prevent
+signals for those names. It is not fixed by saving minute receipts, and does not prove a profitable
+opportunity was missed. Existing provider qualification and monitoring continue separately.
+
+Installation receipts live in `artifacts/collector-diagnosis-20261029/installation/`; preflight failure
+evidence is retained outside that directory. The installer must not be replayed. The market-watch
+automation receives the new owner/manifest and verification baseline. No further restart, financial
+activation, schema change, order action, backfill or GitHub push is performed by this repair.
 
 ## October 29 intraday alias repair and monitoring limits
 
@@ -59,7 +90,7 @@ not establish healthy coverage. All 121 files of the dedicated collector precisi
 configuration match the installed manifest. Stored observation checksum and chronology checks pass.
 At that checkpoint the outer exception handler omits the underlying error. The later
 [12:08 diagnosis](#october-29-collector-clock-rejection) identifies the repeated clock rejection;
-restored collection remains unverified until the prepared replacement runs.
+initial restored collection is verified in the later installation checkpoint above.
 
 At 11:22 the shared market-input worker begins repeatedly failing; its latest publication remains the
 11:15 bar. Real's host still reports Running but explicitly waits for fresh inputs, preventing fresh buy
