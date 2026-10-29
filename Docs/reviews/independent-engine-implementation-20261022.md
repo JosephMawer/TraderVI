@@ -184,6 +184,23 @@ without a receipt while all owners remain alive; the outside-sandbox read succee
 The installer must not be rerun. The existing follow-up was updated with the new process identities,
 installation state and Real review blocker; it continues guarded clearance and actual new-format proof.
 
+Joseph then requests no breaks between runs. Verification already runs independently of chat polling;
+to remove completion handoff latency, a reviewed, parse-checked private watcher starts at 00:16:19 as
+PowerShell PID 2660. `Watch-VerifiedPaperRecovery.ps1` SHA256 is
+`54B7DE0C60D03D7478D2BFE5322E2722E20CC94A1286AECF74EA74CCCECE52DB`.
+It checks every 15 seconds, without pausing the engine, verifies unchanged engine/collector owners and
+the exact expected incident set, then calls the existing guarded clearance script once only when this
+exact pass is Complete. Any failed control, unexpected incident/owner or failed proof stops it for
+diagnosis. A private exclusive lock and pre-existing receipt checks prevent duplicate attempts. After
+clearance it collects native Status samples 31 seconds apart plus ExecutionStatus/IntegrityStatus;
+these receipts still require worker assessment and separate actual version-3/checkpoint proof.
+
+Private `continuous-watch/started.json` and `progress.jsonl` confirm startup and 24,406 verified units
+at 00:16:34. `completed.json` or `failed.json` will record the outcome; neither exists at this checkpoint.
+The same-chat follow-up now inspects these receipts first and must not race the watcher or retry any
+uncertain clearance. At 08:30 Toronto, an incomplete watcher stops without clearance so the follow-up
+can report morning-readiness risk and diagnose. No new recovery, Real enable or schema change occurs.
+
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 
 The engine independently bought ASTL after its five-minute signal reached two consecutive qualifying

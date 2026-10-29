@@ -15,6 +15,13 @@ same portfolio, not a controlled benchmark or whole-run ETA. Clearance, resumed 
 actual new version-3 revisions remain pending; morning readiness is not established.
 [Installation evidence and limits](reviews/independent-engine-implementation-20261022.md#october-29-recovery-repair-installation--0006-toronto).
 
+At 00:16, following Joseph's request to avoid gaps between steps, a guarded local watcher starts
+continuous completion monitoring. It checks every 15 seconds while the engine keeps running and will
+invoke the existing authorized clearance only after this exact recovery completes with unchanged
+incidents/owners. It then captures two worker samples 31 seconds apart. The same-chat follow-up observes
+its receipts and must not issue concurrent clearance. At 00:16:34, 24,406 units are verified; no clearance
+or new-format activity is claimed. The Real build-review requirement above remains separate.
+
 ## October 28 — collector installed; five-minute Real execution restored
 
 **Latest verified state: 13:45 Toronto.** Joseph reviewed the repaired build and resumed the existing
