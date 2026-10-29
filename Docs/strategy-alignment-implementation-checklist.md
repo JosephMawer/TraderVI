@@ -155,14 +155,17 @@ The overnight target was missed. Completed source work is separate from installe
   eight restrictions became nine by October 27; current pass `e73db89e-fa4b-4da4-a503-f8405a7a7377`
   adds its own temporary pending hold. Complete 205,058 at October 29 01:22:41; native guarded clearance
   resolves all ten at 01:22:45 with completed proof/current-head/identity/guard checks; zero remain.
-- [ ] Verify affected Paper/research/protection workers resume after clearance in two fresh samples;
+- [x] Verify affected Paper/research/protection workers resume after clearance in two fresh samples;
   identify any remaining blocker and retain missed on-time observation/performance coverage.
-  Paper/Shadow protection and research history resume; Paper/Research inputs fail with SqlException.
-  Their shared query's missing ORDER BY separator is repaired and read-only validated in source;
-  controlled installation and fresh worker checks remain pending operational approval.
+  Paper/Shadow protection and research history resumed first; Paper/Research inputs initially failed with SqlException.
+  Their shared query's missing ORDER BY separator is repaired and read-only validated, then installed
+  with Joseph's explicit approval at 01:33:44. Samples at 01:33:41 and 01:34:18 show all five affected
+  workers completing with zero failures; native Paper/Research consumer receipts confirm processing.
 - [ ] Prove actual new Paper revision advancement using version-3 roots and matching current checkpoints.
   Installed code, Waiting status and cleared holds alone do not qualify this. Observe the next eligible
   session if no legitimate off-hours work exists; do not manufacture writes or replay expired buys.
+  At 01:34 all three are active for October 29 but still have zero new v3 revisions; expired queued
+  Paper inputs correctly produce NotActionableLate receipts. Continue through eligible fresh activity.
 - [x] Develop/test the first historical recovery performance repair while the existing pass continues,
   following Joseph's request to fix it before waiting. [ADR-0115](adr/0115-exact-audit-prefix-hash-reuse.md)
   preserves original fingerprints using bounded exact-prefix SHA-256 state clones inside one guarded

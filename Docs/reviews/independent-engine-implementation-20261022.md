@@ -230,7 +230,8 @@ counts/sizes only, execute through the fixed helper and each select one pending 
 `530EC3F8DB33FD0E0752179BA9BD9D04E27A8DAD248243246DC3F09B92AEF1C0`.
 Isolated Release WPF/engine build passes with 260 existing compiler warnings, zero errors; dependency
 audit disabled, no SSDT/full-solution claim. `consumer-fix-release-build.log` and
-`consumer-query-validation.sql` preserve private validation. The repair is not installed yet.
+`consumer-query-validation.sql` preserve private validation. Installation follows below under separate
+explicit operational approval; it was not installed at this source-validation checkpoint.
 
 Read-only Paper-format receipt `result-20261029T052543247Z-a0e8144da6fa4465b32b390ae8b20f86.json`
 matches query SHA256 `6BF7C5DED23D41E019241C09D0C1740750C45E4513530C23B4414482AA7E1950`:
@@ -239,6 +240,37 @@ and have zero new version-3 revisions. Do not claim portfolios restored merely b
 Even after the consumer fix, off-hours stale inputs must not become replayed trades; actual eligible
 new-format activity remains required. Real ExecutionStatus remains Blocked for build review, with no
 agent financial approval. The follow-up continues worker repair and all-three-portfolio proof.
+
+### October 29 consumer repair installed — 01:33 Toronto
+
+Joseph explicitly approves installing the query repair, normal app/engine restart, preserving the
+collector and checking all three portfolios for new-format writes. Reviewed private
+`Install-ConsumerQueryFix.ps1` verifies clean committed source `c5b6040791a71f380d8bad7cf446644ef05c1ce5`,
+runtime/candidate hashes, process owners, unchanged grant/calendar and matching dependency contracts.
+It requires the exact recovery Complete at 205,058 with zero incidents before stopping. It closes the
+dashboard normally, drains/stops the engine, backs up and replaces only Core.dll/Core.pdb, then starts
+normal `--run` and reopens the dashboard. No duplicate recovery, clearance, schema change or financial
+approval occurs. `consumer-installation/completed.json` records success at 01:33:44.492 Toronto:
+engine37256 starts 01:33:38, dashboard28844 is restored, collector36848 remains running from October28
+10:09:43; 128 retained runtime files and saved Real grant are byte-identical. Recovery remains Complete
+and no new incident appears. Real execution remains Blocked for the user's normal build review.
+
+Fresh Status samples at 01:33:41.404 and 01:34:18.806 (37 seconds apart) show Paper protection/inputs,
+Research inputs/history and Shadow protection completing with zero consecutive failures. Native SQL
+receipt `result-20261029T053422277Z-f5d9c3da009e4a1098d585b84b6a9dd9.json` matches query SHA256
+`9952BC1DF2EB1FCF817FC612642B55DF9478EA9EE318C3E023B774DC840A45BC`: four Paper NotActionableLate and
+one ResearchNotApplicable receipts since installation prove the corrected readers execute. All three
+Paper heads remain at their recovery boundaries, root format2, checkpoint match1, new v3 count0.
+
+Eligibility receipt `result-20261029T053449159Z-fa276cfa2a334621ada049dc6bd412b6.json` matches SHA256
+`80F0DFED8CA1CEEFB049FAAA2A43EC9CACA173273B8B61CCC17740B921F246B7`: all three portfolio generations
+remain active for October29, with 235 Paper and 239 Research cycles pending at that sample. Workers
+continue draining independently. `ConsumeSharedCheckpointAsync` rejects inputs from another date or
+at least seven minutes old before trading actions; `ProtectCurrentPaperAsync` returns outside session
+bounds. Successful off-hours consumption therefore does not by itself create a v3 Paper revision.
+Wait for legitimate fresh session activity and verify all three new roots plus current checkpoints;
+do not force writes, replay missed trades or equate Waiting with final acceptance. The existing
+follow-up continues this final proof and alerts on new failures; missed observation coverage remains.
 
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 

@@ -1,25 +1,30 @@
 # TraderVI Project Status
 
-## October 29 — Paper recovery and clearance complete; consumer SQL repair pending installation
+## October 29 — holds cleared; consumer repair installed; new-format Paper proof pending
 
 At 01:22:41 Toronto, Paper recovery `e73db89e-fa4b-4da4-a503-f8405a7a7377` completes all 205,058
 planned units. Native guarded clearance resolves all ten selected incidents at 01:22:45; fresh reads
 confirm zero open incidents. Total elapsed time is 2h51m, including the approved normal restart.
 The research stage takes approximately seven minutes; record count did not imply another long replay.
 
-Paper protection, research history and Shadow protection resume, but Paper inputs and Research inputs
-still fail with SqlException. Their shared reader concatenates `ORDER BY` and `m.Sequence` without
+After clearance, Paper protection, research history and Shadow protection resume, but Paper inputs and
+Research inputs initially fail with SqlException. Their shared reader concatenates `ORDER BY` and `m.Sequence` without
 whitespace. Both order directions fail offline SQL parsing; adding the missing space fixes both, and
 the corrected SELECTs execute successfully through the hash-verified read-only database helper.
 The one-line source repair builds in isolated Release WPF/engine (260 existing warnings, zero errors;
-dependency audit disabled, no complete-solution/SSDT claim). It is **not yet installed**.
+dependency audit disabled, no complete-solution/SSDT claim). Joseph then explicitly approves installation:
+`c5b60407` Core is installed at 01:33:44 with normal engine/dashboard restart, collector uninterrupted,
+128 other runtime files and saved Real grant byte-identical. Engine37256/dashboard28844 replace their
+previous owners; collector36848 retains its October 28 start.
 
-At 01:25, all three Paper heads remain at their recovery boundaries in version 2, with matching current
-checkpoints and zero new version-3 revisions. Clearance is complete; actual new-format operation is not.
-Real still requires Joseph's review of the changed build. A further controlled Core installation and
-normal engine/dashboard restart requires the concrete operational approval; do not rerun recovery or
-clearance. The continuous watcher finished and exited normally; the same-chat follow-up owns the
-remaining worker repair and all-three-portfolio proof.
+At 01:33:41 and 01:34:18, all five affected workers complete successfully with zero consecutive failures;
+zero integrity incidents remain after startup. Hash-verified SQL confirms actual Paper and Research
+consumer receipts. Expired Paper inputs are correctly marked NotActionableLate. All three portfolios
+are active for October 29, but their heads still equal the recovery boundaries in version 2, with
+matching current checkpoints and zero new version-3 revisions. Clearance and worker repair are complete;
+actual new-format operation remains pending eligible fresh session activity. Do not manufacture writes
+or replay missed trades to satisfy acceptance. Real still requires Joseph's review of the changed build.
+The continuous watcher finished normally; the same-chat follow-up continues all-three-portfolio proof.
 [Completion evidence and remaining blocker](reviews/independent-engine-implementation-20261022.md#october-29-clearance-and-consumer-query-blocker--0122-toronto).
 
 ## October 29 — faster recovery installed; Real build review required
