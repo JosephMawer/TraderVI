@@ -173,8 +173,9 @@ The overnight target was missed. Completed source work is separate from installe
   Market inputs recover after authorized migration053 at09:55. A separately authorized collector
   recovery saves the exact opening bar at10:09, retaining late receipt time; the native read-only
   risk-evidence query confirms availability. This does not perform Joseph's build approval or enable.
-- [ ] Observe Joseph's successful updated-build approval and separately enabled Real execution after
-  the above repairs; diagnose any new failure instead of treating data recovery as financial authority.
+- [x] Observe Joseph's successful updated-build approval and separately enabled Real execution after
+  the repairs. At10:19 Toronto, following his own app actions, native status is Running and evaluating
+  fresh shared inputs; zero integrity incidents and zero consecutive worker failures. No new fill claimed.
 - [x] Prove actual new Paper revision advancement using version-3 roots and matching current checkpoints.
   At09:56 all three original portfolios pass:6937>6936,25009>24998,5854>5853; newv3 counts1/11/1,
   all checkpoints agree. Two samples09:56:11/09:57:34 show resumed workers without consecutive failures.

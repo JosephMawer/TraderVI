@@ -1,6 +1,13 @@
 # TraderVI Project Status
 
-## October 29 — Paper restoration verified; Real opening evidence recovered
+## October 29 — Paper restoration verified; Real execution resumed
+
+After Joseph reports completing his own review/enable, the10:19 Toronto native control confirms
+Real **Running**, evaluating fresh shared market inputs with no confirmed entry signal at that
+evaluation. All engine lanes have zero consecutive failures; zero integrity incidents remain.
+Engine11716 and collector18832 retain their existing starts. This verifies resumed execution, not
+a new order/fill or restoration of missed opening coverage. Evidence:
+`artifacts/reboot-recovery-20261029/operator-live-20261029T141956072-{ExecutionStatus,Status,IntegrityStatus}.json`.
 
 The authorized alias addition succeeds at09:55:15 Toronto, without restarting the engine or collector.
 Independent reads confirm exactly one added alias and no changes to existing aliases. Market inputs
@@ -11,15 +18,15 @@ consecutive failures. Zero integrity incidents remain. **The all-three Paper res
 is complete**, including the installed performance repair and native clearance. The first session
 freeze is09:55:23; missed earlier coverage remains missed.
 
-Real is still Off. Its separate build-review prerequisite lacked the exact09:30 opening bar at09:57.
+Real was Off during recovery. Its separate build-review prerequisite lacked the exact09:30 opening bar at09:57.
 Joseph authorizes a bounded recovery through the running collector. The response contains the opening
 and adjacent interval; an initial overly strict one-row guard stops before any SQL write. Reviewed
 exact-start selection reuses that saved response, with no second network request. Native evidence
 append at10:09:20 saves one opening bar, zero conflicts, Purpose=Backfill, preserving actual10:07
 receipt time. Independent read-only verification finds the required qualified opening record.
 No account risk reference, order or permission was changed by recovery. Joseph is asked to retry
-Review updated build, then perform his own approval and separate enable. Successful Real review and
-enabled execution remain unverified. The completed Paper-recovery follow-up is retired.
+Review updated build, then perform his own approval and separate enable. The later10:19 control above
+confirms resumed execution. The completed Paper-recovery follow-up is retired.
 
 ## October 29 — clearance and market-open diagnosis (earlier checkpoint)
 
