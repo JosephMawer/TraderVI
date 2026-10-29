@@ -3537,4 +3537,47 @@ remain under `artifacts/tracked-name-repair-20261029`. Only Core.dll/Core.pdb ar
 The installer requires a separately approved normal engine/dashboard restart after close, preserves
 collector ownership and saved grant bytes, and does not approve the changed build or enable trading.
 The user must perform the normal changed-build review; prospective native resolution after a new
-managed purchase remains unverified. No installer has run and no source commit has been pushed.
+managed purchase remains unverified. At this preparation checkpoint no installer had run and no source
+commit had been pushed; installation is recorded below.
+
+## October 29 permanent mapping installation and monitoring close
+
+Joseph explicitly approves installation after16:15 Toronto, normal engine/dashboard restart, collector
+continuity and verification before his new-build review. Final monitoring capture201508 at16:15:10
+has zero holds/worker failures, expected outside-hours Waiting, matching saved protection and8/8orders
+reconciled. The market-watch automation is deleted after this final check. Operational installation
+starts at16:35:33 after tool approval; this does not establish continuously observed coverage in the
+intervening interval. `Install-TrackedMappingFix.ps1` completes16:35:42 with normal stop/drain and
+no forced termination. Never rerun it; inspect its completed receipts first.
+
+New engine1852 starts16:35:39.1779878 and dashboard33352 starts16:35:42.8820291. Collector15516
+retains14:31:28.9499621 ownership. Installed Core hash is
+FD3EE22EA846AA203E12621F39B2696BAFD9ED06DC9138AE0F84C809A75051B6, matching the exact tested package;
+only Core.dll/Core.pdb are replaced. All128other runtime files, original financial grant bytes and
+collector owner remain unchanged. The original Core is retained privately for recovery. No alias,
+schema, financial record, permission, order or source-policy mutation is performed by installation.
+
+Captures203608 and203657 return every component successfully. Native diagnostics retain verified
+revision5569 and matching protection for both holdings,8/8owned orders reconciled, no account/quote
+blocks and NewBuysStopped false. Controls show zero incidents/consecutive worker failures and the
+explicit installed-build-changed block. This is pending user review, not enabled execution. Fixed
+broker v1 receipt a028633f-ecee-4c75-8cac-ccc6b75a11f3 at16:36:22 succeeds with two holdings, zero
+pending orders, seven reads and zero orders/token refreshes/credential changes. These bounded fresh
+reads do not grant permission or establish future session health.
+
+Progress receipt `result-20261029T203656005Z-5d7b0cab962b404c9e7c2060f5e250ba.json` matches77F194
+and confirms final shared cycle297,16:00bar published16:02:31.760, Paper7712/27744/6631 allv3 with
+matching checkpoints, last minute15:59 received16:00:36 and zero collector conflicts. Post-close
+collector OutsideSession and absence of new trading evaluations are expected. Dashboard responds;
+this alone does not prove every displayed panel is fresh. User review/enable and prospective
+new-purchase resolution remain separate checklist items. No financial review/enable was performed.
+
+Monitoring coverage retains the missed09:30–09:55 opening interval,13:53–14:31 approval-wait gap,
+missing11:20–11:40,13:55–14:45 and15:35/15:40 shared bars, prior collector omissions/restarts and
+known per-stock source gaps. CoverageDE9B2D receipt200515 proves88of89completedminutes14:32–16:00
+have34distinct attempts/34saved receipts. At15:48 only13requests are attempted/saved;21are omitted.
+One InvalidResponse takes10,031ms and finishes809ms past deadline; exact upstream cause is unknown.
+Bounded query4182F130 receipt200555 independently verifies that result. Every subsequent15:49–16:00
+minute returns34/34, so this is a recovered isolated capacity gap, not a persistent outage or proof of
+missed profit. The complete session was not observed cleanly. Private artifacts preserve all original
+timestamps and failures; installation does not backfill coverage. No changes are pushed.

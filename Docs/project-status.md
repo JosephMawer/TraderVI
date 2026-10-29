@@ -1,5 +1,17 @@
 # TraderVI Project Status
 
+## October 29 — permanent mapping repair installed after close
+
+With explicit approval, the prepared822625b7 repair installs at16:35:42 Toronto. Engine1852 and
+dashboard33352 restart normally; collector15516 continues from14:31:28 without restart.
+Only Core.dll/Core.pdb change;128other runtime files and the saved grant remain byte-identical.
+Post-restart controls show zero integrity holds/worker failures and the expected changed-build review
+block. Verified saved protection matches both holdings and8/8orders reconcile; a fresh broker read
+reports two holdings and zero pending orders. All three Paper v3 checkpoints still match.
+Joseph must perform the normal updated-build review and resume the reviewed host. Prospective
+resolution after a new managed purchase remains unverified; no trade was forced to test it.
+[Installation and monitoring close](reviews/independent-engine-implementation-20261022.md#october-29-permanent-mapping-installation-and-monitoring-close).
+
 ## October 29 — third tracked-name repair restores fresh evaluation without restart
 
 Joseph requests immediate repair and prevention of the recurring post-purchase mapping failure.
@@ -12,7 +24,7 @@ checkpoints. The15:35/15:40 shared cycles remain missed. The permanent source re
 tracked observation names from the exact managed purchase/listing and tracked position identity,
 without alias writes or ledger changes. It passes35 focused tests,554 tests against the exact isolated
 installation candidate, and3,404 Core tests with10 SQL skips using one test worker. The package is
-prepared but not installed; normal engine/dashboard restart and changed-build review remain separate.
+prepared at this checkpoint; subsequent installation is recorded above, while changed-build review remains separate.
 [Evidence](reviews/independent-engine-implementation-20261022.md#october-29-third-tracked-name-repair).
 
 ## October 29 — another tracked name blocked fresh inputs at 15:38

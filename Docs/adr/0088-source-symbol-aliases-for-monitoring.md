@@ -1,6 +1,6 @@
 # ADR-0088: Source symbol aliases for monitoring
 
-- **Status:** Original and October 27 paths installed; October 29 tracked-purchase extension implemented, installation pending.
+- **Status:** October 29 tracked-purchase extension installed; restart/storage checks pass, prospective new-purchase verification pending.
 - **Date:** 2026-09-28
 - **Domains:** architecture, data-sources
 

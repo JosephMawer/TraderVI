@@ -17,9 +17,11 @@ The September 22 documentation cleanup preserves the
 - [x] Implement and test position-scoped managed-purchase correspondence for unresolved tracked Real
   observations, preserving original broker history and explicit aliases for unmanaged references.
   [ADR-0088](adr/0088-source-symbol-aliases-for-monitoring.md#october-29-tracked-purchase-observation-extension).
-- [ ] Install the reviewed engine package with separately authorized normal restart/build review;
-  verify prospective resolution for a newly acquired managed holding without another alias write.
-  Synthetic successive-purchase tests do not establish this native acceptance.
+- [x] Install the reviewed engine package with the authorized normal engine/dashboard restart;
+  verify collector continuity, retained files/grant, zero holds/worker failures and saved checkpoints.
+- [ ] Joseph reviews/approves the changed build and resumes the reviewed host through the normal app flow.
+- [ ] Verify prospective resolution for a newly acquired managed holding without another alias write.
+  Synthetic successive-purchase tests and successful restart do not establish this native acceptance.
 
 ### Independent collector and recovered confirmation — October 27 overnight
 
