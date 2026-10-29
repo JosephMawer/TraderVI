@@ -1,6 +1,8 @@
 using Core.Db;
+using Core.Runtime;
 using Core.Trader.DelphiLive;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace TraderVI.Core.Tests;
@@ -76,5 +78,28 @@ public class DelphiLiveHoldingSymbolsTests
     {
         Assert.Throws<InvalidOperationException>(() => DelphiLiveHoldingSymbols.Resolve(
             [Holding("FIX.TO")], ["FIX", "FIX.TO"], [Mapping]));
+    }
+
+    [Theory]
+    [InlineData("alias-conflict")][InlineData("canonical-conflict")][InlineData("ambiguous-owner")]
+    public void ManagedProofCannotOverrideConflictingReferences(string conflict)
+    {
+        var holding = Holding("FIX.TO");
+        var proof = new TrackedHoldingMarketSymbol(holding.OwnerRecordId, holding.Symbol, "FIX");
+        Assert.Throws<InvalidOperationException>(() => DelphiLiveHoldingSymbols.Resolve([holding],
+            conflict == "canonical-conflict" ? ["FIX", "FIX.TO", "OTHER"] : ["FIX", "OTHER"],
+            conflict == "alias-conflict" ? [Mapping with { Symbol = "OTHER" }] : [],
+            conflict == "ambiguous-owner" ? [proof, proof] : [proof]));
+    }
+
+    [Theory]
+    [InlineData("FIX")][InlineData("FIX.TO")]
+    public async Task AlreadyResolvedReferencesDoNotReadBrokerArchives(string name)
+    {
+        var holding = Holding(name);
+        var observation = new EngineRealObservation(Guid.NewGuid(), Guid.NewGuid(), 1, null!, []);
+        var result = await DelphiLiveHoldingSource.ResolveSymbolsAsync([holding], ["FIX"], [Mapping], [observation],
+            _ => throw new Exception("Unexpected broker archive read"));
+        Assert.Equal(holding with { Symbol = "FIX" }, Assert.Single(result));
     }
 }

@@ -6,13 +6,15 @@ using System.Linq;
 namespace Core.Trader.DelphiLive;
 
 internal sealed record HoldingSymbolAlias(string Source, string Alias, string Symbol);
+internal sealed record TrackedHoldingMarketSymbol(Guid PositionId, string BrokerSymbol, string MarketSymbol);
 
 /// <summary>Translates observation references without editing the owning account's records.</summary>
 internal static class DelphiLiveHoldingSymbols
 {
     internal static IReadOnlyList<DelphiLiveObservedHolding> Resolve(
         IReadOnlyList<DelphiLiveObservedHolding> holdings, IEnumerable<string> symbols,
-        IReadOnlyList<HoldingSymbolAlias> aliases)
+        IReadOnlyList<HoldingSymbolAlias> aliases,
+        IReadOnlyList<TrackedHoldingMarketSymbol>? managed = null)
     {
         var canonical = symbols.ToHashSet(StringComparer.OrdinalIgnoreCase);
         return holdings.Select(holding =>
@@ -27,6 +29,14 @@ internal static class DelphiLiveHoldingSymbols
                 !string.Equals(matches[0].Symbol, input, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidOperationException($"Live monitoring has conflicting symbol mappings for '{input}'. Review SymbolAliases.");
             string resolved = matches.Length == 1 ? matches[0].Symbol.Trim().ToUpperInvariant() : input;
+            var owned = holding.Owner == "Real"
+                ? (managed ?? []).Where(m => m.PositionId == holding.OwnerRecordId).ToArray() : [];
+            if (owned.Length > 1 || owned.Length == 1 &&
+                (!string.Equals(owned[0].BrokerSymbol, input, StringComparison.OrdinalIgnoreCase) ||
+                 (matches.Length == 1 || canonical.Contains(input)) &&
+                 !string.Equals(resolved, owned[0].MarketSymbol, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidOperationException("Tracked holding differs from its verified managed purchase correspondence.");
+            if (owned.Length == 1) resolved = owned[0].MarketSymbol.Trim().ToUpperInvariant();
             if (!canonical.Contains(resolved))
                 throw new InvalidOperationException($"Live monitoring cannot identify '{input}' in Symbols. Add a verified source alias before retrying; account history is unchanged.");
             return holding with { Symbol = resolved };

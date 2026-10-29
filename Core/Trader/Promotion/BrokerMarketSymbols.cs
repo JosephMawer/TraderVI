@@ -1,5 +1,6 @@
 #nullable enable
 using Core.WSTrade.Accounts;
+using Core.Trader.DelphiLive;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -10,6 +11,27 @@ namespace Core.Trader.Promotion;
 /// <summary>Derived market references only; original broker books, orders and protection identities remain unchanged.</summary>
 internal static class BrokerMarketSymbols
 {
+    internal static IReadOnlyList<TrackedHoldingMarketSymbol> ForTrackedHoldings(BrokerManagedSession state)
+    {
+        // Reuse the original managed-order/listing proof. Never infer a mapping from a suffix alone.
+        _ = From(state.Account, state.Orders);
+        var result = new List<TrackedHoldingMarketSymbol>();
+        foreach (var holding in state.Account.Positions.Where(p => p.LegacyPositionId is null))
+        {
+            var purchases = state.Orders.Where(o => o.Side == "BUY" && o.SecurityId == holding.SecurityId &&
+                o.ExternalId == holding.FirstBuyOrderId && o.Reconciled && o.Latest is { FilledQuantity: > 0, Side: "BUY" }).ToArray();
+            if (purchases.Length > 1) throw new InvalidOperationException("Ambiguous managed purchase for a tracked holding.");
+            if (purchases.Length == 0) continue; // Unmanaged/legacy records still require reviewed aliases.
+            var purchase = purchases[0];
+            string broker = BrokerTradeProjector.ListingSymbol(purchase.Latest!, state.Account.Import.Plan.Observation);
+            result.Add(new(BrokerTradeProjector.TrackedPositionId(state.Account.Import.Plan.BrokerKey, purchase.ExternalId),
+                broker, purchase.Symbol));
+        }
+        if (result.Select(r => r.PositionId).Distinct().Count() != result.Count)
+            throw new InvalidOperationException("Multiple managed holdings share a tracked position identity.");
+        return result;
+    }
+
     internal static ImmutableDictionary<string, string> From(BrokerAccountProjection account, ImmutableArray<BrokerStrategyOrder> orders)
     {
         var map = ImmutableDictionary.CreateBuilder<string, string>(StringComparer.OrdinalIgnoreCase);

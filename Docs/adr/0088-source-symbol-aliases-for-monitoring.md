@@ -1,6 +1,6 @@
 # ADR-0088: Source symbol aliases for monitoring
 
-- **Status:** Implemented and installed; native symbol resolution and comparison-source adoption verified.
+- **Status:** Original and October 27 paths installed; October 29 tracked-purchase extension implemented, installation pending.
 - **Date:** 2026-09-28
 - **Domains:** architecture, data-sources
 
@@ -52,6 +52,25 @@ check; no migration or rewritten history is needed. New subscriptions publish th
 Valuation, quotes, independent confirmation, duplicate-position checks and close/open risk evidence use
 the same correspondence. Recommendations and owned protection return to the original broker name.
 The one-minute successor and all entry thresholds remain unchanged.
+
+### October 29 tracked-purchase observation extension
+
+The independent broker observation already uses the verified market symbol, but `ActivePosition`
+also contributes a tracked Real observation with the broker ledger's original name and a different
+position ID. Those duplicate observation paths caused a new unresolved name after each new purchase.
+
+For an unresolved tracked Real reference only, use the verified current broker head matching the
+collection subscription's binding, session, revision and contents. Reuse the original reconciled BUY,
+security/listing checks and the trade projector's deterministic tracked-position identity. Match both
+that exact position ID and broker spelling before deriving the market reference. Do not write an alias,
+change the ledger, infer arbitrary suffixes or reuse proof for another owner/position. Missing listing,
+changed head, ambiguous ownership, conflicting alias or absent canonical stock still fails closed.
+Legacy/unmanaged references retain the reviewed manual-alias route.
+
+Already canonical or manually mapped holdings retain their existing lookup path; they do not read
+another broker archive. The fallback reads only the current verified head, never the full revision
+history. It preserves every observation owner, record ID and action flag and creates no financial
+authority. Installation and prospective native verification are separate from source tests.
 
 Focused tests cover canonical names, aliases, ownership preservation, wrong sources, missing targets,
 conflicts and rejection of alias chains. Build/test results and installation status belong to project

@@ -1,6 +1,7 @@
 #nullable enable
 using Core.Trader;
 using Core.Trader.DelphiLive;
+using Core.Runtime;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System;
@@ -22,8 +23,12 @@ public sealed class DelphiLiveHoldingSource : SQLBase, IDelphiLiveHoldingSource
     public async Task<IReadOnlyList<DelphiLiveObservedHolding>> GetObservedHoldingsAsync(CancellationToken cancellationToken = default)
     {
         var result = new List<DelphiLiveObservedHolding>();
+        IReadOnlyList<EngineRealObservation> real = [];
         if (realObservations is not null)
-            result.AddRange((await realObservations.ReadAsync(cancellationToken)).SelectMany(r => r.Holdings));
+        {
+            real = await realObservations.ReadAsync(cancellationToken);
+            result.AddRange(real.SelectMany(r => r.Holdings));
+        }
         bool paperAvailable = realObservations is null ||
             (await new EngineIntegrityRepository().ReadAccessAsync(Core.Runtime.EngineIntegrityScope.Paper, null, cancellationToken)).ProtectionAllowed;
         if (paperAvailable)
@@ -55,6 +60,23 @@ public sealed class DelphiLiveHoldingSource : SQLBase, IDelphiLiveHoldingSource
             """, cancellationToken: cancellationToken));
         var symbols = await references.ReadAsync<string>();
         var aliases = (await references.ReadAsync<HoldingSymbolAlias>()).AsList();
-        return DelphiLiveHoldingSymbols.Resolve(result, symbols, aliases);
+        return await ResolveSymbolsAsync(result, symbols, aliases, real,
+            observation => new BrokerManagedSessionRepository().ReadTrackedMarketSymbolsAsync(observation, cancellationToken));
+    }
+
+    internal static async Task<IReadOnlyList<DelphiLiveObservedHolding>> ResolveSymbolsAsync(
+        IReadOnlyList<DelphiLiveObservedHolding> holdings, IEnumerable<string> symbols,
+        IReadOnlyList<HoldingSymbolAlias> aliases, IReadOnlyList<EngineRealObservation> real,
+        Func<EngineRealObservation, Task<IReadOnlyList<TrackedHoldingMarketSymbol>>> readManaged)
+    {
+        var canonical = symbols.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var managed = new List<TrackedHoldingMarketSymbol>();
+        // Existing canonical/manual mappings retain their cheap path. Only an unresolved tracked Real
+        // reference needs the verified current broker head; no history scan or database alias write.
+        if (holdings.Any(h => h.Owner == "Real" && !canonical.Contains(h.Symbol.Trim()) &&
+            !aliases.Any(a => a.Source == "Broker" && string.Equals(a.Alias, h.Symbol.Trim(), StringComparison.OrdinalIgnoreCase))))
+            foreach (var observation in real)
+                managed.AddRange(await readManaged(observation));
+        return DelphiLiveHoldingSymbols.Resolve(holdings, canonical, aliases, managed);
     }
 }

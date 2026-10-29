@@ -8,8 +8,12 @@ and hash-matched copy; all four original aliases remain unchanged. Native evalua
 and15:52:52 use fresh inputs with zero holds, worker failures, account/quote blocks or stopped buys.
 All three holding protections match and7/7orders reconcile. Engine, collector and dashboard owners,
 trading build and saved grant remain unchanged. All three Paper v3 heads advance with matching
-checkpoints. The15:35/15:40 shared cycles remain missed. The permanent source repair is being
-validated separately and is not installed. [Evidence](reviews/independent-engine-implementation-20261022.md#october-29-third-tracked-name-repair).
+checkpoints. The15:35/15:40 shared cycles remain missed. The permanent source repair now derives
+tracked observation names from the exact managed purchase/listing and tracked position identity,
+without alias writes or ledger changes. It passes35 focused tests,554 tests against the exact isolated
+installation candidate, and3,404 Core tests with10 SQL skips using one test worker. The package is
+prepared but not installed; normal engine/dashboard restart and changed-build review remain separate.
+[Evidence](reviews/independent-engine-implementation-20261022.md#october-29-third-tracked-name-repair).
 
 ## October 29 — another tracked name blocked fresh inputs at 15:38
 

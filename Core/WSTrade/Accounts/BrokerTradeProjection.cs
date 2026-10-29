@@ -62,7 +62,7 @@ public static class BrokerTradeProjector
             var ids = references.Select(r => r.LegacyPositionId!.Value).Distinct().ToArray();
             if (ids.Length > 1) throw new InvalidOperationException("One broker lifecycle maps to multiple tracked positions.");
             var legacy = ids.Length == 1 ? baseline.Positions.Single(p => p.PositionId == ids[0]) : null;
-            Guid id = legacy?.PositionId ?? StableId(plan.BrokerKey, "position", first.ExternalId);
+            Guid id = legacy?.PositionId ?? TrackedPositionId(plan.BrokerKey, first.ExternalId);
             string symbol = legacy?.Symbol ?? ListingSymbol(first, plan.Observation);
             DateOnly entry = BrokerAccountImport.TorontoDate(first.LastFilledAt!.Value);
             if (legacy is not null && legacy.EntryDate != entry)
@@ -103,7 +103,10 @@ public static class BrokerTradeProjector
     private static decimal Money(decimal value) => decimal.Round(value, 2, MidpointRounding.AwayFromZero);
     private static Guid StableId(string account, string kind, string order) =>
         new(SHA256.HashData(Encoding.UTF8.GetBytes($"BrokerTradeSync.v1:{account}:{kind}:{order}")).AsSpan(0, 16));
-    private static string ListingSymbol(BrokerOrderFact order, BrokerAccountReconciliation observation)
+    internal static Guid TrackedPositionId(string brokerKey, string firstBuyOrderId) =>
+        StableId(brokerKey, "position", firstBuyOrderId);
+
+    internal static string ListingSymbol(BrokerOrderFact order, BrokerAccountReconciliation observation)
     {
         var listing = (observation.Instruments ?? []).SingleOrDefault(i => i.SecurityId == order.SecurityId);
         if (listing is null || listing.Currency != "CAD" || listing.PrimaryMic is not ("XTSE" or "XTSX") ||

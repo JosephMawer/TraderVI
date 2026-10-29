@@ -3508,3 +3508,33 @@ collector15516 and both dashboard owners retain their start times. Progress77F19
 `result-20261029T194754911Z-22e1b7d3d9264ed5bc06ef7f53d59c46.json` confirms shared cycle294,
 15:45bar published15:47:32, Paper heads7645/27645/6564 using v3 with matching checkpoints and
 zero collector conflicts. The15:35/15:40 cycles remain missed; no subsequent buy is inferred.
+
+### Permanent tracked-purchase correspondence — prepared, not installed
+
+The cause is the second observation path: `EngineRealObservation` already derives canonical names
+from managed purchases, while `DelphiLiveHoldingSource` adds tracked Real records with their original
+broker spelling and different position IDs. The latter still required a manual alias for each new name.
+The repair extends ADR0088's existing verified-purchase rule to that tracked reference. It reuses the
+trade projector's exact stable position ID and saved listing validation, requires the reconciled original
+BUY and matching current broker subscription/head, and changes only the derived observation symbol.
+No stored identity, fingerprint, order, protection, threshold or permission changes. Conflicting/missing
+evidence remains blocked; unmanaged legacy positions still use independently reviewed aliases.
+Already resolved references avoid the extra current-head read; no historical verification is added.
+
+Thirty-five focused tests pass, including successive new purchases without alias writes, changed
+revision, wrong owner/position/name, unreconciled purchase, missing/wrong listing, absent canonical
+stock and conflicting manual/canonical mappings. The isolated Release candidate uses the installed
+1c299f04 base plus only five changed Core source files, keeping unrelated collector repairs out of the
+trading assembly. Its exact Core.dll passes554 broker/mapping tests. The current-source Core suite
+passes3,404 tests with10 SQL/native skips when xUnit is explicitly limited to one worker. Earlier full
+runs had AI deadline/stop timeouts and one pipe-test timeout; isolated timing tests and the complete
+single-worker rerun pass. Preserve those logs rather than calling the earlier runs clean.
+Release compilation has258 compiler warnings and zero errors; dependency audit was disabled for
+these restores/builds, so there is no new vulnerability assessment. The full SSDT solution was not built.
+
+The ignored package, source overlay manifest, exact-candidate tests and prepared guarded installer
+remain under `artifacts/tracked-name-repair-20261029`. Only Core.dll/Core.pdb are proposed for replacement.
+The installer requires a separately approved normal engine/dashboard restart after close, preserves
+collector ownership and saved grant bytes, and does not approve the changed build or enable trading.
+The user must perform the normal changed-build review; prospective native resolution after a new
+managed purchase remains unverified. No installer has run and no source commit has been pushed.

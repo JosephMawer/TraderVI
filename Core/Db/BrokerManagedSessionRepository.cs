@@ -50,6 +50,13 @@ public sealed class BrokerManagedSessionRepository : IBrokerManagedSessionStore
         var (state, _) = await ReadVerifiedHeadAsync(binding, ct);
         return EngineRealObservation.From(state);
     }
+    internal async Task<IReadOnlyList<Core.Trader.DelphiLive.TrackedHoldingMarketSymbol>> ReadTrackedMarketSymbolsAsync(
+        EngineRealObservation expected, CancellationToken ct)
+    {
+        var (state, _) = await ReadVerifiedHeadAsync(expected.BindingId, ct);
+        expected.RequireMatches(state); // A changed head requires another read, never a mixed-revision mapping.
+        return BrokerMarketSymbols.ForTrackedHoldings(state);
+    }
     private async Task<(BrokerManagedSession State, bool Shared)> ReadVerifiedHeadAsync(Guid binding, CancellationToken ct)
     {
         if (binding == Guid.Empty) throw new ArgumentException("Select the real account binding for diagnostics.");

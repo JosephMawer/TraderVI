@@ -10,6 +10,17 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+### Tracked purchase symbol continuity — October 29
+
+- [x] Restore the current missing name through one independently verified alias and backup, without
+  restarting hosts; verify fresh native evaluations and unchanged protection/permissions.
+- [x] Implement and test position-scoped managed-purchase correspondence for unresolved tracked Real
+  observations, preserving original broker history and explicit aliases for unmanaged references.
+  [ADR-0088](adr/0088-source-symbol-aliases-for-monitoring.md#october-29-tracked-purchase-observation-extension).
+- [ ] Install the reviewed engine package with separately authorized normal restart/build review;
+  verify prospective resolution for a newly acquired managed holding without another alias write.
+  Synthetic successive-purchase tests do not establish this native acceptance.
+
 ### Independent collector and recovered confirmation — October 27 overnight
 
 [ADR-0111](adr/0111-independent-collector-and-recovered-confirmation.md) owns the accepted direction.
