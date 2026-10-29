@@ -3452,3 +3452,30 @@ remove real-host waits. Hash-verified read-only SQL and filesystem inspection di
 history processing from evaluation storage and accumulated build outputs. The pinned architecture's
 logical boundaries still apply; its execution-status labels are historical. Accepted redesign decisions
 are recorded above; cleanup remains undecided. [Findings](../reviews/paper-workload-architecture-20261021.md).
+
+## October 29 third tracked-name blocker
+
+Monitoring at15:38:28 and15:39:15 finds Market inputs failing with InvalidOperationException
+(two then three consecutive failures), with Real waiting for fresh shared inputs. The latest shared
+cycle remains293,15:30bar published15:32:13; the15:35cycle is not present at this check.
+A confirmed buy filled15:32:17.093, independently checked against native verified revision5447
+and its hash-verified order references;7/7owned orders reconcile and all three holding protections
+match. No integrity hold, account/quote block or permission change is observed.
+
+ObservedSymbolScope-v2.sql (SHA25691690489524677D8436595462304E53EF4435818C4EEFC751B77C342F173ED75)
+receipt `result-20261029T193904598Z-1840fc3eb33e460894ae05f037d14dfa.json` shows one unresolved
+tracked Real name among three, while BrokerManaged and Shadow names resolve. The existing
+read-only VerifyMapping.sql (SHA2562C5FD228A466A60B03D71A7ECA39F30C04D43CC5B69F43E3E89986805A3D8828)
+receipt `result-20261029T193931566Z-8ec9d6a6bba14875989ad0371158cefa.json` independently verifies
+one candidate using matching security/listing and checksum-checked saved holding/observation evidence;
+four existing aliases remain present. This establishes another resolver blocker, although the exact
+worker exception has not been traced and other causes are not excluded. Previous alias approvals
+were consumed; no new write, restart or financial operation is performed. A verified operational
+repair and a durable resolution of repeated tracked-name failures remain outstanding.
+
+Collector scheduling stays healthy: coverage receipt
+`result-20261029T193845016Z-eeaa84c4a2fd4701b07301017bd383c4.json`, matching the reviewed
+DE9B2D query hash, shows all66completedminutes14:32–15:37 with34distinct attempts/34saved,
+zero missing/failed/late receipts or conflicts. Engine11716,collector15516 and dashboard owners
+remain unchanged. Private captures and query receipts remain under `artifacts/market-watch-20261029`
+and `artifacts/read-only-db`. Missing inputs and earlier coverage gaps are not restored by diagnosis.

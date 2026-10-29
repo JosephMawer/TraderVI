@@ -1,5 +1,16 @@
 # TraderVI Project Status
 
+## October 29 — another tracked name blocks fresh inputs at 15:38
+
+After a confirmed buy at15:32:17 Toronto, the15:38 and15:39 controls show a renewed
+Market inputs failure and stale-input buying wait. Read-only checks identify one unresolved
+tracked Real name and independently verify one mapping candidate against the saved holding,
+listing and observation; the four existing aliases remain present. No new alias write is authorized
+or performed under monitoring. All three holding protections match,7/7orders reconcile, and there
+are zero integrity holds/account/quote blocks. Collector coverage remains34/34 for all66completed
+minutes14:32–15:37. This recurrence leaves the broader tracked-name handling issue unresolved;
+the successful14:50 repair below remains historical. [Evidence](reviews/independent-engine-implementation-20261022.md#october-29-third-tracked-name-blocker).
+
 ## October 29 — tracked-name repair restores market updates and valuation
 
 Joseph requests fixing the stock-name and valuation blockers without restarting the engine. At
