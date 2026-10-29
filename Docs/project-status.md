@@ -67,7 +67,7 @@ stopped before copying; explicit waiting for the Windows control process correct
 No shared-runtime replacement, engine/collector restart, financial setting change or schema operation.
 Private rollback, fingerprints and status receipts: `artifacts/remove-docs-ui-20261028/installation-verified/`.
 
-**Nightly DataAudit integrated (October 28, next operational run pending):** Joseph authorized
+**Nightly DataAudit integrated (October 28 source checkpoint; operational verification below):** Joseph authorized
 Hermes → DataAudit → Delphi → Athena and retirement of the desktop Data Audit menu while keeping the
 CLI. [ADR-0113](adr/0113-nightly-data-audit-report.md) owns the reporting/failure contract. Full findings
 and comparable new/escalated/resolved issues appear in nightly status; failed scans preserve the last
@@ -92,7 +92,7 @@ after. Window capture timed out twice, so direct visual menu verification remain
 runtime, financial control, task schedule or schema changed, and no manual nightly/audit run occurred.
 Private rollback/fingerprint/status receipts: `artifacts/nightly-data-audit-20261028/installation/`.
 
-**Early nightly preparation implemented (October 28 evening, operational verification pending):**
+**Early nightly preparation implemented (October 28 evening source checkpoint):**
 Joseph authorized explicitly preparing October 29 now and skipping only the upcoming 00:30 occurrence.
 [ADR-0114](adr/0114-explicit-nightly-preparation-date.md) separates preparation dates from real timestamps,
 requires closed sessions and keys duplicate suppression to the preparation date. Hermes collection and
@@ -102,6 +102,30 @@ isolated locked build and final standalone-compatible Delphi build pass with 258
 warnings per project, no errors. NuGet audit was disabled; no new security/full-suite/SSDT qualification.
 No operational stage or schedule change occurred during this source checkpoint. Private validation:
 `artifacts/nightly-data-audit-20261028/early-*`.
+
+**Early run operationally verified (October 28, completed 22:03 Toronto):** the authorized run
+`8482f42b-0a6f-4ef7-a91a-76184e3cf34e` captured clean source `43933d5c`, started at 21:54 and
+completed all four stages for **preparation date October 29**. Hermes exited 0 with three isolated
+source warnings and completed its backup; DataAudit exited 2 with completed findings; Delphi and
+Athena exited 0. Overall **Attention**, with no automatic operational retry. The installed read-only
+SQL helper's hash-verified receipt confirms exactly one Valid OfficialPaper run from that commit for
+October 29 using October 28 data, with real publication timestamps. XIU and SPY both reach October 28.
+
+DataAudit ran after Hermes and saved its full report plus an identical first comparison baseline:
+**2 errors and 9 warnings** — one stale active symbol, one lagging symbol, eight missing usable sector
+mappings, and one orphan-symbol flag. The orphan is the deliberately separate SPY benchmark under
+ADR-0058, so it is a known audit false positive requiring follow-up; it is not missing benchmark data.
+The data-quality findings need review; no classification/data repair or audit-rule change was performed.
+First-baseline verification proves storage and stage integration; real cross-night change comparison
+remains unobserved (covered offline). Report wording was subsequently clarified in `460ebec0`; seven
+report tests pass. That wording change was not part of the already captured operational run.
+
+The task's trigger start boundary alone was advanced, preserving actions, principal, settings and
+all-seven-days recurrence. October 29 00:30 is skipped; verified next start is **October 30 00:30:30
+Toronto**. Source changes are locally committed, not yet pushed. No engine/collector installation,
+model training, schema operation or broker action was performed. Backup success does not establish
+remote OneDrive synchronization or restore proof. Full private status, audit baseline, task XML backup,
+schedule and database receipts: `artifacts/nightly-data-audit-20261028/early-operation/`.
 
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 
