@@ -91,3 +91,15 @@ Next operator action: open the normal installed output with
 the exact current build/source through Review October22, Approve October22 continuation, then
 separately Enable reviewed host. Arming still requires current matching daily/account/source/storage
 facts and fresh ordinary checks at/after09:30. No promise of signal confirmation or an order follows.
+
+## Work-item recovery — October 28, 2026
+
+The dates and operator steps above are historical, not current restart or financial authority.
+Current source still uses the bounded save recovery in independent shared-input services. Remaining
+native recovery/stage-delivery qualification is owned by [GitHub #17](https://github.com/JosephMawer/TraderVI/issues/17);
+the installed architecture's historical/shared-resource capacity is already [#13](https://github.com/JosephMawer/TraderVI/issues/13).
+At Joseph's explicit request, the recurring parallel AI cleanup-test limitation is captured separately
+in [#18](https://github.com/JosephMawer/TraderVI/issues/18); its remedy needs discussion, and serialized
+passes do not prove a correction. No implementation, native test, operational query or runtime change
+was performed for this recovery review. Broader documentation reconciliation retains its existing
+owner in [#8](https://github.com/JosephMawer/TraderVI/issues/8).

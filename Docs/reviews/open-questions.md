@@ -161,6 +161,13 @@ tolerance choice, not the underlying source-latency investigation.
 
 ### Live evaluation save timeout — October 21, 2026
 
+- **Work recovery, October 28:** implementation/installation remain complete; the outstanding native
+  save-recovery and stage-delivery acceptance is tracked in [GitHub #17](https://github.com/JosephMawer/TraderVI/issues/17).
+  Current independent shared-input services still use this repository/retry path. Historical timeout
+  cause remains unknown; architecture/source separation is not a native retry proof. Historical
+  workload capacity is [#13](https://github.com/JosephMawer/TraderVI/issues/13); the earlier paper-pause
+  workaround is superseded by the accepted independence, not a new switch requirement.
+
 - **Resumed evening scope:** operator requests the remaining SQL fix now and explicitly selects
   **Fix SQL only for now**. [ADR-0102](../adr/0102-bounded-immutable-live-evaluation-save-recovery.md)
   implements one identical save replay with original guards/timeouts and bounded safe stage logs.
