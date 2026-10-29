@@ -44,6 +44,42 @@ or when a new user decision is required. Record actual completion/clearance/work
 the status owner; none is claimed yet. No engine/collector restart, binary change, portfolio reset,
 database schema change, model training or broker action occurred during this checkpoint.
 
+### October 28 recovery cost investigation — 23:18–23:19 Toronto
+
+Joseph asks whether the original causes are fixed, what the holds block, and whether the eight-hour
+historical duration reflects excessive storage. The original Paper revision-6044 rejection was the
+legacy SQL datetime projection mismatch documented below under original representation correction;
+that correction is installed and this fresh pass has crossed the boundary. Other retained incidents
+include recovery-pending and inherited continuity restrictions, not nine proven independent data defects.
+Recent native status still blocks Paper protection, Paper inputs, Research inputs/history and Shadow
+protection. Clearing holds cannot recreate missed on-time paper observations or certify gap-free results.
+
+The installed read-only helper measures these JSON payloads (decimal bytes, excluding indexes, other
+columns, other tables, transaction logs and backups; this is not total database disk usage):
+
+| Recovery data | Records | JSON bytes |
+|---|---:|---:|
+| Paper revision roots | 37,790 | 629,890,316 |
+| Shared Paper content | 29,771 | 40,708,962 |
+| Frozen legacy research input/result pairs | 167,268 | 12,919,635,620 |
+
+There are also 29,699 membership-change rows. All 37,790 Paper roots are storage version 2. Total
+measured JSON is approximately 13.59 GB; the large frozen research archive has not yet been reached
+by this recovery. At 23:17:59, the pass remains Running at 17,226 units, second portfolio revision
+10,289. The code reuses distinct decoded content within a pass, but version 2 still hashes the full
+expanded state at each revision; transition validation also traverses accumulated history. Stored
+bytes and record count therefore understate repeated verification work. This is a concrete source-level
+cost mechanism, not a measured CPU/I/O profile or proof of its percentage of runtime. The previous
+8h11 elapsed duration is a conditional comparison, not an intrinsic requirement or reliable ETA.
+
+Further performance/retention design should measure costs and preserve original evidence and checks;
+no deletion, format migration, retention-policy change or running-pass interruption is authorized by
+this explanatory investigation. Private helper receipts are under `artifacts/read-only-db/`:
+`result-20261029T031758686Z-3e2aec1edd66479a9d64c9001891e07d.json` (query hash
+`9F560E503C5931F3B5489EA76ED023F1B00D7712B2411F1907A8B1BC45114BB5`) and
+`result-20261029T031904868Z-dd33e01c71e34ca4954e6e9c2dd77384.json` (query hash
+`050761B874B7EDB8175C6D77F0F373961997BF46AF44B7013A3C6FCCC341DC29`). Both hashes verified.
+
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 
 The engine independently bought ASTL after its five-minute signal reached two consecutive qualifying

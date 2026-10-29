@@ -170,6 +170,12 @@ current-head/identity/guard checks pass, then verify worker recovery. It reports
 completion or morning-readiness risk and pauses when finished. Real authority is unchanged.
 [Procedure, evidence and remaining checks](reviews/independent-engine-implementation-20261022.md#october-28-late-evening-paper-recovery).
 
+**Recovery cost measured (October 28, 23:18–23:19 Toronto):** read-only aggregates find approximately
+13.59 GB of JSON in the recovery's Paper roots/content and frozen research inputs, excluding database
+overhead and other data. All 37,790 Paper roots use the older version-2 format, requiring repeated
+full-state fingerprint checks. The pass remains in Paper history, before the 12.92 GB research archive.
+[Measured sizes, affected workers and performance limits](reviews/independent-engine-implementation-20261022.md#october-28-recovery-cost-investigation--23182319-toronto).
+
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 
 The following overnight entries are historical implementation checkpoints, not current installation claims.
