@@ -293,6 +293,51 @@ An offline comparison first rejected an absent subscription, then used an incorr
 for UTC window bounds; both analysis defects were corrected before conclusions, with explicit UTC
 DateTimeOffset bounds and null handling. No additional provider fetch was needed for those corrections.
 
+## October 29 second tracked-name repair and valuation recovery
+
+Joseph explicitly requests fixing the newly observed stock-name and account-valuation blockers while
+keeping the engine running. The bounded read-only proof compares the current immutable broker head,
+checksum-verified account/position content, revision-matched RealObservation, tracked Real holding,
+canonical Symbols row and saved CAD/EQUITY/XTSE security listing. It identifies exactly one missing
+Broker alias; no suffix is inferred without listing/ownership evidence. Proof query SHA256
+`2C5FD228A466A60B03D71A7ECA39F30C04D43CC5B69F43E3E89986805A3D8828` matches private receipt
+`result-20261029T184545139Z-25dadeddde4a49649c9d76138f48ab5b.json` at revision5221.
+
+The reviewed, separately approved script follows ADR0088: a fresh full backup passes SQL checksum
+verification, then its established backup-destination copy matches SHA256. Cloud synchronization
+and a restore drill are not verified. The atomic alias transaction locks/rechecks the exact current
+head and original evidence, requires the one reviewed pair, and preserves every existing alias.
+It uses a five-second lock timeout and low deadlock priority. At14:50:36 it inserts exactly one row
+against current revision5242; exit0 and completed receipts are retained. SQL SHA256 is
+`7F8E4767523D6BC858483DFD47B3A48C1596DD3EAA51BB41B671D8636AC61972`. Offline ScriptDom and
+PowerShell parsing pass. No source, schema, account, order, risk, valuation or permission data is
+changed; no host restarts. Engine11716, collector15516 and both dashboard owners retain their starts;
+trading Core and saved grant remain byte-identical. Do not rerun the completed repair.
+
+Independent post-write query SHA256
+`108B7502E99584A036B6DB31E382CEED6B06ECC04E3076664ECCC1907A43DC23` matches private receipt
+`result-20261029T185124034Z-32cd456ad7334cff997f7de5d0f1401b.json`: four aliases, every original
+three row unchanged, zero unresolved/conflicting observed holdings. The next normal market pass
+has zero worker failures. Cycle285 publishes14:50 inputs at14:52:33.6098771, following the previous
+cycle284 at13:50; missing13:55–14:45 shared coverage is not replayed or backdated.
+
+Qualified native diagnostics show fresh Running evaluations at14:52:38.8828098 and14:53:53.2013802,
+with no confirmed entry signal, zero entry/account/quote blocks, NewBuysStopped false, zero integrity
+holds, zero consecutive worker failures, matching held protection and6/6orders reconciled. The
+valuation warning clears when new market inputs arrive without changing valuation logic or financial
+facts. Source `TradingRecommendationEngine.Latest` requires eligible holding prices no more than
+45minutes old; the previous13:50 data had aged out when the warning appeared. The observed recovery
+supports this shared-input dependency; no separate account-value override or repair was needed.
+
+Read-only Progress receipt `result-20261029T185408937Z-d1b39e6bb69d4b3abd6d9e27b3f6bc27.json`
+matches the reviewed77F194 query hash and confirms Paper heads7485/27282/6402 all v3 with matching
+checkpoints and zero collector conflicts. Native captures185312 and185409 in the market-watch
+directory retain both successful checks. Private repair/backup/proof receipts are under
+`artifacts/alias-valuation-repair-20261029/`. No purchase is inferred from resumed evaluation;
+separate sparse-source coverage qualification remains unresolved. This is the exact current-name
+repair, not automatic qualification of every future broker spelling; original tracked records keep
+their broker identities under ADR0088. Monitoring continues for any recurrence.
+
 ## October 29 intraday alias repair and monitoring limits
 
 The market watch identifies a separate minute-collector degradation beginning around 11:01 Toronto:

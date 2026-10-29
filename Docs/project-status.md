@@ -1,5 +1,19 @@
 # TraderVI Project Status
 
+## October 29 — tracked-name repair restores market updates and valuation
+
+Joseph requests fixing the stock-name and valuation blockers without restarting the engine. At
+14:50:36, one independently verified Broker alias is added after a checksum-verified full backup
+and hash-verified backup copy; all three previous aliases remain unchanged. No engine, collector or
+dashboard restart, build replacement, financial-record edit or trading-permission change occurs.
+The holding resolver now reports zero unresolved/conflicting names. Shared cycle285 publishes the
+14:50 bar at14:52:33. Native evaluations at14:52:38 and14:53:53 are Running with fresh inputs,
+no confirmed entry signal, zero entry/valuation/account/quote blocks, zero holds and zero worker
+failures; saved protection matches and6/6orders reconcile. All three Paper v3 checkpoints advance
+and match. `NetAssetValueUnavailable` clears with fresh prices, without a valuation override.
+The missing13:55–14:45 shared cycles remain missed; this does not establish complete provider
+coverage or a new purchase. [Evidence and limits](reviews/independent-engine-implementation-20261022.md#october-29-second-tracked-name-repair-and-valuation-recovery).
+
 ## October 29 — collector clock repair installed; initial coverage restored
 
 At 12:08 Toronto, a bounded exception trace of the existing collector identifies repeated SQL54561:
