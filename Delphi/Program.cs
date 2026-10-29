@@ -26,10 +26,13 @@ if (invalidArgs)
 
 try
 {
+    DateTime? preparationDate = Environment.GetEnvironmentVariable(NightlyPreparationDate.EnvironmentVariable) is null
+        ? null : NightlyPreparationDate.FromEnvironment();
     var options = new DelphiWorkflowOptions(
         Purpose: exploratory
             ? CalibrationRunPurpose.ExploratoryReplay
-            : CalibrationRunPurpose.OfficialPaper) { ModelInputBindingPath = bindingPath };
+            : CalibrationRunPurpose.OfficialPaper,
+        RecommendationDate: preparationDate) { ModelInputBindingPath = bindingPath };
     DelphiWorkflowRunResult result = await new DelphiWorkflow().RunAsync(
         options,
         Console.Out);

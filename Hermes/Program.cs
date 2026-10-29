@@ -18,12 +18,15 @@ Console.WriteLine("=== Hermes: Market Data Collector ===\n");
 bool spyOnly = args.Length == 1 && args[0] == "--spy-only";
 if (args.Length != 0 && !spyOnly)
     throw new ArgumentException("Usage: Hermes [--spy-only]");
+// Validate the output date before any database or provider operation.
+DateTime preparationDate = NightlyPreparationDate.FromEnvironment();
+Console.WriteLine($"Preparation date: {preparationDate:yyyy-MM-dd}; daily collection through {preparationDate.AddDays(-1):yyyy-MM-dd}.");
 if (!spyOnly)
 {
     Console.WriteLine("[Backfill Mode] Downloading historical data...");
-    await RunBackfillAsync();
+    await RunBackfillAsync(preparationDate);
 }
-await UpdateSpyBenchmarkAsync();
+await UpdateSpyBenchmarkAsync(preparationDate);
 
 try
 {
@@ -51,14 +54,14 @@ catch (Exception ex)
 }
 
 // ── One-time A/D Line backfill (uncomment to rebuild from scratch) ──
-// await BackfillAdvanceDeclineLineAsync(months: 6);
+// await BackfillAdvanceDeclineLineAsync(preparationDate, months: 6);
 
-static async Task UpdateSpyBenchmarkAsync()
+static async Task UpdateSpyBenchmarkAsync(DateTime preparationDate)
 {
     Console.WriteLine("\n── SPY daily benchmark confirmation ──");
     var repository = new QuoteRepository();
     var calendar = DailyBenchmarkPolicy.LoadCalendar();
-    DateTime expected = calendar.GetImmediatelyPrecedingSession(DateOnly.FromDateTime(DateTime.Today))
+    DateTime expected = calendar.GetImmediatelyPrecedingSession(DateOnly.FromDateTime(preparationDate))
         .ToDateTime(TimeOnly.MinValue);
     var existing = await repository.GetDailyBarsAsync(SpyBenchmarkIngestion.Symbol);
     DateTime from = existing.Count < DailyBenchmarkPolicy.RequiredObservations
@@ -79,14 +82,14 @@ static async Task UpdateSpyBenchmarkAsync()
     Console.WriteLine($"SPY: {inserted} new observations; {verified.Count} stored; verified through {expected:yyyy-MM-dd}. Existing observations preserved.");
 }
 
-static async Task RunBackfillAsync()
+static async Task RunBackfillAsync(DateTime preparationDate)
 {
     var tmx = new TmxClient();
     var repository = new QuoteRepository();
 
     // Backfill parameters
     var defaultStartDate = new DateTime(2020, 1, 1); // Adjust as needed
-    var endDate = DateTime.Today.AddDays(-1);        // Up to yesterday
+    var endDate = preparationDate.AddDays(-1); // Through the completed day before preparation.
 
     // Get all TSX constituents
     var db = new SymbolsRepository();
@@ -143,20 +146,20 @@ static async Task RunBackfillAsync()
     // ═══════════════════════════════════════════════════════════════════
     // UPDATE ADVANCE-DECLINE LINE
     // ═══════════════════════════════════════════════════════════════════
-    await UpdateAdvanceDeclineLineAsync(repository, constituents);
+    await UpdateAdvanceDeclineLineAsync(repository, constituents, preparationDate);
 
     // ──────────────────────────────────────────────────────────────────
     // UPDATE PER-SYMBOL ON-BALANCE VOLUME (OBV) — Granville field trend
     // Incremental + gap-safe; prunes to the rolling retention window.
     // Foundation for the upcoming market-wide Climax indicator.
     // ──────────────────────────────────────────────────────────────────
-    await UpdateObvAsync(repository, constituents);
+    await UpdateObvAsync(repository, constituents, preparationDate);
 
     // UPDATE MARKET CLIMAX (CLX) -- Granville's market-wide net OBV-breakout tally.
     // Sibling to the A/D Line: counts UP vs DOWN OBV designations across the XIU-60 leaders.
     // Diagnostic-only (v1): persists CLX + XIU close so Delphi can report confirmation/divergence.
     // Runs after OBV so every name's latest designation is already up to date.
-    await UpdateMarketClimaxAsync(repository);
+    await UpdateMarketClimaxAsync(repository, preparationDate);
 
     // ═══════════════════════════════════════════════════════════════════
     // BACKFILL SECTOR INDEX HISTORY (TMX getTimeSeriesData)
@@ -165,7 +168,7 @@ static async Task RunBackfillAsync()
     // return and 10-session/20-observation Z-score, plus operating headroom.
     // Safe to run daily — resumes from each symbol's last stored date.
     // ═══════════════════════════════════════════════════════════════════
-    await BackfillSectorIndexHistoryAsync(tmx);
+    await BackfillSectorIndexHistoryAsync(tmx, preparationDate);
 
     // ═══════════════════════════════════════════════════════════════════
     // UPDATE SECTOR INDICES (today's snapshot)
@@ -180,17 +183,17 @@ static async Task RunBackfillAsync()
     // ═══════════════════════════════════════════════════════════════════
     // UPDATE LEADERSHIP DATA (Granville #7–#10)
     // ═══════════════════════════════════════════════════════════════════
-    await UpdateLeadershipDataAsync(tmx, repository, constituents);
+    await UpdateLeadershipDataAsync(tmx, repository, constituents, preparationDate);
 
     // ═══════════════════════════════════════════════════════════════════
     // UPDATE US INDEX BARS (Granville #17–#20 Genuity)
     // ═══════════════════════════════════════════════════════════════════
     // Sourced from Yahoo Finance's chart endpoint (see ADR-0004). TMX does
     // not return OHLC for ^GSPC:US / ^NYA:US despite recognizing the symbols.
-    await UpdateUsIndexBarsAsync(backfillYearsIfEmpty: 10);
+    await UpdateUsIndexBarsAsync(preparationDate, backfillYearsIfEmpty: 10);
 }
 
-static async Task UpdateUsIndexBarsAsync(int backfillYearsIfEmpty)
+static async Task UpdateUsIndexBarsAsync(DateTime preparationDate, int backfillYearsIfEmpty)
 {
     Console.WriteLine("\n── US Index Bars Update (Genuity #17–#20) ──\n");
 
@@ -204,7 +207,7 @@ static async Task UpdateUsIndexBarsAsync(int backfillYearsIfEmpty)
             var latest = await repo.GetLatestBarDateAsync(symbol);
 
             var (startDate, endDate) = DailyBenchmarkPolicy.UsIndexRefreshRange(
-                DateTime.Today, latest, backfillYearsIfEmpty);
+                preparationDate, latest, backfillYearsIfEmpty);
 
             if (startDate > endDate)
             {
@@ -245,7 +248,7 @@ static async Task UpdateUsIndexBarsAsync(int backfillYearsIfEmpty)
 
 static async Task UpdateAdvanceDeclineLineAsync(
     QuoteRepository repository,
-    List<SymbolInfo> constituents)
+    List<SymbolInfo> constituents, DateTime preparationDate)
 {
     Console.WriteLine("\n── Advance-Decline Line Update ──\n");
 
@@ -269,7 +272,7 @@ static async Task UpdateAdvanceDeclineLineAsync(
     var dataLoadStart = lastDate.Value.AddDays(-5);
     var computeFromDate = lastDate.Value.AddDays(1);
 
-    if (computeFromDate > DateTime.Today.AddDays(-1))
+    if (computeFromDate > preparationDate.AddDays(-1))
     {
         Console.WriteLine("A/D Line is already up-to-date. ✓\n");
         return;
@@ -332,12 +335,12 @@ static async Task UpdateAdvanceDeclineLineAsync(
 
 static async Task UpdateObvAsync(
     QuoteRepository repository,
-    List<SymbolInfo> constituents)
+    List<SymbolInfo> constituents, DateTime preparationDate)
 {
     Console.WriteLine("\n── On-Balance Volume (OBV) Update ──\n");
 
     var obvRepo = new SymbolObvRepository();
-    var retentionCutoff = DateTime.Today.AddMonths(-Core.Constants.ObvRetentionMonths);
+    var retentionCutoff = preparationDate.AddMonths(-Core.Constants.ObvRetentionMonths);
 
     int updated = 0;
     int pointsAdded = 0;
@@ -400,7 +403,7 @@ static async Task UpdateObvAsync(
         $"pruned {pruned:N0} rows older than {retentionCutoff:yyyy-MM-dd}. ✓\n");
 }
 
-static async Task UpdateMarketClimaxAsync(QuoteRepository repository)
+static async Task UpdateMarketClimaxAsync(QuoteRepository repository, DateTime preparationDate)
 {
     Console.WriteLine("\n-- Market Climax (CLX) Update --\n");
 
@@ -409,7 +412,7 @@ static async Task UpdateMarketClimaxAsync(QuoteRepository repository)
 
     // CLX reads each XIU-60 leader's stored OBV series (maintained by UpdateObvAsync above)
     // and tallies UP vs DOWN field-trend designations. We only need the OBV retention window.
-    var seriesStart = DateTime.Today.AddMonths(-Core.Constants.ObvRetentionMonths);
+    var seriesStart = preparationDate.AddMonths(-Core.Constants.ObvRetentionMonths);
 
     var seriesBySymbol = new Dictionary<string, IReadOnlyList<OBV>>(StringComparer.OrdinalIgnoreCase);
     DateTime? clxDate = null;
@@ -453,7 +456,7 @@ static async Task UpdateMarketClimaxAsync(QuoteRepository repository)
         $"{(xiuClose.HasValue ? $", XIU {xiuClose.Value:F2}" : "")}.\n");
 }
 
-static async Task BackfillAdvanceDeclineLineAsync(int months = 6)
+static async Task BackfillAdvanceDeclineLineAsync(DateTime preparationDate, int months = 6)
 {
     Console.WriteLine($"=== A/D Line Backfill ({months} months) ===\n");
 
@@ -465,7 +468,7 @@ static async Task BackfillAdvanceDeclineLineAsync(int months = 6)
     Console.WriteLine($"Universe: {constituents.Count} symbols");
 
     // Backfill window: go back N months from yesterday
-    var endDate = DateTime.Today.AddDays(-1);
+    var endDate = preparationDate.AddDays(-1);
     var backfillStart = endDate.AddMonths(-months);
 
     // Load bars starting 1 extra trading day before the window so that the
@@ -562,7 +565,7 @@ static async Task BackfillAdvanceDeclineLineAsync(int months = 6)
 // SECTOR INDICES
 // ═══════════════════════════════════════════════════════════════════
 
-static async Task BackfillSectorIndexHistoryAsync(TmxClient tmx)
+static async Task BackfillSectorIndexHistoryAsync(TmxClient tmx, DateTime preparationDate)
 {
     Console.WriteLine("\n── Sector Index Historical Backfill ──\n");
 
@@ -571,7 +574,7 @@ static async Task BackfillSectorIndexHistoryAsync(TmxClient tmx)
     // TMX getTimeSeriesData has been validated (Sandbox probe `tmx-sector-history`)
     // to return ~754 daily bars over a 3y window for all 11 ^TT* sector symbols.
     var defaultStartDate = new DateTime(2020, 1, 1);
-    var endDate = DateTime.Today.AddDays(-1);
+    var endDate = preparationDate.AddDays(-1);
 
     int totalInserted = 0;
     int symbolsProcessed = 0;
@@ -842,7 +845,7 @@ static async Task RefreshStockSectorMapIfStaleAsync(TmxClient tmx, TimeSpan maxA
 static async Task UpdateLeadershipDataAsync(
     TmxClient tmx,
     QuoteRepository repository,
-    List<SymbolInfo> constituents)
+    List<SymbolInfo> constituents, DateTime preparationDate)
 {
     Console.WriteLine("\n── Leadership Data Update ──\n");
 
@@ -853,7 +856,7 @@ static async Task UpdateLeadershipDataAsync(
     // We need 252+ trading days of lookback per symbol.
     // Load bars from ~14 months ago to cover the 252-day window
     // plus a few recent days to compute.
-    var dataLoadStart = DateTime.Today.AddMonths(-14);
+    var dataLoadStart = preparationDate.AddMonths(-14);
 
     Console.WriteLine($"Loading bars from {dataLoadStart:yyyy-MM-dd} for 52-week high/low calculation...");
 

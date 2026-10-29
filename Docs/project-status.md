@@ -92,6 +92,17 @@ after. Window capture timed out twice, so direct visual menu verification remain
 runtime, financial control, task schedule or schema changed, and no manual nightly/audit run occurred.
 Private rollback/fingerprint/status receipts: `artifacts/nightly-data-audit-20261028/installation/`.
 
+**Early nightly preparation implemented (October 28 evening, operational verification pending):**
+Joseph authorized explicitly preparing October 29 now and skipping only the upcoming 00:30 occurrence.
+[ADR-0114](adr/0114-explicit-nightly-preparation-date.md) separates preparation dates from real timestamps,
+requires closed sessions and keys duplicate suppression to the preparation date. Hermes collection and
+Delphi publication receive the same date; live-source attribution retains its actual date. Both PowerShell
+runtimes pass 122 offline assertions; 43 focused date/benchmark/leadership tests pass. The four-project
+isolated locked build and final standalone-compatible Delphi build pass with 258–259 existing compiler
+warnings per project, no errors. NuGet audit was disabled; no new security/full-suite/SSDT qualification.
+No operational stage or schedule change occurred during this source checkpoint. Private validation:
+`artifacts/nightly-data-audit-20261028/early-*`.
+
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 
 The following overnight entries are historical implementation checkpoints, not current installation claims.

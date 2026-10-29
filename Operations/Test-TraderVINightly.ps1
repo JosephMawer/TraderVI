@@ -26,6 +26,20 @@ foreach ($definition in $ast.FindAll({ param($node) $node -is [Management.Automa
 }
 . (Join-Path $PSScriptRoot 'NightlyBuild.ps1')
 . (Join-Path $PSScriptRoot 'NightlyDataAudit.ps1')
+$evening = [DateTimeOffset]::Parse('2026-10-28T21:00:00-04:00')
+Assert ((Resolve-NightlyPreparationDate '' $evening) -eq '2026-10-28') 'Default uses actual Toronto date.'
+Assert ((Resolve-NightlyPreparationDate '2026-10-29' $evening) -eq '2026-10-29') 'Closed-session early preparation is explicit.'
+Assert ((Resolve-NightlyPreparationDate '2026-10-29' ([DateTimeOffset]::Parse('2026-10-29T00:30:00-04:00'))) -eq '2026-10-29') 'Preparation remains stable across midnight.'
+Assert-Throws { Resolve-NightlyPreparationDate '2026-10-29' ([DateTimeOffset]::Parse('2026-10-28T15:59:59-04:00')) } '16:00'
+Assert-Throws { Resolve-NightlyPreparationDate '2026-10-30' $evening } 'today or tomorrow'
+Assert-Throws { Resolve-NightlyPreparationDate '2026-10-27' $evening } 'today or tomorrow'
+Assert-Throws { Resolve-NightlyPreparationDate '10/29/2026' $evening } 'yyyy-MM-dd'
+$completed = [pscustomobject]@{localRunDate='2026-10-28'; preparationDate='2026-10-29'; state='Attention'}
+Assert (Test-NightlyPreparationCompleted $completed '2026-10-29') 'Early completion suppresses the following midnight run.'
+Assert (-not (Test-NightlyPreparationCompleted $completed '2026-10-30')) 'The subsequent day remains eligible.'
+$completed.state='Failed'
+Assert (-not (Test-NightlyPreparationCompleted $completed '2026-10-29')) 'A failed run never counts as completed.'
+Assert (Test-NightlyPreparationCompleted ([pscustomobject]@{localRunDate='2026-10-28';state='Succeeded'}) '2026-10-28') 'Legacy status retains date suppression.'
 & git init --quiet $fixture
 if ($LASTEXITCODE) { throw 'Fixture Git initialization failed.' }
 [IO.File]::WriteAllText((Join-Path $fixture '.gitignore'), "artifacts/`n*.log`nstatus.json`n")
@@ -97,7 +111,7 @@ foreach ($stage in $config.stages) {
 [void] [IO.Directory]::CreateDirectory((Join-Path $fixture 'Operations'))
 [IO.File]::WriteAllText((Join-Path $fixture 'Operations/nightly-nuget.config'), '<configuration/>')
 function New-TestStatus {
-    [pscustomobject]@{ runId=[Guid]::NewGuid().ToString('D'); stages=@(); build=[pscustomobject]@{
+    [pscustomobject]@{ runId=[Guid]::NewGuid().ToString('D'); preparationDate='2026-10-29'; stages=@(); build=[pscustomobject]@{
         state='Pending'; startedUtc=$null; completedUtc=$null; durationSeconds=$null; message=''
         runDirectory=$null; sourceDirectory=$null; sourceBefore=$null; sourceAfter=$null
         captureAttempts=0; sdkVersion=$null; packageDirectory=$null; restores=@(); projects=@(); artifacts=@()
@@ -141,6 +155,7 @@ $stageResult = Invoke-NightlyStage $config.stages[0] $status.build.sourceDirecto
 Assert ($stageResult.state -eq 'Succeeded') 'Verified artifact starts once.'
 Assert ($script:Calls[-1].environment.TRADERVI_CODE_VERSION -eq $status.build.sourceBefore.gitCommit) 'Stage receives captured commit provenance.'
 Assert ($script:Calls[-1].environment.TRADERVI_WORKING_TREE_STATE -eq 'Dirty') 'Stage receives captured working-tree state.'
+Assert ($script:Calls[-1].environment.TRADERVI_PREPARATION_DATE -eq '2026-10-29') 'Stage receives explicit preparation date.'
 # Exercise the same stage loop used by the scheduled runner, with no operational processes.
 foreach ($scenario in @(
     @{ result=(Result 0 'HermesSymbolUnavailable: sector-metadata WM: No results'); expected='Attention'; stages=4 },

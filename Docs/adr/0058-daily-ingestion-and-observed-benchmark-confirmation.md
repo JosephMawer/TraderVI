@@ -1,6 +1,6 @@
 # ADR-0058: Daily ingestion and observed benchmark confirmation
 
-- **Status:** Accepted; implemented and operationally verified
+- **Status:** Accepted; implemented and operationally verified; wall-clock-only preparation date superseded by [ADR-0114](0114-explicit-nightly-preparation-date.md)
 - **Date:** 2026-09-06
 - **Domains:** architecture, data-pipeline, decision-engine
 - **Related:** ADR-0004, ADR-0046, ADR-0055, ADR-0056, ADR-0057

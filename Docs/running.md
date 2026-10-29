@@ -803,8 +803,14 @@ After a successful Hermes data update, Hermes automatically creates and verifies
 
 ADR-0046, as corrected by ADR-0058, schedules one deterministic pipeline at 00:30 Toronto/Eastern every calendar day:
 Hermes, then DataAudit, then Delphi, then Athena under [ADR-0113](adr/0113-nightly-data-audit-report.md).
-Running after midnight gives Delphi the new recommendation date while it uses the prior completed TSX
-session. This schedule authorizes those four configured programs and their documented effects, including
+Running after midnight defaults Delphi to the new Toronto recommendation date while it uses the prior completed TSX
+session. [ADR-0114](adr/0114-explicit-nightly-preparation-date.md) also permits an explicitly authorized
+early run with `-PreparationDate yyyy-MM-dd`: today or tomorrow only, with tomorrow allowed after 16:00
+Toronto and the reviewed preceding TSX close. Hermes collects through the day before that date, and
+Delphi publishes for it. Real timestamps and live-source dates remain unchanged. Status records both
+actual `localRunDate` and `preparationDate`. Check the report before treating early preparation as complete;
+the date guard does not guarantee provider data is available. Skipping a scheduled occurrence is a separate,
+explicit task change; preserve later recurrence. This schedule authorizes those four configured programs and their documented effects, including
 the read-only audit and private reporting; it grants no authority to train models, apply migrations, deploy a
 database, run Sandbox probes, start WPF monitoring, invoke Oracle, or place a broker order.
 
@@ -870,7 +876,7 @@ and Athena to continue, preserving existing per-stock exclusions and required be
 Database/processing failures, missing required shared inputs and backup failures are not downgraded.
 An attention marker cannot hide a fatal exit or timeout. Hermes failure stops later stages; Delphi failure
 does not prevent Athena from maturing earlier evidence. Only source capture and transient dependency restore may retry before any stage starts. Neither the runner
-nor Task Scheduler retries a failed operational pipeline automatically. A same-date completed run is suppressed unless an operator explicitly uses
+nor Task Scheduler retries a failed operational pipeline automatically. A completed run for the same preparation date is suppressed unless an operator explicitly uses
 `-Force` after reviewing it.
 
 The daily 07:00 Codex supervisor is read-only. It may inspect `status.json` and its referenced log, explain a

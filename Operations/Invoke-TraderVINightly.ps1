@@ -4,6 +4,8 @@ param(
 
     [string] $StateDirectory,
 
+    [string] $PreparationDate,
+
     [switch] $Force,
 
     [switch] $ValidateOnly,
@@ -31,6 +33,34 @@ function Write-JsonAtomically {
     $json = $Value | ConvertTo-Json -Depth 16
     [System.IO.File]::WriteAllText($temporaryPath, $json, (New-Object System.Text.UTF8Encoding($false)))
     Move-Item -LiteralPath $temporaryPath -Destination $Path -Force
+}
+
+function Resolve-NightlyPreparationDate {
+    param([string] $RequestedDate, [DateTimeOffset] $Now = [DateTimeOffset]::UtcNow)
+    $toronto = [TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
+    $local = [TimeZoneInfo]::ConvertTime($Now, $toronto)
+    $today = $local.Date
+    if ([string]::IsNullOrEmpty($RequestedDate)) { return $today.ToString('yyyy-MM-dd') }
+    $date = [DateTime]::MinValue
+    if (-not [DateTime]::TryParseExact($RequestedDate, 'yyyy-MM-dd', [Globalization.CultureInfo]::InvariantCulture,
+            [Globalization.DateTimeStyles]::None, [ref] $date)) {
+        throw 'Preparation date must be yyyy-MM-dd.'
+    }
+    if ($date -lt $today -or $date -gt $today.AddDays(1)) {
+        throw 'Preparation date must be today or tomorrow in Toronto.'
+    }
+    if ($date -gt $today -and $local.TimeOfDay -lt [TimeSpan]::FromHours(16)) {
+        throw 'Early preparation must wait until 16:00 Toronto.'
+    }
+    return $date.ToString('yyyy-MM-dd')
+}
+
+function Test-NightlyPreparationCompleted {
+    param($PreviousStatus, [string] $Date)
+    $previousDate = if ($PreviousStatus.PSObject.Properties.Name -contains 'preparationDate') {
+        $PreviousStatus.preparationDate
+    } else { $PreviousStatus.localRunDate }
+    return $previousDate -eq $Date -and $PreviousStatus.state -in @('Succeeded', 'Attention')
 }
 
 function Write-RunLog {
@@ -276,6 +306,7 @@ function Invoke-NightlyStage {
         -EnvironmentOverrides @{
             TRADERVI_CODE_VERSION = $Status.build.sourceBefore.gitCommit
             TRADERVI_WORKING_TREE_STATE = $Status.build.sourceBefore.workingTreeState
+            TRADERVI_PREPARATION_DATE = $Status.preparationDate
         }
 
     $stageCompletedUtc = [DateTimeOffset]::UtcNow
@@ -374,6 +405,7 @@ $resolvedConfigurationPath = (Resolve-Path -LiteralPath $ConfigurationPath).Path
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $resolvedConfigurationPath) '..'))
 $configuration = Get-Content -LiteralPath $resolvedConfigurationPath -Raw | ConvertFrom-Json
 Test-Configuration -Configuration $configuration -RepoRoot $repoRoot
+$resolvedPreparationDate = Resolve-NightlyPreparationDate $PreparationDate
 
 $dotnetPath = Join-Path $env:ProgramFiles 'dotnet\dotnet.exe'
 if (-not (Test-Path -LiteralPath $dotnetPath -PathType Leaf)) {
@@ -410,9 +442,8 @@ try {
 
     if (-not $Force -and (Test-Path -LiteralPath $script:StatusPath -PathType Leaf)) {
         $previousStatus = Get-Content -LiteralPath $script:StatusPath -Raw | ConvertFrom-Json
-        $today = [DateTimeOffset]::Now.ToString('yyyy-MM-dd')
-        if ($previousStatus.localRunDate -eq $today -and $previousStatus.state -in @('Succeeded', 'Attention')) {
-            Write-RunLog "A completed run already exists for local date $today (state $($previousStatus.state)). Use -Force only after reviewing the prior run."
+        if (Test-NightlyPreparationCompleted $previousStatus $resolvedPreparationDate) {
+            Write-RunLog "A completed run already exists for preparation date $resolvedPreparationDate (state $($previousStatus.state)). Use -Force only after reviewing the prior run."
             exit 0
         }
     }
@@ -422,6 +453,7 @@ try {
         runId = $runId
         state = 'Running'
         localRunDate = [DateTimeOffset]::Now.ToString('yyyy-MM-dd')
+        preparationDate = $resolvedPreparationDate
         startedUtc = [DateTimeOffset]::UtcNow.ToString('O')
         completedUtc = $null
         hostName = [Environment]::MachineName
@@ -450,7 +482,7 @@ try {
         message = 'Nightly pipeline is running.'
     }
     Write-JsonAtomically -Value $status -Path $script:StatusPath
-    Write-RunLog "TraderVI nightly run $runId started from current source."
+    Write-RunLog "TraderVI nightly run $runId started from current source for preparation date $resolvedPreparationDate."
 
     $artifactSnapshots = Invoke-LatestSourceBuild `
         -Configuration $configuration `
@@ -503,6 +535,7 @@ catch {
                     runId = $runId
                     state = 'Failed'
                     localRunDate = [DateTimeOffset]::Now.ToString('yyyy-MM-dd')
+                    preparationDate = $resolvedPreparationDate
                     startedUtc = $null
                     completedUtc = [DateTimeOffset]::UtcNow.ToString('O')
                     repositoryRoot = $repoRoot
