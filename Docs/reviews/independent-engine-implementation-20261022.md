@@ -197,6 +197,42 @@ trading authority. Actual post-install receipts and ongoing fresh execution must
 The 13:46 native capture confirms Running/fresh evaluation, zero holds/worker/account/quote blocks,
 NewBuysStopped false, matching protection and 5/5 reconciled orders while code work proceeds.
 
+**Approved installation and initial native verification, 14:31–14:36:** Joseph explicitly approves
+installation and verification. The guarded installer completes at 14:31:32; new collector15516 starts
+at14:31:28.9499621, supervisor8372. Engine11716 and both dashboard owners retain their starts; the
+trading Core/grant are byte-identical. Original runtime and previous manifest remain retained.
+No second installer, recovery, clearance, order action or financial approval runs.
+
+Read-only `PostInstallCoverage.sql` SHA256
+`DE9B2D68667F7EB8B8DF911ECD15792B3914EC3748C45FA750D9DDC2ADA62804` matches receipt
+`result-20261029T183620497Z-a6462f98311c494ca8e00d56a8ed91aa.json`. Each of14:32,14:33,14:34,14:35
+has34 distinct attempts/34 receipts, zero missing/failed/late receipts. Current subscription union
+also has34 names. Last receipt offsets are34.886/35.021/35.083/35.274seconds, before the45second
+deadline; minimum measured repeated-start spacing is60.008606seconds. There are zero collector
+conflicts. These four native minutes establish initial recovery, not all-day or unlimited capacity.
+Earlier omissions and the restart gap remain historical; no backfill/relabeling was performed.
+
+Verification also discovers a separate shared-publication blocker that predates this installation.
+At14:36, the Market inputs worker has78 consecutive InvalidOperationException failures and last
+completed13:56:48; the latest shared cycle is284 for13:50, published13:52:15. Other workers have
+zero current consecutive failures (an earlier one-off Paper-protection SQL failure has cleared).
+`ObservedSymbolScope-v2.sql` SHA256
+`91690489524677D8436595462304E53EF4435818C4EEFC751B77C342F173ED75` matches receipt
+`result-20261029T183359108Z-d5ed42572fc547d2b405af652626334f.json`: one of two tracked Real holdings
+has no canonical symbol or Broker alias; current BrokerManaged/Shadow names resolve. Source
+`DelphiLiveHoldingSource` includes this tracked input and `DelphiLiveHoldingSymbols.Resolve` throws
+for it, so this is a concrete blocking mapping defect, not evidence of collector scheduling failure.
+The exact worker exception was not traced. A separately verified mapping repair is still required;
+the prior one-entry alias authorization is already consumed and no new alias was written here.
+
+Native capture `20261029T183621620Z-3ee1af9a0f4949d1a3ba57a27c3b5edd` has no read failures:
+Real reports Running but explicitly waits for stale shared inputs, preventing fresh buy evaluation.
+Zero holds/account risk blocks; NewBuysStopped false; both held protections match and6/6orders
+reconcile. The quote-read eligibility block is the exact static code `NetAssetValueUnavailable`, also
+present in the14:38 qualified diagnostic. This field contains preliminary entry-readiness blocks,
+not only failed quote requests; its valuation cause remains to be diagnosed. The user was alerted
+to the separate buying blocker; do not report global buying readiness from minute coverage.
+
 ### October 29 second-source comparison
 
 Joseph explicitly requests comparison with another source to distinguish inactive stocks from missing

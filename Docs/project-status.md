@@ -52,6 +52,20 @@ requires a collector-only restart and its existing startup cooldown; the engine 
 are preserved. At 13:46:22, unchanged live execution is Running with fresh inputs and no global buying
 block. [Repair scope and validation](reviews/independent-engine-implementation-20261022.md#october-29-collector-scheduling-repair).
 
+Joseph approves installation; the guarded collector-only restart completes at **14:31:32**. Engine,
+dashboards, trading build and grant remain unchanged. At 14:36, the four completed minutes
+14:32–14:35 each have **34 distinct requests and 34 saved, on-time receipts**, no source failures,
+no missing receipts and no conflicts. Actual request spacing remains at least 60 seconds. This
+establishes initial native scheduling recovery; sustained full-session coverage remains monitored.
+**A separate buying blocker is discovered:** the market-input worker has repeatedly failed since
+after its 13:56:48 last completion, before this restart; the latest shared publication is still the
+13:50 bar. Read-only source-scope diagnosis identifies one unresolved tracked Real stock name in
+the holding resolver's required input. Real waits for fresh shared inputs despite Running status.
+Quote protection remains active with matching saved protection and six reconciled orders; zero
+integrity holds remain. The 14:36 and 14:38 decision diagnostics also report
+`NetAssetValueUnavailable` in quote-read eligibility; its underlying valuation cause is not yet
+established. No alias or financial change was made. [Installation and remaining blocker](reviews/independent-engine-implementation-20261022.md#october-29-collector-scheduling-repair).
+
 ## October 29 — intraday market-input blockage repaired; collector degradation remains
 
 At 11:46 Toronto, Joseph's approved one-entry Broker alias repair resolves a newly unrecognized
