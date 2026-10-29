@@ -79,8 +79,18 @@ security warnings were emitted; audit was disabled, so no fresh security-audit c
 The installed Windows task was read and points directly to this repository's runner/configuration;
 the authorized stage will apply on its next capture without task reinstallation. No manual operational
 run, database/market operation, financial change or full-suite/SSDT validation occurred. The desktop
-menu removal is built in source but not installed in the running dashboard; this increment is not pushed.
+menu removal was built but not installed or pushed at that source-only checkpoint.
 Private validation: `artifacts/nightly-data-audit-20261028/`.
+
+**Data Audit menu removal installed and pushed (October 28, verified 21:35 Toronto):** Joseph authorized
+publication of `6003e553` and the app update. GitHub master contains the integration. With the dashboard
+already closed, matching dependency manifests and the reviewed UI-only source delta allowed replacing
+only its DLL and symbols at 21:33. The other 128 installed files and saved execution grant are unchanged;
+engine/collector process identities and start times are preserved. The reopened dashboard is responsive
+and loads the expected updated DLL. Local status remains Running and execution status Waiting before/
+after. Window capture timed out twice, so direct visual menu verification remains unconfirmed. No shared
+runtime, financial control, task schedule or schema changed, and no manual nightly/audit run occurred.
+Private rollback/fingerprint/status receipts: `artifacts/nightly-data-audit-20261028/installation/`.
 
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 
