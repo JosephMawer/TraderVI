@@ -53,7 +53,19 @@ existing compiler warnings; 20 focused workspace tests pass, no skips. Test comp
 existing warnings. Initial sandbox test restore failed on NuGet access; the approved restore succeeds.
 No dependency-security warnings were emitted, but audit was disabled, so this is not a security audit.
 No full-suite/SSDT run, GitHub rendering verification, push, runtime installation/restart, database or
-market/broker operation occurred. The earlier installed UI remains until a separately authorized update.
+market/broker operation occurred during that source-only checkpoint.
+
+**Removal installed and pushed (October 28, verified 21:09 Toronto):** Joseph subsequently authorized
+the GitHub push and app update. Source `33dedd5a` is published through merge `d5ab2f72`, preserving the
+remote planning commit without rewriting history. The dashboard was already closed. Matching dependency
+manifests and the reviewed source delta allowed replacing only `TraderVI.WPF.dll` and symbols at 21:07;
+128 other installed files and the saved execution grant remain byte-identical. Collector and engine
+retain their original process IDs/start times. Local engine status remains Running and execution status
+Waiting before/after. The reopened dashboard is responsive and has the expected updated DLL loaded.
+Window capture timed out twice, so visual sidebar verification is not claimed. Initial preflight attempts
+stopped before copying; explicit waiting for the Windows control process corrected the script check.
+No shared-runtime replacement, engine/collector restart, financial setting change or schema operation.
+Private rollback, fingerprints and status receipts: `artifacts/remove-docs-ui-20261028/installation-verified/`.
 
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 

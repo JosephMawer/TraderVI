@@ -818,5 +818,5 @@ engine process identities were retained; local and execution status remained Run
 was normally restarted and its Architecture entry and collector-description pane were observed.
 Private receipts remain under `artifacts/architecture-ui-update-20261028/`. No schema or financial
 settings changed. This historical two-file update is not permission for future runtime replacement.
-The removal described by ADR-0112 is a source change until separately installed; see
-[project status](project-status.md) for its validation and installation boundary.
+The removal described by ADR-0112 was subsequently installed under explicit authority on October 28;
+see [project status](project-status.md) for the dashboard-only update and verification limits.
