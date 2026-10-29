@@ -1,6 +1,27 @@
 # TraderVI Project Status
 
-## October 29 — reboot holds cleared; market-open restoration still blocked
+## October 29 — Paper restoration verified; Real opening evidence recovered
+
+The authorized alias addition succeeds at09:55:15 Toronto, without restarting the engine or collector.
+Independent reads confirm exactly one added alias and no changes to existing aliases. Market inputs
+resume, and all three original Paper portfolios actually write version3 with matching current
+checkpoints: champion6937, comparison25009, comparison5854 (new v3 counts1/11/1). Samples at09:56:11
+and09:57:34 show all six affected market/Paper/research/protection lanes progressing with zero
+consecutive failures. Zero integrity incidents remain. **The all-three Paper restoration acceptance
+is complete**, including the installed performance repair and native clearance. The first session
+freeze is09:55:23; missed earlier coverage remains missed.
+
+Real is still Off. Its separate build-review prerequisite lacked the exact09:30 opening bar at09:57.
+Joseph authorizes a bounded recovery through the running collector. The response contains the opening
+and adjacent interval; an initial overly strict one-row guard stops before any SQL write. Reviewed
+exact-start selection reuses that saved response, with no second network request. Native evidence
+append at10:09:20 saves one opening bar, zero conflicts, Purpose=Backfill, preserving actual10:07
+receipt time. Independent read-only verification finds the required qualified opening record.
+No account risk reference, order or permission was changed by recovery. Joseph is asked to retry
+Review updated build, then perform his own approval and separate enable. Successful Real review and
+enabled execution remain unverified. The completed Paper-recovery follow-up is retired.
+
+## October 29 — clearance and market-open diagnosis (earlier checkpoint)
 
 The approved temporary Paper continuation from `1c299f04` installed at 02:49 Toronto with a normal
 engine/dashboard restart; collector18832 and the saved Real grant were unchanged. Four runtime files
@@ -19,7 +40,8 @@ The build-review dialog reports a generic account-refresh/risk error rather than
 Read-only investigation identifies one unresolved tracked Real broker symbol, while the verified
 managed observation already uses its canonical market name. Migration053 prepares one additive alias
 under ADR0088; its exact candidate query passes saved listing/security/current-head/checksum guards.
-SQL parsing passes, and the existing alias table is saved privately. **Application is pending.**
+SQL parsing passes, and the existing alias table is saved privately. Application was pending at this
+checkpoint; the successful09:55 addition and Paper proof are recorded above.
 No account, order, risk, historical observation or financial permission is changed by preparation.
 Missed market-open coverage is retained, not backfilled into on-time evidence.
 

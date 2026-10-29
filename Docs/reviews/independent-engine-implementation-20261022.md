@@ -366,11 +366,45 @@ DF218E2E8D9E1585BADB771A173525D777EDD7F81614714E6AF186D280BEF471 returns exactly
 in `result-20261029T135049041Z-52be6420e5ce4d17afacba3c0736cf45.json`. Existing aliases are saved
 in `result-20261029T135146601Z-f6957e5201414373b0d5d3053dc30c0b.json`, verified query hash
 4CC26F9E88FB99EC1029D66C0FB7FFD0D2826986DD90504FD593BCE083ADCFCE. SQL160 parsing passes.
-Application and prospective recovery remain pending; no host restart or permission change is proposed.
+Application and prospective recovery were pending at that preparation checkpoint.
+
+Joseph authorizes the narrow SQL write. `alias-command-result.json` and `alias-apply.log` record one
+addition at09:55:15; no restart. Receipt `result-20261029T135613622Z-e3531784b26147a6aa6cab2a5d10fb99.json`,
+verified query hashAACB58B7F0C9B5CD8487A142078083D6B8E9CA6DBF6A95113285E9E9F3B73FEA, independently
+proves one added alias, every prior alias unchanged, and all three actual v3/checkpoint matches:
+6937/25009/5854, respective newv3 counts1/11/1. Session initializes09:55:23. Two native status sets
+`alias-after-20261029T135611264-*` and `alias-confirm-20261029T135734088-*` show zero incidents,
+zero consecutive failures for all six affected lanes, unchanged engine11716/collector18832, and
+Real Off. All-three Paper acceptance is complete. No missed observation is relabelled on time.
+
+The separate Real build review still lacks its held security's exact opening evidence at09:57:
+query hashD9FF61A76A8F369819F949DF56AF0709BB156634276C0B98781FAFF9D9B7FF59, receipt
+`result-20261029T135738209Z-6852b8ea71644868a04b86eb41d8ac5b.json`. Latest saved risk event remains
+the previous close. A bounded collector-owned opening recovery is being prepared; financial
+authorization remains Joseph's app action. No claim of complete Real readiness follows from Paper success.
+
+Joseph then authorizes exact opening-evidence recovery through the existing collector. The private
+`OpeningEvidence` operational helper builds offline; its first build lacked CodeProvenance.Source,
+corrected before running. Final incremental build passes with zero warnings/errors (initial linked
+Core build had258 existing warnings; audit disabled). It uses CollectorIntradayClient, never a second
+collector or direct HTTP fallback, and the native IntradayEvidenceRepository append with Backfill purpose.
+The10:07 collector reply contains the requested opening bar plus the inclusive right endpoint. An
+overly strict batch-count guard rejects that reply before SQL append. The reviewed correction uses
+the same exact-start selection as TmxDelphiLiveMarketDataSource, verifies the retained reply hash,
+and reuses it without a second provider request or overwriting the first attempt/failure receipts.
+Native append at10:09:20 succeeds: one completed/new bar, zero conflicts. Original fetched/received
+times remain in the evidence, so this is recovered price evidence, not on-time market coverage.
+`opening-recovery/append-result.json` and `persist-command-result.json` preserve the command outcome.
+Independent receipt `result-20261029T140939146Z-15cb2fefe6f9483caa6bb1816baf4cc7.json`, query hash
+D9FF61A76A8F369819F949DF56AF0709BB156634276C0B98781FAFF9D9B7FF59, confirms one exact qualified
+opening record. No account-risk continuation, build approval, host enable or order is performed by
+this helper. Joseph is directed back to Review updated build; his successful review/enable is pending.
+No runtime restart was needed. The Paper recovery follow-up has completed its all-three acceptance.
 
 Weekend simplification story is [#19](https://github.com/JosephMawer/TraderVI/issues/19); board placement
-was not completed after browser approval timed out. The follow-up now tracks these current blockers
-and actual all-three v3 proof, not the obsolete running-recovery instructions. No source was pushed.
+was not completed after browser approval timed out. The follow-up was updated during diagnosis and
+deleted after all-three Paper acceptance completed. At10:14:29 a fresh execution control still reports
+Off; Joseph's separate approval/enable remains pending. No source was pushed.
 
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 

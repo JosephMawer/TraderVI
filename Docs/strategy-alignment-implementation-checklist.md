@@ -169,13 +169,16 @@ The overnight target was missed. Completed source work is separate from installe
   tests pass; Release WPF/engine builds. New errors, expiry or restart stop the permission.
 - [x] Install/activate temporary Paper continuation at02:49; Paper inputs/protection resume while
   research remains held. Actual native clearance at09:28 subsequently restores normal incident access.
-- [ ] Resolve the market-open input failure and missing current-session risk opening evidence.
-  Migration053's one verified missing broker alias is prepared/read-only checked, not yet applied.
-- [ ] Prove actual new Paper revision advancement using version-3 roots and matching current checkpoints.
-  Installed code, Waiting status and cleared holds alone do not qualify this. Observe the next eligible
-  session if no legitimate off-hours work exists; do not manufacture writes or replay expired buys.
-  At09:37 all three still have zero new v3 revisions and matching v2 checkpoints. Market-input failure
-  now prevents session initialization; this is no longer just an off-hours eligibility limitation.
+- [x] Resolve the market-open input failure and missing current-session risk opening evidence.
+  Market inputs recover after authorized migration053 at09:55. A separately authorized collector
+  recovery saves the exact opening bar at10:09, retaining late receipt time; the native read-only
+  risk-evidence query confirms availability. This does not perform Joseph's build approval or enable.
+- [ ] Observe Joseph's successful updated-build approval and separately enabled Real execution after
+  the above repairs; diagnose any new failure instead of treating data recovery as financial authority.
+- [x] Prove actual new Paper revision advancement using version-3 roots and matching current checkpoints.
+  At09:56 all three original portfolios pass:6937>6936,25009>24998,5854>5853; newv3 counts1/11/1,
+  all checkpoints agree. Two samples09:56:11/09:57:34 show resumed workers without consecutive failures.
+  No manufactured writes, replayed expired buys or rewritten missed coverage. Real approval is separate.
 - [x] Develop/test the first historical recovery performance repair while the existing pass continues,
   following Joseph's request to fix it before waiting. [ADR-0115](adr/0115-exact-audit-prefix-hash-reuse.md)
   preserves original fingerprints using bounded exact-prefix SHA-256 state clones inside one guarded
