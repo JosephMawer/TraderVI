@@ -103,6 +103,55 @@ not full-history throughput, a profile of all transition types, an ETA or an opt
 with the recovery boundary and checks version-3 advancement plus current checkpoint hashes.
 It remains private diagnostic preparation; no production source/runtime change has been made.
 
+### October 28 recovery performance repair — source validation
+
+Joseph asks why the repair cannot precede completion. The revised sequence develops/tests the candidate
+while the original pass keeps its useful progress; do not interrupt the engine before a tested faster
+replacement and reviewed operational transition exist. The same-chat follow-up is updated accordingly.
+
+An initial escaped-report cache adjustment passes tests but produces no meaningful timing gain and is
+removed. Read-only analysis of 256 consecutive original revisions identifies the first changed field
+as quotes in 147 cases, positions in 67, and candidateStates/guards/lastCompletedCycleId in 14 each.
+This motivates exact-prefix reuse rather than assuming all roots have identical leading content.
+Receipt `artifacts/read-only-db/result-20261029T034209952Z-870fcbc120394ac0ad86ee7a1112e8bc.json`
+matches query SHA256 `31C1C8EE1DE172DFA1B3813B7B4B75CF2B5E1C8B04304F611711D912477405F0`.
+
+[ADR-0115](../adr/0115-exact-audit-prefix-hash-reuse.md) amends only repeated hashing of identical v2
+prefixes. Original fingerprints, ordered membership, content hashes, transition rules, checkpoint
+qualification, fixed-boundary receipts, scope and native clearance guards remain. Platform SHA-256
+clones are retained only after exact original fingerprint comparison; earlier changes invalidate later
+reuse, failures discard provisional clones, and new readers/passes rehash fresh evidence. The cache
+has explicit token/raw-byte/native-checkpoint bounds and is disposed when changing reader/pass.
+
+Fifty-one focused tests pass, including long escaped reports, original independent fingerprints,
+appends, earlier changes, corruption after warm reads, fresh readers, reordered/shrunk history and
+disabled/tiny prefix budgets. Full Core validation with collection parallelism disabled passes 3,369
+tests with ten native SQL skips and zero failures. Isolated Release WPF and engine build passes with
+260 existing compiler warnings and zero errors. NuGet restore initially hits the network sandbox;
+the approved restore succeeds. Dependency audit is disabled; no new dependency-security or complete
+solution/SSDT claim is made. No schema or financial-rule change is involved.
+
+The deterministic benchmark now verifies five successive quote-append revisions, rather than only
+repeating the same root. Original root and all fifteen adjacent fingerprints match across binaries:
+
+| Synthetic history | Installed baseline per revision | Candidate per revision |
+|---|---:|---:|
+| 1,000 quotes / shared 16-KiB report | 128.16 ms | 32.04 ms |
+| 6,000 quotes / shared 16-KiB report | 594.59 ms | 24.34 ms |
+| 6,000 quotes / 300 distinct 32-KiB reports | 1,153.57 ms | 29.66 ms |
+
+These are approximately 4x/24x/39x synthetic improvements under concurrent normal-host activity, not
+production speedup or a whole-run ETA. Changed early fields and cold readers still process the affected
+full remainder; the frozen legacy input scan is separate. Logs, comparison receipts and harness remain
+under `artifacts/paper-recovery-20261028/`; `prefix-full-tests.log`, `prefix-tests-final.log`,
+`prefix-release-build.log` and `profiling/*-adjacent.log` preserve reproducibility and limits.
+
+The candidate is not installed. A normal drained stop can preserve the saved audit cursor, followed by
+fresh preceding-state hydration in the new reader. Replacing shared Core changes Real's build identity;
+that may require Joseph's exact-build review before Real resumes. Preserve its grant/history rather
+than authorizing that review automatically. Native continuation, speed, hold clearance, resumed workers
+and new-format Paper revision/checkpoint evidence remain distinct outstanding acceptance steps.
+
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 
 The engine independently bought ASTL after its five-minute signal reached two consecutive qualifying

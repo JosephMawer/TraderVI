@@ -182,8 +182,17 @@ clearing verified holds, proving resumed Paper portfolios write the new format, 
 The existing ten-minute same-chat follow-up is updated in place and must not stop at hold clearance.
 The [owning checklist](strategy-alignment-implementation-checklist.md) separates native clearance, resumed
 workers, actual version-3/checkpoint evidence, performance repair and remaining acceptance. The running
-pass and Real grant are preserved; independent offline profiling can proceed meanwhile. No new-format
-native activity or performance improvement is claimed yet.
+pass and Real grant are preserved. Joseph subsequently requests developing the repair before waiting
+for recovery; offline work proceeds while the existing pass continues. No new-format native activity
+or installed performance improvement is claimed yet.
+
+**Recovery repair source validated (October 28 late evening):** [ADR-0115](adr/0115-exact-audit-prefix-hash-reuse.md)
+uses bounded exact SHA-256 prefix-state reuse while still requiring every original complete fingerprint.
+Fifty-one focused tests and the serial Core suite pass (3,369 passed, ten native skips). Isolated Release
+WPF/engine builds pass with 260 existing compiler warnings and zero errors; dependency audit disabled,
+no full-solution/SSDT claim. Identical synthetic quote-append cases improve approximately 4x/24x/39x.
+The candidate is **not installed**; current recovery, Real grant and collector remain unchanged.
+[Benchmark scope, preserved checks and operational work](reviews/independent-engine-implementation-20261022.md#october-28-recovery-performance-repair--source-validation).
 
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 

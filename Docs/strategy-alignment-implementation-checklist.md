@@ -159,12 +159,17 @@ The overnight target was missed. Completed source work is separate from installe
 - [ ] Prove actual new Paper revision advancement using version-3 roots and matching current checkpoints.
   Installed code, Waiting status and cleared holds alone do not qualify this. Observe the next eligible
   session if no legitimate off-hours work exists; do not manufacture writes or replay expired buys.
-- [ ] Measure and repair historical recovery cost after restoring Paper, with offline preparation while
-  the current pass runs. Compare identical representative workloads before/after; preserve original
-  fingerprints/values, transitions, bounded memory, resumable coverage and immutable guards. Distinguish
-  source/test results from reviewed installation and native performance. No archive deletion or silent
-  format conversion. Joseph explicitly requests this completion on October 28; the existing same-chat
-  follow-up now continues beyond hold clearance. [Evidence and progress](reviews/independent-engine-implementation-20261022.md#october-28-recovery-cost-investigation--23182319-toronto).
+- [x] Develop/test the first historical recovery performance repair while the existing pass continues,
+  following Joseph's request to fix it before waiting. [ADR-0115](adr/0115-exact-audit-prefix-hash-reuse.md)
+  preserves original fingerprints using bounded exact-prefix SHA-256 state clones inside one guarded
+  reader. Fifty-one focused tests and 3,369 serial Core tests pass (ten native skips); Release WPF/engine
+  build passes. Identical synthetic quote-append workloads improve approximately 4x/24x/39x.
+- [ ] Review/install the candidate with applicable operational authority, preserve durable cursor and
+  Real grant, and verify actual recovery throughput and original checks. Early changes/cold reads and
+  the separate legacy input scan limit whole-run gains; no production speedup or completion ETA is
+  established. This source repair does not complete native Paper activity or weekly-capacity acceptance.
+  No archive deletion or silent conversion. The existing follow-up continues beyond hold clearance.
+  [Evidence and progress](reviews/independent-engine-implementation-20261022.md#october-28-recovery-performance-repair--source-validation).
 - [ ] Finish remaining native concurrency/latency/restore acceptance. Recovery completion does not
   clear holds, qualify all interruption scenarios or grant financial authority.
 - [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine

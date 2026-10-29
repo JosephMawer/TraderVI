@@ -4,6 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0115](0115-exact-audit-prefix-hash-reuse.md) — Reuse exact SHA-256 prefix computation within one guarded historical audit
 - [ADR-0114](0114-explicit-nightly-preparation-date.md) — Run tomorrow's preparation after close with truthful timestamps and date-based duplicate suppression
 - [ADR-0113](0113-nightly-data-audit-report.md) — Schedule the retained DataAudit CLI and retire its desktop surface
 - [ADR-0112](0112-repository-documentation-outside-desktop.md) — Retire desktop Docs and Architecture; maintain repository documentation on GitHub
@@ -129,6 +130,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## data-pipeline
 
+- [ADR-0115](0115-exact-audit-prefix-hash-reuse.md) — Preserve original full fingerprints while avoiding repeated unchanged-prefix hashing
 - [ADR-0114](0114-explicit-nightly-preparation-date.md) — Explicit completed-session cutoffs for early nightly preparation
 - [ADR-0113](0113-nightly-data-audit-report.md) — Audit after Hermes; retain complete findings and comparable changes in nightly reports
 - [ADR-0111](0111-independent-collector-and-recovered-confirmation.md) — Durable intraday collection and bounded validated backfill

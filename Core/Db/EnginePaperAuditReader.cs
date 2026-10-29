@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Core.Db;
 
 /// <summary>Fresh, bounded membership/content pass for one immutable portfolio and fixed boundary.</summary>
-internal sealed class EnginePaperAuditReader(Guid owner, long through)
+internal sealed class EnginePaperAuditReader(Guid owner, long through) : IDisposable
 {
     private const int MaximumChanges = 1_000_000;
     private readonly DelphiLiveSnapshotCodec.AuditDecoder decoder = new();
@@ -22,6 +22,7 @@ internal sealed class EnginePaperAuditReader(Guid owner, long through)
     private long last = -1;
     private readonly Dictionary<(string Collection, int Ordinal), string> membership = new();
     private readonly Queue<Row> roots = new();
+    public void Dispose() => decoder.Dispose();
 
     internal async Task<(Row Row, DelphiLivePortfolioSnapshot State)> ReadAsync(SqlConnection c, long revision, CancellationToken ct)
     {

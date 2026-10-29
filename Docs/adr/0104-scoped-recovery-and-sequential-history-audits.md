@@ -98,6 +98,9 @@ need another trust/recovery mechanism; it is unnecessary for this increment.
 
 Native throughput and memory must be measured. The source still traverses original state to verify
 legacy fingerprints and financial transitions; no linear total-byte-work or complete ETA is claimed.
+The later [ADR-0115](0115-exact-audit-prefix-hash-reuse.md) amends repeated hashing of identical
+version-2 prefixes using exact platform digest-state clones within the same guarded pass. Original
+fingerprint equality and all other checks remain; source validation is not runtime installation.
 Broker revisions retain the existing full logical-state size bound. This fixes repeated reads/decodes
 and recovery coupling, without claiming that every storage or operational acceptance item is complete.
 

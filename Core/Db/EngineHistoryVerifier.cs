@@ -38,6 +38,7 @@ public sealed class EngineHistoryVerifier(ITsxSessionCalendar calendar)
         t.Commit();
         if (pass != run.RunId)
         {
+            paperReader?.Dispose();
             pass = run.RunId; database = identity; paperReader = null; previousPaper = null; previousBroker = null;
             legacyInputs.Clear(); legacyCursor = null;
         }
@@ -48,7 +49,7 @@ public sealed class EngineHistoryVerifier(ITsxSessionCalendar calendar)
         if (pass != run.RunId) throw new InvalidOperationException("Start a guarded audit batch before reading history.");
         if (p.Complete) return p;
         var target = run.Plan.Targets[p.TargetIndex];
-        if (target.Family != EngineAuditFamily.PaperRevisions) { paperReader = null; previousPaper = null; }
+        if (target.Family != EngineAuditFamily.PaperRevisions) { paperReader?.Dispose(); paperReader = null; previousPaper = null; }
         await using var c = await EngineIntegrityRepository.OpenAsync(ct);
         if (target.Family != EngineAuditFamily.LegacyInputs && p.NextRevision > target.ThroughRevision)
             return p.NextTarget(run.Plan);
@@ -135,6 +136,7 @@ WHERE @Last IS NULL OR EvaluationId>CONVERT(uniqueidentifier,@Last) ORDER BY Eva
     {
         if (paperReader is null || paperOwner != owner || previousPaper is null || previousPaper.Revision != revision - 1)
         {
+            paperReader?.Dispose();
             paperReader = new(owner, through); paperOwner = owner;
             previousPaper = revision > 0 ? (await paperReader.ReadAsync(c, revision - 1, ct)).State : null;
         }

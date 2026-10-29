@@ -12,7 +12,8 @@ namespace Core.Trader.DelphiLive;
 public static partial class DelphiLiveSnapshotCodec
 {
     /// <summary>One fresh immutable archive pass. Never shared with operational reads or another audit.</summary>
-    internal sealed class AuditDecoder(long maximumBytes = 384L * 1024 * 1024)
+    internal sealed class AuditDecoder(long maximumBytes = 384L * 1024 * 1024,
+        int maximumFingerprintKeys = 65_536) : IDisposable
     {
         private sealed record Content(string Json, JsonNode Node);
         private sealed record Item(JsonObject Expanded, object Value);
@@ -20,6 +21,9 @@ public static partial class DelphiLiveSnapshotCodec
         private readonly Dictionary<(string Collection, string Hash), Item> decoded = new();
         private readonly Dictionary<string, string> reports = new(StringComparer.Ordinal);
         private readonly CanonicalStrings strings = new(32 * 1024 * 1024);
+        private readonly AuditFingerprint fingerprint = new(maximumFingerprintKeys);
+        internal long LastFingerprintBytesAppended => fingerprint.LastBytesAppended;
+        public void Dispose() => fingerprint.Dispose();
         private long retained;
         internal int ContentCount => contents.Count;
         internal int DecodedCount => decoded.Count;
@@ -81,22 +85,9 @@ public static partial class DelphiLiveSnapshotCodec
             if (items.Count != counts.Values.Sum()) throw new InvalidDataException("Unexpected audit membership.");
             string expected = metadata["fullHash"]!.GetValue<string>();
             root.Remove(Marker);
-            if (version == 2 && Fingerprint(writer =>
-            {
-                writer.WriteStartObject();
-                foreach (var field in root.OrderBy(p => p.Key, StringComparer.Ordinal))
-                {
-                    writer.WritePropertyName(field.Key);
-                    if (selected.TryGetValue(field.Key, out var collection))
-                    {
-                        writer.WriteStartArray();
-                        foreach (var item in collection) WriteCanonical(writer, item.Expanded, strings);
-                        writer.WriteEndArray();
-                    }
-                    else WriteCanonical(writer, field.Value, strings);
-                }
-                writer.WriteEndObject();
-            }) != expected) throw new InvalidDataException("Audit snapshot fingerprint differs from the original.");
+            if (version == 2)
+                fingerprint.Verify(AuditFingerprint.Parts(root, selected.ToDictionary(p => p.Key,
+                    p => p.Value.Select(i => i.Expanded).ToArray()), strings), expected, strings);
             if (version == 3 && CandidateStateReference(json) is string candidateHash)
                 root["candidateStates"] = Require(candidateHash).DeepClone();
             return Read<DelphiLivePortfolioSnapshot>(root) with

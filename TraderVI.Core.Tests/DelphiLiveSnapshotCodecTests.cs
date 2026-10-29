@@ -416,6 +416,99 @@ public sealed class DelphiLiveSnapshotCodecTests
         Should.Throw<InvalidDataException>(() => new DelphiLiveSnapshotCodec.AuditDecoder(1).Add(hash, candidates));
     }
 
+    [Fact]
+    public void AuditReportReusePreservesOriginalBytesAcrossManyDistinctEscapedReports()
+    {
+        var state = State(600, "original") with { Cash = 979m };
+        var reports = Enumerable.Range(0, 300)
+            .Select(i => $"Report {i}: é <>& / \"quoted\"\n😀 " + new string('x', 2048)).ToArray();
+        state = state with { Quotes = state.Quotes.Select((q, i) => q with
+            { DossierJson = reports[i % reports.Length] }).ToImmutableArray() };
+        var decoder = new DelphiLiveSnapshotCodec.AuditDecoder();
+        var package = DelphiLiveSnapshotCodec.Pack(state);
+        package.FullHash.ShouldBe(OriginalFingerprint(DelphiLiveLedgerJson.Serialize(state)));
+        foreach (var pair in package.Contents) decoder.Add(pair.Key, pair.Value);
+        var restored = decoder.Read(package.SnapshotJson, package.Items);
+        DelphiLiveLedgerJson.Serialize(restored).ShouldBe(DelphiLiveLedgerJson.Serialize(state));
+
+        // The same large report population must still be checked under each original root.
+        var changedState = state with { Revision = state.Revision + 1,
+            Quotes = state.Quotes.SetItem(599, state.Quotes[599] with { DossierJson = reports[299] + "changed" }) };
+        var changed = DelphiLiveSnapshotCodec.Pack(changedState);
+        foreach (var pair in changed.Contents) decoder.Add(pair.Key, pair.Value);
+        Should.Throw<InvalidDataException>(() => decoder.Read(package.SnapshotJson, changed.Items));
+        var next = decoder.Read(changed.SnapshotJson, changed.Items);
+        DelphiLiveLedgerJson.Serialize(next).ShouldBe(DelphiLiveLedgerJson.Serialize(changedState));
+        Should.Throw<InvalidOperationException>(() => DelphiLiveLedgerIntegrity.ValidateTransition(restored, next));
+        DelphiLiveLedgerJson.Serialize(decoder.Read(package.SnapshotJson, package.Items))
+            .ShouldBe(DelphiLiveLedgerJson.Serialize(state));
+    }
+
+    [Fact]
+    public void AuditPrefixReuseChecksAppendsEarlierChangesFailuresAndFreshDecoderAgainstOriginalHash()
+    {
+        var state = State(1000, "é <>& / \"quoted\"\n😀" + new string('x', 4096)) with { Cash = 979m };
+        using var decoder = new DelphiLiveSnapshotCodec.AuditDecoder();
+        var original = DelphiLiveSnapshotCodec.Pack(state);
+        Add(original);
+        _ = decoder.Read(original.SnapshotJson, original.Items);
+        long originalBytes = decoder.LastFingerprintBytesAppended;
+        var appendedState = state with { Revision = state.Revision + 1,
+            Quotes = state.Quotes.Add(state.Quotes[0] with { QuoteId = Guid.NewGuid() }) };
+        var appended = DelphiLiveSnapshotCodec.Pack(appendedState);
+        Add(appended);
+        var restored = decoder.Read(appended.SnapshotJson, appended.Items);
+        DelphiLiveLedgerJson.Serialize(restored).ShouldBe(DelphiLiveLedgerJson.Serialize(appendedState));
+        Assert.True(decoder.LastFingerprintBytesAppended < originalBytes / 2);
+        using var fresh = new DelphiLiveSnapshotCodec.AuditDecoder();
+        foreach (var pair in appended.Contents) fresh.Add(pair.Key, pair.Value);
+        DelphiLiveLedgerJson.Serialize(fresh.Read(appended.SnapshotJson, appended.Items))
+            .ShouldBe(DelphiLiveLedgerJson.Serialize(restored));
+        Assert.True(fresh.LastFingerprintBytesAppended >= originalBytes);
+
+        // Cash sorts before the large quote array. Matching quote objects cannot authorize reusing
+        // the old SHA state after this earlier change, even when the new original hash is valid.
+        var earlierState = appendedState with { Cash = 978m };
+        var earlier = DelphiLiveSnapshotCodec.Pack(earlierState);
+        Add(earlier);
+        var tampered = JsonNode.Parse(appended.SnapshotJson)!;
+        tampered["cash"] = earlierState.Cash;
+        Should.Throw<InvalidDataException>(() => decoder.Read(tampered.ToJsonString(), appended.Items));
+        var verified = decoder.Read(earlier.SnapshotJson, earlier.Items);
+        DelphiLiveLedgerJson.Serialize(verified).ShouldBe(DelphiLiveLedgerJson.Serialize(earlierState));
+        Assert.True(decoder.LastFingerprintBytesAppended > originalBytes / 2);
+        Should.Throw<InvalidOperationException>(() => DelphiLiveLedgerIntegrity.ValidateTransition(restored,
+            verified with { Revision = restored.Revision + 1 }));
+        // A failed fingerprint cannot publish its provisional prefix or poison the prior valid root.
+        DelphiLiveLedgerJson.Serialize(decoder.Read(appended.SnapshotJson, appended.Items))
+            .ShouldBe(DelphiLiveLedgerJson.Serialize(appendedState));
+        void Add(DelphiLiveSnapshotPackage package)
+        { foreach (var pair in package.Contents) decoder.Add(pair.Key, pair.Value); }
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(7)]
+    [InlineData(65536)]
+    public void AuditPrefixBudgetFallsBackToExactVerificationAndHandlesShrinkingAndReorderedHistory(int budget)
+    {
+        var state = State(300, "report" + new string('x', 2048));
+        using var decoder = new DelphiLiveSnapshotCodec.AuditDecoder(maximumFingerprintKeys: budget);
+        foreach (var variant in new[] { state,
+            state with { Quotes = state.Quotes.Take(15).ToImmutableArray() },
+            state with { Quotes = state.Quotes.Reverse().ToImmutableArray() }, state })
+        {
+            var package = DelphiLiveSnapshotCodec.Pack(variant);
+            package.FullHash.ShouldBe(OriginalFingerprint(DelphiLiveLedgerJson.Serialize(variant)));
+            foreach (var pair in package.Contents) decoder.Add(pair.Key, pair.Value);
+            DelphiLiveLedgerJson.Serialize(decoder.Read(package.SnapshotJson, package.Items))
+                .ShouldBe(DelphiLiveLedgerJson.Serialize(variant));
+            var corrupt = JsonNode.Parse(package.SnapshotJson)!;
+            corrupt["revision"] = 999;
+            Should.Throw<InvalidDataException>(() => decoder.Read(corrupt.ToJsonString(), package.Items));
+        }
+    }
+
     private static DelphiLivePortfolioSnapshot State(int quoteCount, string report)
     {
         var open = new DateTime(2026, 9, 17, 13, 30, 0, DateTimeKind.Utc);
