@@ -157,6 +157,19 @@ recovery blockers, not new DataAudit gates; this is not an all-system-ready clai
 checks still apply. No incident clearance, broker command, host restart or schema change was performed.
 Private snapshot, corrected report, native status and query receipts: `artifacts/audit-followup-20261028/`.
 
+**Paper recovery in progress (October 28, 22:51 Toronto):** Joseph explicitly requests resolving the
+nine retained Paper/research holds for morning readiness. Fresh Paper-only recovery
+`e73db89e-fa4b-4da4-a503-f8405a7a7377` started through the installed engine at 22:31. It has verified
+12,918 units, completed the first portfolio including the old revision-6044 failure boundary, and is
+checking the second portfolio. The fixed plan contains 37,790 paper revisions and 167,268 frozen
+legacy research inputs; progress is not completion or a reliable ETA. The original nine holds and
+this pass's expected verification-pending hold remain open. No clearance or runtime restart occurred.
+The same-chat `finish-verified-paper-recovery` follow-up checks every ten minutes, with authority to
+clear only the original unchanged Paper holds plus this pass's pending hold after native proof and
+current-head/identity/guard checks pass, then verify worker recovery. It reports meaningful failures,
+completion or morning-readiness risk and pauses when finished. Real authority is unchanged.
+[Procedure, evidence and remaining checks](reviews/independent-engine-implementation-20261022.md#october-28-late-evening-paper-recovery).
+
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 
 The following overnight entries are historical implementation checkpoints, not current installation claims.

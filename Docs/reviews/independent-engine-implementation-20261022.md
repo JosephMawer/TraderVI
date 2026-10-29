@@ -9,6 +9,41 @@ by the successful recovery and resume. No historical evidence or uncertainty is 
 [collector checklist](../strategy-alignment-implementation-checklist.md#independent-collector-and-recovered-confirmation--october-27-overnight)
 owns remaining acceptance. Broader documentation/learning consolidation remains in its existing chat.
 
+### October 28 late-evening Paper recovery
+
+Joseph explicitly asks to investigate and resolve the nine Paper/research integrity holds so the
+system is ready for October 29 morning. This authorizes the supported Paper verification and verified
+hold-clearance path, not changes to Real permissions or deletion/reset of financial or historical state.
+
+The original set comprises one Paper archive failure at revision 6044, one original recovery-pending
+hold, and seven inherited Paper restrictions from earlier scoped recoveries. The old Paper recovery
+`2581cceb-d128-4170-a97e-3b42625f440d` completed its October 22 boundary, but does not qualify later
+incident discovery boundaries. Fresh proof is required; no old completion date or receipt is rewritten.
+
+At October 28 22:31:32 Toronto, native `VerifyPaperRecovery` started
+`e73db89e-fa4b-4da4-a503-f8405a7a7377` in the existing normal engine. Its immutable plan covers three
+portfolios (37,790 revisions total) and 167,268 frozen legacy research inputs. At 22:51:57 it remains
+Running with 12,918 verified units, TargetIndex 1 / NextRevision 5981: the first portfolio and old 6044
+failure boundary passed, and the second is advancing. No new failure is observed. Ten incidents are
+expected while it runs: the original nine plus its own verification-pending incident. Later records
+vary in size; this checkpoint supplies no complete-run ETA or morning-readiness guarantee.
+
+Private receipts and the reviewed, parse-checked `Complete-VerifiedPaperRecovery.ps1` are under
+`artifacts/paper-recovery-20261028/`. The script has **not run**. It requires this exact pass Complete,
+matches the original nine incident IDs/scope/code/evidence keys, admits only the associated pending
+hold, and rejects any unexpected incident set. It calls native `ClearIntegrityHolds` with Paper scope;
+the native transaction rechecks proof, exact current heads, database identity and immutable guards.
+Existing/uncertain receipts must be inspected before retry. No ad hoc SQL clearance is permitted.
+
+Same-chat heartbeat `finish-verified-paper-recovery` is Active every ten minutes. It must continue this
+pass, inspect any failure without bypasses, perform authorized clearance only after the conditions above,
+and verify two subsequent engine status samples at least 30 seconds apart for resumed Paper/research/
+protection workers. Check Real status and engine/collector continuity without changing them. Report a
+remaining morning-readiness risk if incomplete at 08:30 Toronto, and pause the heartbeat on completion
+or when a new user decision is required. Record actual completion/clearance/worker results here and in
+the status owner; none is claimed yet. No engine/collector restart, binary change, portfolio reset,
+database schema change, model training or broker action occurred during this checkpoint.
+
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 
 The engine independently bought ASTL after its five-minute signal reached two consecutive qualifying
