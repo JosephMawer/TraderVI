@@ -39,8 +39,9 @@ Same-chat heartbeat `finish-verified-paper-recovery` is Active every ten minutes
 pass, inspect any failure without bypasses, perform authorized clearance only after the conditions above,
 and verify two subsequent engine status samples at least 30 seconds apart for resumed Paper/research/
 protection workers. Check Real status and engine/collector continuity without changing them. Report a
-remaining morning-readiness risk if incomplete at 08:30 Toronto, and pause the heartbeat on completion
-or when a new user decision is required. Record actual completion/clearance/worker results here and in
+remaining morning-readiness risk if incomplete at 08:30 Toronto. The later user request below extends
+the follow-up beyond clearance into actual new-format operation and performance repair; stop only when
+that scope is complete or a new user decision is required. Record actual completion/clearance/worker results here and in
 the status owner; none is claimed yet. No engine/collector restart, binary change, portfolio reset,
 database schema change, model training or broker action occurred during this checkpoint.
 
@@ -79,6 +80,28 @@ this explanatory investigation. Private helper receipts are under `artifacts/rea
 `9F560E503C5931F3B5489EA76ED023F1B00D7712B2411F1907A8B1BC45114BB5`) and
 `result-20261029T031904868Z-dd33e01c71e34ca4954e6e9c2dd77384.json` (query hash
 `050761B874B7EDB8175C6D77F0F373961997BF46AF44B7013A3C6FCCC341DC29`). Both hashes verified.
+
+Joseph subsequently explicitly requests finishing clearance, proving actual new-format Paper operation,
+and repairing slow recovery. The owning strategy-alignment checklist now separates those acceptance
+items. `finish-verified-paper-recovery` is updated in place, retaining its ten-minute schedule; it must
+continue beyond clearance. Observe natural Paper advancement and version-3 roots/checkpoint agreement,
+including the next eligible session if needed. Neither installed code nor Waiting status proves this.
+Preserve missed coverage and do not replay expired signals. Profile independently while the pass runs;
+do not interrupt it. Source changes must preserve the original evidence/verification contract, and
+runtime replacement requires a concrete reviewed installation with applicable operational authority.
+
+An ignored standalone synthetic benchmark under `artifacts/paper-recovery-20261028/profiling/` references
+a copied installed Core assembly (SHA256 `8ECB924E5289805D6ADED3CEF65122783FA1501BB496D58E98BB2DA476041F57`).
+It invokes only in-memory pack/decode/transition methods, with no host, database or external service.
+The deterministic three-scenario screening reproduces expensive repeated reads: approximately 121 ms for
+1,000 quotes with one 16-KiB report; 516 ms for 6,000 quotes with that shared report; and 1,088 ms for
+6,000 quotes with 300 distinct 32-KiB reports. Warm transition checks on the latter two quote-only
+fixtures are under 1 ms. These are synthetic stage measurements with concurrent production work,
+not full-history throughput, a profile of all transition types, an ETA or an optimization result.
+`baseline-deterministic.log` records original fingerprints for reproducible comparisons. The separate
+`post-clearance-paper-format.sql` diagnostic is prepared but not executed; it compares each Paper head
+with the recovery boundary and checks version-3 advancement plus current checkpoint hashes.
+It remains private diagnostic preparation; no production source/runtime change has been made.
 
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 

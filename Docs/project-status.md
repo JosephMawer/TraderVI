@@ -167,7 +167,8 @@ this pass's expected verification-pending hold remain open. No clearance or runt
 The same-chat `finish-verified-paper-recovery` follow-up checks every ten minutes, with authority to
 clear only the original unchanged Paper holds plus this pass's pending hold after native proof and
 current-head/identity/guard checks pass, then verify worker recovery. It reports meaningful failures,
-completion or morning-readiness risk and pauses when finished. Real authority is unchanged.
+completion or morning-readiness risk. Its subsequent expanded completion scope is recorded below.
+Real authority is unchanged.
 [Procedure, evidence and remaining checks](reviews/independent-engine-implementation-20261022.md#october-28-late-evening-paper-recovery).
 
 **Recovery cost measured (October 28, 23:18–23:19 Toronto):** read-only aggregates find approximately
@@ -175,6 +176,14 @@ completion or morning-readiness risk and pauses when finished. Real authority is
 overhead and other data. All 37,790 Paper roots use the older version-2 format, requiring repeated
 full-state fingerprint checks. The pass remains in Paper history, before the 12.92 GB research archive.
 [Measured sizes, affected workers and performance limits](reviews/independent-engine-implementation-20261022.md#october-28-recovery-cost-investigation--23182319-toronto).
+
+**Completion scope expanded (October 28, late evening):** Joseph explicitly requests finishing recovery,
+clearing verified holds, proving resumed Paper portfolios write the new format, then fixing slow recovery.
+The existing ten-minute same-chat follow-up is updated in place and must not stop at hold clearance.
+The [owning checklist](strategy-alignment-implementation-checklist.md) separates native clearance, resumed
+workers, actual version-3/checkpoint evidence, performance repair and remaining acceptance. The running
+pass and Real grant are preserved; independent offline profiling can proceed meanwhile. No new-format
+native activity or performance improvement is claimed yet.
 
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 

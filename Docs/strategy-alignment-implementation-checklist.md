@@ -151,8 +151,22 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Complete the original Paper recovery plan. The hash-verified October 23 00:02 read confirms saved
   Complete at October 22 23:43:48 Toronto, 205,058 verified units and unchanged plan; all receipt/checkpoint
   hashes pass. This proves the saved plan's coverage, not unrestricted paper operation or whole-run capacity.
-- [ ] Review and explicitly resolve the eight retained Paper restrictions, and finish remaining native
-  concurrency/latency/restore acceptance. Recovery completion does not clear holds or enable trading.
+- [ ] Finish the explicitly authorized October 28 Paper recovery and native clearance: the historical
+  eight restrictions became nine by October 27; current pass `e73db89e-fa4b-4da4-a503-f8405a7a7377`
+  adds its own temporary pending hold. Require complete proof and unchanged native heads/identity/guards.
+- [ ] Verify affected Paper/research/protection workers resume after clearance in two fresh samples;
+  identify any remaining blocker and retain missed on-time observation/performance coverage.
+- [ ] Prove actual new Paper revision advancement using version-3 roots and matching current checkpoints.
+  Installed code, Waiting status and cleared holds alone do not qualify this. Observe the next eligible
+  session if no legitimate off-hours work exists; do not manufacture writes or replay expired buys.
+- [ ] Measure and repair historical recovery cost after restoring Paper, with offline preparation while
+  the current pass runs. Compare identical representative workloads before/after; preserve original
+  fingerprints/values, transitions, bounded memory, resumable coverage and immutable guards. Distinguish
+  source/test results from reviewed installation and native performance. No archive deletion or silent
+  format conversion. Joseph explicitly requests this completion on October 28; the existing same-chat
+  follow-up now continues beyond hold clearance. [Evidence and progress](reviews/independent-engine-implementation-20261022.md#october-28-recovery-cost-investigation--23182319-toronto).
+- [ ] Finish remaining native concurrency/latency/restore acceptance. Recovery completion does not
+  clear holds, qualify all interruption scenarios or grant financial authority.
 - [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine
   with execution Off; verify single ownership, normal mode, connection and original Paper cursor progress.
 - [x] Verify fresh post-interruption Real recovery 260/260 and separately authorize/apply only its reviewed
