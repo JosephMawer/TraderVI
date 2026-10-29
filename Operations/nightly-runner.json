@@ -39,6 +39,18 @@
       "continueAfterFailure": false
     },
     {
+      "name": "DataAudit",
+      "project": "DataAudit/DataAudit.csproj",
+      "entryAssembly": "DataAudit/bin/Release/net10.0/DataAudit.dll",
+      "arguments": ["--json"],
+      "timeoutMinutes": 30,
+      "successExitCodes": [0],
+      "attentionExitCodes": [1, 2],
+      "failurePatterns": [],
+      "attentionPatterns": [],
+      "continueAfterFailure": true
+    },
+    {
       "name": "Delphi",
       "project": "Delphi/Delphi.csproj",
       "entryAssembly": "Delphi/bin/Release/net10.0/Delphi.dll",

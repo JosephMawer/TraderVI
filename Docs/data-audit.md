@@ -2,6 +2,9 @@
 
 `DataAudit` is a read-only console application for regularly checking the complete local symbol universe and its core market-data relationships.
 
+[ADR-0113](adr/0113-nightly-data-audit-report.md) schedules it after Hermes in the nightly pipeline and
+removes the desktop menu. The command-line tool remains available for explicit troubleshooting.
+
 ## Safety boundary
 
 The default audit:
@@ -35,6 +38,19 @@ Run after Hermes and its backup have completed, when no data import is in progre
 dotnet run --project DataAudit
 ```
 
+`--json` emits the complete version-1 report, including run times, options, market date and findings,
+instead of the human-readable report. Exit codes are unchanged. The CLI still writes no report files.
+The nightly runner captures this output in its private run log and `stages[].dataAudit` in `status.json`,
+so `Operations/Get-TraderVINightlyStatus.ps1` shows findings even if later stages produce long logs.
+The runner maintains `data-audit-last-completed.json` beside status for comparison. New issues and
+warning-to-error escalations are highlighted; unchanged findings remain visible. A first scan establishes
+a baseline. Changed options, regressed/missing market dates or an unreadable baseline disable comparison
+explicitly. A failed/incomplete scan never replaces the last valid baseline.
+
+Completed scans with warnings or errors make the nightly result **Attention**; failure to run, timeout
+or invalid output makes it **Failed**. Delphi and Athena continue in either case under their existing
+input checks. No new publication/trading gate or automatic repair is introduced.
+
 Optional thresholds:
 
 ```powershell
@@ -59,4 +75,5 @@ Exit codes:
 5. Prepare a narrow, guarded manual migration; never let the audit repair rows automatically.
 6. Rerun the audit after the approved script is executed.
 
-The audit detects stale data, but it is not a runtime safety gate. Delphi must independently exclude stale symbol histories before evaluation; that is a separate follow-up change.
+The audit detects stale data, but it is not a runtime safety gate. Delphi's independent required-history
+and benchmark checks remain authoritative; an audit result neither overrides them nor qualifies trading.

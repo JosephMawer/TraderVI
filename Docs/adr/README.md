@@ -41,6 +41,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0113](0113-nightly-data-audit-report.md) | Nightly data-quality audit and report | Accepted | architecture, data-pipeline, user-interface |
 | [0112](0112-repository-documentation-outside-desktop.md) | Read documentation and architecture on GitHub | Accepted; supersedes ADR-0036 | architecture, user-interface |
 | [0110](0110-nightly-isolated-symbol-warnings.md) | Continue nightly work after isolated ticker-source failures | Operational recovery verified October27; ticker warnings preserved, all stages complete | architecture, data-pipeline |
 | [0109](0109-explicit-ongoing-delphi-live-management.md) | Explicit ongoing Delphi Live management | Installed; ongoing approval saved October27; native lifecycle qualification pending | architecture, risk-management, user-interface, market-microstructure |

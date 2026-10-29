@@ -25,6 +25,7 @@ foreach ($definition in $ast.FindAll({ param($node) $node -is [Management.Automa
     . ([scriptblock]::Create($definition.Extent.Text))
 }
 . (Join-Path $PSScriptRoot 'NightlyBuild.ps1')
+. (Join-Path $PSScriptRoot 'NightlyDataAudit.ps1')
 & git init --quiet $fixture
 if ($LASTEXITCODE) { throw 'Fixture Git initialization failed.' }
 [IO.File]::WriteAllText((Join-Path $fixture '.gitignore'), "artifacts/`n*.log`nstatus.json`n")
@@ -71,6 +72,15 @@ Set-Item Function:Assert-NightlyCopy $script:OriginalAssertCopy
 function Result([int] $ExitCode=0, [string] $Output='') {
     [pscustomobject]@{ Completed=$true; ExitCode=$ExitCode; StandardOutput=$Output; StandardError='' }
 }
+function AuditJson([object[]] $Findings=@(), [int] $WarningSessions=2) {
+    return @{ SchemaVersion=1; Run=@{
+        StartedUtc='2026-10-28T05:00:00Z'; CompletedUtc='2026-10-28T05:01:00Z'
+        Options=@{StaleWarningSessions=$WarningSessions; StaleErrorSessions=5; SectorMappingMaxAgeDays=14}
+        Report=@{MarketDataAsOf='2026-10-27T00:00:00'; TotalSymbols=10; ActiveSymbols=8; ActiveStocks=7; ActiveEtfs=1
+            Findings=@($Findings); ErrorCount=@($Findings | Where-Object Severity -eq 'Error').Count
+            WarningCount=@($Findings | Where-Object Severity -eq 'Warning').Count }
+    }} | ConvertTo-Json -Depth 10 -Compress
+}
 Assert (Test-TransientRestoreFailure (Result 1 'NU1301: unavailable')) 'Network restore error is retryable.'
 Assert (-not (Test-TransientRestoreFailure (Result 1 'NU1004 lock changed; NU1301'))) 'Lock mismatch cannot retry as network error.'
 Assert (-not (Test-TransientRestoreFailure (Result 1 'NU1403 hash mismatch'))) 'Package hash mismatch is not transient.'
@@ -116,13 +126,14 @@ function Invoke-CapturedProcess($FileName, $Arguments, $WorkingDirectory, $Timeo
         return Result
     }
     if ($null -ne $script:StageOverride -and $Arguments[0] -match ($script:StageOverrideName + '[.]dll$')) { return $script:StageOverride }
+    if ($Arguments[0] -match 'DataAudit[.]dll$') { return Result 0 (AuditJson) }
     return Result
 }
 $status = New-TestStatus
 $built = Invoke-LatestSourceBuild $config $fixture 'synthetic-dotnet' $status
-Assert ($status.build.state -eq 'Succeeded' -and $built.Count -eq 3) 'All three isolated builds succeed despite ongoing edits.'
+Assert ($status.build.state -eq 'Succeeded' -and $built.Count -eq 4) 'All four isolated builds succeed despite ongoing edits.'
 Assert ($status.build.environmentFiles.Count -eq 4) 'MSBuild parent imports and SDK discovery are bounded.'
-Assert ($status.build.restores.Count -eq 4) 'Exactly one transient restore retry.'
+Assert ($status.build.restores.Count -eq 5) 'Exactly one transient restore retry.'
 Assert (@($script:Calls | Where-Object { $_.arguments[0] -eq 'restore' -and $_.arguments -notcontains '--locked-mode' }).Count -eq 0) 'Every restore is locked.'
 Assert (@($script:Calls | Where-Object { $_.workingDirectory -eq $fixture }).Count -eq 0) 'Build commands never use live source directory.'
 Assert ($status.stages.Count -eq 0) 'Preparation launches no operational stage.'
@@ -132,8 +143,8 @@ Assert ($script:Calls[-1].environment.TRADERVI_CODE_VERSION -eq $status.build.so
 Assert ($script:Calls[-1].environment.TRADERVI_WORKING_TREE_STATE -eq 'Dirty') 'Stage receives captured working-tree state.'
 # Exercise the same stage loop used by the scheduled runner, with no operational processes.
 foreach ($scenario in @(
-    @{ result=(Result 0 'HermesSymbolUnavailable: sector-metadata WM: No results'); expected='Attention'; stages=3 },
-    @{ result=(Result 0 'HermesSymbolUnavailable: daily-bars ABC: source returned no usable data.'); expected='Attention'; stages=3 },
+    @{ result=(Result 0 'HermesSymbolUnavailable: sector-metadata WM: No results'); expected='Attention'; stages=4 },
+    @{ result=(Result 0 'HermesSymbolUnavailable: daily-bars ABC: source returned no usable data.'); expected='Attention'; stages=4 },
     @{ result=(Result 2 'HermesSymbolUnavailable: sector-metadata WM: No results'); expected='Failed'; stages=1 },
     @{ result=(Result 1 'HermesSymbolUnavailable: daily-bars ABC: timeout'); expected='Failed'; stages=1 },
     @{ result=(Result 0 'HermesSymbolUnavailable: daily-bars ABC: timeout; Sector index collection failed: unavailable'); expected='Failed'; stages=1 },
@@ -149,7 +160,7 @@ foreach ($scenario in @(
     Assert ($outcome.HasFailure -eq ($scenario.expected -eq 'Failed')) 'Pipeline retains fatal outcome.'
     if ($scenario.expected -eq 'Attention') {
         Assert $outcome.HasAttention 'Warnings remain visible in final outcome.'
-        Assert (($pipeline.stages.name -join ',') -eq 'Hermes,Delphi,Athena') 'Warning preserves all three stages in order.'
+        Assert (($pipeline.stages.name -join ',') -eq 'Hermes,DataAudit,Delphi,Athena') 'Warning preserves all four stages in order.'
     }
 }
 foreach ($scenario in @(
@@ -165,9 +176,57 @@ foreach ($scenario in @(
     $outcome = Invoke-NightlyStages $config $pipeline 'synthetic-dotnet' $built
     $observed = $pipeline.stages | Where-Object name -eq $scenario.name
     Assert ($observed.state -eq $scenario.expected) "$($scenario.name) retains its existing audit/exit contract."
-    Assert ($pipeline.stages.Count -eq 3) 'Athena still runs after a failed Delphi publication.'
+    Assert ($pipeline.stages.Count -eq 4) 'Athena still runs after a failed Delphi publication.'
     Assert ($outcome.HasFailure -eq ($scenario.expected -eq 'Failed')) 'A rejected publication cannot become pipeline success.'
 }
+$warning = @{Severity='Warning'; Code='BARS.ACTIVE_SYMBOL_LAGGING'; Symbol='ABC'; Message='Two sessions behind.'}
+$errorFinding = @{Severity='Error'; Code='BARS.ACTIVE_SYMBOL_STALE'; Symbol='ABC'; Message='Five sessions behind.'}
+$otherFinding = @{Severity='Warning'; Code='SECTOR.ACTIVE_STOCK_MAPPING_MISSING'; Symbol='XYZ'; Message='Mapping missing.'}
+$script:StageOverrideName = 'DataAudit'
+foreach ($scenario in @(
+    @{result=(Result 0 (AuditJson)); state='Succeeded'},
+    @{result=(Result 1 (AuditJson @($warning))); state='Attention'},
+    @{result=(Result 2 (AuditJson @($errorFinding))); state='Attention'},
+    @{result=(Result 3 'Database unavailable'); state='Failed'},
+    @{result=(Result 0 'not JSON'); state='Failed'},
+    @{result=(Result 0 (AuditJson @($errorFinding))); state='Failed'},
+    @{result=([pscustomobject]@{Completed=$false; ExitCode=124; StandardOutput=(AuditJson); StandardError=''}); state='Failed'}
+)) {
+    $script:StageOverride = $scenario.result
+    $pipeline = New-TestStatus; $pipeline.build = $status.build
+    $baseline = Join-Path $fixture 'data-audit-last-completed.json'
+    $priorHash = (Get-FileHash $baseline).Hash
+    $outcome = Invoke-NightlyStages $config $pipeline 'synthetic-dotnet' $built
+    $auditStage = $pipeline.stages | Where-Object name -eq 'DataAudit'
+    Assert ($auditStage.state -eq $scenario.state) 'Audit findings and execution failure are distinct.'
+    Assert (($pipeline.stages.name -join ',') -eq 'Hermes,DataAudit,Delphi,Athena') 'Audit cannot suppress independent downstream checks.'
+    Assert ($outcome.HasFailure -eq ($scenario.state -eq 'Failed')) 'Audit failure remains a failed night.'
+    if ($scenario.state -eq 'Failed') { Assert ((Get-FileHash $baseline).Hash -eq $priorHash) 'Incomplete or malformed audit cannot advance baseline.' }
+    else { Assert ($auditStage.dataAudit.Run.Report.Findings.Count -eq ($scenario.result.StandardOutput | ConvertFrom-Json).Run.Report.Findings.Count) 'Full findings are retained in nightly status.' }
+}
+Assert (@($script:Calls | Where-Object { $_.arguments[0] -match 'DataAudit[.]dll$' -and $_.arguments -contains '--json' }).Count -gt 0) 'Nightly requests structured CLI report.'
+# Use a fresh private state directory for deterministic report comparison tests.
+$comparisonDirectory = Join-Path $fixture 'artifacts/comparison'
+[void][IO.Directory]::CreateDirectory($comparisonDirectory)
+$savedStatusPath = $script:StatusPath; $script:StatusPath = Join-Path $comparisonDirectory 'status.json'
+$first = Save-NightlyDataAuditReport (AuditJson @($warning)) 1
+Assert ($first.Comparison.State -eq 'Baseline' -and $first.Comparison.NewFindings.Count -eq 0) 'First scan establishes a baseline without inventing changes.'
+$changed = Save-NightlyDataAuditReport (AuditJson @($errorFinding,$otherFinding)) 2
+Assert ($changed.Comparison.NewFindings.Count -eq 1 -and $changed.Comparison.NewFindings[0].Symbol -eq 'XYZ') 'New issue is identified by code and symbol.'
+Assert ($changed.Comparison.WorsenedFindings.Count -eq 1 -and $changed.Comparison.ResolvedFindings.Count -eq 0) 'Lagging to stale is escalation, not resolution plus a new issue.'
+$same = Save-NightlyDataAuditReport (AuditJson @($errorFinding,$otherFinding)) 2
+Assert ($same.Comparison.NewFindings.Count -eq 0 -and $same.Comparison.WorsenedFindings.Count -eq 0) 'Unchanged findings do not create change alerts.'
+$clear = Save-NightlyDataAuditReport (AuditJson) 0
+Assert ($clear.Comparison.ResolvedFindings.Count -eq 2) 'Findings no longer observed remain explicit.'
+$differentOptions = Save-NightlyDataAuditReport (AuditJson @() 3) 0
+Assert ($differentOptions.Comparison.State -eq 'Unavailable') 'Changed thresholds cannot imply improvement.'
+$corruptBaseline = Join-Path $comparisonDirectory 'data-audit-last-completed.json'
+[IO.File]::WriteAllText($corruptBaseline, 'broken')
+$unavailable = Save-NightlyDataAuditReport (AuditJson) 0
+Assert ($unavailable.Comparison.State -eq 'Unavailable') 'Unreadable baseline is disclosed.'
+$wrongCounts = (AuditJson) | ConvertFrom-Json; $wrongCounts.Run.Report.ErrorCount = 1
+Assert-Throws { Save-NightlyDataAuditReport ($wrongCounts | ConvertTo-Json -Depth 10) 2 } 'counts do not match'
+$script:StatusPath = $savedStatusPath
 $script:StageOverride = $null
 $script:StageOverrideName = 'Hermes'
 [IO.File]::AppendAllText((Join-Path $status.build.sourceDirectory $config.stages[0].entryAssembly), 'tampered')

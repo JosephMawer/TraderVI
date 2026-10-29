@@ -1,5 +1,8 @@
 # ADR-0033: Tabbed desktop shell and shared application workflows
 
+The Data Audit desktop surface below is superseded by [ADR-0113](0113-nightly-data-audit-report.md):
+the shared workflow and CLI remain, with scheduled findings in the nightly report.
+
 - **Status:** Accepted
 - **Date:** 2026-08-26
 - **Domains:** architecture, data-pipeline, risk-management

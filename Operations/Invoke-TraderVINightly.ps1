@@ -265,9 +265,11 @@ function Invoke-NightlyStage {
     Write-JsonAtomically -Value $Status -Path $script:StatusPath
     Write-RunLog "Starting stage '$($Stage.name)' from the current-source build '$entryAssembly'."
 
+    $stageArguments = @($entryAssembly)
+    if ($Stage.PSObject.Properties.Name -contains 'arguments') { $stageArguments += @($Stage.arguments) }
     $result = Invoke-CapturedProcess `
         -FileName $DotnetPath `
-        -Arguments @($entryAssembly) `
+        -Arguments $stageArguments `
         -WorkingDirectory $RepoRoot `
         -TimeoutMinutes ([int] $Stage.timeoutMinutes) `
         -Label "stage '$($Stage.name)'" `
@@ -322,6 +324,18 @@ function Invoke-NightlyStage {
         }
     }
 
+    if ($Stage.name -eq 'DataAudit' -and $stageStatus.state -ne 'Failed') {
+        try {
+            $audit = Save-NightlyDataAuditReport -Json $result.StandardOutput -ExitCode $result.ExitCode
+            $stageStatus | Add-Member -NotePropertyName dataAudit -NotePropertyValue $audit
+            $stageStatus.message = "$($audit.Run.Report.ErrorCount) errors; $($audit.Run.Report.WarningCount) warnings. $($audit.Comparison.Message)"
+        }
+        catch {
+            $stageStatus.state = 'Failed'
+            $stageStatus.message = 'Audit report could not be validated or saved; review the run log. No clean audit is claimed.'
+            Write-RunLog "DataAudit reporting failed: $($_.Exception.Message)"
+        }
+    }
     $Status.stages[-1] = $stageStatus
     Write-JsonAtomically -Value $Status -Path $script:StatusPath
     Write-RunLog "Stage '$($Stage.name)' finished as $($stageStatus.state): $($stageStatus.message)"
@@ -354,6 +368,7 @@ function Invoke-NightlyStages {
 }
 
 . (Join-Path $PSScriptRoot 'NightlyBuild.ps1')
+. (Join-Path $PSScriptRoot 'NightlyDataAudit.ps1')
 
 $resolvedConfigurationPath = (Resolve-Path -LiteralPath $ConfigurationPath).Path
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $resolvedConfigurationPath) '..'))

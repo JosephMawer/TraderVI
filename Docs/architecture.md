@@ -138,6 +138,7 @@ Rule:
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, `[RelativeStrengthFeatures]` (planned), `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
 | **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, `[DecisionDossier]`, console output |
 | **TraderVI paper monitor** | WPF or headless console; immediate start plus 15-minute regular-session cadence | active linked positions, delayed TMX intraday bars | `[IntradayPollObservation]`, `[IntradayEvidenceBar]`, position snapshots, and database-only ghost exits; no broker orders |
-| **TraderVI.WPF** | Interactive tabbed shell | linked paper state, saved recommendations, matching Delphi presentation evidence, and host-neutral workflows | shared paper-monitor writes; Data Audit and saved-Delphi refresh are read-only; confirmed official Delphi runs have Delphi's documented SQL effects |
+| **TraderVI.WPF** | Interactive tabbed shell | linked paper state, saved recommendations, matching Delphi presentation evidence, and host-neutral workflows | shared paper-monitor writes; saved-Delphi refresh is read-only; confirmed official Delphi runs have Delphi's documented SQL effects |
+| **DataAudit** | Nightly after Hermes; manual CLI troubleshooting | local daily bars, symbol classification and sector relationships | Read-only scan; nightly runner saves findings and comparisons in private reports |
 | **Oracle** | Daily (post-Delphi) | `[DecisionDossier]` | `[LlmNarrative]`, console output |
 | **TraderVI** | Manual and monitored ghost execution | `[DailyPick]`, linked positions, intraday evidence | ghost positions/trades and intraday evidence; no live broker orders |

@@ -330,9 +330,6 @@
       <TabItem Header="Practice" views:WorkspaceNavigationState.Icon="&#xE768;">
         <views:PracticeView/>
       </TabItem>
-      <TabItem Header="Data Audit" views:WorkspaceNavigationState.Icon="&#xE9D9;">
-        <views:DataAuditView/>
-      </TabItem>
       <TabItem Header="Scorecards" views:WorkspaceNavigationState.Icon="&#xE9D2;">
         <views:ScorecardsView/>
       </TabItem>

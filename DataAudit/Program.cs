@@ -1,4 +1,6 @@
 using Core.DataQuality;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -13,14 +15,25 @@ try
     MarketDataAuditOptions options = ParseOptions(args);
     string? configuredConnection = Environment.GetEnvironmentVariable("TRADERVI_CONNECTION_STRING");
 
-    Console.WriteLine("=== TraderVI Full Local Data Audit ===\n");
-    Console.WriteLine("Mode: read-only local SQL; no external market calls; no database writes");
-    Console.WriteLine($"Freshness: warning at {options.StaleWarningSessions} sessions, error at {options.StaleErrorSessions} sessions");
-    Console.WriteLine($"Sector mappings: warning after {options.SectorMappingMaxAgeDays} days\n");
+    bool json = args.Contains("--json");
+    if (!json)
+    {
+        Console.WriteLine("=== TraderVI Full Local Data Audit ===\n");
+        Console.WriteLine("Mode: read-only local SQL; no external market calls; no database writes");
+        Console.WriteLine($"Freshness: warning at {options.StaleWarningSessions} sessions, error at {options.StaleErrorSessions} sessions");
+        Console.WriteLine($"Sector mappings: warning after {options.SectorMappingMaxAgeDays} days\n");
+    }
 
     var workflow = new MarketDataAuditWorkflow(configuredConnection);
     MarketDataAuditRunResult result = await workflow.RunAsync(options);
     MarketDataAuditReport report = result.Report;
+
+    if (json)
+    {
+        Console.WriteLine(JsonSerializer.Serialize(new { SchemaVersion = 1, Run = result },
+            new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } }));
+        return report.ErrorCount > 0 ? 2 : report.WarningCount > 0 ? 1 : 0;
+    }
 
     Console.WriteLine($"Market data as of: {report.MarketDataAsOf:yyyy-MM-dd}");
     Console.WriteLine($"Symbols audited:   {report.TotalSymbols:N0}");
@@ -74,6 +87,7 @@ static MarketDataAuditOptions ParseOptions(string[] arguments)
     for (int i = 0; i < arguments.Length; i++)
     {
         string argument = arguments[i];
+        if (argument == "--json") continue;
         if (i + 1 >= arguments.Length)
             throw new ArgumentException($"Missing value after {argument}.");
 
@@ -106,6 +120,7 @@ static void PrintHelp()
     Console.WriteLine("Usage: dotnet run --project DataAudit -- [options]");
     Console.WriteLine();
     Console.WriteLine("Options:");
+    Console.WriteLine("  --json                Emit the complete versioned JSON report (same exit codes; no report file writes)");
     Console.WriteLine("  --warning-sessions N   Warn when an active symbol is N XIU sessions behind (default 2)");
     Console.WriteLine("  --error-sessions N     Error when an active symbol is N XIU sessions behind (default 5)");
     Console.WriteLine("  --mapping-age-days N   Warn when a stock-sector mapping is older than N days (default 14)");

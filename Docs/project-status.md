@@ -67,6 +67,21 @@ stopped before copying; explicit waiting for the Windows control process correct
 No shared-runtime replacement, engine/collector restart, financial setting change or schema operation.
 Private rollback, fingerprints and status receipts: `artifacts/remove-docs-ui-20261028/installation-verified/`.
 
+**Nightly DataAudit integrated (October 28, next operational run pending):** Joseph authorized
+Hermes → DataAudit → Delphi → Athena and retirement of the desktop Data Audit menu while keeping the
+CLI. [ADR-0113](adr/0113-nightly-data-audit-report.md) owns the reporting/failure contract. Full findings
+and comparable new/escalated/resolved issues appear in nightly status; failed scans preserve the last
+completed baseline. Both PowerShell runtimes pass 110 offline assertions, six Core audit tests pass,
+and the isolated four-project nightly build passes locked restore/source/artifact checks. DataAudit's
+new dependency lock matches the existing Athena dependency graph. WPF Release passes with 260 existing
+compiler warnings and no errors; nightly builds have 258–259 existing warnings per project. No dependency
+security warnings were emitted; audit was disabled, so no fresh security-audit claim is made.
+The installed Windows task was read and points directly to this repository's runner/configuration;
+the authorized stage will apply on its next capture without task reinstallation. No manual operational
+run, database/market operation, financial change or full-suite/SSDT validation occurred. The desktop
+menu removal is built in source but not installed in the running dashboard; this increment is not pushed.
+Private validation: `artifacts/nightly-data-audit-20261028/`.
+
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 
 The following overnight entries are historical implementation checkpoints, not current installation claims.

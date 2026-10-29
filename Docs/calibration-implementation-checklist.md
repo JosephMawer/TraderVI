@@ -226,7 +226,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Add ADR-0031 database-guarded automatic ghost exits at a separately observed post-detection TMX price; this can never place a broker order.
 - [x] Add the ADR-0032 live WPF paper dashboard with scheduled market polling, positions, P/L, trade history, and durable receipt history; ADR-0045 later reduces collection to five minutes while retaining 15-minute policy bars.
 - [x] Apply ADR-0033's thirty-second SQL display refresh without changing five-minute evidence collection or fifteen-minute policy decisions.
-- [x] Add the first tabbed-shell vertical slice: Paper Trading plus a read-only Data Audit tab backed by the same shared workflow as the retained DataAudit CLI.
+- [x] Add the first tabbed-shell vertical slice: Paper Trading plus a read-only Data Audit tab backed by the same shared workflow as the retained DataAudit CLI. Historical completion; [ADR-0113](adr/0113-nightly-data-audit-report.md) retires the tab and schedules the CLI after Hermes.
 - [x] Extract Delphi into one shared workflow and add an ADR-0034 desktop tab that reads saved lenses without running, then requires explicit confirmation for an official run.
 - [x] Add ADR-0035's typed immutable Delphi presentation snapshot and six inner views; reconstruct older saved runs only from date-aligned evidence and clearly label missing legacy facts.
 - [x] Add ADR-0036's read-only Project Docs tab so status, ADRs, architecture, running guidance, and this checklist are searchable in the operator shell without SQL or external calls. Historical completion; [ADR-0112](adr/0112-repository-documentation-outside-desktop.md) retires the reader in favor of GitHub documentation.

@@ -802,9 +802,10 @@ After a successful Hermes data update, Hermes automatically creates and verifies
 ## Guarded nightly pipeline
 
 ADR-0046, as corrected by ADR-0058, schedules one deterministic pipeline at 00:30 Toronto/Eastern every calendar day:
-Hermes, then Delphi, then Athena. Running after midnight gives Delphi the new recommendation date while it
-uses the prior completed TSX session. This schedule is recurring authorization for these exact three
-programs and their documented effects; it grants no authority to train models, apply migrations, deploy a
+Hermes, then DataAudit, then Delphi, then Athena under [ADR-0113](adr/0113-nightly-data-audit-report.md).
+Running after midnight gives Delphi the new recommendation date while it uses the prior completed TSX
+session. This schedule authorizes those four configured programs and their documented effects, including
+the read-only audit and private reporting; it grants no authority to train models, apply migrations, deploy a
 database, run Sandbox probes, start WPF monitoring, invoke Oracle, or place a broker order.
 
 Install the Windows task once, or rerun the installer when changing its schedule or task settings:
@@ -815,8 +816,8 @@ Install the Windows task once, or rerun the installer when changing its schedule
 
 The task invokes the repository runner and configuration directly. ADR-0078 captures the latest tracked
 and untracked non-ignored source into a verified private copy at run start. Later edits belong to the next
-run. It restores the reviewed Core/Hermes/Delphi/Athena lock files with `--locked-mode` into a dedicated
-cache, then builds the three Release projects inside that copy. Neither intermediate nor executable files
+run. It restores the reviewed Core/Hermes/DataAudit/Delphi/Athena lock files with `--locked-mode` into a dedicated
+cache, then builds the four Release projects inside that copy. Neither intermediate nor executable files
 are shared with development builds. Source and runner edits apply without reinstalling the task.
 
 Capture and transient restore failures get at most three preparation attempts, with ten-second pauses.
@@ -835,7 +836,7 @@ Run offline regression checks or actual build-only validation without starting o
 Build-only status is separate from operational status and records `Prepared`. Run copies and their full
 source manifests live under ignored `artifacts/nightly/<run-id>/`; the dedicated package cache is
 `artifacts/nightly/packages`. Cleanup is currently manual. When dependency declarations change, generate
-and review the affected Core/Hermes/Delphi/Athena `packages.lock.json` files with `dotnet restore
+and review the affected Core/Hermes/DataAudit/Delphi/Athena `packages.lock.json` files with `dotnet restore
 --use-lock-file` before the next night. Restore uses `Operations/nightly-nuget.config`; package-security
 audits are separate from the unattended build and must be reported independently.
 
@@ -855,7 +856,11 @@ Read the latest status without starting any operational program:
 ```
 
 The runner writes atomic `status.json` state and per-run logs beneath
-`%LOCALAPPDATA%\TraderVI\Nightly`. `Succeeded` means the current source built and all three stages passed.
+`%LOCALAPPDATA%\TraderVI\Nightly`. `Succeeded` means the current source built and all four stages passed.
+DataAudit's full structured findings appear in `status.json` and the run log, with comparison against
+the last completed scan in `data-audit-last-completed.json`. New findings and warning-to-error escalations
+are highlighted. Completed audit findings produce Attention; inability to run or validate/save its report
+produces Failed. Delphi and Athena continue after audit failure under their own independent checks.
 `Attention` includes explicitly marked Hermes individual daily-bar/stock-sector read warnings
 (`HermesSymbolUnavailable:`), Athena exit code 2 or a Delphi run degraded by an actual evidence limitation; a dirty
 working tree by itself remains recorded provenance and does not change the run audit state. `Failed` includes build failures,
@@ -875,7 +880,7 @@ service, or repair data.
 ## DataAudit — read-only local data-quality scan
 
 **Project:** `DataAudit`
-**Typical schedule:** after a successful Hermes run, weekly or whenever universe quality is in question
+**Schedule:** nightly after Hermes and its backup, before Delphi; also available by CLI for explicit troubleshooting
 
 DataAudit scans every local symbol and the core `DailyBars` / `StockSectorMap` / `SectorIndices` relationships. It detects stale active symbols using completed XIU sessions, missing mappings, likely stock/fund misclassifications, malformed or duplicate bars, and orphaned data.
 
@@ -1124,7 +1129,7 @@ Daily Shadow start/pause/resume/rename controls cannot operate on a Delphi Live 
 activation and capital review in **Delphi Live → Setup & advanced**. Friday's historical replay remains
 under **Delphi Live → Replay account** and is not an operational portfolio in this list.
 
-The Data Audit tab calls the same host-neutral `MarketDataAuditWorkflow` as the retained DataAudit console application. It runs only when its clearly labelled button is pressed, uses local SQL reads only, and makes no correction or external call.
+The Data Audit tab is retired under [ADR-0113](adr/0113-nightly-data-audit-report.md). Its shared read-only workflow and CLI remain; the nightly pipeline now records its findings after Hermes. See [DataAudit](#dataaudit--read-only-local-data-quality-scan).
 
 The Delphi tab calls the same host-neutral `DelphiWorkflow` as the retained Delphi console application. Opening or refreshing the tab only reads the latest saved Continuation and Breakout picks and their matching saved presentation evidence. Its inner views are Overview, Picks, Market, Granville, Diagnostics, and Full Report. New official runs reopen from a typed immutable snapshot stored inside the existing calibration run context. Runs from before ADR-0035 show a clearly labelled, date-aligned reconstruction; missing facts remain unavailable rather than being replaced with newer values.
 

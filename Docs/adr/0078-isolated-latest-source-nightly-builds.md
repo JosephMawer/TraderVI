@@ -1,5 +1,8 @@
 # ADR-0078: Isolated latest-source nightly builds
 
+[ADR-0113](0113-nightly-data-audit-report.md) extends this same build/lock boundary to DataAudit as
+the fourth configured program; the isolation and retry rules below are unchanged.
+
 - **Status:** Accepted; implemented and operationally verified
 - **Date:** 2026-09-14
 - **Domains:** architecture, data-pipeline
