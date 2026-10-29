@@ -3471,7 +3471,8 @@ one candidate using matching security/listing and checksum-checked saved holding
 four existing aliases remain present. This establishes another resolver blocker, although the exact
 worker exception has not been traced and other causes are not excluded. Previous alias approvals
 were consumed; no new write, restart or financial operation is performed. A verified operational
-repair and a durable resolution of repeated tracked-name failures remain outstanding.
+repair and a durable resolution of repeated tracked-name failures remain outstanding at this check;
+the following repair supersedes the operational blocker, not the historical gap.
 
 Collector scheduling stays healthy: coverage receipt
 `result-20261029T193845016Z-eeaa84c4a2fd4701b07301017bd383c4.json`, matching the reviewed
@@ -3479,3 +3480,31 @@ DE9B2D query hash, shows all66completedminutes14:32–15:37 with34distinct attem
 zero missing/failed/late receipts or conflicts. Engine11716,collector15516 and dashboard owners
 remain unchanged. Private captures and query receipts remain under `artifacts/market-watch-20261029`
 and `artifacts/read-only-db`. Missing inputs and earlier coverage gaps are not restored by diagnosis.
+
+## October 29 third tracked-name repair
+
+Joseph explicitly requests fixing the new mapping without restarting the engine, then correcting
+the repeated post-purchase failure. A fresh reviewed read verifies the one candidate; its query
+SHA256 is2C5FD228A466A60B03D71A7ECA39F30C04D43CC5B69F43E3E89986805A3D8828 and receipt is
+`result-20261029T194231950Z-0316a95a3211428cab42140239882ff4.json`.
+The guarded atomic repair completes at15:44:48 Toronto after SQL CHECKSUM backup verification
+and a hash-matched backup copy. It locks the exact current head, checks original holding/listing
+identity and content hashes, inserts exactly one approved pair and preserves all four original aliases.
+No financial records, orders, permissions, host owners or runtime files change.
+
+`artifacts/tracked-name-repair-20261029` retains scripts, backup/copy and completed receipts.
+Its ApplyVerifiedAlias.sql SHA256 is005179AB03DEB8C7E00F57C86D4083C020D3CDE362B135E79F2716CDC7CBE33A.
+The inherited plan's informational ProofReceipt/OriginalAliasCount fields still name the previous
+repair; they were not script inputs. The fresh proof above, exact SQL guards, original-row comparison
+and completed receipt establish this operation's scope. Preserve that historical plan without relabeling it.
+Do not rerun the completed repair. Independent VerifyAfter receipt
+`result-20261029T194534001Z-b341ea4f4b1b478cbc5e6e55142b33c2.json`, matching108B7502 query hash,
+confirms five aliases, the original four unchanged and zero unresolved names.
+
+Native captures194750 and195256 verify fresh evaluations at15:47:40 and15:52:52: Running/no confirmed
+entry, zero holds/consecutive worker failures/account or quote blocks, NewBuysStopped false, three
+matching holding protections and7/7orders reconciled. Broker remains connected; engine11716,
+collector15516 and both dashboard owners retain their start times. Progress77F194 receipt
+`result-20261029T194754911Z-22e1b7d3d9264ed5bc06ef7f53d59c46.json` confirms shared cycle294,
+15:45bar published15:47:32, Paper heads7645/27645/6564 using v3 with matching checkpoints and
+zero collector conflicts. The15:35/15:40 cycles remain missed; no subsequent buy is inferred.

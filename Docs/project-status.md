@@ -1,6 +1,17 @@
 # TraderVI Project Status
 
-## October 29 — another tracked name blocks fresh inputs at 15:38
+## October 29 — third tracked-name repair restores fresh evaluation without restart
+
+Joseph requests immediate repair and prevention of the recurring post-purchase mapping failure.
+One independently verified alias is added at15:44 Toronto after a checksum-verified full backup
+and hash-matched copy; all four original aliases remain unchanged. Native evaluations at15:47:40
+and15:52:52 use fresh inputs with zero holds, worker failures, account/quote blocks or stopped buys.
+All three holding protections match and7/7orders reconcile. Engine, collector and dashboard owners,
+trading build and saved grant remain unchanged. All three Paper v3 heads advance with matching
+checkpoints. The15:35/15:40 shared cycles remain missed. The permanent source repair is being
+validated separately and is not installed. [Evidence](reviews/independent-engine-implementation-20261022.md#october-29-third-tracked-name-repair).
+
+## October 29 — another tracked name blocked fresh inputs at 15:38
 
 After a confirmed buy at15:32:17 Toronto, the15:38 and15:39 controls show a renewed
 Market inputs failure and stale-input buying wait. Read-only checks identify one unresolved
