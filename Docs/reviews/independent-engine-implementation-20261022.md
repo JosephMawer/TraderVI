@@ -272,6 +272,30 @@ Wait for legitimate fresh session activity and verify all three new roots plus c
 do not force writes, replay missed trades or equate Waiting with final acceptance. The existing
 follow-up continues this final proof and alerts on new failures; missed observation coverage remains.
 
+### October 29 user reboot — 02:10 Toronto
+
+Joseph reports a laptop restart, requests startup commands, then confirms running them and asks for
+status/new holds. Read-only preparation found SQL Server running, no TraderVI processes, matching
+collector runtime/configuration manifest hashes and no stop.request. Commands start the installed
+collector through its existing checked supervisor, normal engine --run and WPF with the reviewed
+calendar. This chat does not issue the startup itself or renew execution permission.
+
+Fresh native controls under `artifacts/paper-recovery-20261028/reboot-20261029T061030-*.json` show
+collector18832 started02:10:01, engine20876/dashboard8392 started02:10:02 from expected installed paths.
+Collector status at02:10:26 is OutsideSession with zero attempted/saved/failed requests. Engine is
+normal Running (not verification or recovery-maintenance mode); its continuity worker completes.
+One new Scope0/Global incident `673f8f52-1d8d-42c6-92ee-6de7e7760f7d` has FailureCode
+EngineRecoveryRequired, ProtectionUntrusted=true, discovered02:10:04.2216387, EvidenceKey
+`EngineContinuity/58fc87fc-5ed3-4915-b9ea-e031816afd5a`. Startup cannot establish the required clean
+paired continuity; this incident alone does not identify which startup predicate failed or establish
+data corruption. Market inputs, Paper inputs/protection, Research inputs and Shadow protection report
+Blocked/InvalidOperationException. Historical audit worker is Waiting, not a newly started recovery.
+Original Paper run e73db89e remains Complete at205,058 and its original ten incidents remain closed.
+Real ExecutionStatus still requires changed-build review. No old receipt is reused to clear this later
+incident, and no new verification/clearance, restart or financial action is issued during the check.
+Further global recovery needs applicable operational authority; pre-reboot worker proof is historical.
+The follow-up retains all-three new-format acceptance and must use these fresh process identities.
+
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 
 The engine independently bought ASTL after its five-minute signal reached two consecutive qualifying

@@ -161,6 +161,9 @@ The overnight target was missed. Completed source work is separate from installe
   Their shared query's missing ORDER BY separator is repaired and read-only validated, then installed
   with Joseph's explicit approval at 01:33:44. Samples at 01:33:41 and 01:34:18 show all five affected
   workers completing with zero failures; native Paper/Research consumer receipts confirm processing.
+- [ ] Resolve the separate October 29 02:10 post-reboot Global EngineRecoveryRequired incident through
+  an authorized verified recovery path, then recheck workers. The earlier ten-hold clearance and worker
+  success remain completed historical checkpoints; they do not clear this later continuity incident.
 - [ ] Prove actual new Paper revision advancement using version-3 roots and matching current checkpoints.
   Installed code, Waiting status and cleared holds alone do not qualify this. Observe the next eligible
   session if no legitimate off-hours work exists; do not manufacture writes or replay expired buys.

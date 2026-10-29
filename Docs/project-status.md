@@ -1,5 +1,20 @@
 # TraderVI Project Status
 
+## October 29 — laptop reboot creates a new global continuity hold
+
+Joseph reports restarting the laptop and manually runs the supplied installed startup commands.
+At 02:10 Toronto, collector18832, engine20876 and dashboard8392 are running from their expected paths.
+Collector status is fresh OutsideSession with no attempted/failed requests; engine is normal Running.
+Native IntegrityStatus reports one new Global EngineRecoveryRequired incident,
+`673f8f52-1d8d-42c6-92ee-6de7e7760f7d`, discovered 02:10:04 against the new continuity run.
+This is separate from the ten holds cleared at 01:22; the original Paper recovery remains Complete.
+Market inputs, Paper inputs/protection, Research inputs and Shadow protection are currently blocked.
+Real separately still reports changed-build review required. Earlier healthy-worker and zero-hold
+observations remain dated pre-reboot evidence, not current readiness. No new recovery or clearance has
+been launched in response to this status-only request; diagnose and obtain applicable operational
+authority before addressing this new global incident. All-three new-format acceptance remains pending.
+[Restart evidence](reviews/independent-engine-implementation-20261022.md#october-29-user-reboot--0210-toronto).
+
 ## October 29 — holds cleared; consumer repair installed; new-format Paper proof pending
 
 At 01:22:41 Toronto, Paper recovery `e73db89e-fa4b-4da4-a503-f8405a7a7377` completes all 205,058
