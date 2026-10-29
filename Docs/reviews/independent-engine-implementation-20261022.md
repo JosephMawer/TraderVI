@@ -201,6 +201,45 @@ The same-chat follow-up now inspects these receipts first and must not race the 
 uncertain clearance. At 08:30 Toronto, an incomplete watcher stops without clearance so the follow-up
 can report morning-readiness risk and diagnose. No new recovery, Real enable or schema change occurs.
 
+### October 29 clearance and consumer query blocker — 01:22 Toronto
+
+The exact Paper recovery completes 205,058 units at 01:22:41.896 Toronto, Scope 2 and Progress.Complete
+true. The watcher observes completion, invokes the existing guarded script once, and receives native
+`true`. `clearance-receipt.json` records ten cleared and zero remaining at 01:22:45.711. Original receipts
+and financial history are preserved. The watcher captures Status at 01:22:45 and 01:23:17 (31 seconds
+apart), ExecutionStatus and IntegrityStatus, then writes `continuous-watch/completed.json` and exits.
+It must not be restarted or raced by another clearance invocation. Engine14216/collector36848 retain
+their post-install/original start times. Later independent native controls confirm zero open incidents.
+
+Elapsed recovery time is 2h51m from 22:31:32, including the normal upgrade restart. The first observed
+research sample at 01:15:38 has 3,233 legacy inputs verified; completion follows at 01:22:41. The last
+Paper sample at 01:15:23 has 195 revisions left. Thus the full research scan is approximately seven
+minutes, not a second hours-long full-state replay. Prior 8h11 elapsed included a different execution
+history/interruption, so it is not a controlled whole-run speedup benchmark. Original complete hashes,
+transition rules, fixed coverage and native clearance guards pass with the installed prefix repair.
+
+Post-clearance Paper protection, research history and Shadow protection complete successfully. Paper
+inputs and Research inputs remain Blocked with repeated SqlException. Source investigation finds
+`EngineMarketCycleRepository.ReadNextAsync` closes a raw string at `ORDER BY` then appends `m.Sequence`
+without a separator, yielding `ORDER BYm.Sequence` for both newest-Paper and FIFO-Research reads.
+Microsoft's installed TSql170Parser rejects both originals near BYm and accepts both corrected forms.
+The source change adds only the separating space; selection order, receipt checks, freshness rules,
+history and financial authority are unchanged. Both corrected SELECTs, wrapped to return aggregate
+counts/sizes only, execute through the fixed helper and each select one pending cycle. Receipt
+`result-20261029T052757656Z-b8fb6d21ffee415c99dff9390accbeb7.json` matches query SHA256
+`530EC3F8DB33FD0E0752179BA9BD9D04E27A8DAD248243246DC3F09B92AEF1C0`.
+Isolated Release WPF/engine build passes with 260 existing compiler warnings, zero errors; dependency
+audit disabled, no SSDT/full-solution claim. `consumer-fix-release-build.log` and
+`consumer-query-validation.sql` preserve private validation. The repair is not installed yet.
+
+Read-only Paper-format receipt `result-20261029T052543247Z-a0e8144da6fa4465b32b390ae8b20f86.json`
+matches query SHA256 `6BF7C5DED23D41E019241C09D0C1740750C45E4513530C23B4414482AA7E1950`:
+all three heads equal their fixed recovery boundaries, use version 2, match their current checkpoints
+and have zero new version-3 revisions. Do not claim portfolios restored merely because holds cleared.
+Even after the consumer fix, off-hours stale inputs must not become replayed trades; actual eligible
+new-format activity remains required. Real ExecutionStatus remains Blocked for build review, with no
+agent financial approval. The follow-up continues worker repair and all-three-portfolio proof.
+
 ### October 28 monitoring closeout — saved evidence through 15:45 Toronto
 
 The engine independently bought ASTL after its five-minute signal reached two consecutive qualifying

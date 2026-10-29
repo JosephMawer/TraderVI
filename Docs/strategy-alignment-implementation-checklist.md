@@ -151,11 +151,15 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Complete the original Paper recovery plan. The hash-verified October 23 00:02 read confirms saved
   Complete at October 22 23:43:48 Toronto, 205,058 verified units and unchanged plan; all receipt/checkpoint
   hashes pass. This proves the saved plan's coverage, not unrestricted paper operation or whole-run capacity.
-- [ ] Finish the explicitly authorized October 28 Paper recovery and native clearance: the historical
+- [x] Finish the explicitly authorized October 28 Paper recovery and native clearance: the historical
   eight restrictions became nine by October 27; current pass `e73db89e-fa4b-4da4-a503-f8405a7a7377`
-  adds its own temporary pending hold. Require complete proof and unchanged native heads/identity/guards.
+  adds its own temporary pending hold. Complete 205,058 at October 29 01:22:41; native guarded clearance
+  resolves all ten at 01:22:45 with completed proof/current-head/identity/guard checks; zero remain.
 - [ ] Verify affected Paper/research/protection workers resume after clearance in two fresh samples;
   identify any remaining blocker and retain missed on-time observation/performance coverage.
+  Paper/Shadow protection and research history resume; Paper/Research inputs fail with SqlException.
+  Their shared query's missing ORDER BY separator is repaired and read-only validated in source;
+  controlled installation and fresh worker checks remain pending operational approval.
 - [ ] Prove actual new Paper revision advancement using version-3 roots and matching current checkpoints.
   Installed code, Waiting status and cleared holds alone do not qualify this. Observe the next eligible
   session if no legitimate off-hours work exists; do not manufacture writes or replay expired buys.
@@ -167,10 +171,11 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Review/install the candidate with applicable operational authority and preserve durable cursor and
   Real grant. Joseph explicitly approves; `cdbf777c` Core installed October 29 00:06 with normal engine/
   dashboard restart, unchanged collector and byte-identical grant. Same recovery resumes.
-- [ ] Complete native recovery performance/guard acceptance. Initial adjacent-segment observations are
+- [x] Complete this native recovery with the installed performance repair and original clearance guards.
+  Total elapsed 2h51m with the normal restart; research stage approximately seven minutes. Initial adjacent-segment observations are
   2.74 revisions/s after versus 1.69/s before installation, not a controlled whole-run benchmark or ETA.
   Early changes/cold reads and the separate legacy input scan limit gains. This installed repair does
-  not complete native Paper activity or weekly-capacity acceptance.
+  not complete native Paper activity or broader weekly-capacity acceptance, retained below.
 - [ ] Obtain Joseph's normal review of the installed strategy/build before Real execution resumes;
   post-install ExecutionStatus is Blocked because the build changed. Preserved grant is not new approval.
   No archive deletion or silent conversion. The existing follow-up continues beyond hold clearance.

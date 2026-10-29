@@ -1,5 +1,27 @@
 # TraderVI Project Status
 
+## October 29 — Paper recovery and clearance complete; consumer SQL repair pending installation
+
+At 01:22:41 Toronto, Paper recovery `e73db89e-fa4b-4da4-a503-f8405a7a7377` completes all 205,058
+planned units. Native guarded clearance resolves all ten selected incidents at 01:22:45; fresh reads
+confirm zero open incidents. Total elapsed time is 2h51m, including the approved normal restart.
+The research stage takes approximately seven minutes; record count did not imply another long replay.
+
+Paper protection, research history and Shadow protection resume, but Paper inputs and Research inputs
+still fail with SqlException. Their shared reader concatenates `ORDER BY` and `m.Sequence` without
+whitespace. Both order directions fail offline SQL parsing; adding the missing space fixes both, and
+the corrected SELECTs execute successfully through the hash-verified read-only database helper.
+The one-line source repair builds in isolated Release WPF/engine (260 existing warnings, zero errors;
+dependency audit disabled, no complete-solution/SSDT claim). It is **not yet installed**.
+
+At 01:25, all three Paper heads remain at their recovery boundaries in version 2, with matching current
+checkpoints and zero new version-3 revisions. Clearance is complete; actual new-format operation is not.
+Real still requires Joseph's review of the changed build. A further controlled Core installation and
+normal engine/dashboard restart requires the concrete operational approval; do not rerun recovery or
+clearance. The continuous watcher finished and exited normally; the same-chat follow-up owns the
+remaining worker repair and all-three-portfolio proof.
+[Completion evidence and remaining blocker](reviews/independent-engine-implementation-20261022.md#october-29-clearance-and-consumer-query-blocker--0122-toronto).
+
 ## October 29 — faster recovery installed; Real build review required
 
 At 00:06 Toronto, Joseph's explicitly approved normal engine/dashboard restart installed the tested

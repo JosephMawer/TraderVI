@@ -62,7 +62,7 @@ SELECT TOP(1) m.CycleId,m.SessionId,m.BarEndUtc,m.ContinuityEpoch,m.ContextHash,
 FROM dbo.EngineMarketCycle m LEFT JOIN dbo.EngineEvidenceContent c ON c.ContentHash=m.ContextHash
 WHERE NOT EXISTS(SELECT 1 FROM dbo.EngineConsumerReceipt r WHERE r.Consumer=@Consumer AND r.CycleId=m.CycleId)
 ORDER BY
-""" + (newest ? "m.Sequence DESC;" : "m.Sequence;"), new { Consumer = consumer }, cancellationToken: ct));
+""" + (newest ? " m.Sequence DESC;" : " m.Sequence;"), new { Consumer = consumer }, cancellationToken: ct));
         if (row is null) return null;
         if (row.ContentJson is null || DelphiLiveSnapshotCodec.Hash(row.ContentJson) != row.ContextHash) throw new InvalidDataException("Shared market context is missing or its checksum failed.");
         var context = DelphiLiveLedgerJson.Deserialize<DelphiLiveSessionContext>(row.ContentJson);
