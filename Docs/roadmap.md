@@ -8,12 +8,12 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
-**October 30 immediate finding, 10:03 Toronto:** diagnose the persistent broker bid-read failure
-for a managed Real holding and verify restored bid-based protection before claiming automatic
-selling readiness. Current observations and limitations are in
+**October 30 unresolved finding, now on operator hold:** the persistent broker bid-read failure
+for a managed Real holding still requires restored bid-based protection before claiming automatic
+selling readiness. The operator has deferred this investigation; current observations and limitations are in
 [project status](project-status.md#october-30--held-position-bid-protection-gap-verified-1003-toronto).
 This is an operational protection gap, separate from the deferred generic-error logging improvement.
-Keep hosts running during diagnosis; any necessary repair must address the actual failed check.
+Keep hosts running and leave this investigation on hold; no repair or restored protection is claimed.
 
 **October 30 operating constraint and weekend work:** keep the engine and collector running and
 defer nonessential code/runtime changes. Bring repairs forward only for an actual engine failure,
@@ -22,6 +22,16 @@ transient error is not a reason to restart or weaken checks. Plan execution-erro
 for **October 31–November 1**, with safe diagnostics, unchanged retry/trading behavior and focused
 offline validation. [GitHub issue #23](https://github.com/JosephMawer/TraderVI/issues/23) owns the
 work item and acceptance criteria. No implementation or deployment has been performed for it.
+
+**October 31–November 1 mapping work:**
+[GitHub issue #24](https://github.com/JosephMawer/TraderVI/issues/24) owns centralizing verified
+symbol resolution and testing actual service wiring across purchase/tracked holdings, collection,
+Paper inputs, research/desktop observation, valuation and quote/sell-protection consumers.
+Preserve ADR-0088 proof and ownership boundaries; use offline integration fixtures, including
+new managed holdings without aliases and missing/conflicting identity evidence. This addresses
+the confirmed Paper inputs dependency gap; it does not claim to fix the separate bid-quote issue.
+Issue #20 retains prospective native new-holding acceptance. Development is planned, not implemented
+or installed; the engine and collector remain undisturbed and the bid-quote investigation remains on hold.
 
 **October 28 afternoon priority:** monitor the restored, approved five-minute Real runtime and qualify
 the installed collector's evidence through today's close. Finish source/capacity/venue and native
