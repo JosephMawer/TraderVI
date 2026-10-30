@@ -1,5 +1,28 @@
 # TraderVI Project Status
 
+## October 30 — Paper inputs cause confirmed without restart, 10:18–10:20 Toronto
+
+A bounded 35-second exception-only EventPipe observation of engine 44188 captures the actual
+unresolved-holding-symbol exception, including an event at 10:18:40.578 matching the Paper inputs
+failure at 10:18:40.581. No process suspension, dump, broker request or database mutation is used.
+The diagnostic observer builds offline from cached dependencies with zero warnings/errors.
+Hash-verified read-only SQL confirms an active tracked Real reference using a broker-suffixed name,
+the unsuffixed canonical stock, no explicit Broker alias, and no matching Shadow reference.
+
+The source cause is the `IndependentPaperService` construction of `DelphiLiveHoldingSource` without
+`EngineRealObservationStore`. That holding source still includes tracked Real `ActivePosition` rows,
+but cannot load their verified managed-purchase correspondence when its Real observations are empty.
+`DelphiLiveHoldingSymbols.Resolve` therefore rejects the unresolved name. `IndependentMarketService`
+supplies the Real store, explaining why shared collection can progress. Repair should preserve exact
+position/security correspondence and original ledgers; arbitrary suffix stripping is not justified.
+The analogous research/desktop construction deserves review when implementing the fix.
+
+The 10:05 and 10:10 paper cycles ultimately record NotActionableLate, not Applied; 10:15 remains
+unapplied in the 10:20 read. A zero failure count between attempts can reflect a skipped busy call,
+not recovered processing. Engine 44188 and collector 15516 remain responsive with unchanged start
+times. No production source, alias, control or runtime changes. LSPD investigation/repair remains
+on operator hold. Private trace, query receipts and diagnostic source: `artifacts/engine-attention-20261030/`.
+
 ## October 30 — engine attention from Paper inputs, 10:09–10:11 Toronto
 
 Operator requests read-only investigation of the engine attention header and explicitly leaves
