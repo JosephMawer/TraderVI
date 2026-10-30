@@ -910,6 +910,32 @@ mechanism proving those conditions remain open. Test storage growth and restart 
 histories and make cleanup failures visible. This accepts the design direction, not a retention
 period, schema, implementation or deletion operation.
 
+**Sequential review — item 6 explicitly agreed, uptime and protection emphasized:** Ordinary restart,
+including after power loss, automatically loads and validates the last current checkpoint/receipts,
+reconciles current broker facts and original unfinished requests, and resumes eligible activity under
+existing authority. An unclean shutdown alone must not require a lifetime audit or manual clearance.
+Minimize recovery delay and unnecessary engine restarts; continuity and rapid return to useful operation
+are primary acceptance concerns. Exact latency budgets remain to be agreed and measured; this is not
+a guarantee of immediate readiness for damaged state or unavailable external dependencies.
+
+The operator explicitly rejects broad holds for unrelated uncertainty: unconfirmed buy facts or buy
+permissions must not prevent independently supported threshold-triggered sells. An uncertain buy must
+prevent a duplicate/replacement buy, rather than automatically disabling the account. Holds should be
+exceptional and limited to the actions that depend on the unresolved fact or restriction. The discussed
+categories are temporary broker read failure, expired login, unknown order outcome, unusable/old current
+state, and an existing action-specific restriction or expired authority. Automatic recovery must not
+silently erase a deliberate stop or renew permission. Precise action scope remains for items 7 and 8.
+Necessary sell-specific boundaries to make explicit in that review: confirmed sellable quantity,
+usable protection instructions and sell authority, fresh trigger evidence, and no overlapping uncertain
+sell. Continuing protection does not mean guessing those facts or submitting without broker access.
+
+Every hold must expose the specific cause, affected account/instrument/request/actions, what can still
+continue, the evidence needed to clear it, last check/retry outcome, and the next automatic or operator
+step. These diagnostics must support prompt operator/AI investigation. Automatically retry and clear
+transient conditions when their own checks succeed; retain visible exceptions that require sign-in,
+repair or a decision. Exact retry/escalation rules and the diagnostic presentation remain for design
+review. No implementation, restart, hold clearance, permission change or live operation is authorized.
+
 **Requested review at the end of the list:** Provide a simple overall before/after explanation of
 how the agreed changes improve the system, separating expected benefits from measured results and
 identifying the measurements still needed. Brief per-item benefits may support that final comparison.
@@ -939,7 +965,8 @@ supported recovery purpose, not a demonstrated reason for routine full-history s
 | Status | Record |
 |---|---|
 | Accepted existing policy | ADR-0103 separates current trading checks from broad archive auditing, accepts delayed discovery of unrelated old corruption, and requires independent trustworthy protection. Existing financial rules and operational constraints remain. |
-| Recommended, awaiting acceptance | Compact transaction-maintained Real checkpoint; write-ahead local/SQL commit protocol; original-intent broker reconciliation; bounded automatic ordinary recovery; dependency-scoped capabilities; no lifetime scan merely for dirty shutdown. |
+| Accepted design direction, implementation review required | Sequential items 1–6 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, and narrowly scoped exceptional holds with explicit diagnostics. Exact mechanisms, latency/retention limits and sell-specific boundaries remain subject to review. |
+| Recommended technical detail, awaiting acceptance | Write-ahead local/SQL commit protocol, exact schema and dependency tracking, restore guarantees and detailed action eligibility rules. Earlier sketches do not constitute approved implementation. |
 | Provisional target | 10-second p95 / 30-second p99 and 30-second blocker deadline; bounded tail/resource/scaling budgets above. Needs measurement on representative active state and agreement. |
 | Open consequential choice | Is the explicit ordinary-crash/SQL-only-restore guarantee sufficient, with declared whole-machine restore requiring requalification, or is independent protection against silent joint rollback required? Recommend the former first, stating its limitation. |
 | Open engineering evidence | Broker since-watermark lookup/coverage, complete writer inventory, actual current-state size, SQL/compatibility/transition profile, file-flush crash guarantees, isolated restore identity behavior and capacity under contention. |
