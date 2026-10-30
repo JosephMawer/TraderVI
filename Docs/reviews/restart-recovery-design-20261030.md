@@ -16,6 +16,8 @@ marked needs discussion and deferred. Prior detailed restore/repair proposals be
 discussion material, not prerequisites for the current ordinary-restart/database-load increment.
 Preserve existing exceptional-state handling; do not claim new restore guarantees or disable known
 corruption safeguards. Items 1–8 and 10–11 record accepted design direction; implementation still requires review.
+Item 11's SQL cleanup implementation and broader database cleanup inventory are separately owned by
+[#26](https://github.com/JosephMawer/TraderVI/issues/26), not prerequisites for this restart increment.
 
 The present scan exists because the application treats an unclean or mismatched continuity witness
 as loss of trust in the whole saved history. A fresh Recovery plan then deliberately starts from the
@@ -1037,6 +1039,16 @@ Verify the installed SQL scheduling capability before choosing the concrete job 
 silently substitute an application cleanup task. Existing historical-data cleanup remains a separate
 reviewed transition step. This is a retention/ownership design decision, not permission to install
 or execute a job, deploy schema changes or delete data now.
+
+**Item 11 subsequent scope amendment — SQL cleanup is a separate task:** At the operator's explicit
+request, [#26](https://github.com/JosephMawer/TraderVI/issues/26) owns investigation of cleanup candidates
+across the database and the choice of one coordinated SQL job or multiple jobs. It coordinates with
+#16's retention-policy ownership. This implementation/inventory is outside #19's ordinary-restart
+increment and must not delay that work. The current-plus-previous checkpoint target and SQL ownership
+remain agreed. Until maintenance is actually installed, do not claim that excess old rows are being
+purged or the physical row count is capped at two; disclose expected accumulation and the transition
+gap during implementation review. Current work must still avoid growing current payloads, lifetime
+reads and unnecessary writes. No independent agent or SQL job is launched by this issue capture.
 
 **Requested review at the end of the list:** Provide a simple overall before/after explanation of
 how the agreed changes improve the system, separating expected benefits from measured results and

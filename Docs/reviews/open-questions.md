@@ -26,6 +26,11 @@ profiling. Existing backup/restore qualification retains its separate #12/#14 ow
 owns the work; the [strategy checklist](../strategy-alignment-implementation-checklist.md) owns
 implementation/acceptance state. Existing recovery monitoring and LSPD hold remain unchanged.
 
+SQL cleanup is separately scoped in [#26](https://github.com/JosephMawer/TraderVI/issues/26), coordinating
+with #16's retention policy. Investigate other database cleanup candidates and one-job-versus-many
+there; this is not a prerequisite for the restart increment. Current plus previous checkpoint and
+SQL-owned cleanup are agreed directions; schedules, candidate sets and implementation remain open.
+
 ### Indicator history recovery and opening-entry alternative — October 27, 2026
 
 Accepted direction: validated stored history and separately identified backfill for current indicators,

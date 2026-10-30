@@ -141,6 +141,10 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.
   Preserve existing exceptional-state handling and separate #12/#14 backup/restore qualification;
   do not interpret the deferral as tested restore behavior or authority to bypass safeguards.
+- SQL cleanup implementation and broader database cleanup inventory are separately owned by
+  [#26](https://github.com/JosephMawer/TraderVI/issues/26), coordinating with #16; they are not part of
+  this restart increment. Retain the current-plus-previous checkpoint target and disclose temporary
+  accumulation until maintenance is installed; do not claim an active purge or physical row-count cap.
 
 - [x] Accept independence, immediate versus historical verification, nightly/weekly scoped audit policy,
   dashboard-close continuation and explicit separate stop. Investigate original workload/storage.

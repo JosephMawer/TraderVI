@@ -26,6 +26,9 @@ are separate from completing this investigation.
 is deferred for discussion in [#25](https://github.com/JosephMawer/TraderVI/issues/25). It is not a
 prerequisite for the current fast ordinary-restart/database-load increment. Preserve existing
 exceptional-state handling; accepted items 1–8 and concrete implementation review remain in the draft.
+The subsequent item 11 amendment also separates SQL cleanup into
+[#26](https://github.com/JosephMawer/TraderVI/issues/26), covering other database cleanup candidates and
+one job versus multiple jobs. That work coordinates with #16 and does not block the restart increment.
 
 **October 30 deferred sizing investigation:** retain the 10:32 Real `InvalidOrderQuantity`
 decision for a later read-only check: determine whether quantity below one share follows intended
