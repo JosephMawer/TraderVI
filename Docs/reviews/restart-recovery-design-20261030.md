@@ -15,7 +15,7 @@ damage/old-backup/whole-machine recovery design to [#25](https://github.com/Jose
 marked needs discussion and deferred. Prior detailed restore/repair proposals below are retained as
 discussion material, not prerequisites for the current ordinary-restart/database-load increment.
 Preserve existing exceptional-state handling; do not claim new restore guarantees or disable known
-corruption safeguards. Items 1–8 and 10–12 record accepted design direction; implementation still requires review.
+corruption safeguards. Items 1–8 and 10–13 record accepted design direction; implementation still requires review.
 Item 11's SQL cleanup implementation and broader database cleanup inventory are separately owned by
 [#26](https://github.com/JosephMawer/TraderVI/issues/26), not prerequisites for this restart increment.
 
@@ -1061,6 +1061,23 @@ coordinating policy with #16; this is not new inventory work on the restart crit
 increment must remove accumulated-history dependencies from ordinary operation. No concrete historical
 data set is declared unused or authorized for deletion by this agreement.
 
+**Sequential review — item 13 explicitly agreed:** Keep current-state checks and broker reconciliation
+automatic. Run historical integrity audits only for a specific justified purpose, not as recurring
+lifetime scans or ordinary-restart prerequisites. Preserve targeted diagnostic verification for an
+actual investigation; damage discovered in a current dependency still affects that dependency's
+eligible actions. This accepts delayed discovery of problems in unused older records. The reviewed
+evidence shows historical representation/compatibility defects, not an established prevented trade
+loss. Do not claim that the audits have no value, or that their financial benefit has been demonstrated.
+
+Source clarification for the operator's nightly question: IndependentAuditService schedules NewHistory
+after a closed trading session and Archive when no pass boundary is within seven days, outside trading
+hours except recovery. These are the historical integrity schedules affected by this new direction.
+The nightly pipeline's separate DataAudit stage checks local market-data quality (bars, symbol/sector
+relationships, freshness and related findings); it is not the saved account-history audit. Removing
+that market-data quality stage was not requested or accepted. These are configured/source behaviors,
+not a fresh claim of completed runs. Supersede the affected ADR-0103 audit policy explicitly during
+implementation review; no audit schedule, running pass, incident or nightly pipeline is changed now.
+
 **Requested review at the end of the list:** Provide a simple overall before/after explanation of
 how the agreed changes improve the system, separating expected benefits from measured results and
 identifying the measurements still needed. Brief per-item benefits may support that final comparison.
@@ -1089,7 +1106,7 @@ supported recovery purpose, not a demonstrated reason for routine full-history s
 
 | Status | Record |
 |---|---|
-| Accepted existing policy | ADR-0103 separates current trading checks from broad archive auditing, accepts delayed discovery of unrelated old corruption, and requires independent trustworthy protection. Existing financial rules and operational constraints remain. |
+| Installed policy pending reviewed replacement | ADR-0103 separates current trading checks from broad archive auditing and currently specifies after-session new-history/weekly archive work. Item 13 accepts replacing those routine historical schedules with reason-specific audits; source/installation and explicit supersession remain pending. The separate nightly market-data DataAudit stage remains outside that change. |
 | Accepted design direction, implementation review required | Sequential items 1–8 and 10–12 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, action-specific holds, prompt protective selling without redundant holdings/trigger reconfirmation, and efficient changed-record storage. New tables are permitted when simpler; obsolete-data cleanup is an intended outcome. Retain current plus previous checkpoint per account; a separate SQL job task owns cleanup. Retained history needs a demonstrated consumer/purpose. Exact mechanisms, other retention limits, cleanup sets and execution-contract changes remain subject to review. |
 | Recommended technical detail, awaiting acceptance | Write-ahead local/SQL commit protocol, exact schema and dependency tracking, restore guarantees and detailed action eligibility rules. Earlier sketches do not constitute approved implementation. |
 | Provisional target | 10-second p95 / 30-second p99 and 30-second blocker deadline; bounded tail/resource/scaling budgets above. Needs measurement on representative active state and agreement. |
