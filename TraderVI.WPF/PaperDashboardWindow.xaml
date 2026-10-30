@@ -138,17 +138,22 @@
         <Grid>
           <Grid.ColumnDefinitions><ColumnDefinition Width="1.1*"/><ColumnDefinition Width="1.4*"/><ColumnDefinition Width="1.4*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
           <StackPanel Margin="0,0,20,0">
-            <TextBlock Text="Engine" Style="{StaticResource StatLabel}"/>
-            <TextBlock x:Name="EngineOverviewText" Text="Checking…" FontWeight="SemiBold" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+              <TextBlock Text="Engine" Style="{StaticResource StatLabel}" Margin="0,1,10,0"/>
+              <TextBlock Grid.Column="1" x:Name="EngineOverviewText" Text="Checking…" FontWeight="SemiBold" TextWrapping="Wrap"/>
+            </Grid>
             <TextBlock x:Name="EngineCheckedText" Text="No check received" Style="{StaticResource StatLabel}" TextWrapping="Wrap" Margin="0,6,0,0"/>
           </StackPanel>
           <StackPanel Grid.Column="1" Margin="0,0,20,0">
-            <TextBlock Text="Real execution" Style="{StaticResource StatLabel}"/>
-            <views:ExecutionReadinessView x:Name="HeaderExecutionReadiness" Compact="True" Margin="0,4,0,0"/>
+            <views:ExecutionReadinessView x:Name="HeaderExecutionReadiness" Compact="True" Heading="Real execution"/>
           </StackPanel>
           <StackPanel Grid.Column="2" Margin="0,0,20,0">
-            <TextBlock Text="History checks" Style="{StaticResource StatLabel}"/>
-            <TextBlock x:Name="HistoryOverviewText" Text="Awaiting status" FontWeight="SemiBold" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+              <TextBlock Text="History checks" Style="{StaticResource StatLabel}" Margin="0,1,10,0"/>
+              <TextBlock Grid.Column="1" x:Name="HistoryOverviewText" Text="Awaiting status" FontWeight="SemiBold" TextWrapping="Wrap"/>
+            </Grid>
             <TextBlock Text="Details and controls on Engine" Style="{StaticResource StatLabel}" TextWrapping="Wrap" Margin="0,6,0,0"/>
           </StackPanel>
           <Button Grid.Column="3" Content="Open Engine →" Click="OpenEngine_Click" VerticalAlignment="Center"/>
