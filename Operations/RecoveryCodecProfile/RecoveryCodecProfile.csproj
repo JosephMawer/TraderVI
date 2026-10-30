@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Core">
+      <HintPath>$(CoreAssemblyPath)</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Target Name="RequireExplicitAssembly" BeforeTargets="ResolveReferences" Condition="!Exists('$(CoreAssemblyPath)')">
+    <Error Text="Supply CoreAssemblyPath pointing to an existing Core.dll. This tool does not build or launch TraderVI." />
+  </Target>
+</Project>

@@ -17,6 +17,10 @@ not an accepted replacement design or authority to bypass existing guards. Prese
 collector operation and the LSPD hold. The already-authorized recovery/conditional-clearance monitor
 continues independently unless the operator changes that instruction. This reassessment takes priority
 over the previously queued engineering work; coordinate existing GitHub issue #19 rather than duplicate it.
+The [October 30 investigation and draft replacement](reviews/restart-recovery-design-20261030.md)
+now supplies the check/schema inventory, synthetic measurements, bounded recovery proposal and
+validation/cutover plan. The replacement remains proposed; accepted decisions and native qualification
+are separate from completing this investigation.
 
 **October 30 deferred sizing investigation:** retain the 10:32 Real `InvalidOrderQuantity`
 decision for a later read-only check: determine whether quantity below one share follows intended

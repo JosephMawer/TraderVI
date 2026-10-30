@@ -5,6 +5,24 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Bounded ordinary engine recovery — October 30, 2026
+
+The [investigation and proposed contract](restart-recovery-design-20261030.md) recommends compact
+transaction-maintained Real state, a bounded local/SQL operation witness, original-order broker
+reconciliation and scoped capabilities, with historical auditing separate. Accept or revise this
+direction before a superseding ADR or implementation. Proposed 10-second p95 / 30-second p99 and
+30-second blocker deadline need representative capacity evidence and agreement.
+
+The consequential failure-model choice is whether ordinary crashes and SQL-only restore detection,
+plus mandatory requalification after declared whole-machine restore, suffice initially. A local
+witness cannot detect every silent joint rollback of SQL and all local state; stronger assurance
+requires an independent durable witness outside that rollback domain. Recommend the narrower
+explicit guarantee first, without claiming joint rollback detection. Engineering evidence still
+needed: complete writer coverage, bounded broker reconciliation/lookup, crash/restore rehearsal and
+phase-level SQL/transition profiling. [Issue #19](https://github.com/JosephMawer/TraderVI/issues/19)
+owns the work; the [strategy checklist](../strategy-alignment-implementation-checklist.md) owns
+implementation/acceptance state. Existing recovery monitoring and LSPD hold remain unchanged.
+
 ### Indicator history recovery and opening-entry alternative — October 27, 2026
 
 Accepted direction: validated stored history and separately identified backfill for current indicators,

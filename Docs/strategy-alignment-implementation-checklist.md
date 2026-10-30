@@ -127,6 +127,17 @@ SQL writes, pipeline rerun, provider purchase or changed approved source is part
 ADR-0103 source work and validation are consolidated in the [implementation/cutover review](reviews/independent-engine-implementation-20261022.md).
 The overnight target was missed. Completed source work is separate from installed acceptance.
 
+October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/TraderVI/issues/19):
+
+- [x] Investigate current restart/scan/clearance contracts and prepare a
+  [draft replacement](reviews/restart-recovery-design-20261030.md), with schema/JSON examples,
+  synthetic codec measurements, scenarios and proposed acceptance/cutover tests.
+- [ ] Accept or revise the replacement and its failure/latency contract; record the superseding ADR
+  and update #19 before implementation. The draft's alternatives are not all approved requirements.
+- [ ] Complete the accepted protocol's offline and separately authorized native crash/restore,
+  broker-coverage, writer-fencing and history-size acceptance before installation. No new recovery
+  behavior, schema or production setting is implemented or installed by the design investigation.
+
 - [x] Accept independence, immediate versus historical verification, nightly/weekly scoped audit policy,
   dashboard-close continuation and explicit separate stop. Investigate original workload/storage.
 - [x] Extract the independent engine and asynchronous client; one broker/order owner, separate schedules,
