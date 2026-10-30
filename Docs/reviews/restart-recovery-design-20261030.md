@@ -847,6 +847,15 @@ revision carries cumulative history. The proposed critical path must scale with 
 
 ### Subsequent plain-language discussion — October 30
 
+**Sequential review — item 1 explicitly agreed:** Wealthsimple is authoritative for actual orders,
+fills, cash and holdings. TraderVI retains instructions and original unfinished requests; saved broker
+facts are dated observations rather than an independent competing authority. The operator wants to
+revisit unavailable/incomplete/unexpected broker results and suggests retrying requests. Retry policy
+is not agreed: distinguish retrying a read from retransmitting an order whose outcome is unknown,
+and distinguish connection/authentication/response problems from an unexpected real transaction.
+Item 2 (what TraderVI remembers) is next for explanation and agreement. No implementation or deletion
+authority follows from item 1, and the remaining items are not implicitly accepted.
+
 The operator agrees Wealthsimple is authoritative for actual orders/fills/cash/holdings, wants small
 current checkpoints instead of repeated cumulative snapshots, and agrees ordinary restart should
 automatically check current instructions, broker state and unfinished orders. The operator requests
