@@ -3581,3 +3581,22 @@ Bounded query4182F130 receipt200555 independently verifies that result. Every su
 minute returns34/34, so this is a recovered isolated capacity gap, not a persistent outage or proof of
 missed profit. The complete session was not observed cleanly. Private artifacts preserve all original
 timestamps and failures; installation does not backfill coverage. No changes are pushed.
+
+### October 29 after-close build-review restriction — correction
+
+At16:56 Joseph supplies the generic ongoing-build-review prerequisite message. The installed
+`BrokerImplementationReviewWorkflow.RequireSession` rejects an ongoing build review before the
+regular open or at/after close, alongside its account/order/protection checks. `Prepare` and `RequireFresh`
+also require shared publication within two minutes. Therefore review is unavailable after close even
+with an unchanged account and a successfully installed build. The prior user-facing statement that
+review was ready at16:36 was incorrect; restart verification did not exercise this financial review flow.
+Do not relax the session or source-age guards, fabricate fresh inputs or approve on the user's behalf.
+
+Read-only capture `20261029T205628909Z-ddf065814f7a44b591da512c5e14ba5c` returns all components:
+execution is Off after the operator's Stop action, engine1852/dashboard33352/collector15516 unchanged,
+broker connected, zero integrity incidents/consecutive worker failures. Verified native revision5569
+retains8/8reconciled orders and matching saved protection for both holdings. This establishes the
+time restriction as a sufficient rejection cause; it does not execute every current account-review
+check or qualify tomorrow's conditions. Review/approval must occur in a regular session with fresh
+shared inputs, followed by explicit host resume. No restart or financial mutation is performed during
+this diagnosis. The generic error message should not be interpreted as proof of a new integrity hold.

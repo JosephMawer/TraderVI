@@ -8,7 +8,11 @@ Only Core.dll/Core.pdb change;128other runtime files and the saved grant remain 
 Post-restart controls show zero integrity holds/worker failures and the expected changed-build review
 block. Verified saved protection matches both holdings and8/8orders reconcile; a fresh broker read
 reports two holdings and zero pending orders. All three Paper v3 checkpoints still match.
-Joseph must perform the normal updated-build review and resume the reviewed host. Prospective
+At16:56 the operator's review attempt is blocked by the existing regular-session requirement;
+the generic message does not identify the time restriction. The earlier advice that review was ready
+after close was incorrect. Review also requires a shared publication less than two minutes old.
+Trading is now Off after the operator's Stop action; no new integrity hold or worker failure is observed.
+Joseph must review during the next regular session with fresh shared inputs, then resume the host. Prospective
 resolution after a new managed purchase remains unverified; no trade was forced to test it.
 [Installation and monitoring close](reviews/independent-engine-implementation-20261022.md#october-29-permanent-mapping-installation-and-monitoring-close).
 

@@ -19,7 +19,9 @@ The September 22 documentation cleanup preserves the
   [ADR-0088](adr/0088-source-symbol-aliases-for-monitoring.md#october-29-tracked-purchase-observation-extension).
 - [x] Install the reviewed engine package with the authorized normal engine/dashboard restart;
   verify collector continuity, retained files/grant, zero holds/worker failures and saved checkpoints.
-- [ ] Joseph reviews/approves the changed build and resumes the reviewed host through the normal app flow.
+- [ ] Joseph reviews/approves the changed build during a regular trading session with a shared
+  publication less than two minutes old, then resumes the reviewed host through the normal app flow.
+  After-close installation does not make the existing review flow available after hours.
 - [ ] Verify prospective resolution for a newly acquired managed holding without another alias write.
   Synthetic successive-purchase tests and successful restart do not establish this native acceptance.
 
