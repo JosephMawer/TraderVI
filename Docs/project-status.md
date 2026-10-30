@@ -1,5 +1,21 @@
 # TraderVI Project Status
 
+## October 30 — Real recovery running, 13:29 Toronto
+
+The operator authorizes recovery verification and clearing the hold only if it passes, preserving
+trading settings and collector operation. `VerifyRealRecovery` starts run
+`e8ae09ac-8da8-4bec-ab00-662485ac9f44` at 13:26:27 on existing engine 43628. At 13:29:24
+it remains Running, with 520 verified units in the broker-history stage (through revision 6500);
+shared inputs/content follow. The plan's total upper bound is 162,157 units, not a time estimate.
+No clearance has occurred. Collector 38312 remains running and LSPD remains on hold.
+
+Chat heartbeat `complete-authorized-real-recovery` checks this existing pass every five minutes
+and carries the conditional clearance authority for its exact original/pending incidents, using
+the supported Real-scope command and unchanged proof guards. It must retain Paper restrictions,
+report failures or stale proof without bypass, and pause after completion or a blocker requiring
+operator input. Start receipt: `artifacts/recovery-20261030/real-start.json`; bounded progress:
+`artifacts/market-watch-20261029/20261030T172925880Z-6c969912e3324b17b14301583349b266/`.
+
 ## October 30 — authorized host restart, recovery hold remains, 13:24 Toronto
 
 After both background processes were found absent, the operator authorized starting the installed
