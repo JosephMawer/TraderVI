@@ -1,5 +1,17 @@
 # TraderVI Project Status
 
+## October 30 — transient execution-check failure, 09:49–09:50
+
+Read-only native capture confirms the reported generic execution-check block at 09:49:27 with
+a scheduled retry at 09:49:57. At 09:50:06 the host returns to Running with fresh shared inputs
+evaluated and no confirmed entry. Verified 09:50:05 saved diagnostics show no account-risk or quote
+blocks, all eight owned orders reconciled and both retained protections matching; zero unresolved
+integrity incidents. Broker connection remained connected. The host catches the exception without
+retaining its type/cause, so the precise failed check is unverified; zero worker failures do not
+exclude these internally caught execution failures. No restart, repair, permission or financial action.
+Private captures: `artifacts/market-watch-20261029/20261030T134951587Z-7ab6879fa04e49338f773f6f37db918b/`
+and `artifacts/market-watch-20261029/20261030T135016782Z-534fa54faf2942669220dc217c0ace0d/`.
+
 ## October 30 — opening risk wait clears automatically at 09:37
 
 Read-only investigation of the 09:32 Blocked display finds first-five-minute opening evidence
