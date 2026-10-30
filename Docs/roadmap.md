@@ -8,6 +8,16 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
+**October 30 highest-priority design reassessment:** eliminate hour-long historical verification
+from ordinary engine restart readiness. The operator requests a new-session investigation of why
+each check exists, its database/JSON contracts and cost, and a simpler replacement with bounded
+recovery. Challenge full replay after an unclean stop; evaluate durable trusted checkpoints, bounded
+tail replay, current-state/broker reconciliation and separate historical auditing. These are options,
+not an accepted replacement design or authority to bypass existing guards. Preserve trading settings,
+collector operation and the LSPD hold. The already-authorized recovery/conditional-clearance monitor
+continues independently unless the operator changes that instruction. This reassessment takes priority
+over the previously queued engineering work; coordinate existing GitHub issue #19 rather than duplicate it.
+
 **October 30 deferred sizing investigation:** retain the 10:32 Real `InvalidOrderQuantity`
 decision for a later read-only check: determine whether quantity below one share follows intended
 allocation/rounding or is a defect. The operator selected after today's close; the chat follow-up
