@@ -22,12 +22,12 @@ public sealed partial class ManualBuyCoordinator
         var binding=imports.Binding ?? throw new InvalidOperationException("Recover the existing account link.");
         var saved=await executionSessions.ReadAsync(binding.BindingId,ct) ?? throw new InvalidOperationException("Recover the existing assignment."); check();
         _=BrokerManagedSessionComposition.MatchAccount(saved,new[] { account });
-        stage("checking the saved real strategy, direct shared market inputs and current storage for the updated build");
-        var normal=await new TradingPromotionRepository().ReviewExistingBrokerAsync(saved,executionCalendar!,DateTimeOffset.UtcNow,ct); check();
+        stage("checking the exact saved strategy, installed build and current storage");
+        var normal=await new TradingPromotionRepository().ReviewExistingBrokerBuildAsync(saved,executionCalendar!,DateTimeOffset.UtcNow,ct); check();
         var storage=await BrokerManagedSessionRepository.ReadStorageAsync(ct); check();
         var scope=saved.EffectiveReview.NoTransferScope;
         IBrokerRiskEvidenceSource risk = saved.OngoingManagement is { } ongoing
-            ? new BrokerOngoingRiskEvidenceSource(ongoing, executionCalendar!, new BrokerOngoingBoundaryRepository().ReadAsync)
+            ? new BrokerOngoingRiskEvidenceSource(ongoing, executionCalendar!, new BrokerOngoingBoundaryRepository().ReadAsync, preserveRiskHistory: true)
             : new BrokerNoTransferRiskEvidenceSource(scope ?? throw new InvalidOperationException("Recover today's original permission."), executionCalendar!);
         var components=CreateManagedComponents(connection,connection,connection,journal,journal,
             orderGate,account,executionCalendar!,risk);
@@ -52,17 +52,18 @@ public sealed partial class ManualBuyCoordinator
             (saved.OngoingManagement is not null ? $"Ongoing agreement retained with {saved.Account.Positions.Length} holdings and their saved protection. " : $"Original permission still expires {scope!.PurchaseExpiresAt?.ToLocalTime():g}. ") +
             "Gates, risk controls, memory, buying/paused mode and cumulative allowance are unchanged.\n\n" +
             "Real holding protection now uses a fresh Wealthsimple bid matched to the account, security and quantity, with a broker timestamp no more than 60 seconds old. Missing or stale bids do not trigger an exit. Existing stop levels and broker sell checks remain unchanged.\n\n" +
-            "Review these facts, then Approve reviewed build within two minutes. This saves only the explicit build review; no order, baseline reset, risk event or host enable. Enable reviewed host separately afterward.";
+            "Review these facts, then Approve reviewed build within two minutes. This saves only the explicit build review; no order, baseline reset, risk event or host enable. Enable reviewed host separately afterward. " +
+            (saved.OngoingManagement is not null ? "You can review and resume the host after hours. It waits for a regular TSX session and fresh market, account, order and risk checks before trading. This review does not certify tomorrow's data or advance daily risk references." : "");
         return new(proposal,new(new BrokerManagedSessionRepository(executionCalendar!,sharedStorage:true),components.AccountSource,
             HostGrants(),executionCalendar!),summary);
     }
 
     private async Task ApproveBuildReviewAsync(BuildReviewPreparation prepared,CancellationToken ct,Action check,Action<string> stage)
     {
-        stage("rechecking the saved real strategy, direct shared inputs and immutable storage before build approval");
+        stage("rechecking the exact strategy, build and immutable storage before build approval");
         var saved=await executionSessions.ReadAsync(prepared.Proposal.BindingId,ct)
             ?? throw new InvalidOperationException("Recover the existing real-account assignment."); check();
-        var normal=await new TradingPromotionRepository().ReviewExistingBrokerAsync(saved,executionCalendar!,DateTimeOffset.UtcNow,ct); check();
+        var normal=await new TradingPromotionRepository().ReviewExistingBrokerBuildAsync(saved,executionCalendar!,DateTimeOffset.UtcNow,ct); check();
         var storage=await BrokerManagedSessionRepository.ReadStorageAsync(ct); check();
         if (!storage.BaselineInstalled || !storage.ContinuationInstalled || !storage.SessionInstalled || !storage.ImmutableStorageVerified ||
             !normal.Review.Blocks.IsEmpty || normal.Review.Strategy.Fingerprint != prepared.Proposal.Strategy.Fingerprint ||

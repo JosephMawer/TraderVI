@@ -18,6 +18,15 @@ transfers or trades. Unexplained account changes, missing exact valuation eviden
 or material changes require intervention. Interrupted runs still require verified integrity recovery.
 No one-minute successor is installed. [Current installation/qualification status](reviews/independent-engine-implementation-20261022.md#october-27-ongoing-runtime-installation-and-review).
 
+For a changed build on this existing agreement, the October29 after-hours review update is prepared
+(see [current installation state](project-status.md)). Once installed: Stop execution host if enabled,
+confirm the truthful no-outside-changes statement, choose **Review updated build**, inspect the facts,
+then **Approve reviewed build** within two minutes. Separately choose **Resume stopped execution host**.
+These actions may be completed after close, on weekends or before open. Keep the laptop awake and
+the engine/collector running with the broker signed in. The resumed host waits for regular TSX hours;
+fresh account/orders, exact daily risk boundaries, strategy inputs and quote checks can delay buying
+after09:30. Approval does not substitute stale data, queue a purchase or reset a pause/hold.
+
 ## Independent engine — normal mode with trading disabled, October 22
 
 The dated-permission instructions below remain historical/legacy scope; the new explicit ongoing

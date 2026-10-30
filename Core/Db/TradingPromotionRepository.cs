@@ -41,9 +41,18 @@ ORDER BY CreatedUtc DESC,RunId;
     private sealed record PreOpenDailyRow(string AuditState, DateTime MarketDataAsOf, Guid? StrategyVersionId,
         DateTime CreatedUtc, string StrategyConfigJson, string ModelSnapshotJson);
 
+    // Build approval checks the definition now, without claiming a current market publication.
+    public Task<(BrokerStrategyReview Review, DateTimeOffset Updated)> ReviewExistingBrokerBuildAsync(
+        BrokerManagedSession saved, ITsxSessionCalendar calendar, DateTimeOffset now, CancellationToken token = default) =>
+        ReviewExistingBrokerCoreAsync(saved, calendar, now, saved.OngoingManagement is not null, token);
+
     // Renewal reviews the real account's frozen definition, never reopens a paper portfolio's lifetime history.
-    public async Task<(BrokerStrategyReview Review, DateTimeOffset Updated)> ReviewExistingBrokerAsync(
-        BrokerManagedSession saved, ITsxSessionCalendar calendar, DateTimeOffset now, CancellationToken token = default)
+    public Task<(BrokerStrategyReview Review, DateTimeOffset Updated)> ReviewExistingBrokerAsync(
+        BrokerManagedSession saved, ITsxSessionCalendar calendar, DateTimeOffset now, CancellationToken token = default) =>
+        ReviewExistingBrokerCoreAsync(saved, calendar, now, false, token);
+
+    private async Task<(BrokerStrategyReview Review, DateTimeOffset Updated)> ReviewExistingBrokerCoreAsync(
+        BrokerManagedSession saved, ITsxSessionCalendar calendar, DateTimeOffset now, bool definitionOnly, CancellationToken token)
     {
         saved.Strategy.Validate();
         await using var c = await Open(token); using var t = c.BeginTransaction(IsolationLevel.Serializable);
@@ -72,6 +81,12 @@ ORDER BY CreatedUtc DESC,RunId;
         var evidence = saved.SourceSwitch?.SourceReview.Evidence
             ?? throw new InvalidOperationException("Recover the originally reviewed Portfolio rules only evidence.");
         evidence = evidence with { Limitations = evidence.Limitations.Add("Historical source evidence is preserved; this session renewal does not refresh paper performance or wait for paper research.") };
+        if (definitionOnly)
+        {
+            evidence = evidence with { Limitations = evidence.Limitations.Add("Build definition checked now; market readiness is not established. Execution must obtain fresh session inputs and account/risk checks after the open.") };
+            t.Commit();
+            return (new(strategy, evidence, now.UtcDateTime, []), now);
+        }
         var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
         var bounds = calendar.GetSessionBounds(date);
         DateTime? updated = BrokerSessionContinuation.IsPreOpenReview(calendar, now) ? now.UtcDateTime :

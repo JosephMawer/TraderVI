@@ -3600,3 +3600,38 @@ time restriction as a sufficient rejection cause; it does not execute every curr
 check or qualify tomorrow's conditions. Review/approval must occur in a regular session with fresh
 shared inputs, followed by explicit host resume. No restart or financial mutation is performed during
 this diagnosis. The generic error message should not be interpreted as proof of a new integrity hold.
+
+### October 29 after-hours build-review change
+
+Joseph subsequently explicitly requests removal of the review-time restriction, superseding the
+prior diagnosis's instruction to wait for a regular session. ADR-0109's October29 amendment separates
+build acknowledgement from trading readiness for an existing ongoing agreement. This is not a change
+to AGENTS.md or to dated trial authority. A dedicated repository read verifies the exact definition,
+models, policy, current Real head and immutable storage, recording definition-check time explicitly
+without representing it as fresh market data. Prepare/approve retain the two-minute review window.
+
+Fresh broker reconciliation still requires the exact unchanged cash, positions, original/owned full
+orders, no-transfer agreement and saved protection. The build-only risk source preserves risk history
+without boundary reads or new risk events; approved authorization remains required. Existing exact
+risk receipts may be mirrored through the prior bounded synchronization. The pending-risk-session
+block remains on the projection and is permitted only for this review; future risk, other blocks,
+daily/capital holds or changed risk hashes still reject approval. Host enable remains the operator's
+separate action. Production host/session/fresh-data/quote gates are unchanged, and opening prices are
+still required for invested daily continuation. No guarantee of a09:30 trade follows from approval.
+
+Private package and tests: `artifacts/after-hours-build-20261029`. Candidate starts from the installed
+1c299f04 base plus the already installed five-file mapping repair, overlays four Core and two desktop
+files, and preserves the previous risk-source constructor for unchanged engine binaries. Only four
+runtime files (Core and desktop DLL/PDB pairs) are prepared for replacement;126others are retained.
+Current read-only21:44 controls show unchanged engine1852/dashboard33352/collector15516, execution Off,
+zero holds/consecutive worker failures and broker connected. Native revision5569 is still the15:59
+record with8/8reconciled orders and both protections matching; it is not new market-session evidence.
+No installation, financial approval, host enable, order, SQL repair, backfill or push has occurred.
+
+Validation:3,418 Core tests pass with10 SQL integration skips using explicit single-worker xUnit
+configuration;14new cases cover exact close, evening, weekend, pre-open approval/arming, retained
+pending-risk blocks, unavailable opening evidence, account/risk/protection/host/freshness rejection and
+the installed engine constructor signature. The actual desktop-package Core.dll is substituted into
+the isolated candidate test output and passes990 broker tests withtwo SQL skips. Release desktop
+build succeeds with260compiler warnings/zero errors. NuGet audit was disabled, so no dependency
+security assessment is claimed; full SSDT solution build and native after-hours approval are not run.

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Core.Trader.Promotion;
 
-/// <summary>Append-only approval of a changed implementation, retaining the same dated financial permission.</summary>
+/// <summary>Append-only approval of a changed implementation, retaining the same financial permission.</summary>
 public sealed record BrokerImplementationReview(Guid ReviewId, Guid PreviousRevisionId, string PreviousSessionHash,
     string PreviousImplementation, string ImplementationIdentity, DateTimeOffset PreparedAt, DateTimeOffset ApprovedAt, string ReviewedBy)
 {
@@ -97,9 +97,7 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
     {
         if (prior.OngoingManagement is { } ongoing)
         {
-            var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
             if (ongoing.ApprovedAt is null || ongoing.ApprovedAt > now || prior.ActivatedAt is null ||
-                !calendar.IsRegularSession(date) || now < calendar.GetSessionBounds(date).OpenUtc || now >= calendar.GetSessionBounds(date).CloseUtc ||
                 prior.ReviewInvalidated || prior.TrialOrderReviewRequired || prior.Memory.DailyLossHold || prior.Memory.CapitalReviewRequired ||
                 prior.Account.Risk.OngoingAuthorization != ongoing.RiskAuthorization ||
                 prior.Orders.Any(o => !o.Reconciled || o.Latest is null || o.Latest.Status is not ("FILLED" or "POSTED") || o.Latest.FilledQuantity != o.Quantity) ||
@@ -132,7 +130,8 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
                 current.SnapshotAt > now || now - current.SnapshotAt > TimeSpan.FromSeconds(30) ||
                 current.CheckedAt < current.SnapshotAt || current.CheckedAt > now || !current.HoldingsMatch ||
                 account.Account.ReportedUtc > now.UtcDateTime || now.UtcDateTime - account.Account.ReportedUtc > TimeSpan.FromSeconds(30) ||
-                account.Account.TradingDate != date || account.Risk.TradingDate != date || !account.NewRiskBlocks.IsEmpty ||
+                account.Account.TradingDate != date || account.Risk.TradingDate > date || account.Risk.Through > current.SnapshotAt ||
+                account.NewRiskBlocks.Any(b => b != BrokerAccountProjector.RiskSessionContinuationRequired) ||
                 account.Risk.DailyLossHold || account.Risk.CapitalReviewRequired || account.Account.DailyLossHold || account.Account.CapitalReviewRequired ||
                 current.Cash != original.Cash || current.Orders.Count != original.Orders.Count ||
                 original.Orders.Any(o => !current.Orders.Any(n => n.ExternalId == o.ExternalId && n.IsSameOrPostedSuccessor(o))) ||

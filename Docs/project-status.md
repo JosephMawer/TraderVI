@@ -1,5 +1,19 @@
 # TraderVI Project Status
 
+## October 29 — after-hours ongoing build review prepared
+
+Joseph requests build approval after hours, with execution waiting for fresh data at market open.
+The restriction was application code inherited from dated trial reviews, not AGENTS.md.
+The ongoing build-review path now checks the exact immutable strategy/models/build/storage and fresh
+unchanged broker book without requiring a live market publication or advancing risk boundaries.
+Pending daily risk continuation remains recorded; all execution-time session, source, risk and order
+checks remain. Legacy dated reviews retain their limits. Source and isolated desktop candidate are
+implemented. All3,418 Core tests pass (10 SQL skips); the exact packaged Core binary passes990 broker
+tests (two SQL skips), and the isolated desktop Release build succeeds. Installation and Joseph's
+explicit review/host resume remain pending. No runtime files, financial permissions or orders changed.
+[Contract](adr/0109-explicit-ongoing-delphi-live-management.md#october-29-amendment-ongoing-build-review-outside-trading-hours)
+and [validation](reviews/independent-engine-implementation-20261022.md#october-29-after-hours-build-review-change).
+
 ## October 29 — permanent mapping repair installed after close
 
 With explicit approval, the prepared822625b7 repair installs at16:35:42 Toronto. Engine1852 and
@@ -12,7 +26,8 @@ At16:56 the operator's review attempt is blocked by the existing regular-session
 the generic message does not identify the time restriction. The earlier advice that review was ready
 after close was incorrect. Review also requires a shared publication less than two minutes old.
 Trading is now Off after the operator's Stop action; no new integrity hold or worker failure is observed.
-Joseph must review during the next regular session with fresh shared inputs, then resume the host. Prospective
+That installed build still requires regular-session review; the subsequently requested after-hours
+change above supersedes this restriction once installed. Prospective
 resolution after a new managed purchase remains unverified; no trade was forced to test it.
 [Installation and monitoring close](reviews/independent-engine-implementation-20261022.md#october-29-permanent-mapping-installation-and-monitoring-close).
 

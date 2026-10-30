@@ -66,6 +66,35 @@ receipts fail closed. This step grants no build approval or execution permission
 integrity finding. The subsequent build review still requires identical risk state; it cannot itself
 advance a day or reset a reference. No new schema or risk-journal event is introduced by synchronization.
 
+## October 29 amendment: ongoing build review outside trading hours
+
+Joseph explicitly requests after-hours build approval and host arming so the next morning does not
+depend on another operator review. This supersedes the October27 amendment's fresh shared-publication
+requirement and the implementation's regular-session restriction **only for build review of an
+already approved, unchanged ongoing agreement**. Legacy dated reviews retain their session/expiry rules.
+
+Review the immutable policy, exact active daily model/configuration binding, current saved Real head,
+storage/integrity and changed implementation now. That definition-check time is not a market-data
+timestamp; historical performance/source evidence keeps its provenance. Both the definition check and
+operator proposal still expire after two minutes. Fresh broker reconciliation (30seconds), the exact
+unchanged cash/positions/orders, original no-transfer agreement, full reconciled fills and saved holding
+protection remain required. The host must be stopped. No other account/risk/integrity block is relaxed.
+
+Build-review account synchronization reconciles the approved book without creating closing/opening
+risk events or requesting missing boundary prices. Existing saved risk receipts may still be mirrored
+through the October28 proof-based synchronization. The final build approval requires identical risk
+history and preserves all references, holds, financial authority, allowance, protection and pause modes.
+The specific pending-next-risk-session block may remain recorded on the account projection; it is not
+cleared or treated as trading readiness. Future-dated risk or any other risk block fails review.
+
+Approval only appends the build acknowledgement. Joseph separately resumes the exact reviewed host;
+outside regular TSX hours it waits without calling the trading cycle. At open, ordinary fresh account,
+exact close/open risk continuation, current strategy/data/quotes and order gates remain mandatory.
+Missing opening evidence delays buying; after-hours approval cannot fabricate evidence, queue a buy,
+guarantee a trade at09:30 or qualify unresolved provider gaps. Initial ongoing approval, source/strategy
+changes, daily loss/capital holds and dated trials are outside this amendment. No AGENTS.md change is
+needed: the removed timing prerequisite belongs to application behavior, not agent authorization.
+
 ## Accepted execution-price policy
 
 Joseph approves a fresh broker ask as the fixed reference, at most 0.25% upward movement before

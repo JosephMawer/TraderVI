@@ -12,8 +12,13 @@ namespace Core.Trader.Promotion;
 /// <summary>Operator-scoped no-transfer reconciliation, not a claim of complete native cash-flow coverage.</summary>
 public sealed class BrokerOngoingRiskEvidenceSource(BrokerOngoingManagement agreement, ITsxSessionCalendar calendar,
     Func<ImmutableArray<string>, DateTime, CancellationToken, Task<ImmutableArray<BrokerRiskHoldingBar>>> readBars,
-    TimeProvider? time = null, bool reviewOnly = false) : IBrokerRiskEvidenceSource
+    TimeProvider? time = null, bool reviewOnly = false, bool preserveRiskHistory = false) : IBrokerRiskEvidenceSource
 {
+    // Preserve the constructor called by already-installed engine hosts when only Core/WPF are replaced.
+    public BrokerOngoingRiskEvidenceSource(BrokerOngoingManagement agreement, ITsxSessionCalendar calendar,
+        Func<ImmutableArray<string>, DateTime, CancellationToken, Task<ImmutableArray<BrokerRiskHoldingBar>>> readBars,
+        TimeProvider? time, bool reviewOnly) : this(agreement, calendar, readBars, time, reviewOnly, false) { }
+
     private readonly TimeProvider clock = time ?? TimeProvider.System;
     public Task<BrokerRiskEvidence> ReadAsync(BrokerImportReceipt import, BrokerAccountRiskState state, CancellationToken ct) =>
         ReadAsync(import, state, [], ct);
@@ -35,7 +40,9 @@ public sealed class BrokerOngoingRiskEvidenceSource(BrokerOngoingManagement agre
         ImmutableArray<BrokerOrderFact> added;
         try { added = Reconcile(agreement, current, owned); }
         catch (InvalidOperationException) { return Block("Cash, holdings or orders differ from the no-transfer agreement. Stop new buys and review outside activity or unresolved orders."); }
-        if (reviewOnly) return new([], new(state.BindingId, state.Through, current.SnapshotAt, now,
+        // A build review reconciles the approved book but must not manufacture tomorrow's boundaries.
+        // Unlike initial agreement review, this path still requires the existing approved authorization above.
+        if (reviewOnly || preserveRiskHistory) return new([], new(state.BindingId, state.Through, current.SnapshotAt, now,
             BrokerOngoingManagement.Contract, BrokerAccountImport.FinancialFingerprint(current)), []);
 
         var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
