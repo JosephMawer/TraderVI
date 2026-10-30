@@ -8,8 +8,14 @@ remains below the details. Selection, account bindings and trading controls are 
 Release WPF build passes with 260 existing compiler warnings and no errors. Six synthetic offline
 renders verify wide/narrow layouts, empty holdings, row-to-detail selection, sell-target and period
 bindings, with no binding errors. Dependency audit was disabled for the cached preview restore;
-no fresh dependency-security or full-solution qualification is claimed. Installation pending.
-Private validation: `artifacts/holdings-order-20261030/`.
+no fresh dependency-security or full-solution qualification is claimed.
+
+Source `35f8b3a9` is installed at 09:24 Toronto under the existing dashboard-only authority.
+Normal dashboard restart replaces 48956 with responsive 17576; engine 31152 and collector 15516
+retain their original start times. Only WPF DLL/PDB are replaced; 128 other runtime files, Core,
+calendar and grant hashes remain unchanged. Offline renders establish the layout; native visual
+confirmation remains pending. No direct database, trading-control or background-host operation.
+Private validation, backup and installation receipts: `artifacts/holdings-order-20261030/`.
 
 ## October 30 — pre-open read-only readiness, 09:07–09:12 Toronto
 
