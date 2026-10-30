@@ -32,6 +32,17 @@ financial control or direct database operation is performed; dashboard startup r
 refresh behaviour. Private backup, hash/process receipts and verification limits are under
 `artifacts/dashboard-engine-20261030/installation/`.
 
+Joseph's subsequent screenshot confirms the installed header but exposes the missing draft colours.
+Correction `55866f0e` adds explicit green Running, amber waits/incomplete or overdue history, red
+blockers/incidents and neutral unknown/stale status; readiness and command semantics are unchanged.
+Release WPF build, the same 21 focused tests and 12 offline renders pass, including actual readiness
+foreground checks against the installed Core. Existing compiler warnings remain. Under the existing
+dashboard-only installation authority, DLL/PDB replacement and normal restart at 01:28 Toronto
+replace dashboard 47812 with 38092. The 01:28:31 hash/process verification retains engine 31152,
+collector 15516, their start times, all 128 other runtime files, calendar and grant unchanged.
+The corrected colours are visually verified offline; live colour review remains pending given the
+native capture limitation above. Receipts/backup: `artifacts/dashboard-engine-color-20261030/installation/`.
+
 ## October 30 — correction of the four post-push test failures
 
 Joseph requests diagnosis and correction without interrupting the engine or collector. The patch
