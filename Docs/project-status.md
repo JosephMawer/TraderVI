@@ -1,5 +1,26 @@
 # TraderVI Project Status
 
+## October 30 — pre-open read-only readiness, 09:07–09:12 Toronto
+
+Engine, collector and dashboard remain responsive with unchanged process owners; all 14 workers
+have zero consecutive failures. Enabled execution reports waiting for regular hours, next check
+09:30. Broker reads succeed with zero pending orders. No unresolved integrity incidents remain;
+the archive audit completed at 02:47 against the October 29 23:44 boundary. Retained protection
+matches both holdings and all eight owned orders are reconciled, but that saved revision is from
+October 29 21:53 and does not establish today's opening-session checks.
+
+Nightly preparation for October 30 completed with Attention: two stale-symbol errors and eight
+sector-mapping warnings; Delphi and Athena succeeded. Hash-verified SQL confirms one Valid official
+preparation using October 29 data and current benchmarks. Neither stale symbol appears among its
+209 candidates; six candidates have mapping warnings and use the existing benchmark fallback.
+Collector is correctly OutsideSession with two holdings and no candidate subscriptions yet.
+Today's source adoption, candidate subscriptions, collector lease, fresh inputs/quotes and account/risk
+checks remain pending at open. Yesterday's shared cycle reaches 16:00; collector evidence includes
+8,000 observations, 6,110 timely first arrivals and zero conflicts, not complete timely coverage.
+Verdict: set to begin opening checks, not unconditional trading readiness. No restart, repair,
+permission change, order or database write. Sanitized report and private SQL receipt:
+`artifacts/morning-readiness/2026-10-30/preopen-0907/`.
+
 ## October 30 — account overview compact row installed
 
 Joseph requests account value and available cash beside performance. Layout-only `347c54a0`
