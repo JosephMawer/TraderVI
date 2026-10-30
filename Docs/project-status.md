@@ -1,5 +1,23 @@
 # TraderVI Project Status
 
+## October 29 — readiness presentation and morning report
+
+Joseph requests clearer normal-wait versus fault states and a chat-owned HTML report at09:15
+Toronto every weekday. The dashboard-only projection distinguishes Waiting for market, Waiting
+for fresh data, Ready — no qualifying signal, and Blocked with its existing reason. Stopped,
+paused, unknown and stale status remain explicit; Running alone never means ready. No execution
+contract or financial build identity changes. Sixteen focused tests pass; the isolated candidate
+Release build succeeds with existing compiler warnings. Offline rendering against the installed
+Core verifies the display; source changes are not yet installed at this checkpoint.
+
+The chat automation `tradervi-morning-readiness-report` is active at09:15 on weekdays. It checks
+readiness using the approved read-only paths, writes a dated private HTML report, and distinguishes
+current faults from opening-data checks still pending. Laptop/Codex availability is required;
+first scheduled delivery and next-session readiness remain unverified. The offline HTML renderer
+passes escaping/evidence/state checks. Browser policy prevented automated local HTML preview;
+the example document is available locally, not evidence of runtime health.
+[Procedure and output contract](../Operations/MorningReadiness/README.md).
+
 ## October 29 — after-hours ongoing build review installed
 
 Joseph requests build approval after hours, with execution waiting for fresh data at market open.

@@ -8,6 +8,7 @@ namespace TraderVI.WPF.Views;
 /// <summary>Presentation only. Construction performs no account, journal, SQL or qualification read.</summary>
 public sealed class BrokerExecutionSetupPanel : UserControl
 {
+    public ExecutionReadinessView Readiness { get; } = new() { Margin = new Thickness(0, 0, 0, 14) };
     public TextBlock Summary { get; } = new() { TextWrapping = TextWrapping.Wrap, FontSize = 14 };
     public Button Refresh { get; } = new() { Content = "Refresh readiness" };
     public Button LastDecision { get; } = new() { Content = "Last saved decision" };
@@ -47,6 +48,7 @@ public sealed class BrokerExecutionSetupPanel : UserControl
         header.Children.Add(new TextBlock { Text = "Delphi Live execution", FontSize = 26 });
         header.Children.Add(new TextBlock { Text = "Review the selected strategy and actual account. Explicit ongoing approval starts its checked management until you pause it.",
             TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 16) });
+        header.Children.Add(Readiness);
         header.Children.Add(NoOutsideChanges);
         layout.Children.Add(header);
         var scroll = new ScrollViewer { Content = Summary, VerticalScrollBarVisibility = ScrollBarVisibility.Auto,

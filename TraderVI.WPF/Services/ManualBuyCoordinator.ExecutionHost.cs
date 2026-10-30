@@ -151,6 +151,9 @@ public sealed partial class ManualBuyCoordinator
         var dialog = executionWindow = new Window { Owner = owner, Title = "Delphi Live execution setup",
             Width = 800, Height = 800, MinWidth = 620, MinHeight = 650, WindowStartupLocation = WindowStartupLocation.CenterOwner };
         var panel = new BrokerExecutionSetupPanel(); dialog.Content = panel;
+        panel.Readiness.SetStatus(ExecutionStatus);
+        EventHandler updateReadiness = (_, _) => panel.Readiness.SetStatus(ExecutionStatus);
+        ExecutionHostChanged += updateReadiness;
         var summary = panel.Summary; var refresh = panel.Refresh; var first = panel.PrepareFirst;
         var checkpoint = panel.CaptureNativeCheckpoint; var lastDecision = panel.LastDecision;
         var previewCarry = panel.PreviewCarry; var saveCarry = panel.SaveCarry; var noOutside = panel.NoOutsideChanges;
@@ -796,7 +799,7 @@ public sealed partial class ManualBuyCoordinator
             summary.Text = ExecutionStatus.Message;
         }, waitForPaperCycles: false);
         dialog.Closing += (_, e) => { if (busy && !waitingForPaper) e.Cancel = true; };
-        dialog.Closed += (_, _) => { closed = true; ReleaseReviewAdmission(); lifetime.Cancel(); executionWindow = null; completion.TrySetResult(); };
+        dialog.Closed += (_, _) => { ExecutionHostChanged -= updateReadiness; closed = true; ReleaseReviewAdmission(); lifetime.Cancel(); executionWindow = null; completion.TrySetResult(); };
         dialog.Show(); await Run(Refresh, waitForPaperCycles: false); await completion.Task;
     }
 }

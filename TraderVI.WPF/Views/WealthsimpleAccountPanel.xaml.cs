@@ -62,8 +62,7 @@ public partial class WealthsimpleAccountPanel : UserControl
     public void SetStrategyChoiceError() => StrategyPickerStatus.Text = "Choices could not be loaded. Reopen the dropdown to retry; your current strategy is unchanged.";
     public void SetExecutionHostStatus(BrokerExecutionHostStatus status)
     {
-        ExecutionHostLabel.Text = status.State == "Off" ? "Automatic trading off" : "Execution host: " + status.State.ToLowerInvariant();
-        ExecutionHostLabel.ToolTip = status.Message;
+        ExecutionReadinessCard.SetStatus(status);
     }
     public void ResetStrategySelection()
     {

@@ -1,5 +1,16 @@
 # Running TraderVI
 
+## Morning readiness and execution display
+
+The chat-owned morning report runs at09:15 Toronto on weekdays and produces a dated private HTML
+document. Keep the laptop awake and Codex running. It reports faults and unavailable evidence,
+with checks requiring fresh opening data shown separately; it never repairs or enables trading.
+See [the read-only procedure and renderer](../Operations/MorningReadiness/README.md).
+The dashboard readiness card interprets existing execution status only: market wait, fresh-data
+wait, last fresh evaluation with no qualifying signal, or a blocker and its reason. Unknown/stale
+status is not shown as ready. The engine's checks and explicit operator controls remain authoritative.
+See current status for source, installation and native verification boundaries.
+
 ## Explicit ongoing Delphi Live — installed October 27
 
 ADR-0109 is installed in the standard Release runtime. Financial activation remains an explicit app
