@@ -37,8 +37,11 @@ public sealed class CollectorIntradayRelayTests
 
     [Theory]
     [InlineData(true)][InlineData(false)]
-    public async Task SourceFailureOrClosedSessionCannotBecomeAnAutomaticRetry(bool sourceFailure)
+    // A console collector has no synchronization context. Exercise the real pipe in
+    // that context, rather than timing xUnit's queue of unrelated parallel tests.
+    public Task SourceFailureOrClosedSessionCannotBecomeAnAutomaticRetry(bool sourceFailure) => Task.Run(async () =>
     {
+        Assert.Null(SynchronizationContext.Current);
         string name = "TraderVI_Test_" + Guid.NewGuid().ToString("N");
         using var stop = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         var provider = new Provider { Fail = true };
@@ -49,7 +52,7 @@ public sealed class CollectorIntradayRelayTests
             Assert.Equal(sourceFailure ? 1 : 0, provider.Calls);
         }
         finally { stop.Cancel(); await server; }
-    }
+    });
 
     [Fact]
     public async Task TradingProcessRoutesLegacyBarsLocallyAndRejectsDirectDiagnosticFallback()

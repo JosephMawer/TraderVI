@@ -23,8 +23,11 @@ public sealed class AiReviewHostLoopTests
     }
 
     [Fact]
-    public async Task StopWaitsForInFlightWorkAndRejectsSecondOwner()
+    // The engine starts this host on Task.Run. Keep the fixture's cleanup off xUnit's
+    // bounded synchronization context so other parallel tests cannot hold its continuation.
+    public Task StopWaitsForInFlightWorkAndRejectsSecondOwner() => Task.Run(async () =>
     {
+        Assert.Null(SynchronizationContext.Current);
         var loop = new AiReviewHostLoop();
         using var stop = new CancellationTokenSource();
         var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -38,14 +41,21 @@ public sealed class AiReviewHostLoopTests
             throw new Exception("Unreachable");
         }
         Task running = loop.RunAsync(Tick, _ => { }, stop.Token);
-        await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        await Assert.ThrowsAsync<InvalidOperationException>(() => loop.RunAsync(Tick, _ => { }, stop.Token));
-        stop.Cancel();
-        Assert.False(running.IsCompleted); // Resources must stay owned until the pending work exits.
-        release.SetResult();
-        await running.WaitAsync(TimeSpan.FromSeconds(5));
+        try
+        {
+            await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => loop.RunAsync(Tick, _ => { }, stop.Token));
+            stop.Cancel();
+            Assert.False(running.IsCompleted); // Resources must stay owned until the pending work exits.
+        }
+        finally
+        {
+            stop.Cancel();
+            release.TrySetResult();
+            await running.WaitAsync(TimeSpan.FromSeconds(5));
+        }
         Assert.Equal(1, calls);
-    }
+    });
 
     [Fact]
     public async Task UnexpectedFailureStopsWithoutRetryOrPrivateDiagnostics()

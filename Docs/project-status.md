@@ -1,5 +1,35 @@
 # TraderVI Project Status
 
+## October 30 — correction of the four post-push test failures
+
+Joseph requests diagnosis and correction without interrupting the engine or collector. The patch
+changes four test fixtures only. The TMX transport fixture supplied ISO-offset timestamps to the
+Eastern-wall-time source mapper; host-local parsing shifted its window on the UTC CI runner.
+It now uses the same qualified Eastern text format as the other TMX transport fixtures, retaining
+all exact-window, source-metadata and supplementary-record assertions. No new timestamp format,
+sparse-bar interpretation or production source policy is qualified by this correction.
+
+The asynchronous fixtures captured xUnit 2's bounded parallel synchronization context. Their
+cleanup/pipe continuations could wait behind unrelated tests while real-time cancellation bounds
+expired. An unmodified full parallel run with `DOTNET_PROCESSOR_COUNT=2` reproduces the AI stop
+timeout and closed-session relay cancellation (3,432 passed, two failed, ten skipped); the separate
+39-test focused baseline passes. The AI deadline failure is reproduced in the earlier GitHub run,
+not this local baseline. The three fixtures now execute in `Task.Run`, matching the background AI
+host and context-free collector. Existing timeouts, cancellation/cleanup ownership assertions,
+terminal notice, real named-pipe transport and no-retry checks remain. AI teardown also releases
+and joins pending work in `finally`. No production deadlines or parallel-runner settings change.
+
+The isolated Release build and 39 focused tests pass. Both the corrected full parallel run with two
+processors and the normal default-parallel run pass all 3,434 tests with ten SQL/native skips each.
+Existing compiler warnings remain (CS8632, CS0162 and CS0168); dependency auditing was disabled
+for the isolated restore, so no new
+dependency-security verdict is claimed. Database/application solution builds and native service
+checks are outside this test-only change. Private test logs remain under
+`artifacts/ci-repair-20261030/`. Engine and collector process identities/start times and installed
+Core hash remain unchanged; no runtime installation, database/market/broker call or restart occurs.
+The correction still needs a fresh GitHub CI run after publication. Broader source/capacity and
+native recovery acceptance in #4/#5 remain open; #18 retains the parallel-test evidence.
+
 ## October 29 — GitHub publication and CI follow-up
 
 All19 local repair/documentation commits through2232e650 are pushed to `master`.

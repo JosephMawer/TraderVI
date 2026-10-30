@@ -132,11 +132,14 @@ public sealed class TmxIntradayNormalizationTests
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             Body = await request.Content!.ReadAsStringAsync(cancellationToken);
+            // The qualified source supplies Eastern wall time, not ISO offsets. Offset strings
+            // are converted to the host's zone by DateTime.Parse and made this fixture pass
+            // only on an Eastern machine while CI (UTC) rejected the shifted source window.
             return new(HttpStatusCode.OK) { Content = new StringContent("""
                 {"data":{"getTimeSeriesData":[
-                {"dateTime":"2026-10-13T09:30:00-04:00","open":10,"high":11,"low":9,"close":10,"volume":100},
-                {"dateTime":"2026-10-13T09:35:00-04:00","open":10,"high":11,"low":9,"close":10,"volume":100},
-                {"dateTime":"2026-10-13T09:39:00-04:00","open":10,"high":11,"low":9,"close":10,"volume":100}]}}
+                {"dateTime":"2026-10-13 9:30:00 AM","open":10,"high":11,"low":9,"close":10,"volume":100},
+                {"dateTime":"2026-10-13 9:35:00 AM","open":10,"high":11,"low":9,"close":10,"volume":100},
+                {"dateTime":"2026-10-13 9:39:00 AM","open":10,"high":11,"low":9,"close":10,"volume":100}]}}
                 """, Encoding.UTF8, "application/json") };
         }
     }

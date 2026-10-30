@@ -105,8 +105,11 @@ public sealed class AiReviewDesktopTestTests
     }
 
     [Fact]
-    public async Task DeadlineCancelsInFlightWorkAndWaitsForItsCleanup()
+    // Match the background host: xUnit's parallel synchronization context must not
+    // delay the synthetic tick's cancellation/cleanup beyond the unchanged deadline.
+    public Task DeadlineCancelsInFlightWorkAndWaitsForItsCleanup() => Task.Run(async () =>
     {
+        Assert.Null(SynchronizationContext.Current);
         var now = DateTimeOffset.UtcNow;
         var end = now.AddSeconds(2).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
         var test = AiReviewTestSession.Parse(end, now);
@@ -125,10 +128,13 @@ public sealed class AiReviewDesktopTestTests
             await cleanupStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
             Assert.False(running.IsCompleted);
         }
-        finally { finishCleanup.TrySetResult(); }
-        await running.WaitAsync(TimeSpan.FromSeconds(5));
+        finally
+        {
+            finishCleanup.TrySetResult();
+            await running.WaitAsync(TimeSpan.FromSeconds(5));
+        }
         Assert.Equal("TestExpired", Assert.Single(notices).State);
-    }
+    });
 
     private sealed class Clock(DateTimeOffset now) : TimeProvider
     {
