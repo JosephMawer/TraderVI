@@ -15,7 +15,7 @@ damage/old-backup/whole-machine recovery design to [#25](https://github.com/Jose
 marked needs discussion and deferred. Prior detailed restore/repair proposals below are retained as
 discussion material, not prerequisites for the current ordinary-restart/database-load increment.
 Preserve existing exceptional-state handling; do not claim new restore guarantees or disable known
-corruption safeguards. Items 1–8 and 10–14 record accepted design direction; implementation still requires review.
+corruption safeguards. Items 1–8 and 10–15 record accepted design direction; implementation still requires review.
 Item 13's nightly placement and final audit cadence remain open under its subsequent amendment.
 Item 11's SQL cleanup implementation and broader database cleanup inventory are separately owned by
 [#26](https://github.com/JosephMawer/TraderVI/issues/26), not prerequisites for this restart increment.
@@ -633,7 +633,11 @@ can remain off-path. Bigger batches, global caching, a permanent bypass or a lon
 remove the architectural dependency. A single checkpoint hash without a write/rollback protocol is
 also insufficient.
 
-## Proposed storage shape — illustrative, not a migration
+## Earlier proposed storage shape — illustrative, not a migration
+
+The first-increment proposal later in this document is the current storage option for operator review.
+This earlier generic StateJson/event/dependency sketch is preserved as exploration, not an accepted
+requirement to implement another event history, large snapshot, or dependency framework.
 
 Keep the existing audit/incident history unchanged. Add a versioned operational format and separate
 startup-attempt/readiness proof so a successful restart does not masquerade as a completed archive
@@ -1099,6 +1103,128 @@ writers. Retain old storage temporarily until the replacement is verified; actua
 #26 and does not delay this increment. Any rollback must preserve orders and state changes since the
 switch, rather than restore a stale database over them. This accepts the transition approach only,
 not permission to migrate, stop/start hosts, install, trade or delete data now.
+
+**Sequential review — item 15 explicitly agreed:** Explain each small implementation increment and
+its boundaries before coding, agree observable success criteria, build/test that increment, then
+present a plain-language result and wait for review before advancing. Storage review includes actual
+tables/fields, growth, per-operation work and measurements. Bring unexpected scope expansion back for
+discussion. The operator separately reviews the concrete installation/migration/interruption/recovery
+plan before the controlled switch. The overall before/after comparison was presented, separating
+expected restart/runtime benefits from later #26 disk reclamation and from still-unmeasured results.
+The operator now requests the first compact-storage proposal before coding; no code is authorized yet.
+
+### First implementation increment — compact storage proposal, awaiting review
+
+**Status:** Proposed, not an accepted schema, migration or measured performance claim. The immediate
+task is to define the small current-state store; its parent problem is history embedded in operational
+objects; its root goal is quick ordinary restart and low database load. No engine change, SQL query,
+native benchmark, new table, broker call or cleanup job has been executed for this proposal.
+
+Source inspection confirms that BrokerManagedSession contains Account, Memory, Protection and an
+accumulated Orders array; CommittedPurchaseCost sums that array. BrokerAccountProjection carries
+accumulated Fills, and BrokerAccountProjector derives position cycles by traversing order history.
+BrokerManagedSessionRepository expands stored snapshot content and validates old order prefixes.
+TradingRecommendationEngine also uses fills for entry count, last exit/reentry, entry time and add-on
+state. Consequently merely changing the root table or pointing at those same objects fails the design.
+
+#### Proposed tables and reads
+
+Names below are proposed. Reuse existing standalone definition tables only where an exact keyed read
+does not reconstruct snapshots/history. Never reference a legacy session snapshot as the normal source
+of a current permission or risk value. Existing definitions are not presumed to satisfy this rule.
+
+| Proposed table | Key / contents | Growth and ordinary-read boundary |
+|---|---|---|
+| TradingAccountCurrent | BindingId PK; assignment/permission/strategy IDs; execution and stop-buying flags; trading date; current risk reference values with original evidence IDs/times; loss/review flags; cumulative purchase usage and reserved buy amount; latest observed cash/buying power/time; last verified broker progress; state version | One current row per account, updated in place. No nested account, risk-history or order arrays. Broker facts are dated observations. |
+| TradingApprovedSettings | PermissionId PK scoped to BindingId; original approval identity/time and binding; approved strategy/source/policy/build identities, exact required configuration, scope/expiry, purchase ceiling, permitted actions and original anchor references | One bounded record per real approval/configuration change, never per tick. Resolve current exact IDs directly. Old permissions remain separate; cleanup eligibility is #26. Revocation/current activation remains authoritative, not an old approval's existence. |
+| TradingPositionCurrent | (BindingId,PositionId) PK; security/symbol; remaining quantity/cost; first/last entry times, original target and add-on progress; protection owner/floor/high/stage; last processed protection boundary; durable triggered-exit identity/reason/time | One row per open position cycle. Update changed values; no fills list. Closed records leave the active set and remain cleanup candidates outside ordinary reads. Any unprocessed fill needed for protection remains active work until applied. |
+| TradingSymbolCurrent | (BindingId,Symbol) PK; relevant-to-current-state flag; session/strategy identities; current confirmation/lifecycle state; same-session entries, last exit/reason, current candidate/protection progress and original input references | One reusable row per account/symbol, not a row per observation/day. Read only currently relevant symbols: active candidates, holdings, unresolved work or a still-applicable strategy restriction. Irrelevant prior symbols are excluded and may later be cleaned under #26. |
+| TradingOrder | (BindingId,RequestId) PK; unique (BindingId,DecisionId); optional unique broker order ID within account; original instruction/position/security/side/quantity; submission/terminal status; cumulative filled and already-applied quantity/value; outstanding reservation; original times and last checked time; NeedsWork | One record per actual request. Original intent fields cannot be overwritten; update current outcome/cumulative application fields. A filtered active index supports NeedsWork=1. Completed rows serve as small receipts, looked up by exact ID only; retention is separate. |
+| TradingRestrictionCurrent | (BindingId,RestrictionId) PK with unique cause/affected-scope identity; affected action/position/order, reason, required evidence, current retry/status and last-change/check times | Only unresolved applicable restrictions read. Retry updates the same row rather than appending observations. Explanation text has explicit length limits; completed diagnostic history is separate. |
+| TradingCheckpoint | (BindingId,Slot) PK, Slot in {0,1}; committed state version, operation ID/kind, original save time and format version | Proposed refinement: two reusable small save markers, rather than inserting an unlimited stream for a later job to purge. Current and previous determined by committed version. No embedded position/order/account snapshot. |
+
+**Checkpoint meaning needs operator review:** The latest marker identifies the committed current rows.
+The previous marker says which save preceded it; it does not retain a complete old account snapshot or
+make earlier values reconstructable. This fits a diagnostic reference but is more explicit than the
+earlier exact-reference sketch. Do not claim full prior-state recovery. New current rows are mutable;
+normal reads see one consistent database transaction, never a mix of independently read latest rows.
+This proposal also avoids a checkpoint cleanup dependency: after initialization, overwrite the older
+of the two marker slots in the same transaction as each state change. #26 still owns cleanup of legacy
+checkpoints, completed orders, superseded approvals and other obsolete database records. Do not claim
+that all database storage is constant merely because marker count is two.
+
+No unbounded JSON collections or previous-state chains are permitted in these current records. Prefer
+typed scalar columns for money, quantities, IDs, dates, flags and counters. Any genuinely necessary
+strategy-specific structured field has a versioned fixed shape and an explicit byte limit; it cannot
+contain market-bar windows, complete broker responses, fills, orders or prior snapshots. Required
+market windows stay in their existing source tables and are read for their defined interval separately.
+
+#### Save and restart examples
+
+1. **Raise one protection floor:** under the account's short write transaction, verify expected current
+   version/owner, update one position row, advance account version and overwrite the older checkpoint
+   slot. Commit all three together. Unchanged positions/orders/permissions are not rewritten. No broker
+   or filesystem I/O occurs while holding this SQL transaction. The wider local-journal handoff stays
+   for the order/restart increment; a SQL commit is not proof of a broker submission.
+2. **Apply an order update:** exact original-request lookup; compare broker cumulative facts with the
+   already-applied values; apply only the unapplied delta to the position and account totals, update
+   same-session/reentry memory when relevant, preserve reservations, then commit the order/current
+   state/checkpoint together. Duplicate observations do not add fills or spend twice. Terminal and
+   fully accounted orders leave the active index; a terminal response alone does not prove accounting.
+3. **No changed business state:** do not create a new snapshot/permission/checkpoint. A last-check time,
+   if needed, is a bounded in-place status update; it does not copy financial state or accumulate rows.
+4. **Ordinary current-state load:** a single short consistent read returns current account/settings,
+   active positions, relevant symbol rows, NeedsWork orders, unresolved restrictions and two markers.
+   Use keyed/filtered indexes and bounded required configuration lookups. Read no closed-order list,
+   old checkpoint list, audit receipts or legacy snapshot content to build this state. Exact duplicate
+   ID lookups may read one completed receipt; they do not scan completed history. Broker reconciliation
+   and strategy market windows are separate work, not hidden inside the local-state timing.
+
+The consistency mechanism should reuse a short per-account SQL fence/transaction with expected-version
+comparison; do not depend on a database-wide isolation-setting change. Test concurrent reader/writer
+interleavings and stale writers. One original decision cannot receive another RequestId; concurrent
+duplicate creation must fail the database uniqueness constraint. A lost SQL acknowledgement must be
+resolved by the operation/request identity before another dependent mutation, not blindly reapplied.
+First increment does not implement a new financial permission, automatic broker action or global
+restore/repair system. Existing exceptional-state guards remain pending separately reviewed integration.
+
+#### Initial review budgets — proposals, not trading limits or measurements
+
+Use a declared synthetic fixture of one account, one current approval, 20 open positions, 100 relevant
+symbols, 10 active orders and 20 unresolved restrictions. These counts are benchmark capacity, not new
+portfolio/order caps. Also test smaller normal fixtures and scale active counts independently of history.
+
+| Proposed limit / comparison | Evidence to produce before calling the increment ready |
+|---|---|
+| At most 512 KiB of operational row payload returned for that fixture, including resolved configuration | Measure serialized/wire payload and per-table row sizes separately; report SQL allocated/index/log space independently. Preliminary per-record budgets: account 8 KiB, current settings 16 KiB, position 4 KiB, symbol 2 KiB, order 2 KiB, restriction 1 KiB, checkpoint 512 bytes. Confirm complete fields fit; do not truncate or omit required state. |
+| One local-state read: p95 <=250 ms, p99 <=1 second on a documented healthy local SQL test environment | Report distributions for warm reads and fresh-process reads, SQL logical reads/CPU, returned rows/bytes and application allocations. Report true storage-cold tests separately where feasible; a new process is not an emptied SQL buffer cache. Excludes broker/network and OS/database boot time. |
+| A simple changed-state write: p95 <=100 ms in that same environment | Measure protection-floor/stop-buying writes, rows touched, log bytes and blocking. Complex fill application gets its own report, not this simple-write claim. |
+| Same current book with 1,000 / 100,000 / 1,000,000 completed-order receipts | Active-state row/byte counts unchanged, no completed/legacy scans in query plans, no history-proportional CPU/allocations/SQL reads. Indexed exact-ID dedup lookups measured separately; modest index-depth cost is distinct from lifetime traversal. |
+| 10,000 repeated current-state updates with no new orders/approvals/symbols | Exactly two checkpoint markers and unchanged business row counts; bounded row payloads. Separately report transaction-log/index-page effects; row reuse does not mean zero SQL log traffic. No-op evaluations must not create historical rows. |
+
+These limits are starting acceptance proposals for operator agreement, not established performance or
+automatic trading refusal thresholds. Exceeding them requires investigation/design review rather than
+silently raising caps or dropping holdings/protection to fit. Durability/order recording must remain
+possible even when telemetry shows a growth/performance regression.
+
+#### Verification and first-increment boundary
+
+Before coding, review the table/marker semantics and acceptance budgets above. After approval, the first
+increment prepares only the offline storage types/repository/schema and synthetic tests plus reviewed
+migration script; it does not switch the production engine, remove guards or create production tables.
+Before use, inventory every current consumer/writer and map each required field/derived value to a
+bounded record: purchase allowance, risk peaks/opening references, entry/add-on counts, last exit,
+protection ownership/high/floor/latched trigger, unfinished request identity and source progress.
+Original approval/provenance references must not drag the legacy graph back into ordinary reads.
+
+Meaningful tests cover atomic interrupted commits, stale/concurrent ownership, repeated/partial order
+observations, original-ID uniqueness, preserved stops/permissions/risk/triggered exits, unchanged-row
+reuse, no-op growth and the history-size comparisons. Use synthetic records only. Focused offline unit
+tests and builds cannot prove SQL plans, locking, physical growth or native latency: SQL measurements
+require a separately authorized isolated database rehearsal, not a live production probe. Report missing
+native evidence honestly; do not claim the complete engine is faster after testing only the new store.
+Broker lookup coverage, local encrypted-journal indexing and remaining legacy consumer conversion are
+integration requirements for later reviewed increments, not presumed solved by the table design.
 
 **Requested review at the end of the list:** Provide a simple overall before/after explanation of
 how the agreed changes improve the system, separating expected benefits from measured results and
