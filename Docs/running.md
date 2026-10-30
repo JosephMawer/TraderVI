@@ -18,8 +18,8 @@ transfers or trades. Unexplained account changes, missing exact valuation eviden
 or material changes require intervention. Interrupted runs still require verified integrity recovery.
 No one-minute successor is installed. [Current installation/qualification status](reviews/independent-engine-implementation-20261022.md#october-27-ongoing-runtime-installation-and-review).
 
-For a changed build on this existing agreement, the October29 after-hours review update is prepared
-(see [current installation state](project-status.md)). Once installed: Stop execution host if enabled,
+For a changed build on this existing agreement, the October29 after-hours review update is installed
+(see [current installation state](project-status.md)). Stop execution host if enabled,
 confirm the truthful no-outside-changes statement, choose **Review updated build**, inspect the facts,
 then **Approve reviewed build** within two minutes. Separately choose **Resume stopped execution host**.
 These actions may be completed after close, on weekends or before open. Keep the laptop awake and

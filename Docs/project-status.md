@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-## October 29 — after-hours ongoing build review prepared
+## October 29 — after-hours ongoing build review installed
 
 Joseph requests build approval after hours, with execution waiting for fresh data at market open.
 The restriction was application code inherited from dated trial reviews, not AGENTS.md.
@@ -9,8 +9,12 @@ unchanged broker book without requiring a live market publication or advancing r
 Pending daily risk continuation remains recorded; all execution-time session, source, risk and order
 checks remain. Legacy dated reviews retain their limits. Source and isolated desktop candidate are
 implemented. All3,418 Core tests pass (10 SQL skips); the exact packaged Core binary passes990 broker
-tests (two SQL skips), and the isolated desktop Release build succeeds. Installation and Joseph's
-explicit review/host resume remain pending. No runtime files, financial permissions or orders changed.
+tests (two SQL skips), and the isolated desktop Release build succeeds. With operator/tool approval,
+80075f13 installs at21:50:56 Toronto: engine31152/dashboard38672 restart normally; collector15516
+continues from14:31:28. Four runtime files change,126others and the saved grant remain byte-identical.
+21:51 controls verify zero holds/worker failures, connected broker and unchanged saved protection/order
+reconciliation. Execution remains Off; Joseph's explicit after-hours review and host resume remain
+pending. Next-session fresh inputs/risk continuation and prospective new-purchase mapping remain unproven.
 [Contract](adr/0109-explicit-ongoing-delphi-live-management.md#october-29-amendment-ongoing-build-review-outside-trading-hours)
 and [validation](reviews/independent-engine-implementation-20261022.md#october-29-after-hours-build-review-change).
 
@@ -26,8 +30,8 @@ At16:56 the operator's review attempt is blocked by the existing regular-session
 the generic message does not identify the time restriction. The earlier advice that review was ready
 after close was incorrect. Review also requires a shared publication less than two minutes old.
 Trading is now Off after the operator's Stop action; no new integrity hold or worker failure is observed.
-That installed build still requires regular-session review; the subsequently requested after-hours
-change above supersedes this restriction once installed. Prospective
+That installation's regular-session review restriction is subsequently superseded by the21:50
+after-hours update above. Prospective
 resolution after a new managed purchase remains unverified; no trade was forced to test it.
 [Installation and monitoring close](reviews/independent-engine-implementation-20261022.md#october-29-permanent-mapping-installation-and-monitoring-close).
 

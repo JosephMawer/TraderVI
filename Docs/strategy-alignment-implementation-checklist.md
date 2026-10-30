@@ -21,10 +21,10 @@ The September 22 documentation cleanup preserves the
   verify collector continuity, retained files/grant, zero holds/worker failures and saved checkpoints.
 - [x] Implement after-hours build review for the unchanged approved ongoing agreement, preserving
   exact strategy/account/protection/risk history and all execution-time gates (ADR-0109 October29 amendment).
-- [ ] Install the tested after-hours review update, restart engine/dashboard normally and verify
+- [x] Install the tested after-hours review update, restart engine/dashboard normally and verify
   collector continuity, retained runtime/grant and native saved protection.
 - [ ] Joseph reviews/approves the changed build and separately resumes the reviewed host through
-  the normal app flow. After the after-hours update is installed, these actions may occur while closed;
+  the normal app flow. The after-hours update is installed; these actions may occur while closed;
   execution must still wait for regular hours and fresh account, risk and source evidence.
 - [ ] Verify prospective resolution for a newly acquired managed holding without another alias write.
   Synthetic successive-purchase tests and successful restart do not establish this native acceptance.

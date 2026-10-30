@@ -3635,3 +3635,15 @@ the installed engine constructor signature. The actual desktop-package Core.dll 
 the isolated candidate test output and passes990 broker tests withtwo SQL skips. Release desktop
 build succeeds with260compiler warnings/zero errors. NuGet audit was disabled, so no dependency
 security assessment is claimed; full SSDT solution build and native after-hours approval are not run.
+
+Installation separately approved through the tool request: `Install-AfterHoursReview.ps1` completes
+at21:50:56 Toronto. Engine31152 starts21:50:52.6948787 and dashboard38672 starts21:50:56.5058028;
+collector15516 retains14:31:28.9499621. Four DLL/PDB files match the reviewed package;126retained files,
+calendar and saved grant remain unchanged. No installer retry, SQL repair, recovery or financial
+enable is performed. Private installation/completed, file-verification and verified receipts retain
+the evidence. Native capture `20261030T015120501Z-a78bcab88e5d47299f79ae924218e834` at21:51Toronto
+succeeds for every component: execution Off, zero holds/consecutive worker failures, broker connected,
+both saved protections matching and8/8owned orders reconciled at the retained15:59revision5569.
+The dashboard responds; this is not proof of every displayed value. Operator after-hours review/approve
+and separate resume, tomorrow's fresh inputs/risk continuation, and prospective new-purchase mapping
+remain distinct unfinished acceptance. No source-gap qualification or all-session readiness claim follows.
