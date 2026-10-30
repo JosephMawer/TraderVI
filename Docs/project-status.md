@@ -13,8 +13,11 @@ tests (two SQL skips), and the isolated desktop Release build succeeds. With ope
 80075f13 installs at21:50:56 Toronto: engine31152/dashboard38672 restart normally; collector15516
 continues from14:31:28. Four runtime files change,126others and the saved grant remain byte-identical.
 21:51 controls verify zero holds/worker failures, connected broker and unchanged saved protection/order
-reconciliation. Execution remains Off; Joseph's explicit after-hours review and host resume remain
-pending. Next-session fresh inputs/risk continuation and prospective new-purchase mapping remain unproven.
+reconciliation. Joseph approves the build at21:53:31 and resumes the host; verified native revision5570
+records ImplementationReviewed. At21:54 execution is Waiting for regular trading hours, buying is not
+paused, broker is connected and there are zero holds/worker failures;8/8orders and both protections
+still match. After-hours operator acceptance is complete. Next-session fresh inputs/risk continuation
+and prospective new-purchase mapping remain unproven.
 [Contract](adr/0109-explicit-ongoing-delphi-live-management.md#october-29-amendment-ongoing-build-review-outside-trading-hours)
 and [validation](reviews/independent-engine-implementation-20261022.md#october-29-after-hours-build-review-change).
 
