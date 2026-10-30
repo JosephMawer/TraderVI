@@ -15,7 +15,8 @@ damage/old-backup/whole-machine recovery design to [#25](https://github.com/Jose
 marked needs discussion and deferred. Prior detailed restore/repair proposals below are retained as
 discussion material, not prerequisites for the current ordinary-restart/database-load increment.
 Preserve existing exceptional-state handling; do not claim new restore guarantees or disable known
-corruption safeguards. Items 1–8 and 10–13 record accepted design direction; implementation still requires review.
+corruption safeguards. Items 1–8 and 10–14 record accepted design direction; implementation still requires review.
+Item 13's nightly placement and final audit cadence remain open under its subsequent amendment.
 Item 11's SQL cleanup implementation and broader database cleanup inventory are separately owned by
 [#26](https://github.com/JosephMawer/TraderVI/issues/26), not prerequisites for this restart increment.
 
@@ -1078,6 +1079,27 @@ that market-data quality stage was not requested or accepted. These are configur
 not a fresh claim of completed runs. Supersede the affected ADR-0103 audit policy explicitly during
 implementation review; no audit schedule, running pass, incident or nightly pipeline is changed now.
 
+**Item 13 subsequent amendment — consider nightly ownership:** The operator asks to consider moving
+engine historical integrity checks into the nightly pipeline when this work is reviewed. Evaluate
+which justified checks belong there, their frequency and resource cost, and whether any selected checks
+should run routinely. The earlier reason-specific audit direction is preserved as the starting point;
+this request reopens scheduling/placement for discussion, not approval to reinstate blanket lifetime
+scans or to move a job now. Historical completion must remain independent of ordinary restart readiness.
+The separate market-data DataAudit purpose remains unchanged. Record the final choice explicitly before
+changing the relevant ADR, engine scheduler or nightly runner.
+
+**Sequential review — item 14 explicitly agreed, controlled swap:** Prepare the compact storage and
+restart path, compare the new current state against existing strategy/protection/restrictions/remaining
+quantities and original unfinished-order references, then test interruption, lost-reply/duplicate-order
+behavior and performance with large histories. Transfer only current state and necessary records,
+not months of history by default. Present the concrete switch plan for review before installation;
+perform one controlled swap with a brief planned interruption only if needed, maintaining a single
+order-submission owner. Verify resumed behavior and new storage use, and retire replaced accumulating
+writers. Retain old storage temporarily until the replacement is verified; actual cleanup belongs to
+#26 and does not delay this increment. Any rollback must preserve orders and state changes since the
+switch, rather than restore a stale database over them. This accepts the transition approach only,
+not permission to migrate, stop/start hosts, install, trade or delete data now.
+
 **Requested review at the end of the list:** Provide a simple overall before/after explanation of
 how the agreed changes improve the system, separating expected benefits from measured results and
 identifying the measurements still needed. Brief per-item benefits may support that final comparison.
@@ -1106,7 +1128,7 @@ supported recovery purpose, not a demonstrated reason for routine full-history s
 
 | Status | Record |
 |---|---|
-| Installed policy pending reviewed replacement | ADR-0103 separates current trading checks from broad archive auditing and currently specifies after-session new-history/weekly archive work. Item 13 accepts replacing those routine historical schedules with reason-specific audits; source/installation and explicit supersession remain pending. The separate nightly market-data DataAudit stage remains outside that change. |
+| Installed policy pending reviewed replacement | ADR-0103 currently specifies after-session new-history/weekly archive work. Item 13 initially accepts reason-specific historical audits, then reopens placement/cadence to consider nightly ownership; no blanket lifetime scans or schedule changes are approved. Historical completion stays outside restart readiness. The separate market-data DataAudit purpose remains unchanged. |
 | Accepted design direction, implementation review required | Sequential items 1–8 and 10–12 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, action-specific holds, prompt protective selling without redundant holdings/trigger reconfirmation, and efficient changed-record storage. New tables are permitted when simpler; obsolete-data cleanup is an intended outcome. Retain current plus previous checkpoint per account; a separate SQL job task owns cleanup. Retained history needs a demonstrated consumer/purpose. Exact mechanisms, other retention limits, cleanup sets and execution-contract changes remain subject to review. |
 | Recommended technical detail, awaiting acceptance | Write-ahead local/SQL commit protocol, exact schema and dependency tracking, restore guarantees and detailed action eligibility rules. Earlier sketches do not constitute approved implementation. |
 | Provisional target | 10-second p95 / 30-second p99 and 30-second blocker deadline; bounded tail/resource/scaling budgets above. Needs measurement on representative active state and agreement. |
