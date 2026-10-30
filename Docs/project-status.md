@@ -40,8 +40,17 @@ foreground checks against the installed Core. Existing compiler warnings remain.
 dashboard-only installation authority, DLL/PDB replacement and normal restart at 01:28 Toronto
 replace dashboard 47812 with 38092. The 01:28:31 hash/process verification retains engine 31152,
 collector 15516, their start times, all 128 other runtime files, calendar and grant unchanged.
-The corrected colours are visually verified offline; live colour review remains pending given the
+At that checkpoint the corrected colours are visually verified offline; live colour review remains pending given the
 native capture limitation above. Receipts/backup: `artifacts/dashboard-engine-color-20261030/installation/`.
+
+Joseph's next screenshot confirms the live green/amber colours and requests statuses beside their
+labels. Layout-only `731aa4ae` aligns each coloured status with Engine, Real execution or History
+checks, retaining check times/details below and wrapping long status text at narrow widths. Release
+WPF and 12 offline renders at 980/1280/1900 pass against installed Core, with no binding errors;
+existing compiler warnings remain. Normal dashboard-only installation at 01:39 Toronto replaces
+38092 with responsive 30100. At 01:39:58, engine 31152/collector 15516 and their start times, all 128
+retained runtime files, calendar and grant are unchanged. Live review of this newest alignment is
+pending. Private receipts: `artifacts/dashboard-engine-inline-20261030/installation/`.
 
 ## October 30 — correction of the four post-push test failures
 
