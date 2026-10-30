@@ -15,7 +15,7 @@ damage/old-backup/whole-machine recovery design to [#25](https://github.com/Jose
 marked needs discussion and deferred. Prior detailed restore/repair proposals below are retained as
 discussion material, not prerequisites for the current ordinary-restart/database-load increment.
 Preserve existing exceptional-state handling; do not claim new restore guarantees or disable known
-corruption safeguards. Items 1–8 and 10–11 record accepted design direction; implementation still requires review.
+corruption safeguards. Items 1–8 and 10–12 record accepted design direction; implementation still requires review.
 Item 11's SQL cleanup implementation and broader database cleanup inventory are separately owned by
 [#26](https://github.com/JosephMawer/TraderVI/issues/26), not prerequisites for this restart increment.
 
@@ -1050,6 +1050,17 @@ purged or the physical row count is capped at two; disclose expected accumulatio
 gap during implementation review. Current work must still avoid growing current payloads, lifetime
 reads and unnecessary writes. No independent agent or SQL job is launched by this issue capture.
 
+**Sequential review — item 12 explicitly agreed:** Retain history for a specific demonstrated use,
+identifying the actual consumer, purpose and necessary retention; generic claims that data might aid
+research or auditing are insufficient. Current instructions/protection/risk, unfinished orders and
+required completion receipts remain operational records under the agreed rules. Actual paper research
+and integrity consumers do not establish a need for every Real account snapshot. Superseded repeated
+snapshots and records with no demonstrated remaining use become reviewed cleanup candidates only after
+their dependencies are understood. #26 owns the broader database inventory and cleanup implementation,
+coordinating policy with #16; this is not new inventory work on the restart critical path. The current
+increment must remove accumulated-history dependencies from ordinary operation. No concrete historical
+data set is declared unused or authorized for deletion by this agreement.
+
 **Requested review at the end of the list:** Provide a simple overall before/after explanation of
 how the agreed changes improve the system, separating expected benefits from measured results and
 identifying the measurements still needed. Brief per-item benefits may support that final comparison.
@@ -1079,7 +1090,7 @@ supported recovery purpose, not a demonstrated reason for routine full-history s
 | Status | Record |
 |---|---|
 | Accepted existing policy | ADR-0103 separates current trading checks from broad archive auditing, accepts delayed discovery of unrelated old corruption, and requires independent trustworthy protection. Existing financial rules and operational constraints remain. |
-| Accepted design direction, implementation review required | Sequential items 1–8 and 10–11 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, action-specific holds, prompt protective selling without redundant holdings/trigger reconfirmation, and efficient changed-record storage. New tables are permitted when simpler; obsolete-data cleanup is an intended outcome. Retain current plus previous checkpoint per account; a SQL job owns cleanup. Exact mechanisms, other retention limits, cleanup sets and execution-contract changes remain subject to review. |
+| Accepted design direction, implementation review required | Sequential items 1–8 and 10–12 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, action-specific holds, prompt protective selling without redundant holdings/trigger reconfirmation, and efficient changed-record storage. New tables are permitted when simpler; obsolete-data cleanup is an intended outcome. Retain current plus previous checkpoint per account; a separate SQL job task owns cleanup. Retained history needs a demonstrated consumer/purpose. Exact mechanisms, other retention limits, cleanup sets and execution-contract changes remain subject to review. |
 | Recommended technical detail, awaiting acceptance | Write-ahead local/SQL commit protocol, exact schema and dependency tracking, restore guarantees and detailed action eligibility rules. Earlier sketches do not constitute approved implementation. |
 | Provisional target | 10-second p95 / 30-second p99 and 30-second blocker deadline; bounded tail/resource/scaling budgets above. Needs measurement on representative active state and agreement. |
 | Deferred consequential choice — #25 | Expanded damaged-state/old-backup recovery, automatic repair and joint-rollback guarantees need separate discussion; they are not prerequisites for the ordinary-restart/database-load increment. Preserve existing exceptional-state handling and disclose its limits. |
