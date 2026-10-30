@@ -845,6 +845,30 @@ revision carries cumulative history. The proposed critical path must scale with 
 
 ## Decision record and handoff
 
+### Subsequent plain-language discussion — October 30
+
+The operator agrees Wealthsimple is authoritative for actual orders/fills/cash/holdings, wants small
+current checkpoints instead of repeated cumulative snapshots, and agrees ordinary restart should
+automatically check current instructions, broker state and unfinished orders. The operator requests
+continued unaffected operation, especially selling protection, and challenges the practical value of
+the retained audit/research history. This accepts those directions, not the complete technical protocol
+or its numerical budgets. The operator asks to understand the tradeoffs before further decisions.
+
+Retention/cleanup design is now actively requested for discussion, not merely parked: three hours or
+three days are examples to evaluate, not accepted cutoffs or deletion authority. Genuinely unresolved
+orders cannot be expired by age; resolved orders should leave the active work set while retaining a
+small original-ID/outcome record. Current permissions/protection and references still in use survive
+checkpoint cleanup. Exact retention, native broker-history completeness, legacy-reader migration and
+which historical consumers remain worthwhile are open. Existing weekly audit policy is also subject
+to this reassessment; do not assume every historical snapshot must remain indefinitely.
+
+Source/evidence checked for that discussion: the installed audit report above records actual historical
+timestamp/dictionary-order compatibility defects, not established broker financial corruption or a
+prevented loss. IndependentResearchService and DelphiLiveResearchEvidenceRepository implement
+historical paper/market-evidence review, including third/fifth-session outcomes; that does not establish
+that repeated Real broker snapshots are required for it. Exceptional saved-state reconstruction is a
+supported recovery purpose, not a demonstrated reason for routine full-history startup scans.
+
 | Status | Record |
 |---|---|
 | Accepted existing policy | ADR-0103 separates current trading checks from broad archive auditing, accepts delayed discovery of unrelated old corruption, and requires independent trustworthy protection. Existing financial rules and operational constraints remain. |
@@ -852,7 +876,8 @@ revision carries cumulative history. The proposed critical path must scale with 
 | Provisional target | 10-second p95 / 30-second p99 and 30-second blocker deadline; bounded tail/resource/scaling budgets above. Needs measurement on representative active state and agreement. |
 | Open consequential choice | Is the explicit ordinary-crash/SQL-only-restore guarantee sufficient, with declared whole-machine restore requiring requalification, or is independent protection against silent joint rollback required? Recommend the former first, stating its limitation. |
 | Open engineering evidence | Broker since-watermark lookup/coverage, complete writer inventory, actual current-state size, SQL/compatibility/transition profile, file-flush crash guarantees, isolated restore identity behavior and capacity under contention. |
-| Deferred | Archive deletion/conversion/retention period, Merkle trees, broad security redesign; #23/#24 repairs and LSPD hold retain their own scope. |
+| Open retention design | Remove redundant cumulative snapshots and discuss checkpoint cleanup; no age cutoff or deletion/conversion operation authorized. Reassess the practical benefit of broad audits and retained history. |
+| Deferred | Merkle trees and broad security redesign; #23/#24 repairs and LSPD hold retain their own scope. |
 
 This draft is complete enough to review the architectural direction and commission its first offline
 implementation increment. It is not deployment-ready: writer inventory, broker coverage and native
