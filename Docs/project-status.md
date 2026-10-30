@@ -8,7 +8,14 @@ for fresh data, Ready — no qualifying signal, and Blocked with its existing re
 paused, unknown and stale status remain explicit; Running alone never means ready. No execution
 contract or financial build identity changes. Sixteen focused tests pass; the isolated candidate
 Release build succeeds with existing compiler warnings. Offline rendering against the installed
-Core verifies the display; source changes are not yet installed at this checkpoint.
+Core verifies the display. With Joseph's explicit approval, source bb496505 is installed at23:12
+Toronto by replacing only the dashboard DLL/PDB;128other runtime files, Core, calendar and saved
+grant remain byte-identical. Dashboard40776 replaces38672; engine31152 and collector15516 retain
+their owners. At23:13 the actual dashboard reports Waiting for market with a fresh check time.
+The23:12:59 native capture verifies Running engine, normal after-hours execution wait, connected
+broker, zero incidents/worker failures/account risk blocks, buying not paused,8/8owned orders
+reconciled and both saved protections matching. No new financial build review is required.
+Private reproduction and installation receipts are under `artifacts/readiness-display-20261029/`.
 
 The chat automation `tradervi-morning-readiness-report` is active at09:15 on weekdays. It checks
 readiness using the approved read-only paths, writes a dated private HTML report, and distinguishes
