@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-## October 30 — dashboard status overview and Engine page prepared
+## October 30 — dashboard status overview and Engine page installed
 
 Joseph selects Status overview and moves controls to Engine. The source now separates engine,
 Real execution and history summaries in the header, adds Engine navigation, and removes Trading's
@@ -16,9 +16,21 @@ errors and account-dependent switch-review eligibility checks. The harness strip
 handlers and uses synthetic receipts; it does not qualify live commands or account state. Existing
 compiler warnings remain (nullable annotations and unused-variable warnings); dependency auditing
 was disabled, so no dependency-security verdict is claimed. Private outputs are under
-`artifacts/dashboard-engine-20261030/`. No full solution/database build, runtime installation,
-application/engine/collector restart, database operation or market/broker service call was performed.
-Installation and operator review remain open in the UI checklist.
+`artifacts/dashboard-engine-20261030/`. That source preparation involved no full solution/database
+build, runtime installation, application/engine/collector restart, database operation or market/broker call.
+
+Joseph subsequently authorizes installation and a dashboard-only restart. Source `6d556d0b` is
+installed at 01:18 Toronto by replacing only the dashboard DLL/PDB after normal closure; dashboard
+47812 replaces 40776. The 01:20:56 verification retains engine 31152 and collector 15516 with their
+original start times, all 128 other runtime files, Core, calendar and saved grant byte-identical.
+The new display also passes offline rendering against the installed Core before replacement.
+Windows reports the restarted dashboard responsive. Native accessibility shows the new header,
+Running engine and Engine navigation; execution initially has no received check, which is not a
+readiness qualification. Native screenshot capture times out twice and the navigation click cannot
+obtain geometry, so live Engine-page visual/navigation review remains open. No engine/collector stop,
+financial control or direct database operation is performed; dashboard startup retains its normal
+refresh behaviour. Private backup, hash/process receipts and verification limits are under
+`artifacts/dashboard-engine-20261030/installation/`.
 
 ## October 30 — correction of the four post-push test failures
 

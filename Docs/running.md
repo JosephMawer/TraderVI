@@ -11,17 +11,18 @@ wait, last fresh evaluation with no qualifying signal, or a blocker and its reas
 status is not shown as ready. The engine's checks and explicit operator controls remain authoritative.
 See current status for source, installation and native verification boundaries.
 
-The October 30 source layout moves that summary into the global **Real execution** header and its
+The October 30 installed layout moves that summary into the global **Real execution** header and its
 details into **Engine**. Choose **Open Engine** or the Engine navigation entry for engine start/stop,
 Execution setup, Stop execution host, Review switch and History checks. Account selection and
-connection remain in Trading; setup and switch review retain their existing eligibility. Until
-this layout is installed, the installed dashboard still uses Trading's side-panel entry points.
+connection remain in Trading; setup and switch review retain their existing eligibility. Older dated
+instructions below retain their historical Trading entry points; in the current installed dashboard,
+use **Engine → Execution setup** for that workflow.
 
 ## Explicit ongoing Delphi Live — installed October 27
 
 ADR-0109 is installed in the standard Release runtime. Financial activation remains an explicit app
 action; legacy dated approvals never become ongoing by startup. Once integrity recovery and current
-account/source checks pass, open Trading > Execution setup, confirm the truthful no-transfer agreement,
+account/source checks pass, open Engine > Execution setup, confirm the truthful no-transfer agreement,
 choose Review ongoing management and inspect the exact strategy/build, retained references/allowance,
 fixed broker-ask 0.25% movement / 0.50% spread policy and existing five-minute confirmation. Within two
 minutes choose Approve and start ongoing management. Approval is saved before host arming; if arming

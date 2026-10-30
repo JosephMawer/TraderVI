@@ -1341,7 +1341,10 @@ October 30 shell follow-up, governed by [ADR-0094](adr/0094-real-tfsa-execution-
   panel while preserving command/account guards and separate readiness/history evidence.
 - [x] Validate the isolated WPF build, focused presentation tests and offline layouts at minimum,
   default and wide desktop widths; [status](project-status.md) owns the evidence and limitations.
-- [ ] Install and review the new header/Engine page in the running dashboard under separate authority.
+- [x] Install the header/Engine page with the authorized dashboard-only restart, preserving background
+  process identities and retained runtime/permission files; see October 30 installation in status.
+- [ ] Review the Engine page visually in the running dashboard. Header/navigation accessibility is
+  observed, but native screenshot/coordinate capture timed out; this does not complete operator review.
 
 - [x] Recover the existing account-first Trading and independent-paper comparison contracts; inspect
   current screen source and record the operator's preference for fresh, clearer main layouts first.
