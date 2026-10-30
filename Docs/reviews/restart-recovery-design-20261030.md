@@ -10,6 +10,13 @@ The parent problem is coupling operational readiness to historical reconstructio
 The root goal is prompt recovery of the approved strategy with accurate orders, permissions and protection.
 Time spent unavailable or without trustworthy protection is itself a safety cost.
 
+**Current scope after sequential item 9:** The operator explicitly defers new exceptional database-
+damage/old-backup/whole-machine recovery design to [#25](https://github.com/JosephMawer/TraderVI/issues/25),
+marked needs discussion and deferred. Prior detailed restore/repair proposals below are retained as
+discussion material, not prerequisites for the current ordinary-restart/database-load increment.
+Preserve existing exceptional-state handling; do not claim new restore guarantees or disable known
+corruption safeguards. Items 1–8 record accepted design direction; implementation still requires review.
+
 The present scan exists because the application treats an unclean or mismatched continuity witness
 as loss of trust in the whole saved history. A fresh Recovery plan then deliberately starts from the
 beginning, rather than reusing a completed audit. This is an implementation choice, not a consequence
@@ -39,7 +46,8 @@ to resolve. A checkpoint means a saved, validated current state; a tail is the c
 #19's retrieved scope already includes restart/checkpoint design, interrupted-operation tests, capacity
 and retention investigation. It still describes weekend deferral; the user's October 30 request and
 roadmap now bring this **design investigation** forward. Implementation timing and financial authority
-do not follow from that change. No duplicate issue is needed. On acceptance, update #19 with the agreed
+do not follow from that change. #19 remains the umbrella; #25 separately owns the explicitly deferred
+exceptional-recovery discussion. On acceptance, update #19 with the agreed
 contract and link the superseding ADR; do not silently close #13, #14, #15 or #16.
 
 ## What happens today
@@ -981,6 +989,16 @@ preserving those order safeguards, and explicitly reconcile governing execution 
 activation. The detailed sale path and delay measurements remain to be reviewed. This is accepted
 design direction only, with no source, trading-rule installation, live sale or other operation authorized.
 
+**Sequential review — item 9 explicitly deferred:** The operator considers a new exceptional-recovery
+design excessive overhead for the immediate goal: get the engine running quickly after ordinary
+restart and reduce database load. Discussion of damaged state, older backups and joint machine/SQL
+rollback is captured in [GitHub #25](https://github.com/JosephMawer/TraderVI/issues/25), with needs-discussion
+and deferred labels, linked from #19. The proposed automatic-repair/operator-help boundary was not
+accepted. Do not treat solving those expanded cases or adopting an independent witness service as
+a prerequisite for this increment. Preserve existing exceptional-state handling and report its limits;
+no safeguard bypass, restore, migration or runtime operation follows from the deferral. Existing #12
+backup verification and #14 qualification work retain their owners rather than being silently closed.
+
 **Requested review at the end of the list:** Provide a simple overall before/after explanation of
 how the agreed changes improve the system, separating expected benefits from measured results and
 identifying the measurements still needed. Brief per-item benefits may support that final comparison.
@@ -1013,14 +1031,15 @@ supported recovery purpose, not a demonstrated reason for routine full-history s
 | Accepted design direction, implementation review required | Sequential items 1–8 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, action-specific holds, and prompt protective selling without redundant holdings/trigger reconfirmation. Exact mechanisms, latency/retention limits and execution-contract changes remain subject to review. |
 | Recommended technical detail, awaiting acceptance | Write-ahead local/SQL commit protocol, exact schema and dependency tracking, restore guarantees and detailed action eligibility rules. Earlier sketches do not constitute approved implementation. |
 | Provisional target | 10-second p95 / 30-second p99 and 30-second blocker deadline; bounded tail/resource/scaling budgets above. Needs measurement on representative active state and agreement. |
-| Open consequential choice | Is the explicit ordinary-crash/SQL-only-restore guarantee sufficient, with declared whole-machine restore requiring requalification, or is independent protection against silent joint rollback required? Recommend the former first, stating its limitation. |
+| Deferred consequential choice — #25 | Expanded damaged-state/old-backup recovery, automatic repair and joint-rollback guarantees need separate discussion; they are not prerequisites for the ordinary-restart/database-load increment. Preserve existing exceptional-state handling and disclose its limits. |
 | Open engineering evidence | Broker since-watermark lookup/coverage, complete writer inventory, actual current-state size, SQL/compatibility/transition profile, file-flush crash guarantees, isolated restore identity behavior and capacity under contention. |
 | Open retention design | Remove redundant cumulative snapshots and discuss checkpoint cleanup; no age cutoff or deletion/conversion operation authorized. Reassess the practical benefit of broad audits and retained history. |
 | Deferred | Merkle trees and broad security redesign; #23/#24 repairs and LSPD hold retain their own scope. |
 
 This draft is complete enough to review the architectural direction and commission its first offline
 implementation increment. It is not deployment-ready: writer inventory, broker coverage and native
-crash/restore evidence are acceptance gates, and the replacement protocol has not been implemented.
+ordinary-interruption evidence are acceptance gates, and the replacement protocol has not been implemented.
+Expanded exceptional-recovery design is deferred to #25; existing exceptional-state safeguards remain.
 On acceptance, create the superseding ADR with explicit links from the affected decisions, update the
 owning checklist and existing #19. Do not mark all alternatives as requirements.
 

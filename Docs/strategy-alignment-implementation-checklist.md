@@ -134,9 +134,13 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   synthetic codec measurements, scenarios and proposed acceptance/cutover tests.
 - [ ] Accept or revise the replacement and its failure/latency contract; record the superseding ADR
   and update #19 before implementation. The draft's alternatives are not all approved requirements.
-- [ ] Complete the accepted protocol's offline and separately authorized native crash/restore,
+- [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
   broker-coverage, writer-fencing and history-size acceptance before installation. No new recovery
   behavior, schema or production setting is implemented or installed by the design investigation.
+- Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to
+  [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.
+  Preserve existing exceptional-state handling and separate #12/#14 backup/restore qualification;
+  do not interpret the deferral as tested restore behavior or authority to bypass safeguards.
 
 - [x] Accept independence, immediate versus historical verification, nightly/weekly scoped audit policy,
   dashboard-close continuation and explicit separate stop. Investigate original workload/storage.

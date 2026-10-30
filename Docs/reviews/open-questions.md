@@ -13,13 +13,16 @@ reconciliation and scoped capabilities, with historical auditing separate. Accep
 direction before a superseding ADR or implementation. Proposed 10-second p95 / 30-second p99 and
 30-second blocker deadline need representative capacity evidence and agreement.
 
-The consequential failure-model choice is whether ordinary crashes and SQL-only restore detection,
-plus mandatory requalification after declared whole-machine restore, suffice initially. A local
-witness cannot detect every silent joint rollback of SQL and all local state; stronger assurance
-requires an independent durable witness outside that rollback domain. Recommend the narrower
-explicit guarantee first, without claiming joint rollback detection. Engineering evidence still
-needed: complete writer coverage, bounded broker reconciliation/lookup, crash/restore rehearsal and
-phase-level SQL/transition profiling. [Issue #19](https://github.com/JosephMawer/TraderVI/issues/19)
+Sequential review has accepted design directions in items 1–8 of the draft, with concrete mechanisms
+still subject to review. Item 9 is explicitly deferred to
+[#25](https://github.com/JosephMawer/TraderVI/issues/25): expanded damaged-database/old-backup recovery,
+automatic repair and joint-rollback guarantees need discussion separately and must not become a
+prerequisite for fast ordinary restart and reduced database load. Preserve existing exceptional-state
+handling; a local witness cannot detect every silent joint rollback of SQL and all local state.
+Engineering evidence still needed for the current increment includes complete writer coverage,
+bounded broker reconciliation/lookup, ordinary interruption tests and phase-level SQL/transition
+profiling. Existing backup/restore qualification retains its separate #12/#14 ownership.
+[Issue #19](https://github.com/JosephMawer/TraderVI/issues/19)
 owns the work; the [strategy checklist](../strategy-alignment-implementation-checklist.md) owns
 implementation/acceptance state. Existing recovery monitoring and LSPD hold remain unchanged.
 

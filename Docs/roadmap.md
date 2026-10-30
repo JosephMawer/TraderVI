@@ -22,6 +22,11 @@ now supplies the check/schema inventory, synthetic measurements, bounded recover
 validation/cutover plan. The replacement remains proposed; accepted decisions and native qualification
 are separate from completing this investigation.
 
+**Scope narrowed during item 9 review:** new exceptional damaged-database/old-backup recovery design
+is deferred for discussion in [#25](https://github.com/JosephMawer/TraderVI/issues/25). It is not a
+prerequisite for the current fast ordinary-restart/database-load increment. Preserve existing
+exceptional-state handling; accepted items 1–8 and concrete implementation review remain in the draft.
+
 **October 30 deferred sizing investigation:** retain the 10:32 Real `InvalidOrderQuantity`
 decision for a later read-only check: determine whether quantity below one share follows intended
 allocation/rounding or is a defect. The operator selected after today's close; the chat follow-up
