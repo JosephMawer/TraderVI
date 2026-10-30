@@ -864,10 +864,20 @@ references and small current values/totals; a pointer that expands lifetime hist
 this direction. Some information is currently nested in snapshot JSON and needs a bounded record
 representation; existing separate current tables cannot simply be assumed. The earlier proposed JSON/
 schema sketches remain illustrative, not an accepted requirement for another large serialized state.
-Item 3 (checkpoint operation) is next for explanation/agreement. Explain saving changed rows and the
-checkpoint together so it identifies one complete consistent version, rather than independently
-selecting the latest row from each table. Actual read latency remains to be measured; no one-second
-guarantee, cleanup policy or implementation is authorized by this discussion.
+Actual read latency remains to be measured; no one-second guarantee, cleanup policy or implementation
+is authorized by this discussion.
+
+**Sequential review — item 3 agreed in principle, implementation review required:** A small checkpoint
+references one consistent current state; changed records and the checkpoint commit together. The
+operator explicitly requires revisiting the concrete design before coding to prevent renewed database
+growth and slow performance. Agreement on the concept is not blanket implementation approval.
+Before that implementation step, present the actual proposed tables/fields/references, one worked
+update and restart read, which rows/bytes are added or reused, what can accumulate and its proposed
+cleanup, and measurable storage/read/write budgets for agreement. Demonstrate the chosen design
+against small and large histories with the same active state; inspect rows/bytes as well as elapsed
+time so references cannot conceal a lifetime traversal. Agree concrete limits during that review,
+then report measured results and obtain review before advancing to another implementation increment.
+No new numerical target, retention period, deletion or runtime change is authorized here.
 
 The operator agrees Wealthsimple is authoritative for actual orders/fills/cash/holdings, wants small
 current checkpoints instead of repeated cumulative snapshots, and agrees ordinary restart should
