@@ -15,7 +15,7 @@ damage/old-backup/whole-machine recovery design to [#25](https://github.com/Jose
 marked needs discussion and deferred. Prior detailed restore/repair proposals below are retained as
 discussion material, not prerequisites for the current ordinary-restart/database-load increment.
 Preserve existing exceptional-state handling; do not claim new restore guarantees or disable known
-corruption safeguards. Items 1–8 and 10 record accepted design direction; implementation still requires review.
+corruption safeguards. Items 1–8 and 10–11 record accepted design direction; implementation still requires review.
 
 The present scan exists because the application treats an unclean or mismatched continuity witness
 as loss of trust in the whole saved history. A fresh Recovery plan then deliberately starts from the
@@ -1019,6 +1019,25 @@ space, and propose the concrete cleanup once the replacement is verified. Items 
 retention, historical-use review and transition detail. No specific data set, retention cutoff,
 deletion or migration is approved by this design agreement.
 
+**Sequential review — item 11 explicitly agreed, SQL job owns cleanup:** Retain the current checkpoint
+and one immediately previous checkpoint per managed account, rather than a time window containing
+an unbounded number of updates. Both must remain small. The previous checkpoint is a limited reference,
+not authority for automatic rollback or a new exceptional-recovery system (item 9 remains deferred).
+After a successful update rotates the current/previous references, older checkpoints become cleanup
+candidates. Records still referenced by current state, retained checkpoints or other required consumers
+must survive; removing a checkpoint does not imply removing all its referenced records. Preserve
+current instructions/protection, unfinished requests and required completed-order receipts.
+
+The operator explicitly assigns cleanup to a scheduled SQL job, not an application background worker.
+The engine saves current state/checkpoints; database maintenance performs eligible deletion in small
+batches with visible failures/backlog and reviewed concurrency rules, so a job cannot race a new
+checkpoint into losing a required record. The retained target is two checkpoints per account; the
+maximum temporary excess between job runs, schedule and batch/resource limits remain to be agreed.
+Verify the installed SQL scheduling capability before choosing the concrete job mechanism; do not
+silently substitute an application cleanup task. Existing historical-data cleanup remains a separate
+reviewed transition step. This is a retention/ownership design decision, not permission to install
+or execute a job, deploy schema changes or delete data now.
+
 **Requested review at the end of the list:** Provide a simple overall before/after explanation of
 how the agreed changes improve the system, separating expected benefits from measured results and
 identifying the measurements still needed. Brief per-item benefits may support that final comparison.
@@ -1048,12 +1067,12 @@ supported recovery purpose, not a demonstrated reason for routine full-history s
 | Status | Record |
 |---|---|
 | Accepted existing policy | ADR-0103 separates current trading checks from broad archive auditing, accepts delayed discovery of unrelated old corruption, and requires independent trustworthy protection. Existing financial rules and operational constraints remain. |
-| Accepted design direction, implementation review required | Sequential items 1–8 and 10 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, action-specific holds, prompt protective selling without redundant holdings/trigger reconfirmation, and efficient changed-record storage. New tables are permitted when simpler; obsolete-data cleanup is an intended outcome. Exact mechanisms, latency/retention limits, cleanup sets and execution-contract changes remain subject to review. |
+| Accepted design direction, implementation review required | Sequential items 1–8 and 10–11 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, action-specific holds, prompt protective selling without redundant holdings/trigger reconfirmation, and efficient changed-record storage. New tables are permitted when simpler; obsolete-data cleanup is an intended outcome. Retain current plus previous checkpoint per account; a SQL job owns cleanup. Exact mechanisms, other retention limits, cleanup sets and execution-contract changes remain subject to review. |
 | Recommended technical detail, awaiting acceptance | Write-ahead local/SQL commit protocol, exact schema and dependency tracking, restore guarantees and detailed action eligibility rules. Earlier sketches do not constitute approved implementation. |
 | Provisional target | 10-second p95 / 30-second p99 and 30-second blocker deadline; bounded tail/resource/scaling budgets above. Needs measurement on representative active state and agreement. |
 | Deferred consequential choice — #25 | Expanded damaged-state/old-backup recovery, automatic repair and joint-rollback guarantees need separate discussion; they are not prerequisites for the ordinary-restart/database-load increment. Preserve existing exceptional-state handling and disclose its limits. |
 | Open engineering evidence | Broker since-watermark lookup/coverage, complete writer inventory, actual current-state size, SQL/compatibility/transition profile, file-flush crash guarantees, isolated restore identity behavior and capacity under contention. |
-| Open retention design | Remove redundant cumulative snapshots and discuss checkpoint cleanup; no age cutoff or deletion/conversion operation authorized. Reassess the practical benefit of broad audits and retained history. |
+| Open retention detail | Item 11 settles current-plus-previous checkpoints and SQL-job ownership. Agree job schedule, bounded backlog/batches, referenced-record eligibility and other history retention; no deletion/conversion operation is authorized. Reassess the practical benefit of broad audits and retained history. |
 | Deferred | Merkle trees and broad security redesign; #23/#24 repairs and LSPD hold retain their own scope. |
 
 This draft is complete enough to review the architectural direction and commission its first offline
