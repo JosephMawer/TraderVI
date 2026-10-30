@@ -17,21 +17,21 @@
   </Style>
  </UserControl.Resources>
  <StackPanel>
-  <Border Style="{StaticResource WorkspacePanel}" Padding="18,14"><StackPanel>
-   <DockPanel LastChildFill="True">
-    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+  <Border Style="{StaticResource WorkspacePanel}" Padding="18,14"><Grid>
+   <Grid.ColumnDefinitions><ColumnDefinition Width="1.5*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Top">
      <RadioButton Content="Today" GroupName="AccountPerformance" IsChecked="True" Style="{StaticResource TradingPeriod}" Checked="Today_Checked"/>
      <RadioButton Content="Overall" GroupName="AccountPerformance" IsChecked="{Binding ShowOverallPerformance, Mode=TwoWay}" Style="{StaticResource TradingPeriod}"/>
     </StackPanel>
-    <TextBlock Text="{Binding PerformanceLabel, FallbackValue=Today performance · CAD}" Style="{StaticResource WorkspaceLabel}"/>
-   </DockPanel>
-   <WrapPanel Margin="0,8,0,0"><TextBlock Text="{Binding PerformanceAmount, FallbackValue=Unavailable}" FontSize="26"/><TextBlock Text="{Binding PerformanceRate}" FontSize="17" Margin="12,7,0,0"/></WrapPanel>
-   <TextBlock Text="{Binding PerformanceContext}" Style="{StaticResource WorkspaceLabel}" Margin="0,4,0,0"/>
-   <UniformGrid Columns="2" Margin="0,16,0,0">
-    <StackPanel Margin="0,0,14,0"><TextBlock Text="Account value · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding ValueText, FallbackValue=—}" Style="{StaticResource TradingNumber}"/></StackPanel>
-    <StackPanel><TextBlock Text="Available cash · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding CashText, FallbackValue=—}" Style="{StaticResource TradingNumber}"/></StackPanel>
-   </UniformGrid>
-  </StackPanel></Border>
+    <TextBlock Text="{Binding PerformanceLabel, FallbackValue=Today performance · CAD}" Style="{StaticResource WorkspaceLabel}" Margin="0,0,18,0"/>
+    <TextBlock Grid.Column="1" Text="Account value · CAD" Style="{StaticResource WorkspaceLabel}" Margin="0,0,18,0"/>
+    <TextBlock Grid.Column="2" Text="Available cash · CAD" Style="{StaticResource WorkspaceLabel}" Margin="0,0,18,0"/>
+    <WrapPanel Grid.Row="1" Margin="0,8,18,0" VerticalAlignment="Top"><TextBlock Text="{Binding PerformanceAmount, FallbackValue=Unavailable}" FontSize="26"/><TextBlock Text="{Binding PerformanceRate}" FontSize="17" Margin="12,7,0,0"/></WrapPanel>
+    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ValueText, FallbackValue=—}" Style="{StaticResource TradingNumber}" FontSize="26" Margin="0,8,18,0" VerticalAlignment="Top"/>
+    <TextBlock Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Text="{Binding CashText, FallbackValue=—}" Style="{StaticResource TradingNumber}" FontSize="26" Margin="0,8,0,0" VerticalAlignment="Top"/>
+    <TextBlock Grid.Row="2" Grid.ColumnSpan="4" Text="{Binding PerformanceContext}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,0"/>
+  </Grid></Border>
   <Grid Margin="0,16,0,18">
    <StackPanel><TextBlock Text="Strategy" Style="{StaticResource WorkspaceLabel}"/>
     <ComboBox x:Name="StrategyPicker" MinHeight="36" Width="360" HorizontalAlignment="Left" DisplayMemberPath="Label" Style="{StaticResource TradingStrategyPicker}"
