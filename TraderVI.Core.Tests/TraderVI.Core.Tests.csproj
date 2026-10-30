@@ -39,6 +39,7 @@
     <None Include="..\TraderDB\dbo\Tables\MarketCollector*.sql;..\TraderDB\dbo\Triggers\MarketCollector*.sql" Link="CollectorSqlRehearsal\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\TradingAccountOverview.cs" Link="Presentation\TradingAccountOverview.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\ExecutionReadiness.cs" Link="Presentation\ExecutionReadiness.cs" />
+    <Compile Include="..\TraderVI.WPF\Viewmodels\DashboardEngineOverview.cs" Link="Presentation\DashboardEngineOverview.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\PortfolioStrategyWorkspace.cs" Link="Presentation\PortfolioStrategyWorkspace.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\BrokerRiskSetupDiagnostic.cs" Link="Presentation\BrokerRiskSetupDiagnostic.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\BrokerSetupCycleBarrier.cs" Link="Presentation\BrokerSetupCycleBarrier.cs" />

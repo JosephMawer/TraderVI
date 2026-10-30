@@ -12,6 +12,9 @@ namespace TraderVI.WPF.Views;
 /// <summary>Receives status only. The timer ages its display and performs no reads or commands.</summary>
 public sealed class ExecutionReadinessView : UserControl
 {
+    public static readonly DependencyProperty CompactProperty = DependencyProperty.Register(nameof(Compact), typeof(bool),
+        typeof(ExecutionReadinessView), new PropertyMetadata(false, (d, _) => ((ExecutionReadinessView)d).Render()));
+    public bool Compact { get => (bool)GetValue(CompactProperty); set => SetValue(CompactProperty, value); }
     private readonly TextBlock title = new() { FontSize = 17, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap };
     private readonly TextBlock detail = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap, Margin = new(0, 6, 0, 0) };
     private readonly TextBlock checkedAt = new() { FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new(0, 8, 0, 0), Foreground = Brushes.LightSteelBlue };
@@ -36,5 +39,15 @@ public sealed class ExecutionReadinessView : UserControl
     {
         var display = ExecutionReadiness.From(status, DateTimeOffset.UtcNow);
         title.Text = display.Title; detail.Text = display.Detail; checkedAt.Text = display.Checked;
+        title.FontSize = Compact ? 14 : 17;
+        detail.Visibility = Compact && display.Title is not ("Blocked" or "Unable to verify" or "Waiting for checks")
+            ? Visibility.Collapsed : Visibility.Visible;
+        ToolTip = Compact ? display.Detail : null;
+        if (Content is Border border)
+        {
+            border.Padding = Compact ? new Thickness(0) : new Thickness(12);
+            border.BorderThickness = Compact ? new Thickness(0) : new Thickness(1);
+            border.Background = Compact ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(26, 34, 45));
+        }
     }
 }

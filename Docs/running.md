@@ -6,10 +6,16 @@ The chat-owned morning report runs at09:15 Toronto on weekdays and produces a da
 document. Keep the laptop awake and Codex running. It reports faults and unavailable evidence,
 with checks requiring fresh opening data shown separately; it never repairs or enables trading.
 See [the read-only procedure and renderer](../Operations/MorningReadiness/README.md).
-The dashboard readiness card interprets existing execution status only: market wait, fresh-data
+The dashboard readiness display interprets existing execution status only: market wait, fresh-data
 wait, last fresh evaluation with no qualifying signal, or a blocker and its reason. Unknown/stale
 status is not shown as ready. The engine's checks and explicit operator controls remain authoritative.
 See current status for source, installation and native verification boundaries.
+
+The October 30 source layout moves that summary into the global **Real execution** header and its
+details into **Engine**. Choose **Open Engine** or the Engine navigation entry for engine start/stop,
+Execution setup, Stop execution host, Review switch and History checks. Account selection and
+connection remain in Trading; setup and switch review retain their existing eligibility. Until
+this layout is installed, the installed dashboard still uses Trading's side-panel entry points.
 
 ## Explicit ongoing Delphi Live — installed October 27
 

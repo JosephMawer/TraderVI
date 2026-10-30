@@ -1335,6 +1335,14 @@ milestone are also recorded there; their remaining scope stays visible above.
 
 ## Four-screen UI redesign — October 18 design track
 
+October 30 shell follow-up, governed by [ADR-0094](adr/0094-real-tfsa-execution-status-presentation.md#october-30--accepted-dashboard-placement):
+
+- [x] Accept and implement Status overview plus an Engine page, removing Trading's execution side
+  panel while preserving command/account guards and separate readiness/history evidence.
+- [x] Validate the isolated WPF build, focused presentation tests and offline layouts at minimum,
+  default and wide desktop widths; [status](project-status.md) owns the evidence and limitations.
+- [ ] Install and review the new header/Engine page in the running dashboard under separate authority.
+
 - [x] Recover the existing account-first Trading and independent-paper comparison contracts; inspect
   current screen source and record the operator's preference for fresh, clearer main layouts first.
 - [x] Prepare provisional Focus/Workspace concepts across Trading, Portfolios, Delphi and Delphi Live

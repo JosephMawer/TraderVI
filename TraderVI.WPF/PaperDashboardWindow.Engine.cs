@@ -3,9 +3,10 @@ using Core.Runtime;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
+using TraderVI.WPF.Viewmodels;
 
 namespace TraderVI.WPF;
 
@@ -13,6 +14,21 @@ public partial class PaperDashboardWindow
 {
     private readonly EngineRpcClient engineControl = new(EnginePaths.PipeName);
     private bool engineCommand;
+    private IndependentEngineStatus? latestEngineStatus;
+    private readonly DispatcherTimer engineDisplayTimer = new() { Interval = TimeSpan.FromSeconds(5) };
+    private void OpenEngine_Click(object sender, RoutedEventArgs e) => MainTabs.SelectedItem = EngineTab;
+    private async void ReviewEngineSwitch_Click(object sender, RoutedEventArgs e) => await TradingRecommendationsTabView.ReviewBrokerStrategyAsync(null);
+    private void RenderEngineOverview()
+    {
+        if (engineCommand) return;
+        var display = DashboardEngineOverview.From(latestEngineStatus, DateTimeOffset.UtcNow);
+        EngineOverviewText.Text = display.State;
+        EngineOverviewText.ToolTip = display.Detail;
+        EngineCheckedText.Text = display.Checked;
+        EngineStatusText.Text = display.Detail;
+        HistoryOverviewText.Text = display.History;
+        HistoryDetailText.Text = display.HistoryDetail;
+    }
     private void HistoryChecks_Click(object sender, RoutedEventArgs e) => new Views.EngineIntegrityWindow { Owner = this }.Show();
     private async Task RefreshEngineStatusAsync()
     {
@@ -20,18 +36,16 @@ public partial class PaperDashboardWindow
         try
         {
             var status = await engineControl.CallAsync<IndependentEngineStatus>(EngineOperation.Status, ct: shutdown.Token);
-            var blocked = status.Work.Where(w => w.State == "Blocked").Select(w => w.Name).ToArray();
-            EngineStatusText.Text = $"Engine: {status.State}. Closing this dashboard leaves it running." +
-                (status.VerificationOnly ? " Verification mode: real trading is disabled." : "") +
-                (blocked.Length == 0 ? "" : $" Needs attention: {string.Join(", ", blocked)}.") +
-                (status.Notices.IsDefaultOrEmpty ? "" : $" {status.Notices[^1].Message}");
+            latestEngineStatus = status;
+            RenderEngineOverview();
             StartEngineButton.IsEnabled = status.State is "Stopped" or "StopFailed";
             StopEngineButton.IsEnabled = status.State is not ("Stopped" or "Stopping");
         }
         catch (OperationCanceledException) when (shutdown.IsCancellationRequested) { }
         catch
         {
-            EngineStatusText.Text = "Engine status unavailable. Reconnect before assuming trading or protection is running.";
+            latestEngineStatus = null;
+            RenderEngineOverview();
             StartEngineButton.IsEnabled = true; StopEngineButton.IsEnabled = true;
         }
     }
@@ -39,6 +53,7 @@ public partial class PaperDashboardWindow
     {
         if (engineCommand) return;
         engineCommand = true; StartEngineButton.IsEnabled = StopEngineButton.IsEnabled = false;
+        EngineOverviewText.Text = "Starting…";
         try
         {
             var path = Path.Combine(AppContext.BaseDirectory, "TraderVI.Engine.exe");
@@ -56,15 +71,18 @@ public partial class PaperDashboardWindow
     {
         if (engineCommand) return;
         engineCommand = true; StartEngineButton.IsEnabled = StopEngineButton.IsEnabled = false;
+        EngineOverviewText.Text = "Stopping…";
         EngineStatusText.Text = "Stopping engine after admitted work finishes. Automatic protection will stop too.";
         try
         {
             var status = await engineControl.CallAsync<IndependentEngineStatus>(EngineOperation.Stop, ct: shutdown.Token);
+            latestEngineStatus = status;
+            EngineOverviewText.Text = status.State;
             EngineStatusText.Text = status.State == "Stopped"
                 ? "Engine stopped. Automatic protection is off; original broker orders and history remain."
                 : $"Engine: {status.State}. Stop has not been confirmed.";
         }
-        catch { EngineStatusText.Text = "Engine stop has not been confirmed. Reconnect and check status; do not assume protection is running."; }
+        catch { latestEngineStatus = null; EngineOverviewText.Text = "Stop unconfirmed"; EngineStatusText.Text = "Engine stop has not been confirmed. Reconnect and check status; do not assume protection is running."; }
         finally { engineCommand = false; StartEngineButton.IsEnabled = StopEngineButton.IsEnabled = true; }
     }
 }

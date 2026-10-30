@@ -42,6 +42,9 @@ public partial class PaperDashboardWindow : Window
     {
         manualBuys = new(wealthsimple, brokerSetupCycles);
         InitializeComponent();
+        engineDisplayTimer.Tick += (_, _) => RenderEngineOverview();
+        Loaded += (_, _) => engineDisplayTimer.Start();
+        Closed += (_, _) => engineDisplayTimer.Stop();
         DelphiLiveTabView.SetCycleBarrier(brokerSetupCycles);
         PortfoliosTabView.SetCycleBarrier(brokerSetupCycles);
         TradingRecommendationsTabView.SetCycleBarrier(brokerSetupCycles);
@@ -57,9 +60,13 @@ public partial class PaperDashboardWindow : Window
         TradingRecommendationsTabView.InitializeWealthsimple(wealthsimple, manualBuys.ReconcileForTransitionAsync,
             manualBuys.SynchronizeAccountAsync, () => !manualBuys.IsSubmitting);
         PortfoliosTabView.AttachBrokerDisplay(TradingRecommendationsTabView.BrokerAccountDisplay);
+        EngineAccountControls.DataContext = TradingRecommendationsTabView.BrokerAccountDisplay;
+        HeaderExecutionReadiness.SetStatus(manualBuys.ExecutionStatus);
+        EngineExecutionReadiness.SetStatus(manualBuys.ExecutionStatus);
         manualBuys.ExecutionHostChanged += (_, _) =>
         {
-            TradingRecommendationsTabView.SetExecutionHostStatus(manualBuys.ExecutionStatus);
+            HeaderExecutionReadiness.SetStatus(manualBuys.ExecutionStatus);
+            EngineExecutionReadiness.SetStatus(manualBuys.ExecutionStatus);
             PortfoliosTabView.SetExecutionHostStatus(manualBuys.ExecutionStatus);
         };
         CommandBindings.Add(new CommandBinding(BrokerExecutionHostCommands.Stop,

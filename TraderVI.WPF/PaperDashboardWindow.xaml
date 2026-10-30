@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:TraderVI.WPF.Views"
+        xmlns:services="clr-namespace:TraderVI.WPF.Services"
         Title="TraderVI"
         Width="1280" Height="820" MinWidth="980" MinHeight="680"
         Background="#11151B" Foreground="#F4F7FB"
@@ -133,16 +134,25 @@
     </Window.Resources>
 
     <DockPanel>
-      <Border DockPanel.Dock="Top" Background="#1A2029" Padding="12,6" BorderBrush="#2E3949" BorderThickness="0,0,0,1">
-        <DockPanel>
-          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-            <Button x:Name="StartEngineButton" Content="Start engine" Click="StartEngine_Click" Margin="6,0"/>
-            <Button x:Name="StopEngineButton" Content="Stop engine" Click="StopEngine_Click" Margin="6,0"/>
-            <Button Content="History checks" Click="HistoryChecks_Click" Margin="6,0"/>
+      <Border DockPanel.Dock="Top" Background="#1A2029" Padding="18,12" BorderBrush="#2E3949" BorderThickness="0,0,0,1">
+        <Grid>
+          <Grid.ColumnDefinitions><ColumnDefinition Width="1.1*"/><ColumnDefinition Width="1.4*"/><ColumnDefinition Width="1.4*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <StackPanel Margin="0,0,20,0">
+            <TextBlock Text="Engine" Style="{StaticResource StatLabel}"/>
+            <TextBlock x:Name="EngineOverviewText" Text="Checking…" FontWeight="SemiBold" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            <TextBlock x:Name="EngineCheckedText" Text="No check received" Style="{StaticResource StatLabel}" TextWrapping="Wrap" Margin="0,6,0,0"/>
           </StackPanel>
-          <TextBlock x:Name="EngineStatusText" Text="Checking engine… Closing the dashboard leaves it running."
-                     VerticalAlignment="Center" Foreground="#F4F7FB" TextWrapping="Wrap"/>
-        </DockPanel>
+          <StackPanel Grid.Column="1" Margin="0,0,20,0">
+            <TextBlock Text="Real execution" Style="{StaticResource StatLabel}"/>
+            <views:ExecutionReadinessView x:Name="HeaderExecutionReadiness" Compact="True" Margin="0,4,0,0"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2" Margin="0,0,20,0">
+            <TextBlock Text="History checks" Style="{StaticResource StatLabel}"/>
+            <TextBlock x:Name="HistoryOverviewText" Text="Awaiting status" FontWeight="SemiBold" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            <TextBlock Text="Details and controls on Engine" Style="{StaticResource StatLabel}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+          </StackPanel>
+          <Button Grid.Column="3" Content="Open Engine →" Click="OpenEngine_Click" VerticalAlignment="Center"/>
+        </Grid>
       </Border>
     <TabControl x:Name="MainTabs" Style="{StaticResource WorkspaceNavigation}" Background="Transparent" Foreground="#F4F7FB" BorderThickness="0" Padding="0">
       <TabItem x:Name="PaperTradingTab" Header="Trading" views:WorkspaceNavigationState.Icon="&#xE80F;">
@@ -332,6 +342,39 @@
       </TabItem>
       <TabItem Header="Scorecards" views:WorkspaceNavigationState.Icon="&#xE9D2;">
         <views:ScorecardsView/>
+      </TabItem>
+      <TabItem Header="Engine" x:Name="EngineTab" views:WorkspaceNavigationState.Icon="&#xE7F4;">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Margin="24" MaxWidth="1050" HorizontalAlignment="Stretch">
+            <TextBlock Text="Engine" FontSize="28" FontWeight="SemiBold"/>
+            <TextBlock Text="Closing the dashboard leaves the engine running. Stopping the engine does not stop the separate collector."
+                       Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,6,0,20"/>
+            <views:ExecutionReadinessView x:Name="EngineExecutionReadiness" Margin="0,0,0,20"/>
+            <TextBlock Text="Trading engine" FontSize="18" FontWeight="SemiBold"/>
+            <TextBlock x:Name="EngineStatusText" Text="Waiting for engine status." TextWrapping="Wrap" Margin="0,6,0,10"/>
+            <WrapPanel>
+              <Button x:Name="StartEngineButton" Content="Start engine" Click="StartEngine_Click" IsEnabled="False" Margin="0,0,10,8"/>
+              <Button x:Name="StopEngineButton" Content="Stop engine" Click="StopEngine_Click" IsEnabled="False" Margin="0,0,0,8"/>
+            </WrapPanel>
+            <TextBlock Text="Stopping the engine stops automatic protection after admitted work finishes. Existing broker orders and history remain."
+                       Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,20"/>
+            <TextBlock Text="Real execution" FontSize="18" FontWeight="SemiBold"/>
+            <TextBlock Text="Review setup and permissions, or stop the Real execution host separately." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,6,0,10"/>
+            <StackPanel x:Name="EngineAccountControls">
+              <WrapPanel>
+                <Button Content="Execution setup…" Command="{x:Static services:BrokerExecutionHostCommands.Open}" CommandParameter="{Binding SelectedAccount}" Margin="0,0,10,8"/>
+                <Button Content="Stop execution host" Command="{x:Static services:BrokerExecutionHostCommands.Stop}" Margin="0,0,10,8"/>
+                <Button Content="Review switch…" Click="ReviewEngineSwitch_Click" IsEnabled="{Binding CanRefresh, FallbackValue=False}" Margin="0,0,0,8"/>
+              </WrapPanel>
+              <TextBlock Text="Connect and select the account in Trading to make setup and strategy review available." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,20">
+                <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding CanRefresh}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+              </TextBlock>
+            </StackPanel>
+            <TextBlock Text="History checks" FontSize="18" FontWeight="SemiBold"/>
+            <TextBlock x:Name="HistoryDetailText" Text="Awaiting history status." TextWrapping="Wrap" Margin="0,6,0,10"/>
+            <Button Content="History checks…" Click="HistoryChecks_Click" HorizontalAlignment="Left"/>
+          </StackPanel>
+        </ScrollViewer>
       </TabItem>
       <TabItem Header="Settings" x:Name="SettingsTab" views:WorkspaceNavigationState.Icon="&#xE713;">
         <views:GlobalSettingsView x:Name="SettingsTabView"/>

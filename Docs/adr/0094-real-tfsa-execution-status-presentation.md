@@ -51,6 +51,30 @@ The [design draft](../concepts/real-tfsa-execution-ui-design-draft.md) contains 
 meanings, wording and offline acceptance cases. Layout/wording remain reviewable; implementation
 must not treat this accepted presentation scope as permission to change scheduling or authority.
 
+## October 30 — accepted dashboard placement
+
+Joseph selects the **Status overview** concept and directs that controls live on an **Engine**
+page. This supersedes the account-screen placement in the October 20 draft, not its separation
+of observed activity, permission and consequential actions. The immediate problem is duplicated
+status and controls consuming Trading space; the parent problem is understandable engine operation;
+the goal is a clear dashboard with deliberate access to existing controls.
+
+Keep Engine, Real execution and History checks in the global header, with an Open Engine button
+and an Engine navigation entry. Move engine start/stop, execution setup/host stop, strategy-switch
+review and history checks there. Remove the Trading execution side panel; keep its strategy picker
+and account-specific buying controls. Reuse current account selection, command eligibility and
+review workflows. Show blocker/stale explanations, actual check times and detailed history notices;
+unknown or incomplete history must not become a healthy status merely because notice severity is
+Information. The existing October 29 readiness projection remains unchanged, including its two-minute
+receipt-age check; the earlier five-minute draft is not a new requirement in this layout change.
+
+The compact history summary interprets only the existing known notice format, preserving the full
+message and observation time on Engine. Unrecognized notices remain explicit review items. No new
+polling, engine ownership, financial authority or recovery action follows from navigation. Compact
+status with controls retained in the header was considered; the selected overview moves those
+actions to the dedicated page. Installation and runtime verification remain separate from source
+implementation and offline rendering; see [current status](../project-status.md).
+
 ## Review questions
 
 1. Why is a saved host grant insufficient evidence for a Running status?

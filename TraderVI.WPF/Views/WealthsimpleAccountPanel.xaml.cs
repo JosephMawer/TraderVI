@@ -60,10 +60,6 @@ public partial class WealthsimpleAccountPanel : UserControl
     public void SetStrategyCandidates(IReadOnlyList<TfsaLiveStrategyCandidate> value)
     { candidates = value; StrategyPickerStatus.Text = value.Count == 0 ? "No current strategy sources are available for review." : ""; ResetStrategySelection(); }
     public void SetStrategyChoiceError() => StrategyPickerStatus.Text = "Choices could not be loaded. Reopen the dropdown to retry; your current strategy is unchanged.";
-    public void SetExecutionHostStatus(BrokerExecutionHostStatus status)
-    {
-        ExecutionReadinessCard.SetStatus(status);
-    }
     public void ResetStrategySelection()
     {
         selecting = true; RequestedStrategy = null;
@@ -82,7 +78,6 @@ public partial class WealthsimpleAccountPanel : UserControl
     }
     private void Today_Checked(object sender, RoutedEventArgs e)
     { if (DataContext is WealthsimpleAccountViewModel vm) vm.ShowOverallPerformance = false; }
-    private void ReviewTransition_Click(object sender, RoutedEventArgs e) => ReviewTransitionRequested?.Invoke(this, e);
     private async void Refresh_Click(object sender, RoutedEventArgs e)
     { if (DataContext is WealthsimpleAccountViewModel vm) await vm.RefreshAsync(); }
     private async void StopBuying_Click(object sender, RoutedEventArgs e)

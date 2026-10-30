@@ -1,5 +1,25 @@
 # TraderVI Project Status
 
+## October 30 — dashboard status overview and Engine page prepared
+
+Joseph selects Status overview and moves controls to Engine. The source now separates engine,
+Real execution and history summaries in the header, adds Engine navigation, and removes Trading's
+execution side panel. Engine contains existing start/stop, execution setup/host stop, switch review
+and history checks. Account selection and command eligibility remain unchanged. Blocked/stale reasons
+stay visible; actual observation times and full history notices remain available. No financial
+policy, engine ownership, command side effect or external polling changes are introduced.
+[Accepted placement](adr/0094-real-tfsa-execution-status-presentation.md#october-30--accepted-dashboard-placement).
+
+The isolated Release WPF build passes, as do 21 focused readiness/overview tests. Twelve offline
+markup renders cover 980/1280/1900 widths, market wait, blocked and stale execution, with zero binding
+errors and account-dependent switch-review eligibility checks. The harness strips operational
+handlers and uses synthetic receipts; it does not qualify live commands or account state. Existing
+compiler warnings remain (nullable annotations and unused-variable warnings); dependency auditing
+was disabled, so no dependency-security verdict is claimed. Private outputs are under
+`artifacts/dashboard-engine-20261030/`. No full solution/database build, runtime installation,
+application/engine/collector restart, database operation or market/broker service call was performed.
+Installation and operator review remain open in the UI checklist.
+
 ## October 30 — correction of the four post-push test failures
 
 Joseph requests diagnosis and correction without interrupting the engine or collector. The patch

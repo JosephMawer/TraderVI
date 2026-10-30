@@ -10,7 +10,11 @@ cssclasses: [executive-brief]
 > observation times. Group setup into review, dated approval and separate enable; this changes
 > presentation only, with automatic tomorrow start deferred.
 
-**Next decision:** review the two screen wireframes and example wording below before implementation.
+**October 30 update:** Joseph has selected the global Status overview header and a dedicated Engine
+page for controls. [ADR-0094's dated placement decision](../adr/0094-real-tfsa-execution-status-presentation.md#october-30--accepted-dashboard-placement)
+supersedes the account-screen placement below. The October 20 wireframes remain historical draft
+material; their dated permission wording does not override the later ongoing-management contract.
+[Current implementation and installation evidence](../project-status.md) owns completion state.
 
 The immediate problem is understanding whether automatic execution is doing work and whether new
 purchases are permitted. This belongs to safe account operation. The root goal is deliberate,
