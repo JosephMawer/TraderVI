@@ -890,11 +890,29 @@ After confirmed rejection or cancellation, account for any fills and reassess cu
 considering a fresh order. A missing lookup alone is not proof that the original order was never accepted.
 Keep unresolved records regardless of age and explain the specific uncertainty. Once the final outcome
 and resulting account state are established, remove the record from the active work set; the small
-completed-order record remains item 5 for separate review. Continue unaffected trading where supported
+completed-order record was subsequently agreed in item 5 below. Continue unaffected trading where supported
 by trustworthy facts, while preventing overlapping sells of shares reserved by an uncertain sell;
 precise restriction scope remains for the later items. Retry timing, attempt limits/escalation and
 broker-specific evidence remain implementation-design questions. This is design agreement only;
 no code, database, broker, cleanup or operational change is authorized.
+
+**Sequential review — item 5 explicitly agreed:** Keep one small completed-order receipt with the
+original TraderVI request reference, broker order reference when available, account/instruction
+references, final outcome including filled quantity, and confirmation that the result was accounted
+for. Preserve the original instruction/request identity across retries so an old task or delayed
+response cannot repeat submission or apply the same fill twice. Save completion and its effects on
+current state together, then remove the order from the unfinished set. Store each receipt once;
+use indexed reference lookups and exclude completed history from ordinary restart scans and
+cumulative snapshots. Small rows still accumulate: define and review cleanup conditions before
+implementation. Delete only when the old instruction cannot execute again and no current dependency
+requires the receipt; old instructions must remain invalid after deletion. Exact retention and the
+mechanism proving those conditions remain open. Test storage growth and restart behavior with large
+histories and make cleanup failures visible. This accepts the design direction, not a retention
+period, schema, implementation or deletion operation.
+
+**Requested review at the end of the list:** Provide a simple overall before/after explanation of
+how the agreed changes improve the system, separating expected benefits from measured results and
+identifying the measurements still needed. Brief per-item benefits may support that final comparison.
 
 The operator agrees Wealthsimple is authoritative for actual orders/fills/cash/holdings, wants small
 current checkpoints instead of repeated cumulative snapshots, and agrees ordinary restart should
