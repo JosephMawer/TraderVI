@@ -15,7 +15,7 @@ damage/old-backup/whole-machine recovery design to [#25](https://github.com/Jose
 marked needs discussion and deferred. Prior detailed restore/repair proposals below are retained as
 discussion material, not prerequisites for the current ordinary-restart/database-load increment.
 Preserve existing exceptional-state handling; do not claim new restore guarantees or disable known
-corruption safeguards. Items 1–8 record accepted design direction; implementation still requires review.
+corruption safeguards. Items 1–8 and 10 record accepted design direction; implementation still requires review.
 
 The present scan exists because the application treats an unclean or mismatched continuity witness
 as loss of trust in the whole saved history. A fresh Recovery plan then deliberately starts from the
@@ -999,6 +999,26 @@ a prerequisite for this increment. Preserve existing exceptional-state handling 
 no safeguard bypass, restore, migration or runtime operation follows from the deferral. Existing #12
 backup verification and #14 qualification work retain their owners rather than being silently closed.
 
+**Sequential review — item 10 explicitly agreed, new tables permitted:** Save changes to small current
+records, retain each necessary receipt once, and keep accumulated history out of ordinary reads,
+writes and restart work. Related current-state/checkpoint updates commit together. Maintain necessary
+current totals as orders progress rather than recomputing them through lifetime scans. Reusing storage
+must not hide history traversal behind references. Show operation-level reads/writes, growth/cleanup
+rules, and measured behavior with small versus large histories during implementation review.
+
+The operator explicitly permits new tables instead of retrofitting old ones, whichever gives the
+simplest practical implementation. This is architectural flexibility, not a requirement to build a
+second permanent system or authorization to deploy schema changes now. Compare the concrete choices
+during the already-required implementation review. Preserve current instructions, risk/protection,
+original order identities and unfinished work through transition; establish which old writers/readers
+are retired so the replacement does not leave duplicate accumulating stores behind.
+
+Cleaning up substantial obsolete data after completion is an intended outcome, not an incidental
+possibility. Identify actual consumers/dependencies and candidate rows/tables, measure reclaimable
+space, and propose the concrete cleanup once the replacement is verified. Items 11–14 still own
+retention, historical-use review and transition detail. No specific data set, retention cutoff,
+deletion or migration is approved by this design agreement.
+
 **Requested review at the end of the list:** Provide a simple overall before/after explanation of
 how the agreed changes improve the system, separating expected benefits from measured results and
 identifying the measurements still needed. Brief per-item benefits may support that final comparison.
@@ -1028,7 +1048,7 @@ supported recovery purpose, not a demonstrated reason for routine full-history s
 | Status | Record |
 |---|---|
 | Accepted existing policy | ADR-0103 separates current trading checks from broad archive auditing, accepts delayed discovery of unrelated old corruption, and requires independent trustworthy protection. Existing financial rules and operational constraints remain. |
-| Accepted design direction, implementation review required | Sequential items 1–8 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, action-specific holds, and prompt protective selling without redundant holdings/trigger reconfirmation. Exact mechanisms, latency/retention limits and execution-contract changes remain subject to review. |
+| Accepted design direction, implementation review required | Sequential items 1–8 and 10 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, action-specific holds, prompt protective selling without redundant holdings/trigger reconfirmation, and efficient changed-record storage. New tables are permitted when simpler; obsolete-data cleanup is an intended outcome. Exact mechanisms, latency/retention limits, cleanup sets and execution-contract changes remain subject to review. |
 | Recommended technical detail, awaiting acceptance | Write-ahead local/SQL commit protocol, exact schema and dependency tracking, restore guarantees and detailed action eligibility rules. Earlier sketches do not constitute approved implementation. |
 | Provisional target | 10-second p95 / 30-second p99 and 30-second blocker deadline; bounded tail/resource/scaling budgets above. Needs measurement on representative active state and agreement. |
 | Deferred consequential choice — #25 | Expanded damaged-state/old-backup recovery, automatic repair and joint-rollback guarantees need separate discussion; they are not prerequisites for the ordinary-restart/database-load increment. Preserve existing exceptional-state handling and disclose its limits. |
