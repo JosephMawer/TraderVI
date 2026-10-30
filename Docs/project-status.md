@@ -1,5 +1,23 @@
 # TraderVI Project Status
 
+## October 30 — engine attention from Paper inputs, 10:09–10:11 Toronto
+
+Operator requests read-only investigation of the engine attention header and explicitly leaves
+the separate held-position bid issue on hold. The header flags workers in Blocked state; Paper
+inputs has 23 consecutive InvalidOperationException failures at 10:11:26, last completion 10:07:27.
+Hash-verified SQL at 10:10:54 shows shared cycle 304 (10:05 endpoint, published 10:07:28) without a
+Paper completion receipt; all earlier current-session cycles through 10:00 were Applied. This
+establishes unfinished paper-cycle processing, not the exact failing operation or absence of
+partial paper updates. The worker records exception type only, so the underlying cause is unverified.
+
+Market inputs, Real trading and Paper protection continue with zero consecutive worker failures;
+Real execution's latest completed evaluation reports fresh inputs and no confirmed entry. Collection
+receipts remain current, and no unresolved integrity incidents are reported. Three incomplete audit
+records are older history, not the new header trigger. A retained 09:57 MonitoringLost notice is
+separate; its generic quote-protection wording does not resolve the known Real bid failure.
+No runtime/code repair, restart, financial control or database write. Evidence:
+`artifacts/engine-attention-20261030/`. Real quote-protection remains unresolved and on operator hold.
+
 ## October 30 — held-position bid protection gap, verified 10:03 Toronto
 
 Focused qualified native diagnostics confirm the operator's referenced holding remains tracked by
