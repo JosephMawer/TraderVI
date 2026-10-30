@@ -853,8 +853,21 @@ facts are dated observations rather than an independent competing authority. The
 revisit unavailable/incomplete/unexpected broker results and suggests retrying requests. Retry policy
 is not agreed: distinguish retrying a read from retransmitting an order whose outcome is unknown,
 and distinguish connection/authentication/response problems from an unexpected real transaction.
-Item 2 (what TraderVI remembers) is next for explanation and agreement. No implementation or deletion
-authority follows from item 1, and the remaining items are not implicitly accepted.
+No implementation or deletion authority follows from item 1, and the remaining items are not
+implicitly accepted.
+
+**Sequential review — item 2 explicitly agreed:** Retain current instructions/management ownership,
+protection, limits/risk state, unfinished requests and necessary recent strategy progress. The operator
+clarifies that these should be small database rows and references to relevant records, rather than
+accumulated order/account histories repeatedly serialized into snapshots. Prefer exact record/version
+references and small current values/totals; a pointer that expands lifetime history does not satisfy
+this direction. Some information is currently nested in snapshot JSON and needs a bounded record
+representation; existing separate current tables cannot simply be assumed. The earlier proposed JSON/
+schema sketches remain illustrative, not an accepted requirement for another large serialized state.
+Item 3 (checkpoint operation) is next for explanation/agreement. Explain saving changed rows and the
+checkpoint together so it identifies one complete consistent version, rather than independently
+selecting the latest row from each table. Actual read latency remains to be measured; no one-second
+guarantee, cleanup policy or implementation is authorized by this discussion.
 
 The operator agrees Wealthsimple is authoritative for actual orders/fills/cash/holdings, wants small
 current checkpoints instead of repeated cumulative snapshots, and agrees ordinary restart should
