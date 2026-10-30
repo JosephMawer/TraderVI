@@ -1,5 +1,16 @@
 # TraderVI Project Status
 
+## October 30 — holdings immediately below account summary
+
+The Main account layout now places Your holdings directly beneath the performance/value/cash
+card, followed by the strategy selector and selected-holding details. Recent account activity
+remains below the details. Selection, account bindings and trading controls are unchanged.
+Release WPF build passes with 260 existing compiler warnings and no errors. Six synthetic offline
+renders verify wide/narrow layouts, empty holdings, row-to-detail selection, sell-target and period
+bindings, with no binding errors. Dependency audit was disabled for the cached preview restore;
+no fresh dependency-security or full-solution qualification is claimed. Installation pending.
+Private validation: `artifacts/holdings-order-20261030/`.
+
 ## October 30 — pre-open read-only readiness, 09:07–09:12 Toronto
 
 Engine, collector and dashboard remain responsive with unchanged process owners; all 14 workers
