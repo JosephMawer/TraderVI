@@ -8,6 +8,14 @@ namespace TraderVI.WPF.Viewmodels;
 /// <summary>Display-only interpretation of the existing host receipt; never execution authority.</summary>
 public sealed record ExecutionReadiness(string Title, string Detail, string Checked)
 {
+    public string Color => Title switch
+    {
+        "Waiting for market" or "Waiting for fresh data" or "Waiting for checks" or "New buys paused" or "Execution paused" => "#F5B94C",
+        "Blocked" => "#FF7D87",
+        "Ready — no qualifying signal" => "#55D68B",
+        _ => "#E8EEF6"
+    };
+
     public static ExecutionReadiness From(BrokerExecutionHostStatus? status, DateTimeOffset now)
     {
         if (status is null || status.CheckedAt == default)

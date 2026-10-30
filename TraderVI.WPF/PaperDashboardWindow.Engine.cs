@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using System.Windows.Media;
 using TraderVI.WPF.Viewmodels;
 
 namespace TraderVI.WPF;
@@ -23,10 +24,12 @@ public partial class PaperDashboardWindow
         if (engineCommand) return;
         var display = DashboardEngineOverview.From(latestEngineStatus, DateTimeOffset.UtcNow);
         EngineOverviewText.Text = display.State;
+        EngineOverviewText.Foreground = (Brush)new BrushConverter().ConvertFromString(display.StateColor)!;
         EngineOverviewText.ToolTip = display.Detail;
         EngineCheckedText.Text = display.Checked;
         EngineStatusText.Text = display.Detail;
         HistoryOverviewText.Text = display.History;
+        HistoryOverviewText.Foreground = (Brush)new BrushConverter().ConvertFromString(display.HistoryColor)!;
         HistoryDetailText.Text = display.HistoryDetail;
     }
     private void HistoryChecks_Click(object sender, RoutedEventArgs e) => new Views.EngineIntegrityWindow { Owner = this }.Show();
@@ -54,6 +57,7 @@ public partial class PaperDashboardWindow
         if (engineCommand) return;
         engineCommand = true; StartEngineButton.IsEnabled = StopEngineButton.IsEnabled = false;
         EngineOverviewText.Text = "Starting…";
+        EngineOverviewText.Foreground = (Brush)FindResource("WarningBrush");
         try
         {
             var path = Path.Combine(AppContext.BaseDirectory, "TraderVI.Engine.exe");
@@ -72,17 +76,19 @@ public partial class PaperDashboardWindow
         if (engineCommand) return;
         engineCommand = true; StartEngineButton.IsEnabled = StopEngineButton.IsEnabled = false;
         EngineOverviewText.Text = "Stopping…";
+        EngineOverviewText.Foreground = (Brush)FindResource("WarningBrush");
         EngineStatusText.Text = "Stopping engine after admitted work finishes. Automatic protection will stop too.";
         try
         {
             var status = await engineControl.CallAsync<IndependentEngineStatus>(EngineOperation.Stop, ct: shutdown.Token);
             latestEngineStatus = status;
             EngineOverviewText.Text = status.State;
+            EngineOverviewText.Foreground = (Brush)new BrushConverter().ConvertFromString(DashboardEngineOverview.From(status, DateTimeOffset.UtcNow).StateColor)!;
             EngineStatusText.Text = status.State == "Stopped"
                 ? "Engine stopped. Automatic protection is off; original broker orders and history remain."
                 : $"Engine: {status.State}. Stop has not been confirmed.";
         }
-        catch { latestEngineStatus = null; EngineOverviewText.Text = "Stop unconfirmed"; EngineStatusText.Text = "Engine stop has not been confirmed. Reconnect and check status; do not assume protection is running."; }
+        catch { latestEngineStatus = null; EngineOverviewText.Text = "Stop unconfirmed"; EngineOverviewText.Foreground = Brushes.LightCoral; EngineStatusText.Text = "Engine stop has not been confirmed. Reconnect and check status; do not assume protection is running."; }
         finally { engineCommand = false; StartEngineButton.IsEnabled = StopEngineButton.IsEnabled = true; }
     }
 }

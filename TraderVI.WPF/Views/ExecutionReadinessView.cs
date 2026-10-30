@@ -39,6 +39,7 @@ public sealed class ExecutionReadinessView : UserControl
     {
         var display = ExecutionReadiness.From(status, DateTimeOffset.UtcNow);
         title.Text = display.Title; detail.Text = display.Detail; checkedAt.Text = display.Checked;
+        title.Foreground = (Brush)new BrushConverter().ConvertFromString(display.Color)!;
         title.FontSize = Compact ? 14 : 17;
         detail.Visibility = Compact && display.Title is not ("Blocked" or "Unable to verify" or "Waiting for checks")
             ? Visibility.Collapsed : Visibility.Visible;
