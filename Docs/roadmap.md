@@ -8,6 +8,14 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
+**October 30 operating constraint and weekend work:** keep the engine and collector running and
+defer nonessential code/runtime changes. Bring repairs forward only for an actual engine failure,
+stuck execution or trading block requiring intervention; an ordinary data wait or recovered
+transient error is not a reason to restart or weaken checks. Plan execution-error cause logging
+for **October 31–November 1**, with safe diagnostics, unchanged retry/trading behavior and focused
+offline validation. [GitHub issue #23](https://github.com/JosephMawer/TraderVI/issues/23) owns the
+work item and acceptance criteria. No implementation or deployment has been performed for it.
+
 **October 28 afternoon priority:** monitor the restored, approved five-minute Real runtime and qualify
 the installed collector's evidence through today's close. Finish source/capacity/venue and native
 recovery acceptance before proposing one-minute adoption. Engineering is implemented and the collector
