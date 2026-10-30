@@ -925,10 +925,11 @@ exceptional and limited to the actions that depend on the unresolved fact or res
 categories are temporary broker read failure, expired login, unknown order outcome, unusable/old current
 state, and an existing action-specific restriction or expired authority. Automatic recovery must not
 silently erase a deliberate stop or renew permission. Item 7 below agrees the action scope;
-item 8 retains the detailed protection review.
+item 8 below refines the protective-sale checks.
 Necessary sell-specific boundaries to make explicit in that review: confirmed sellable quantity,
-usable protection instructions and sell authority, fresh trigger evidence, and no overlapping uncertain
-sell. Continuing protection does not mean guessing those facts or submitting without broker access.
+usable protection instructions and sell authority, valid trigger evidence, and no overlapping uncertain
+sell. Item 8 rejects an additional per-sale holdings fetch or market reconfirmation after a valid trigger.
+Continuing protection does not mean duplicating a sale or submitting without broker access.
 
 Every hold must expose the specific cause, affected account/instrument/request/actions, what can still
 continue, the evidence needed to clear it, last check/retry outcome, and the next automatic or operator
@@ -953,7 +954,32 @@ Each restriction identifies what is waiting and why, what remains active, the au
 and any reason operator help is needed. Once the missing fact is confirmed, automatically reassess
 and lift only restrictions whose conditions are resolved; do not require a restart or general
 clear-all operation. Preserve deliberate restrictions. This accepts scope, not implementation or
-changes to existing operational holds; item 8 will detail independently supported protective selling.
+changes to existing operational holds; item 8 below details independently supported protective selling.
+
+**Sequential review — item 8 agreed with operator amendments:** Protective selling should resume per
+holding as its relevant current records become usable, without waiting for unrelated recovery work.
+The operator rejects the proposed additional holdings confirmation and fresh market reconfirmation
+before an already-triggered protective sale: act promptly to preserve capital. Use the recorded
+purchase/current remaining quantity and pending-sale records; do not issue a separate broker holdings
+request as a mandatory precondition for every sale. Ordinary restart broker reconciliation agreed in
+item 6 remains; it must not turn into redundant per-sale round trips or an unrelated global hold.
+
+A valid protective sell trigger becomes a durable pending exit. Do not require another quote, another
+threshold crossing, or a renewed strategy decision merely to reconfirm that exit before submission,
+including when restoring the pending exit after restart. This refines the earlier proposed item 8
+checks 2 and 3. Initial trigger qualification remains governed by its actual rule; a hypothetical
+missed threshold touch is not a recorded trigger, and this does not replay expired entry signals.
+Preserve saved protection levels and sale authority, original order identity, remaining quantity,
+single-owner submission, and the no-overlapping/uncertain-sell rule agreed in items 4 and 7. Save the
+request before sending once and track the broker result. A timeout still requires lookup of the
+original order, never a blind repeat. Known sold/reserved quantities cannot be sold again simply
+because a purchase once occurred. Broker rejection must remain visible and be resolved according to
+its actual reason; it is not a completed fill or permission to repeat the order blindly.
+
+Implementation review must identify and remove redundant pre-sale reads/reconfirmation waits while
+preserving those order safeguards, and explicitly reconcile governing execution contracts before
+activation. The detailed sale path and delay measurements remain to be reviewed. This is accepted
+design direction only, with no source, trading-rule installation, live sale or other operation authorized.
 
 **Requested review at the end of the list:** Provide a simple overall before/after explanation of
 how the agreed changes improve the system, separating expected benefits from measured results and
@@ -984,7 +1010,7 @@ supported recovery purpose, not a demonstrated reason for routine full-history s
 | Status | Record |
 |---|---|
 | Accepted existing policy | ADR-0103 separates current trading checks from broad archive auditing, accepts delayed discovery of unrelated old corruption, and requires independent trustworthy protection. Existing financial rules and operational constraints remain. |
-| Accepted design direction, implementation review required | Sequential items 1–7 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, and action-specific holds with explicit diagnostics and automatic reassessment. Exact mechanisms, latency/retention limits and detailed protective-sell checks remain subject to review. |
+| Accepted design direction, implementation review required | Sequential items 1–8 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, action-specific holds, and prompt protective selling without redundant holdings/trigger reconfirmation. Exact mechanisms, latency/retention limits and execution-contract changes remain subject to review. |
 | Recommended technical detail, awaiting acceptance | Write-ahead local/SQL commit protocol, exact schema and dependency tracking, restore guarantees and detailed action eligibility rules. Earlier sketches do not constitute approved implementation. |
 | Provisional target | 10-second p95 / 30-second p99 and 30-second blocker deadline; bounded tail/resource/scaling budgets above. Needs measurement on representative active state and agreement. |
 | Open consequential choice | Is the explicit ordinary-crash/SQL-only-restore guarantee sufficient, with declared whole-machine restore requiring requalification, or is independent protection against silent joint rollback required? Recommend the former first, stating its limitation. |
