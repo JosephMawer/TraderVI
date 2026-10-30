@@ -924,7 +924,8 @@ prevent a duplicate/replacement buy, rather than automatically disabling the acc
 exceptional and limited to the actions that depend on the unresolved fact or restriction. The discussed
 categories are temporary broker read failure, expired login, unknown order outcome, unusable/old current
 state, and an existing action-specific restriction or expired authority. Automatic recovery must not
-silently erase a deliberate stop or renew permission. Precise action scope remains for items 7 and 8.
+silently erase a deliberate stop or renew permission. Item 7 below agrees the action scope;
+item 8 retains the detailed protection review.
 Necessary sell-specific boundaries to make explicit in that review: confirmed sellable quantity,
 usable protection instructions and sell authority, fresh trigger evidence, and no overlapping uncertain
 sell. Continuing protection does not mean guessing those facts or submitting without broker access.
@@ -935,6 +936,24 @@ step. These diagnostics must support prompt operator/AI investigation. Automatic
 transient conditions when their own checks succeed; retain visible exceptions that require sign-in,
 repair or a decision. Exact retry/escalation rules and the diagnostic presentation remain for design
 review. No implementation, restart, hold clearance, permission change or live operation is authorized.
+
+**Sequential review — item 7 explicitly agreed:** Each uncertainty restricts only actions dependent
+on the missing fact, with the dependency explained. An unknown buy outcome prevents a replacement buy
+and may restrict other purchases when available cash is uncertain; protective sells of confirmed
+holdings remain eligible when their own checks pass. An unknown sell outcome restricts further sales
+using shares possibly sold or reserved by that order, while independently confirmed other holdings
+remain manageable. Expired buying permission or a deliberate stop-buying restriction blocks new buys,
+not previously authorized protective sells. Missing/inconsistent protection instructions for one stock
+restrict automated sales requiring those instructions, not management of unrelated stocks with valid
+instructions. Unavailable broker access/expired login prevents orders needing that connection;
+monitoring and permissible reconnect attempts continue, with execution reassessed when access and
+required checks recover. This does not authorize credential refresh outside normal sign-in rules.
+
+Each restriction identifies what is waiting and why, what remains active, the automatic recovery step,
+and any reason operator help is needed. Once the missing fact is confirmed, automatically reassess
+and lift only restrictions whose conditions are resolved; do not require a restart or general
+clear-all operation. Preserve deliberate restrictions. This accepts scope, not implementation or
+changes to existing operational holds; item 8 will detail independently supported protective selling.
 
 **Requested review at the end of the list:** Provide a simple overall before/after explanation of
 how the agreed changes improve the system, separating expected benefits from measured results and
@@ -965,7 +984,7 @@ supported recovery purpose, not a demonstrated reason for routine full-history s
 | Status | Record |
 |---|---|
 | Accepted existing policy | ADR-0103 separates current trading checks from broad archive auditing, accepts delayed discovery of unrelated old corruption, and requires independent trustworthy protection. Existing financial rules and operational constraints remain. |
-| Accepted design direction, implementation review required | Sequential items 1–6 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, and narrowly scoped exceptional holds with explicit diagnostics. Exact mechanisms, latency/retention limits and sell-specific boundaries remain subject to review. |
+| Accepted design direction, implementation review required | Sequential items 1–7 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, and action-specific holds with explicit diagnostics and automatic reassessment. Exact mechanisms, latency/retention limits and detailed protective-sell checks remain subject to review. |
 | Recommended technical detail, awaiting acceptance | Write-ahead local/SQL commit protocol, exact schema and dependency tracking, restore guarantees and detailed action eligibility rules. Earlier sketches do not constitute approved implementation. |
 | Provisional target | 10-second p95 / 30-second p99 and 30-second blocker deadline; bounded tail/resource/scaling budgets above. Needs measurement on representative active state and agreement. |
 | Open consequential choice | Is the explicit ordinary-crash/SQL-only-restore guarantee sufficient, with declared whole-machine restore requiring requalification, or is independent protection against silent joint rollback required? Recommend the former first, stating its limitation. |
