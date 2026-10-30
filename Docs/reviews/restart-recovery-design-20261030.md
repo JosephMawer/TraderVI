@@ -851,7 +851,8 @@ revision carries cumulative history. The proposed critical path must scale with 
 fills, cash and holdings. TraderVI retains instructions and original unfinished requests; saved broker
 facts are dated observations rather than an independent competing authority. The operator wants to
 revisit unavailable/incomplete/unexpected broker results and suggests retrying requests. Retry policy
-is not agreed: distinguish retrying a read from retransmitting an order whose outcome is unknown,
+was deferred here and its core rule was subsequently agreed in item 4 below: distinguish retrying
+a read from retransmitting an order whose outcome is unknown,
 and distinguish connection/authentication/response problems from an unexpected real transaction.
 No implementation or deletion authority follows from item 1, and the remaining items are not
 implicitly accepted.
@@ -878,6 +879,22 @@ against small and large histories with the same active state; inspect rows/bytes
 time so references cannot conceal a lifetime traversal. Agree concrete limits during that review,
 then report measured results and obtain review before advancing to another implementation increment.
 No new numerical target, retention period, deletion or runtime change is authorized here.
+
+**Sequential review — item 4 explicitly agreed:** Keep a small active record per unfinished order,
+including its original request reference, account, instrument, side, quantity and latest confirmed
+status. Save the request before transmission; preserve the existing one-attempt submission safeguard.
+After restart, check these original requests with Wealthsimple without scanning lifetime order history.
+Automatically retry failed status reads with a delay; an uncertain submission must not cause a blind
+resend or replacement order. Track partial fills and the outstanding quantity on the original order.
+After confirmed rejection or cancellation, account for any fills and reassess current conditions before
+considering a fresh order. A missing lookup alone is not proof that the original order was never accepted.
+Keep unresolved records regardless of age and explain the specific uncertainty. Once the final outcome
+and resulting account state are established, remove the record from the active work set; the small
+completed-order record remains item 5 for separate review. Continue unaffected trading where supported
+by trustworthy facts, while preventing overlapping sells of shares reserved by an uncertain sell;
+precise restriction scope remains for the later items. Retry timing, attempt limits/escalation and
+broker-specific evidence remain implementation-design questions. This is design agreement only;
+no code, database, broker, cleanup or operational change is authorized.
 
 The operator agrees Wealthsimple is authoritative for actual orders/fills/cash/holdings, wants small
 current checkpoints instead of repeated cumulative snapshots, and agrees ordinary restart should
