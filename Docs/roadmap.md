@@ -8,6 +8,12 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
+**October 30 deferred sizing investigation:** retain the 10:32 Real `InvalidOrderQuantity`
+decision for a later read-only check: determine whether quantity below one share follows intended
+allocation/rounding or is a defect. The operator explicitly defers investigation; timing remains
+unselected. Do not change sizing, controls or runtime, restart either host, or resume the separate
+held-position bid-quote investigation. This is distinct from the weekend mapping repair.
+
 **October 30 unresolved finding, now on operator hold:** the persistent broker bid-read failure
 for a managed Real holding still requires restored bid-based protection before claiming automatic
 selling readiness. The operator has deferred this investigation; current observations and limitations are in
