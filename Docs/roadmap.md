@@ -8,6 +8,13 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
+**October 30 immediate finding, 10:03 Toronto:** diagnose the persistent broker bid-read failure
+for a managed Real holding and verify restored bid-based protection before claiming automatic
+selling readiness. Current observations and limitations are in
+[project status](project-status.md#october-30--held-position-bid-protection-gap-verified-1003-toronto).
+This is an operational protection gap, separate from the deferred generic-error logging improvement.
+Keep hosts running during diagnosis; any necessary repair must address the actual failed check.
+
 **October 30 operating constraint and weekend work:** keep the engine and collector running and
 defer nonessential code/runtime changes. Bring repairs forward only for an actual engine failure,
 stuck execution or trading block requiring intervention; an ordinary data wait or recovered

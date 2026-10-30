@@ -1,5 +1,24 @@
 # TraderVI Project Status
 
+## October 30 — held-position bid protection gap, verified 10:03 Toronto
+
+Focused qualified native diagnostics confirm the operator's referenced holding remains tracked by
+Real and subscribed by the collector, with matching saved protection and bars through 10:00.
+However, its broker holding-quote attempt fails with InvalidOperationException in the 09:37,
+09:50, 10:01 and 10:03 saved evaluations. Last usable protection bid remains October 29 15:59:20.
+No exit is latched and the latest result is NoRecommendation; these facts do not prove that a
+bid-dependent exit would have been detected. The current host reports Running despite this gap.
+
+This qualifies earlier readiness statements: empty account-risk/quote-block arrays and matching
+saved protection do not establish successful individual quote reads or working bid-based protection.
+The quote source retains per-symbol failure type, while the underlying broker stage/validation reason
+is not exposed in these diagnostics. Holding safety evaluates separately from a paper portfolio's
+entry scope, but missing usable bids prevent current bid-dependent trigger checks; eventual sell
+preflight also requires fresh broker context. Do not claim reliable automatic selling until verified.
+Engine and collector remain running; this investigation changed no controls or operational code and
+sent no order. Current native evidence:
+`artifacts/market-watch-20261029/20261030T140308218Z-0a41a8950cd646d68174300038207747/`.
+
 ## October 30 — transient execution-check failure, 09:49–09:50
 
 Read-only native capture confirms the reported generic execution-check block at 09:49:27 with
