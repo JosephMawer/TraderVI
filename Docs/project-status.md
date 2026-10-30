@@ -1,5 +1,23 @@
 # TraderVI Project Status
 
+## October 30 — opening risk wait clears automatically at 09:37
+
+Read-only investigation of the 09:32 Blocked display finds first-five-minute opening evidence
+pending, with related continuation/cash-coverage messages. The 09:35 shared cycle publishes at
+09:37:10; at 09:37:21 execution reports Running, fresh shared inputs evaluated and no confirmed
+entry. Qualified native diagnostics then show no risk/quote blocks, eight reconciled owned orders
+and both retained protections matching. No manual continuation or repair was performed.
+
+By 09:38, minute collection has 186 observations across 39 symbols, a current writer lease and
+zero conflicts; subscriptions contain 37 candidates and two holdings. Both holdings have fresh
+minute observations in the 09:39 check. Four GraphQlFailure requests affect one unheld candidate,
+neither holding nor benchmark; source coverage is not uniformly healthy or fully qualified.
+All 14 workers have zero consecutive failures and no unresolved integrity incidents. Current
+engine 44188 started 09:32:35, replacing 31152 for an unverified reason; collector 15516 and dashboard
+17576 retain their start times. This investigation performed no restart, orders, permission changes
+or database writes. Hash-verified receipts and sanitized report:
+`artifacts/morning-readiness/2026-10-30/opening-check/`.
+
 ## October 30 — holdings immediately below account summary
 
 The Main account layout now places Your holdings directly beneath the performance/value/cash
