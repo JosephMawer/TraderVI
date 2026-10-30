@@ -1,5 +1,29 @@
 # TraderVI Project Status
 
+## October 30 — authorized host restart, recovery hold remains, 13:24 Toronto
+
+After both background processes were found absent, the operator authorized starting the installed
+collector and engine with existing settings. The current collector manifest at
+`artifacts/collector-precision-20261028/supervisor.json` points to the October 29 scheduling package;
+all listed package hashes and its configuration hash match. Supervisor 48304 starts collector 38312
+at 13:23:02; normal-mode engine 43628 starts at 13:22:56. Both remain responsive. No installation,
+trading-setting change, permission change or explicit order action was performed; LSPD remains on hold.
+
+The collector passes its startup cooldown and resumes persisted observations: hash-verified read-only
+SQL at 13:24:27 shows 5,541 session observations, latest minute start 13:23 and latest receipt 13:24:10,
+up from 4,763 observations ending at 12:49 before the restart. This proves resumed collection, not
+complete gap coverage. Shared engine publication remains at the 12:45 endpoint, published 12:47.
+
+Engine startup raises one global `EngineRecoveryRequired` incident with protection untrusted.
+The broker connection is established, but real execution reports Blocked and shared-input/Paper
+workers encounter the integrity hold. This startup guard can indicate absent, mismatched or unclean
+continuity evidence; the exact preceding shutdown cause was not established. Recovery verification
+and any subsequent hold clearance have not been run. Starting the processes does not establish
+trading readiness or repair the earlier mapping or bid-quote issues.
+
+Private evidence: `artifacts/market-watch-20261029/20261030T172404415Z-4484b25e076a4e89927457beab7e3c42/`
+and `artifacts/read-only-db/result-20261030T172426866Z-4c2d1362fbd649e69439b6fd01dadecc.json`.
+
 ## October 30 — Paper inputs cause confirmed without restart, 10:18–10:20 Toronto
 
 A bounded 35-second exception-only EventPipe observation of engine 44188 captures the actual
