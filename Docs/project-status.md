@@ -1,5 +1,21 @@
 # TraderVI Project Status
 
+## October 30 — account overview compact row installed
+
+Joseph requests account value and available cash beside performance. Layout-only `347c54a0`
+places the three figures on a shared row, with their labels above, the performance context below
+and Today/Overall at the right. Bindings, calculations and period behaviour are unchanged. Release
+WPF passes with existing compiler warnings; six synthetic offline renders at 700/1000/1450 widths
+verify aligned values, unavailable values, wrapping and no overflow/binding errors. No new behaviour
+tests or full solution/database build are needed for this markup-only change.
+
+Under the existing dashboard-only installation authority, normal restart at 02:12 Toronto replaces
+30100 with responsive dashboard 48956. The 02:12:45 verification preserves engine 31152 and collector
+15516, their original start times, all 128 other runtime files, Core, calendar and grant. Native visual
+review remains pending; screenshots above qualify prior layouts only. Private renders and installation
+receipts/backup: `artifacts/account-overview-20261030/`. No financial controls, direct database operations
+or background-host restart are performed; normal dashboard refresh remains active.
+
 ## October 30 — dashboard status overview and Engine page installed
 
 Joseph selects Status overview and moves controls to Engine. The source now separates engine,
