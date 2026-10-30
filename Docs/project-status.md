@@ -1,5 +1,25 @@
 # TraderVI Project Status
 
+## October 29 — GitHub publication and CI follow-up
+
+All19 local repair/documentation commits through2232e650 are pushed to `master`.
+The [post-push CI run](https://github.com/JosephMawer/TraderVI/actions/runs/40997729248)
+at23:32 Toronto passes the database project build, but the normal parallel Core suite records
+3,430passed,4failed and10skipped; subsequent application builds are skipped. AI cleanup/stop
+timeouts are tracked in [#18](https://github.com/JosephMawer/TraderVI/issues/18), the offline
+closed-session relay cancellation in [#5](https://github.com/JosephMawer/TraderVI/issues/5),
+and the synthetic TMX transport-window fixture failure in
+[#4](https://github.com/JosephMawer/TraderVI/issues/4). Causes remain unproven; these tests are not
+fresh market/broker evidence. Do not describe the full CI run as passing from earlier focused or
+serialized passes. No runtime or test-policy change was made during publication.
+
+The board records completed readiness/report implementation separately from first09:15HTML delivery
+and next-session acceptance in [#21](https://github.com/JosephMawer/TraderVI/issues/21); prospective
+natural-purchase mapping remains [#20](https://github.com/JosephMawer/TraderVI/issues/20).
+Both remain Agreed/In Progress. #7 retains its broader monitoring-design discussion, #15 remains
+completed, and #14/#19 remain open. Existing labels, Planning synchronization and board structure
+are preserved. Private diagnostics and runtime packages are not published.
+
 ## October 29 — readiness presentation and morning report
 
 Joseph requests clearer normal-wait versus fault states and a chat-owned HTML report at09:15
