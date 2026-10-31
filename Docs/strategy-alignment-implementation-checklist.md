@@ -147,9 +147,29 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   Initial Core/test compilation reported existing CS8632 (261), CS0162 (2), CS0168 (1) warnings in
   unrelated files. Dependency auditing was disabled for this isolated build; no fresh security review
   or complete-solution health claim is made.
-- [ ] Operator review of this increment's implementation and test results before the next coding step.
-- [ ] Separately authorized isolated SQL rehearsal: round trips, locking/crash/rollback, active query plans,
-  allocation/log growth and read/write latency budgets. No live SQL or engine restart is authorized here.
+- [x] October 31 operator accepted the first storage increment and its offline results.
+- [x] Map the existing cumulative purchase allowance. `BrokerManagedSession.CommittedPurchaseCost` sums
+  original BUY requests. `BrokerManagedSessionWorkflow` reserves the original quantity × reference price
+  and later records the broker outcome on that same request. While the request is unresolved, its
+  contribution stays at the original estimate. Once reconciled, its contribution becomes the broker's
+  net cost. SELL proceeds do not replenish the approved ceiling. The order sizing path, first review,
+  continuation reviews and approvals, ongoing approval, and desktop execution/minute/source review
+  summaries read this allowance.
+  [Calculation](../Core/Trader/Promotion/BrokerManagedSession.cs),
+  [order writer and sizing](../Core/Trader/Promotion/BrokerManagedSessionWorkflow.cs).
+- [x] Pin this behavior before replacing the scan. For a $100 original buy the tests observe $100 used
+  while pending or partially filled at $38, $38 after cancellation of the remainder, $96 after a
+  $96 full fill or posting, and $0 after an unfilled rejection or expiry. An unknown submission,
+  a separate sale and the next trading day preserve the reservation. On October 31,
+  eight new allowance cases, one existing simulated restart/date-change case and 30 compact-storage
+  cases passed (39 passed, zero failed/skipped). [Test cases](../TraderVI.Core.Tests/BrokerManagedSessionTests.PurchaseAllowance.cs).
+- [ ] Review the proposed writer change to adjust the saved allowance using the prior and new
+  contribution of one original order in the same commit as its receipt. Verify that booked partial fills
+  and outstanding reservations together reproduce the amounts above, including repeated observations,
+  lost save replies and a terminal cost different from the estimate.
+- [ ] Near the end, measure SQL read/write latency and physical space and qualify round trips, locking,
+  crash/rollback and active query plans. October 31 operator deferred this work. Review the test
+  environment before execution.
 - [ ] Finish writer/consumer mapping and the replacement's failure/latency contract, record exact
   supersession of installed behavior and update #19 before integrating or activating that replacement.
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
