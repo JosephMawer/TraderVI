@@ -268,6 +268,19 @@
     <None Include="Operations/Check-TraderDB-Integrity.sql" />
     <None Include="Operations/Set-TraderDB-SimpleRecovery.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo/Tables/TradingApprovedSettings.sql" />
+    <Build Include="dbo/Tables/TradingAccountCurrent.sql" />
+    <Build Include="dbo/Tables/TradingPositionCurrent.sql" />
+    <Build Include="dbo/Tables/TradingSymbolCurrent.sql" />
+    <Build Include="dbo/Tables/TradingOrder.sql" />
+    <Build Include="dbo/Tables/TradingRestrictionCurrent.sql" />
+    <Build Include="dbo/Tables/TradingCheckpoint.sql" />
+    <Build Include="dbo/Indexes/TradingCurrentState.sql" />
+    <Build Include="dbo/Triggers/TradingApprovedSettings_Immutable.sql" />
+    <Build Include="dbo/Triggers/TradingOrder_IntentImmutable.sql" />
+    <None Include="Migrations/20261030_054_AddCompactTradingCurrentState.sql" />
+  </ItemGroup>
   <Target Name="BlockTraderDbDeployment" BeforeTargets="Deploy;SqlDeploy">
     <Error Text="TraderDB deployment is intentionally disabled. Build the project for schema validation, then use a reviewed script from TraderDB/Migrations and follow Docs/database-operations.md." />
   </Target>

@@ -4,6 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0117](0117-compact-trading-current-storage.md) — Scalar current rows and two reusable commit markers; disconnected storage increment
 - [ADR-0116](0116-temporary-paper-continuation-during-reboot-recovery.md) — Explicit expiring Paper continuation without financial activation or fabricated clearance
 
 - [ADR-0115](0115-exact-audit-prefix-hash-reuse.md) — Reuse exact SHA-256 prefix computation within one guarded historical audit
@@ -132,6 +133,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## data-pipeline
 
+- [ADR-0117](0117-compact-trading-current-storage.md) — Active-row reads, changed-row commits and bounded payload verification; native qualification pending
 - [ADR-0116](0116-temporary-paper-continuation-during-reboot-recovery.md) — Preserve unresolved incidents and historical proof during temporary simulation continuation
 
 - [ADR-0115](0115-exact-audit-prefix-hash-reuse.md) — Preserve original full fingerprints while avoiding repeated unchanged-prefix hashing

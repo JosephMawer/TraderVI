@@ -132,11 +132,30 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [x] Investigate current restart/scan/clearance contracts and prepare a
   [draft replacement](reviews/restart-recovery-design-20261030.md), with schema/JSON examples,
   synthetic codec measurements, scenarios and proposed acceptance/cutover tests.
-- [ ] Accept or revise the replacement and its failure/latency contract; record the superseding ADR
-  and update #19 before implementation. The draft's alternatives are not all approved requirements.
+- [x] Accept the compact storage proposal and authorize only its first disconnected coding increment
+  with results for review before proceeding. [ADR-0117](adr/0117-compact-trading-current-storage.md)
+  records this limited boundary; the draft's alternatives are not all approved requirements.
+- [x] Implement the seven scalar row contracts, account-scoped repository, two reusable commit markers,
+  active/unique indexes and prepared migration 054 without engine registration or live SQL changes.
+- [x] October 30 offline validation: 30 compact-storage tests pass, zero failures/skips. Core builds;
+  TraderDB builds with Visual Studio Build Tools/SSDT, zero SQL warnings/errors. Synthetic measurements:
+  10,000 updates retain five rows/two markers (2,560 returned JSON bytes); 1k/100k/1m completed receipts
+  leave the six-row current read unchanged (3,149 bytes); benchmark book returns 154 rows/77,549 bytes
+  against a 524,288-byte budget. Each fixture row also fits its proposed per-record budget.
+  These are test-double/serialization measurements, not SQL timing/size.
+  Evidence: `artifacts/compact-storage-20261030/{focused-tests.log,results/compact-storage.trx,sql-build.log}`.
+  Initial Core/test compilation reported existing CS8632 (261), CS0162 (2), CS0168 (1) warnings in
+  unrelated files. Dependency auditing was disabled for this isolated build; no fresh security review
+  or complete-solution health claim is made.
+- [ ] Operator review of this increment's implementation and test results before the next coding step.
+- [ ] Separately authorized isolated SQL rehearsal: round trips, locking/crash/rollback, active query plans,
+  allocation/log growth and read/write latency budgets. No live SQL or engine restart is authorized here.
+- [ ] Finish writer/consumer mapping and the replacement's failure/latency contract, record exact
+  supersession of installed behavior and update #19 before integrating or activating that replacement.
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
   broker-coverage, writer-fencing and history-size acceptance before installation. No new recovery
-  behavior, schema or production setting is implemented or installed by the design investigation.
+  behavior or production setting is installed. Only the disconnected storage increment above is implemented;
+  the prepared schema is not installed and current production recovery behavior is unchanged.
 - Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to
   [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.
   Preserve existing exceptional-state handling and separate #12/#14 backup/restore qualification;

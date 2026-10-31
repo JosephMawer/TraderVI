@@ -1,5 +1,15 @@
 # Manual database migrations
 
+## Compact trading storage — prepared only October 30
+
+`20261030_054_AddCompactTradingCurrentState.sql` prepares ADR-0117's seven isolated current-state,
+order-receipt and checkpoint tables, active/unique indexes and approval/order guards. It is additive,
+requires the existing account binding and a fresh verified checksum backup, and refuses existing or
+partial compact tables. No data conversion, cleanup or activation is included. SQL project compilation
+and offline schema-parity tests do not execute this script. It has **not been installed**; native
+transaction/latency qualification and individual installation review remain required. Do not deploy
+the DACPAC or use production SQL to rehearse the script without separate authority.
+
 ## Independent collector storage — applied October 28 morning
 
 `20261028_052_AddIndependentCollectorEvidence.sql` was applied under Joseph's explicit approval after

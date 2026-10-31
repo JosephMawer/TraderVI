@@ -1113,7 +1113,7 @@ plan before the controlled switch. The overall before/after comparison was prese
 expected restart/runtime benefits from later #26 disk reclamation and from still-unmeasured results.
 The operator now requests the first compact-storage proposal before coding; no code is authorized yet.
 
-### First implementation increment — compact storage proposal, awaiting review
+### First implementation increment — accepted compact storage boundary
 
 **Status:** Proposed, not an accepted schema, migration or measured performance claim. The immediate
 task is to define the small current-state store; its parent problem is history embedded in operational
@@ -1188,7 +1188,7 @@ resolved by the operation/request identity before another dependent mutation, no
 First increment does not implement a new financial permission, automatic broker action or global
 restore/repair system. Existing exceptional-state guards remain pending separately reviewed integration.
 
-#### Initial review budgets — proposals, not trading limits or measurements
+#### Initial review budgets — accepted measurement targets, not trading limits
 
 Use a declared synthetic fixture of one account, one current approval, 20 open positions, 100 relevant
 symbols, 10 active orders and 20 unresolved restrictions. These counts are benchmark capacity, not new
@@ -1209,8 +1209,11 @@ possible even when telemetry shows a growth/performance regression.
 
 #### Verification and first-increment boundary
 
-Before coding, review the table/marker semantics and acceptance budgets above. After approval, the first
-increment prepares only the offline storage types/repository/schema and synthetic tests plus reviewed
+The operator accepted this compact proposal and explicitly authorized its first coding step, requesting
+test results before proceeding and prohibiting live database changes or engine restarts. [ADR-0117](../adr/0117-compact-trading-current-storage.md)
+records this limited acceptance. The [owning checklist](../strategy-alignment-implementation-checklist.md)
+records implementation, measured offline results and outstanding native qualification separately.
+The first increment prepares only the offline storage types/repository/schema and synthetic tests plus reviewed
 migration script; it does not switch the production engine, remove guards or create production tables.
 Before use, inventory every current consumer/writer and map each required field/derived value to a
 bounded record: purchase allowance, risk peaks/opening references, entry/add-on counts, last exit,
@@ -1256,7 +1259,7 @@ supported recovery purpose, not a demonstrated reason for routine full-history s
 |---|---|
 | Installed policy pending reviewed replacement | ADR-0103 currently specifies after-session new-history/weekly archive work. Item 13 initially accepts reason-specific historical audits, then reopens placement/cadence to consider nightly ownership; no blanket lifetime scans or schedule changes are approved. Historical completion stays outside restart readiness. The separate market-data DataAudit purpose remains unchanged. |
 | Accepted design direction, implementation review required | Sequential items 1–8 and 10–12 above: broker authority, small current records/checkpoints, original-request reconciliation, completed receipts with safe cleanup, automatic ordinary restart without lifetime scans, action-specific holds, prompt protective selling without redundant holdings/trigger reconfirmation, and efficient changed-record storage. New tables are permitted when simpler; obsolete-data cleanup is an intended outcome. Retain current plus previous checkpoint per account; a separate SQL job task owns cleanup. Retained history needs a demonstrated consumer/purpose. Exact mechanisms, other retention limits, cleanup sets and execution-contract changes remain subject to review. |
-| Recommended technical detail, awaiting acceptance | Write-ahead local/SQL commit protocol, exact schema and dependency tracking, restore guarantees and detailed action eligibility rules. Earlier sketches do not constitute approved implementation. |
+| Accepted first storage increment; remaining protocol detail open | ADR-0117 records the isolated seven-table storage contract and two-marker semantics. Local/SQL journal coordination, integration dependency tracking, restore guarantees and detailed action eligibility rules still require review; earlier sketches do not constitute approval for that implementation. |
 | Provisional target | 10-second p95 / 30-second p99 and 30-second blocker deadline; bounded tail/resource/scaling budgets above. Needs measurement on representative active state and agreement. |
 | Deferred consequential choice — #25 | Expanded damaged-state/old-backup recovery, automatic repair and joint-rollback guarantees need separate discussion; they are not prerequisites for the ordinary-restart/database-load increment. Preserve existing exceptional-state handling and disclose its limits. |
 | Open engineering evidence | Broker since-watermark lookup/coverage, complete writer inventory, actual current-state size, SQL/compatibility/transition profile, file-flush crash guarantees, isolated restore identity behavior and capacity under contention. |
@@ -1267,10 +1270,11 @@ This draft is complete enough to review the architectural direction and commissi
 implementation increment. It is not deployment-ready: writer inventory, broker coverage and native
 ordinary-interruption evidence are acceptance gates, and the replacement protocol has not been implemented.
 Expanded exceptional-recovery design is deferred to #25; existing exceptional-state safeguards remain.
-On acceptance, create the superseding ADR with explicit links from the affected decisions, update the
-owning checklist and existing #19. Do not mark all alternatives as requirements.
+At a later reviewed integration increment, record exact supersession with explicit links from the
+affected decisions and update existing #19. ADR-0117 accepts the disconnected storage boundary only;
+the owning checklist records its results. Do not mark all alternatives as requirements.
 
-Validation performed here: synthetic codec round trips and four corruption probes pass; 40 focused
+Earlier design-stage validation: synthetic codec round trips and four corruption probes pass; 40 focused
 current recovery/integrity tests and 92 original-order/transport/historical-hash tests pass (132 total,
 zero failures/skips). Existing compiler warnings were CS8632 (261 reported), CS0162
 (2) and CS0168 (1). Dependency-security warnings NU1902/NU1903 are separate from those compiler
@@ -1279,7 +1283,7 @@ This session did not requalify dependencies. No full-solution/SSDT build claim i
 The isolated profiling project built and ran without warnings in its captured output. Original-order
 test output is retained in `artifacts/recovery-design-order-tests-20261030.log`.
 
-No production source or SQL schema was changed; no host stopped/started, collector setting altered,
+During the earlier design investigation, no production source or SQL schema was changed; no host stopped/started, collector setting altered,
 grant changed, journal decrypted, recovery cleared, model trained, market/broker call made, migration
 run, artifact published or Git push performed by this design session. Local saved monitor receipts
 were reused instead of contending for its SQL mailbox. New diagnostic source operates only on

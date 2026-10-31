@@ -1,0 +1,37 @@
+-- ADR-0117. Prepared compact store; not wired to engine startup.
+CREATE TABLE [dbo].[TradingPositionCurrent]
+(
+    [BindingId] uniqueidentifier NOT NULL,
+    [Version] bigint NOT NULL,
+    [PositionId] uniqueidentifier NOT NULL,
+    [SecurityId] nvarchar(128) COLLATE Latin1_General_100_BIN2 NOT NULL,
+    [Symbol] nvarchar(20) COLLATE Latin1_General_100_BIN2 NOT NULL,
+    [IsOpen] bit NOT NULL,
+    [Quantity] int NOT NULL,
+    [ReservedSellQuantity] int NOT NULL,
+    [CostBasis] decimal(19,6) NOT NULL,
+    [FirstEntryUtc] datetime2(7) NOT NULL,
+    [LastEntryUtc] datetime2(7) NOT NULL,
+    [OriginalTarget] decimal(19,6) NULL,
+    [EntryCount] int NOT NULL,
+    [AddOnCount] int NOT NULL,
+    [ProtectionOwner] nvarchar(64) COLLATE Latin1_General_100_BIN2 NOT NULL,
+    [ProtectionFloor] decimal(19,6) NULL,
+    [HighestClose] decimal(19,6) NULL,
+    [ProtectionStage] nvarchar(32) COLLATE Latin1_General_100_BIN2 NOT NULL,
+    [LastProtectionUtc] datetime2(7) NULL,
+    [ExitDecisionId] uniqueidentifier NULL,
+    [ExitReason] nvarchar(64) COLLATE Latin1_General_100_BIN2 NULL,
+    [ExitTriggeredUtc] datetime2(7) NULL,
+    [ProtectionJson] nvarchar(1024) COLLATE Latin1_General_100_BIN2 NOT NULL,
+    CONSTRAINT [PK_TradingPositionCurrent] PRIMARY KEY ([BindingId],[PositionId]),
+    CONSTRAINT [CK_TradingPositionCurrent_Version] CHECK ([Version]>=0),
+    CONSTRAINT [FK_TradingPositionCurrent_Account] FOREIGN KEY ([BindingId]) REFERENCES [dbo].[TradingAccountCurrent]([BindingId]),
+    CONSTRAINT [CK_TradingPositionCurrent_1] CHECK ([Quantity]>=0 AND [ReservedSellQuantity]>=0 AND [ReservedSellQuantity]<=[Quantity] AND [CostBasis]>=0 AND [EntryCount]>=0 AND [AddOnCount]>=0),
+    CONSTRAINT [CK_TradingPositionCurrent_2] CHECK (([IsOpen]=1 AND [Quantity]>0) OR ([IsOpen]=0 AND [Quantity]=0)),
+    CONSTRAINT [CK_TradingPositionCurrent_3] CHECK ([LastEntryUtc]>=[FirstEntryUtc]),
+    CONSTRAINT [CK_TradingPositionCurrent_4] CHECK (([ExitDecisionId] IS NULL AND [ExitReason] IS NULL AND [ExitTriggeredUtc] IS NULL) OR ([ExitDecisionId] IS NOT NULL AND [ExitReason] IS NOT NULL AND [ExitTriggeredUtc] IS NOT NULL)),
+    CONSTRAINT [CK_TradingPositionCurrent_5] CHECK (ISJSON([ProtectionJson])=1 AND LEFT(LTRIM([ProtectionJson]),1)=N'{'),
+    CONSTRAINT [CK_TradingPositionCurrent_Symbol] CHECK (LEN([Symbol])>0 AND [Symbol]=UPPER([Symbol]))
+);
+GO
