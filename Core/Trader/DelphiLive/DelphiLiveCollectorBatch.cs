@@ -50,20 +50,49 @@ public static class DelphiLiveCollectorBatches
         if (saved.Observations.Any(o => o.CheckedUtc > batch.ValidatedUtc))
             throw new ArgumentException("Collector validation time cannot move backwards.");
         if (batch.FailureCode is not null) return saved;
-        // Check revisions over the whole response even when the target minute is missing/forming.
-        var next = DelphiLiveMinuteEvidence.Observe(saved, Read(batch, batch.ExpectedEndUtc), batch.ValidatedUtc).Book;
-        foreach (var bar in batch.Bars.Where(b => b.TimestampUtc.AddMinutes(1) <= batch.ExpectedEndUtc &&
-            b.TimestampUtc.AddMinutes(1) < batch.FetchStartedUtc).OrderBy(b => b.TimestampUtc))
-            next = DelphiLiveMinuteEvidence.Observe(next, Read(batch, bar.TimestampUtc.AddMinutes(1)), batch.ValidatedUtc).Book;
-        return next;
+        // Compare the entire validated response once, including corrections outside the target minute.
+        var byStart = saved.Observations.ToDictionary(o => o.Bar.TimestampUtc);
+        var byId = saved.Observations.ToDictionary(o => o.ObservationId, o => o.EndUtc);
+        var conflicts = saved.ConflictingStartsUtc.ToHashSet();
+        foreach (var bar in batch.Bars)
+            if (bar.TimestampUtc.AddMinutes(1) < batch.FetchStartedUtc &&
+                byStart.TryGetValue(bar.TimestampUtc, out var original) && original.Bar != bar)
+                conflicts.Add(bar.TimestampUtc);
+
+        Guid CheckedId(DateTime end)
+        {
+            var id = ObservationId(batch.RequestId, end);
+            if (byId.TryGetValue(id, out var previousEnd) && previousEnd != end)
+                throw new ArgumentException("An observation identity cannot represent another minute.");
+            return id;
+        }
+
+        var targetId = CheckedId(batch.ExpectedEndUtc);
+        foreach (var bar in batch.Bars)
+        {
+            var end = bar.TimestampUtc.AddMinutes(1);
+            if (end > batch.ExpectedEndUtc || end >= batch.FetchStartedUtc) continue;
+            var id = end == batch.ExpectedEndUtc ? targetId : CheckedId(end);
+            if (conflicts.Count != 0 || byStart.ContainsKey(bar.TimestampUtc)) continue;
+            byId.Add(id, end);
+            byStart.Add(bar.TimestampUtc, new(id, bar, batch.FetchStartedUtc, batch.ReceivedUtc,
+                batch.ValidatedUtc, end.Add(batch.DeadlineOffset)));
+        }
+        if (conflicts.Count != 0)
+            return saved with { ConflictingStartsUtc = conflicts.Order().ToImmutableArray() };
+        if (byStart.Count == saved.Observations.Length) return saved;
+        return saved with { Observations = byStart.Values.OrderBy(o => o.EndUtc).ToImmutableArray() };
     }
 
     public static string Hash(string value) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
 
-    private static DelphiLiveMinuteRead Read(DelphiLiveCollectorBatch batch, DateTime end)
+    private static Guid ObservationId(Guid requestId, DateTime end)
     {
-        byte[] identity = SHA256.HashData(Encoding.UTF8.GetBytes(batch.RequestId.ToString("D") + "/" + end.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture)));
-        return new(new Guid(identity.AsSpan(0, 16)), batch.Symbol, batch.SourceContract, end,
-            end.Add(batch.DeadlineOffset), batch.FetchStartedUtc, batch.ReceivedUtc, batch.Bars);
+        byte[] identity = SHA256.HashData(Encoding.UTF8.GetBytes(requestId.ToString("D") + "/" + end.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        return new Guid(identity.AsSpan(0, 16));
     }
+
+    private static DelphiLiveMinuteRead Read(DelphiLiveCollectorBatch batch, DateTime end) =>
+        new(ObservationId(batch.RequestId, end), batch.Symbol, batch.SourceContract, end,
+            end.Add(batch.DeadlineOffset), batch.FetchStartedUtc, batch.ReceivedUtc, batch.Bars);
 }

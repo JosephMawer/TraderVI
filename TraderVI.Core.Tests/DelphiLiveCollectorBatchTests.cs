@@ -37,6 +37,23 @@ public sealed class DelphiLiveCollectorBatchTests
     }
 
     [Fact]
+    public void EndOfDayReplayAcceptsOnlyNewMinutesAndLatchesAllRevisionsBeforeAnyInsert()
+    {
+        var first = Batch(389) with { Bars = Enumerable.Range(0, 389).Select(i => Bar(i)).ToImmutableArray() };
+        var saved = DelphiLiveCollectorBatches.Apply(DelphiLiveCollectorBatches.Empty(first), first);
+        var last = Batch(390) with { Bars = Enumerable.Range(0, 390).Reverse().Select(i => Bar(i)).ToImmutableArray() };
+        var complete = DelphiLiveCollectorBatches.Apply(saved, last);
+        Assert.Equal(390, complete.Observations.Length);
+        Assert.Equal(saved.Observations.ToArray(), complete.Observations.Take(389).ToArray());
+        Assert.Same(complete, DelphiLiveCollectorBatches.Apply(complete, last));
+
+        var correction = last with { Bars = [Bar(389), Bar(333, 11), Bar(0, 11)] };
+        var blocked = DelphiLiveCollectorBatches.Apply(saved, correction);
+        Assert.Equal(saved.Observations, blocked.Observations);
+        Assert.Equal(new[] { Open, Open.AddMinutes(333) }, blocked.ConflictingStartsUtc.ToArray());
+    }
+
+    [Fact]
     public void ANewRequestDoesNotReplaceFirstArrivalOrRefreshExpiry()
     {
         var batch = Batch();
