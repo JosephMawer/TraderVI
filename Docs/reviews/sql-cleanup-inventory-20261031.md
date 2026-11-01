@@ -285,10 +285,10 @@ detection entirely. One incident cannot estimate its future frequency. The appro
 signal used separate evidence, with no observed contamination in the original review.
 [October 28 incident](independent-engine-implementation-20261022.md#bte-saved-source-investigation--october-28-1535-toronto)
 
-The optimized collector keeps that correction coverage while reducing compute time and stored bytes.
+The initial 056 collector kept that correction coverage while reducing compute time and stored bytes.
 Compression operates per receipt. Identical history can still be present in different compressed
-receipts. The separate historical conversion keeps every logical receipt. The next production
-backup will be the first opportunity to measure its effect on compressed backup size.
+receipts. The separate historical conversion kept every logical receipt. Subsequent full-backup
+lengths are recorded in the production section below.
 [Storage decision](../adr/0111-independent-collector-and-recovered-confirmation.md#november-1--receipt-storage-and-historical-corrections)
 
 Private benchmark and replay evidence is under `artifacts/collector-efficiency-20261101/`.
@@ -325,7 +325,7 @@ Times here are UTC because Toronto switched from daylight to standard time durin
 The authorized 05:58 pre-migration full backup passed SQL checksum verification. Its 4,371,537,920-byte
 OneDrive copy matched SHA-256 and Windows reported cloud state 9 (in sync) at 06:03:38. This manual backup
 left four regular full backups and five protected checkpoints in each folder. The next successful
-routine rotation and the size of the next post-conversion backup remain to be observed.
+routine rotation remains to be observed.
 
 The primary and fallback packages used the retained installed collector source and dependencies.
 The primary Core library incorporates the two reviewed source changes. The fallback retains the
@@ -362,3 +362,9 @@ Backup receipts, packages, SQL logs and before/after comparisons are under
 `artifacts/collector-efficiency-20261101/`. Independent helper results with the prefix
 `result-20261101T` and UTC times `055709092Z`, `061113956Z`, `061510481Z` and `061612384Z`
 cover the baseline, pilot, final preservation and post-restart counts/file sizes.
+
+The two subsequent manual full backups for migration 057 measured 4,277,452,288 and 4,279,039,488
+bytes. The first was 2.15% smaller than the 4,371,537,920-byte pre-056 backup. Its local copy was
+verified at 01:51 EST. By the morning rollout it was outside the two-hour migration limit, so a fresh
+backup was taken and its copy reported in sync at 08:37 EST. These are whole-database measurements
+across different times. Neither manual operation ran routine backup rotation.

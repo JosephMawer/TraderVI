@@ -1,13 +1,31 @@
 # TraderVI Project Status
 
-## November 1 — Latest completed minute and rule-requested gaps prepared
+## November 1 — Latest-minute collector running, trading engine retained
 
-The replacement collector requests one completed minute per monitored symbol. The updated minute
-rules read SQL first. An unfilled required window can enqueue the exact missing minutes for the
-collector. Migration 057 and the production request/receipt code passed a new isolated SQL
-rehearsal. The Core suite passed 3,621 tests with 16 opt-in skips. Collector and engine Release
-builds and the SSDT schema build passed. Production installation and market-open source qualification
-are separate. [Acquisition decision](adr/0111-independent-collector-and-recovered-confirmation.md#superseding-decision--latest-completed-minute-and-rule-driven-history)
+At 08:38 EST migration 057 committed after a fresh checksum-verified backup, hash-matched copy
+and OneDrive in-sync confirmation. An independent read verified the empty rule-demand queue,
+trusted constraints and two indexes. The original 36,380 receipts, their packed byte total and the
+attempt, observation and conflict counts matched preflight. The selected Real strategy still uses
+five-minute data.
+
+The exact collector package passed a mock-HTTP and native SQL check of the one-minute wire bounds,
+SQL gap selection and fenced receipt save. At 08:38:59 and 08:39:14 EST the new supervisor and
+single collector reported ClosedSession with zero failures. The loaded Core hash began
+`338D0B83C8C6` and matched the staged manifest. The first market-open provider response under this
+policy remains unverified. Nightly backfill is deferred.
+
+The trading-engine rollout review compared the approved Core (`0EBB53C58B95`) with the staged
+consumer (`AE671599B3EA`). The staged Release Core matched the test assembly's Core and passed
+3,621 tests with 16 opt-in skips. The separate SQL rehearsal and SSDT build passed. The new engine
+would require an exact-build review and also includes broker reconciliation changes. At the operator's
+direction the installed engine kept its original process, binary and five-minute assignment. The
+new one-minute rule publisher is staged for a future reviewed release. Collector source qualification
+and an explicit minute-strategy adoption are still required before financial use.
+[Acquisition decision](adr/0111-independent-collector-and-recovered-confirmation.md#superseding-decision--latest-completed-minute-and-rule-driven-history)
+
+Private evidence is under `artifacts/minute-demand-20261101/`. Read-only receipts
+`result-20261101T133129931Z` and `result-20261101T133828420Z` cover production preflight and
+post-migration verification.
 
 ## November 1 — Collector receipts compressed in production
 

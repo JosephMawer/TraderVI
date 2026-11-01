@@ -1,6 +1,6 @@
 # Manual database migrations
 
-## Rule-requested minute history — 057
+## Rule-requested minute history — 057 installed November 1
 
 [Migration 057](20261101_057_AddRuleRequestedMinuteHistory.sql) adds one initially empty queue
 and an index on the reserving request ID. It requires the installed packed collector receipt
@@ -8,6 +8,11 @@ schema and a fresh checksum-verified full backup. It performs no historical data
 Install the schema before the new collector. The earlier 056 writer remains compatible for rollback.
 The consumer build is required to publish actual rule gaps.
 [Request and recovery behavior](../../Operations/Collector/README.md)
+
+057 committed in production at 08:38 EST after verified backup and synchronization. The new table
+was empty, the foreign key and window constraint trusted, and the primary and request-ID indexes
+enabled. The latest-minute collector was installed. The five-minute trading engine was retained.
+Do not replay this migration. [Installation evidence](../../Docs/project-status.md#november-1--latest-minute-collector-running-trading-engine-retained)
 
 ## Collector receipt compression — installed November 1
 
