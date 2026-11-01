@@ -31,6 +31,12 @@ with #16's retention policy. Investigate other database cleanup candidates and o
 there; this is not a prerequisite for the restart increment. Current plus previous checkpoint and
 SQL-owned cleanup are agreed directions; schedules, candidate sets and implementation remain open.
 
+The [October 31 read-only inventory and dry run](sql-cleanup-inventory-20261031.md) measures major
+tables and preliminary candidate pools, maps consumers, and proposes one ordered SQL Agent job.
+Agent is installed but stopped; no job or deletion was installed/run. #16 still owns retention
+acceptance; complete reference/rollback proof and #19 installation are prerequisites for legacy
+Real-history removal. Candidate counts are review pools, not approved deletion counts.
+
 ### Indicator history recovery and opening-entry alternative — October 27, 2026
 
 Accepted direction: validated stored history and separately identified backfill for current indicators,
