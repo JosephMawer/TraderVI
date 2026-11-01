@@ -153,6 +153,7 @@ public sealed partial class TradingCompactStorageTests
             manualWriter.SaveSell(manual);
         }
         using var journal = new ManualBuyFileJournal(directory.Path, protector);
+        journal.PrepareRestartSellScopes(observation.IdentityId, observation.AccountId, new ManualBuyFileJournal.RestartHolding(position.SecurityId, position.PositionId, position.FirstEntryUtc));
         if (scenario == "revoked before send") db.AfterNextWriteCommit = () => grants.Write(grant, grant with { Enabled = false });
         if (scenario == "manual sell before send") db.AfterNextWriteCommit = () => journal.SaveSell(manual);
         Task<IRestartSellLease> Acquire(CancellationToken ct) => Task.FromResult<IRestartSellLease>(

@@ -68,10 +68,7 @@ public sealed partial class TradingCompactStorageTests
         var broker = new EngineBrokerService(connection, journal, protector, grants, calendar, (_, ct) => continuity.VerifyAsync(ct),
             sessions, source.Strategy.Strategy.ImplementationIdentity, false, async (saved, selected, orderGate, ct) =>
             {
-                var pending = Assert.Single(journal.ReadAll());
-                Assert.False(pending.IsResolved);
-                Assert.Equal(originalBuy.RequestId, pending.Intent.RequestId);
-                Assert.Equal(selected.Id, pending.Intent.AccountId);
+                var buyJournal = new RestartBuyJournal(journal, saved.BindingId, saved.Account.Import.Plan.Observation.IdentityId, selected.Id);
                 async Task<IRestartSellLease> Acquire(CancellationToken cancellation)
                 {
                     await orderGate.WaitAsync(cancellation);
@@ -96,7 +93,7 @@ public sealed partial class TradingCompactStorageTests
                     Assert.NotEqual(originalBuy.SecurityId, sale.SecurityId);
                     eligible++; // Observe after the final admission check. There is no submit client.
                     return Task.CompletedTask;
-                }, Acquire, (_, _) => throw new InvalidOperationException("No fill to open."), time).RunAsync(saved.BindingId, ct);
+                }, Acquire, (_, _) => throw new InvalidOperationException("No fill to open."), time, buyJournal).RunAsync(saved.BindingId, ct);
                 return saved;
             }, time);
         var completed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -185,6 +182,7 @@ public sealed partial class TradingCompactStorageTests
         grants.Write(null, new(bound, saved.SessionId, saved.Strategy.Fingerprint, fixture.ImplementationIdentity, at, "Synthetic", true)
             { RestoreAfterRestart = true });
         var observation = saved.Account.Import.Plan.Observation;
+        journal.PrepareRestartSellScopes(observation.IdentityId, observation.AccountId, new ManualBuyFileJournal.RestartHolding(p.SecurityId, p.PositionId, p.FirstEntryUtc));
         journal.Save(new(new(buy.RequestId, observation.IdentityId, observation.AccountId, buy.SecurityId, "Synthetic",
             buy.Symbol, "XTSE", 10, new(buy.Symbol, "Synthetic", "Buy"), 10,
             new(10, 9, at, "OPEN", at.AddHours(-1), at.AddHours(1), at), 100, at),

@@ -16,7 +16,7 @@ public interface IManualBuyProtector
 }
 
 /// <summary>Exclusive, protected, atomic order storage. Never contains authentication secrets.</summary>
-public sealed class ManualBuyFileJournal : IBrokerOrderJournal
+public sealed partial class ManualBuyFileJournal : IBrokerOrderJournal
 {
     private readonly string directory;
     private readonly IManualBuyProtector protector;
@@ -77,6 +77,12 @@ public sealed class ManualBuyFileJournal : IBrokerOrderJournal
             var path = Path.Combine(directory, record.Intent.RequestId.ToString("N") + ".sell");
             if (File.Exists(path) && ReadSell(path).Intent != record.Intent)
                 throw new InvalidOperationException("A sell's reviewed intent cannot be replaced.");
+            var index = ReadSellIndex(record.Intent.AccountId);
+            var scope = index?.Scopes.GetValueOrDefault(record.Intent.SecurityId);
+            var id = record.Intent.RequestId;
+            bool relevant = scope != null && scope.Conflicts(record, index!.Identity);
+            // Publish a new pointer first. A crash may leave an extra pointer, never a hidden committed sale.
+            if (relevant && scope!.Requests.Add(id)) WriteSellIndex(index!);
             byte[] plaintext = JsonSerializer.SerializeToUtf8Bytes(new SellEnvelope(1, record));
             byte[] encrypted;
             try { encrypted = protector.Protect(plaintext); }
@@ -87,6 +93,7 @@ public sealed class ManualBuyFileJournal : IBrokerOrderJournal
                 stream.Write(encrypted); stream.Flush(flushToDisk: true);
             }
             File.Move(pending, path, overwrite: true);
+            if (!relevant && scope != null && scope.Requests.Remove(id)) WriteSellIndex(index!);
         }
     }
     private ManualBuyRecord Read(string path)

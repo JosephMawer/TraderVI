@@ -17,7 +17,8 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore store,
     Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> lookup,
     Func<Guid, CancellationToken, Task<(Guid Binding, WealthsimpleTfsaSnapshot Snapshot)>> readBrokerAccount,
     Func<TradingOrder, CancellationToken, Task> simulateSell, Func<CancellationToken, Task<IRestartSellLease>> acquireSellLease,
-    Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms, TimeProvider clock)
+    Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms, TimeProvider clock,
+    RestartBuyJournal? buyJournal = null)
 {
     internal async Task<AccountRestartResult> RunAsync(Guid bindingId, CancellationToken ct = default)
     {
@@ -87,6 +88,7 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore store,
             if (order is null) continue;
             try
             {
+                if (order.Side == "BUY") buyJournal?.FindOriginal(order);
                 var saved = order.Side == "SELL"
                     ? await RecoverSale(current, order, ct)
                     : await buys.RecoverAsync(current, order, clock.GetUtcNow(), ct);

@@ -4,6 +4,7 @@ using System.Text;
 
 namespace TraderVI.WPF.Services;
 
+[System.Runtime.Versioning.SupportedOSPlatform("windows")]
 public sealed class WindowsManualBuyProtector : IManualBuyProtector
 {
     private static readonly byte[] Entropy = Encoding.UTF8.GetBytes("TraderVI.Wealthsimple.ManualOrders.v1");

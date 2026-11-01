@@ -242,9 +242,20 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   restoration. [Trigger tests](../TraderVI.Core.Tests/TradingCompactStorageTests.ProtectiveDecision.cs).
   Local receipts: `artifacts/compact-storage-20261030/results/protective-trigger.trx` and
   `protective-trigger-codec.trx` in the same directory.
-- [ ] Qualify the bounded production journal index, exact attribution of manual fills, native
-  grant/journal fencing and broker coverage. Map strategy-specific opening terms and remaining
-  writers before connecting the compact restart path.
+- [x] October 31 verified the restart journal connection on an isolated copy of the installed
+  encrypted receipts and the previously captured account revision. Every managed buy in that
+  revision matched its original request, identity, account, security, symbol and quantity.
+  After reopening the copy, an injected unresolved manual sale blocked only its own holding.
+  Separate restart tests retained the $100 reservation through missing, unreadable and conflicting
+  receipts. The protected lookup contains current holding boundaries and relevant sale IDs.
+  Explicit preparation reads legacy receipts once. Ordinary checks use the lookup and exact
+  request filenames. Repeated status saves and unrelated sales left the lookup bytes unchanged.
+  [Journal tests](../TraderVI.Core.Tests/TradingCompactStorageTests.Journal.cs).
+  Private local evidence: `artifacts/restart-release/journal-final-copy.trx`.
+- [ ] Connect holding-open/close writers to journal coverage and qualify exclusive writer ownership
+  at cutover. Reprepare coverage before reuse if an older writer has owned the journal. Qualify
+  manual-fill attribution, native grant/journal fencing and broker coverage. Map strategy-specific
+  opening terms and remaining writers before connecting the compact restart path.
 - [x] October 31 ran migrations 054/055 against checksummed backups on disposable SQL Server
   LocalDB 17. The native fixture kept 154 rows, two markers and 232 KiB of used table/index pages
   through 10,000 saves (p95 4.82 ms). Concurrent retries committed once. An injected SQL failure

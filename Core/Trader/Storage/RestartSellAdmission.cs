@@ -15,7 +15,7 @@ internal interface IRestartSellLease : IDisposable
 }
 
 internal sealed class RestartSellAdmission(BrokerManagedSession session, BrokerExecutionHostGrantFileStore grants,
-    IManualSellJournal journal, string build, IDisposable lease) : IRestartSellLease
+    ManualBuyFileJournal journal, string build, IDisposable lease) : IRestartSellLease
 {
     private IDisposable? grantFence;
     internal static async Task SaveTriggerAsync(TradingCurrentStore store, BrokerManagedSession source, Guid positionId,
@@ -53,7 +53,7 @@ internal sealed class RestartSellAdmission(BrokerManagedSession session, BrokerE
             if (final) grantFence = grants.AcquireFence();
             VerifyCurrent(state, position, requestId, now);
         }
-        catch (Exception error) when (error is System.IO.IOException or UnauthorizedAccessException or
+        catch (Exception error) when (error is System.IO.IOException or System.IO.InvalidDataException or ArgumentException or UnauthorizedAccessException or
             System.Security.Cryptography.CryptographicException or System.Text.Json.JsonException)
         {
             throw new InvalidOperationException("The protected grant or order journal is busy or unreadable. Recheck before selling.", error);
@@ -71,15 +71,8 @@ internal sealed class RestartSellAdmission(BrokerManagedSession session, BrokerE
         if (CopyTrigger(session, state, position) != position)
             throw new InvalidOperationException("Saved protective decision differs from the original trigger.");
         var account = session.Account.Import.Plan.Observation;
-        foreach (var sale in journal.ReadSells())
-        {
-            if (sale.Intent.RequestId == requestId)
-                throw new InvalidOperationException("The original request is already in the order journal. Reconcile its original ID.");
-            if (sale.Intent.AccountId != account.AccountId || sale.Intent.SecurityId != position.SecurityId) continue;
-            if (sale.Intent.IdentityId != account.IdentityId || !sale.IsResolved ||
-                (sale.Latest?.FilledQuantity > 0 && !(sale.Latest.LastFilledAt < position.FirstEntryUtc)))
-                throw new InvalidOperationException("Reconcile the journal sale on these shares before dispatching the protective exit.");
-        }
+        journal.RequireClearForRestartSell(account.IdentityId, account.AccountId, position.SecurityId,
+            position.PositionId, position.FirstEntryUtc, requestId);
     }
     public void Dispose()
     {
