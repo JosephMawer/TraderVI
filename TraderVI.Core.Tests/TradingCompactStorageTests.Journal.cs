@@ -53,7 +53,7 @@ public sealed partial class TradingCompactStorageTests
         if (scenario == "unreadable") File.WriteAllBytes(Path.Combine(folder.Path, order.RequestId.ToString("N") + ".order"), new byte[64]);
         File.WriteAllBytes(Path.Combine(folder.Path, Guid.NewGuid().ToString("N") + ".order"), new byte[64]);
         using var copy = new ManualBuyFileJournal(folder.Path, protector);
-        var journal = new RestartBuyJournal(copy, Binding, "identity", "account");
+        var journal = new RestartOrderJournal(copy, Binding, "identity", "account");
         if (scenario == "original") Assert.Equal(order.RequestId, journal.FindOriginal(order)!.Intent.RequestId);
         if (scenario == "missing") Assert.Null(journal.FindOriginal(order));
         var db = new Database();
@@ -171,7 +171,7 @@ public sealed partial class TradingCompactStorageTests
         using var restarted = new ManualBuyFileJournal(dir.Path, protector);
         var buys = session.Orders.Where(o => o.Side == "BUY").ToArray();
         Assert.NotEmpty(buys);
-        var adapter = new RestartBuyJournal(restarted, session.BindingId, account.IdentityId, account.AccountId);
+        var adapter = new RestartOrderJournal(restarted, session.BindingId, account.IdentityId, account.AccountId);
         foreach (var o in buys)
         {
             var receipt = adapter.FindOriginal(new TradingOrder { BindingId = session.BindingId, RequestId = o.RequestId,

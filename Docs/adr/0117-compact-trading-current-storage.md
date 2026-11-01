@@ -171,6 +171,20 @@ Source entry points: [engine composition](../../TraderVI.Engine/Program.cs),
 
 ## Release rehearsal and rollback boundary
 
+In the offline candidate, the compact position rows own the watched holdings. An opening or final
+sell fill commits its position and receipt first. The writer then projects the current position
+IDs, securities and entry times to the protected journal under the account read lock. Restart
+repeats this comparison to repair an interrupted handoff. An unchanged holding set leaves the
+watch file untouched. An ambiguous pair of open cycles for one security has no eligible watch.
+
+A delayed broker buy fill can reveal a holding after a manual sale has already been recorded for
+that security. The version 2 journal index therefore also keeps unresolved or ambiguous sale IDs
+and one latest dated completed fill (time and request ID) per security with fill evidence.
+The protected catalog grows with distinct sold securities and outstanding work. Repeated completed
+sales on a security replace its latest fill. Ordinary reads with unchanged watches skip the catalog.
+Preparing the index from legacy receipts is explicit. A version 1 index must be prepared again
+before using the candidate. A completed fill on or after the new entry stays scoped for attribution.
+
 Migrations 054 and 055 ran from their reviewed files on isolated SQL Server 17 LocalDB instances.
 Each had its own TraderDB and checksum-verified pre-migration backup. SQL initially read 39,479
 pages to return ten unfinished orders at one million finished receipts. The filtered index took

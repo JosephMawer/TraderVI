@@ -2,14 +2,22 @@
 using Core.WSTrade.Orders;
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace Core.Trader.Storage;
 
 // A local intent can corroborate the request. Only a broker observation can book a fill or release cash.
-internal sealed class RestartBuyJournal(ManualBuyFileJournal journal, Guid binding, string identity, string account)
+internal sealed class RestartOrderJournal(ManualBuyFileJournal journal, Guid binding, string identity, string account)
 {
+    internal void AlignHoldings(TradingCurrentState state)
+    {
+        if (state.Account.BindingId != binding) throw new InvalidOperationException("Wrong account for the restart journal.");
+        journal.AlignRestartHoldings(identity, account, state.Positions.Select(p =>
+            new ManualBuyFileJournal.RestartHolding(p.SecurityId, p.PositionId, p.FirstEntryUtc)).ToArray());
+    }
+
     internal ManualBuyRecord? FindOriginal(TradingOrder order)
     {
         try

@@ -80,6 +80,17 @@ public sealed partial class ManualBuyFileJournal : IBrokerOrderJournal
             var index = ReadSellIndex(record.Intent.AccountId);
             var scope = index?.Scopes.GetValueOrDefault(record.Intent.SecurityId);
             var id = record.Intent.RequestId;
+            var catalog = index?.Version == 2 ? ReadCatalog(index) : null;
+            var evidence = catalog?.Securities.GetValueOrDefault(record.Intent.SecurityId);
+            // Cover a sale even while flat: a broker buy fill may be reported after this local write.
+            bool pending = index != null && SaleEvidence.NeedsReceipt(record, index.Identity);
+            bool laterFill = !pending && record.Latest?.FilledQuantity > 0 && record.Latest.LastFilledAt is { } at &&
+                (evidence?.LastFill == null || at > evidence.LastFill);
+            if (catalog != null && (pending || laterFill))
+            {
+                if (evidence == null) catalog.Securities[record.Intent.SecurityId] = evidence = new();
+                if (evidence.Pending.Add(id)) WriteProtected(SellIndexPath(index!.Account) + ".catalog", catalog);
+            }
             bool relevant = scope != null && scope.Conflicts(record, index!.Identity);
             // Publish a new pointer first. A crash may leave an extra pointer, never a hidden committed sale.
             if (relevant && scope!.Requests.Add(id)) WriteSellIndex(index!);
@@ -87,12 +98,17 @@ public sealed partial class ManualBuyFileJournal : IBrokerOrderJournal
             byte[] encrypted;
             try { encrypted = protector.Protect(plaintext); }
             finally { CryptographicOperations.ZeroMemory(plaintext); }
-            var pending = path + ".pending";
-            using (var stream = new FileStream(pending, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
+            var pendingPath = path + ".pending";
+            using (var stream = new FileStream(pendingPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
             {
                 stream.Write(encrypted); stream.Flush(flushToDisk: true);
             }
-            File.Move(pending, path, overwrite: true);
+            File.Move(pendingPath, path, overwrite: true);
+            if (catalog != null && !pending && evidence?.Pending.Contains(id) == true)
+            {
+                Observe(catalog, record, index!.Identity);
+                WriteProtected(SellIndexPath(index.Account) + ".catalog", catalog);
+            }
             if (!relevant && scope != null && scope.Requests.Remove(id)) WriteSellIndex(index!);
         }
     }

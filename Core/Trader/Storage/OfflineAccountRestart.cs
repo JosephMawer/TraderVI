@@ -13,19 +13,32 @@ internal sealed record RestartNotice(string Action, string Symbol, Guid Original
 internal sealed record AccountRestartResult(TradingCurrentState Current, ImmutableArray<RestartNotice> Notices);
 
 /// <summary>Disconnected account rehearsal. Only test composition supplies the simulated sell transport.</summary>
-internal sealed class OfflineAccountRestart(TradingCurrentStore store,
+internal sealed class OfflineAccountRestart(TradingCurrentStore sourceStore,
     Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> lookup,
     Func<Guid, CancellationToken, Task<(Guid Binding, WealthsimpleTfsaSnapshot Snapshot)>> readBrokerAccount,
     Func<TradingOrder, CancellationToken, Task> simulateSell, Func<CancellationToken, Task<IRestartSellLease>> acquireSellLease,
     Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms, TimeProvider clock,
-    RestartBuyJournal? buyJournal = null)
+    RestartOrderJournal? orderJournal = null)
 {
     internal async Task<AccountRestartResult> RunAsync(Guid bindingId, CancellationToken ct = default)
     {
+        var notices = ImmutableArray.CreateBuilder<RestartNotice>();
+        void Align(TradingCurrentState state)
+        {
+            try { orderJournal!.AlignHoldings(state); }
+            catch (Exception error) when (error is InvalidOperationException or System.IO.IOException or
+                System.IO.InvalidDataException or UnauthorizedAccessException or System.Security.Cryptography.CryptographicException or
+                System.Text.Json.JsonException)
+            {
+                // Verified fills still belong in SQL. An uncovered position fails its own original-sale check.
+                if (!notices.Any(n => n.Action == "Journal coverage"))
+                    notices.Add(new("Journal coverage", "", bindingId, "Check the prepared sale lookup. Retry coverage from committed holdings."));
+            }
+        }
+        var store = orderJournal == null ? sourceStore : sourceStore.WithHoldingObserver(Align);
         async Task<TradingCurrentState> Read() => await store.ReadAsync(bindingId, ct)
             ?? throw new InvalidOperationException("Missing saved account.");
         var current = await Read();
-        var notices = ImmutableArray.CreateBuilder<RestartNotice>();
         var buys = new InterruptedBuyRecovery(store, lookup, openingTerms);
         // Snapshot work identities only. A saved trigger takes priority over unrelated status calls.
         var exits = current.Positions.Where(p => p.ExitDecisionId.HasValue).Select(p => p.PositionId).ToArray();
@@ -88,9 +101,9 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore store,
             if (order is null) continue;
             try
             {
-                if (order.Side == "BUY") buyJournal?.FindOriginal(order);
+                if (order.Side == "BUY") orderJournal?.FindOriginal(order);
                 var saved = order.Side == "SELL"
-                    ? await RecoverSale(current, order, ct)
+                    ? await RecoverSale(store, current, order, ct)
                     : await buys.RecoverAsync(current, order, clock.GetUtcNow(), ct);
                 if (saved.WrittenRows > 0) current = await Read();
                 // An authoritative read resolves any earlier uncertainty about dispatch.
@@ -168,7 +181,7 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore store,
         return true;
     }
 
-    private async Task<TradingSaveResult> RecoverSale(TradingCurrentState state, TradingOrder order, CancellationToken ct)
+    private async Task<TradingSaveResult> RecoverSale(TradingCurrentStore store, TradingCurrentState state, TradingOrder order, CancellationToken ct)
     {
         var p = state.Positions.SingleOrDefault(p => p.PositionId == order.PositionId);
         if (p is null || p.SecurityId != order.SecurityId || p.Symbol != order.Symbol ||

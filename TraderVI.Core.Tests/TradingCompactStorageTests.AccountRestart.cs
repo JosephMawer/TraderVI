@@ -32,8 +32,9 @@ public sealed partial class TradingCompactStorageTests
         public override DateTimeOffset GetUtcNow() => RecoveryAt;
     }
 
-    private sealed class SimulatedAccountBroker(Database db)
+    private sealed class SimulatedAccountBroker(TradingCurrentStore store)
     {
+        internal SimulatedAccountBroker(Database db) : this(db.Store) { }
         internal readonly List<TradingOrder> Sent = [];
         internal readonly List<string> Calls = [];
         internal Func<string, BrokerOrderFact?> Status = _ => null;
@@ -42,12 +43,12 @@ public sealed partial class TradingCompactStorageTests
         internal Func<Task>? AfterSend;
         internal Func<CancellationToken, Task<IRestartSellLease>> AcquireSellLease = _ =>
             Task.FromResult<IRestartSellLease>(new SimulatedLease());
-        internal OfflineAccountRestart Restart() => new(db.Store, Lookup, (id, _) =>
+        internal OfflineAccountRestart Restart(RestartOrderJournal? journal = null) => new(store, Lookup, (id, _) =>
         {
             Calls.Add("account");
             Assert.Equal(Binding, id);
             return Task.FromResult((SnapshotBinding, AccountBook()));
-        }, Submit, AcquireSellLease, SavedOpeningTerms, new RecoveryClock());
+        }, Submit, AcquireSellLease, SavedOpeningTerms, new RecoveryClock(), journal);
 
         private sealed class SimulatedLease : IRestartSellLease
         {
@@ -65,7 +66,7 @@ public sealed partial class TradingCompactStorageTests
 
         private async Task Submit(TradingOrder order, CancellationToken ct)
         {
-            var state = (await db.Store.ReadAsync(Binding, ct))!;
+            var state = (await store.ReadAsync(Binding, ct))!;
             var receipt = Assert.Single(state.Orders.Where(o => o.RequestId == order.RequestId));
             Assert.Equal("SELL", receipt.Side);
             Assert.Equal(receipt.Quantity, receipt.ReservedQuantity);

@@ -252,8 +252,13 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   request filenames. Repeated status saves and unrelated sales left the lookup bytes unchanged.
   [Journal tests](../TraderVI.Core.Tests/TradingCompactStorageTests.Journal.cs).
   Private local evidence: `artifacts/restart-release/journal-final-copy.trx`.
-- [ ] Connect holding-open/close writers to journal coverage and qualify exclusive writer ownership
-  at cutover. Reprepare coverage before reuse if an older writer has owned the journal. Qualify
+- [x] Connected the compact buy-fill and sell-fill writers to current journal coverage in the offline
+  candidate. A disposable SQL run opened four shares, closed the holding, and bought the same
+  security again under a new position ID. Repeated reads left the watch file unchanged.
+  Isolated tests checked a pending sale while flat, a fill before or at the new entry, and recovery
+  after a rolled-back save or lost commit reply. [Lifecycle tests](../TraderVI.Core.Tests/TradingCompactStorageTests.HoldingLifecycle.cs).
+  Native receipt: `artifacts/restart-release/lifecycle-native.trx`.
+- [ ] Qualify exclusive writer ownership at cutover. Reprepare coverage before reuse if an older writer has owned the journal. Qualify
   manual-fill attribution, native grant/journal fencing and broker coverage. Map strategy-specific
   opening terms and remaining writers before connecting the compact restart path.
 - [x] October 31 ran migrations 054/055 against checksummed backups on disposable SQL Server

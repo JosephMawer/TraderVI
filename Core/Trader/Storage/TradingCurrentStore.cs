@@ -26,7 +26,13 @@ internal interface ITradingStorageTransaction : IAsyncDisposable
 public sealed class TradingCurrentStore
 {
     private readonly ITradingStorageDatabase database;
-    internal TradingCurrentStore(ITradingStorageDatabase database) => this.database = database;
+    private readonly Action<TradingCurrentState>? alignHoldings;
+    internal TradingCurrentStore(ITradingStorageDatabase database, Action<TradingCurrentState>? align = null)
+    {
+        this.database = database;
+        alignHoldings = align;
+    }
+    internal TradingCurrentStore WithHoldingObserver(Action<TradingCurrentState> align) => new(database, align);
 
     // A latched exit can outlive its active order (for example after rejection).
     internal async Task<TradingOrder?> ReadOrderAsync(Guid bindingId, Guid requestId, CancellationToken ct)
@@ -43,17 +49,31 @@ public sealed class TradingCurrentStore
         return row;
     }
 
+    // Keep the account read lock until its journal projection is published, so a slower pass
+    // cannot replace the newer writer's position set with an older one.
     public async Task<TradingCurrentState?> ReadAsync(Guid bindingId, CancellationToken ct = default)
     {
         if (bindingId == Guid.Empty) throw new ArgumentException("Account identity is required.");
         await using var tx = await database.BeginAsync(bindingId, false, ct);
         var state = await tx.ReadCurrentAsync(ct);
-        if (state is not null) ValidateCurrent(state, bindingId);
+        if (state is not null)
+        {
+            ValidateCurrent(state, bindingId);
+            alignHoldings?.Invoke(state);
+        }
         await tx.CommitAsync(ct);
         return state;
     }
 
     public async Task<TradingSaveResult> SaveAsync(TradingStateWrite write, CancellationToken ct = default)
+    {
+        var (saved, membershipChanged) = await SaveCoreAsync(write, ct);
+        // Publish only committed positions. A lost commit reply or interruption is repaired on the next read.
+        if (membershipChanged && alignHoldings != null) await ReadAsync(write.Account.BindingId, ct);
+        return saved;
+    }
+
+    private async Task<(TradingSaveResult, bool)> SaveCoreAsync(TradingStateWrite write, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(write);
         if (write.OperationId == Guid.Empty || string.IsNullOrWhiteSpace(write.Kind) || write.Kind.Length > 64 ||
@@ -82,7 +102,7 @@ public sealed class TradingCurrentStore
             if (checkpoint.OperationId != write.OperationId) continue;
             if (checkpoint.OperationHash != hash) throw new InvalidOperationException("Operation identity was reused for different data.");
             await tx.CommitAsync(ct);
-            return new(checkpoint.Version, true, 0);
+            return (new(checkpoint.Version, true, 0), !write.Positions.IsEmpty);
         }
         if ((current?.Version ?? -1) != write.ExpectedVersion)
             throw new InvalidOperationException("Current state changed. Reload before preparing another change.");
@@ -98,6 +118,7 @@ public sealed class TradingCurrentStore
 
         long nextVersion = checked(write.ExpectedVersion + 1);
         var pending = new List<(TradingStorageRow Row, bool Insert)>();
+        bool membershipChanged = false;
         foreach (var requested in rows)
         {
             if (requested is TradingAccountCurrent) continue;
@@ -118,6 +139,8 @@ public sealed class TradingCurrentStore
                 committed += after.Committed - before.Committed;
                 reserved += after.Reserved - before.Reserved;
             }
+            if (row is TradingPositionCurrent position && (prior is TradingPositionCurrent { IsOpen: true }) != position.IsOpen)
+                membershipChanged = true;
             pending.Add((row with { Version = nextVersion }, prior is null));
         }
         var account = write.Account with { Version = nextVersion, CommittedPurchaseCost = committed, ReservedPurchaseCost = reserved };
@@ -125,7 +148,7 @@ public sealed class TradingCurrentStore
         if (pending.Count == 0 && current is not null && TradingStorageValidation.Same(current, account))
         {
             await tx.CommitAsync(ct);
-            return new(current.Version, false, 0);
+            return (new(current.Version, false, 0), false);
         }
         // Even when only one position changes, the account identifies the coherent new state version.
         pending.Add((account, current is null));
@@ -138,7 +161,7 @@ public sealed class TradingCurrentStore
         TradingStorageValidation.Validate(marker);
         await tx.PutAsync(marker, nextVersion < 2, ct);
         await tx.CommitAsync(ct);
-        return new(nextVersion, false, pending.Count + 1);
+        return (new(nextVersion, false, pending.Count + 1), membershipChanged);
     }
 
     internal static IEnumerable<TradingStorageRow> ChangedRows(TradingStateWrite write)
