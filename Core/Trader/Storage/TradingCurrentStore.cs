@@ -27,12 +27,16 @@ public sealed class TradingCurrentStore
 {
     private readonly ITradingStorageDatabase database;
     private readonly Action<TradingCurrentState>? alignHoldings;
-    internal TradingCurrentStore(ITradingStorageDatabase database, Action<TradingCurrentState>? align = null)
+    private readonly Action<TradingCurrentState>? sealPending;
+    internal TradingCurrentStore(ITradingStorageDatabase database, Action<TradingCurrentState>? align = null,
+        Action<TradingCurrentState>? sealPending = null)
     {
         this.database = database;
         alignHoldings = align;
+        this.sealPending = sealPending;
     }
-    internal TradingCurrentStore WithHoldingObserver(Action<TradingCurrentState> align) => new(database, align);
+    internal TradingCurrentStore WithHoldingObserver(Action<TradingCurrentState> align) => new(database, align, sealPending);
+    internal TradingCurrentStore WithCheckpointWriter(Action<TradingCurrentState> seal) => new(database, alignHoldings, seal);
 
     // A latched exit can outlive its active order (for example after rejection).
     internal async Task<TradingOrder?> ReadOrderAsync(Guid bindingId, Guid requestId, CancellationToken ct)
@@ -160,6 +164,12 @@ public sealed class TradingCurrentStore
             OperationKind = write.Kind, SavedUtc = write.SavedUtc };
         TradingStorageValidation.Validate(marker);
         await tx.PutAsync(marker, nextVersion < 2, ct);
+        if (sealPending != null)
+        {
+            var next = await tx.ReadCurrentAsync(ct) ?? throw new InvalidOperationException("Missing pending compact state.");
+            ValidateCurrent(next, account.BindingId);
+            sealPending(next); // Alternate protected slots before commit. The previous SQL version retains its matching slot on rollback.
+        }
         await tx.CommitAsync(ct);
         return (new(nextVersion, false, pending.Count + 1), membershipChanged);
     }

@@ -4,6 +4,12 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(CompactRestartCandidate)' == 'true'">
+    <DefineConstants>$(DefineConstants);COMPACT_RESTART_CANDIDATE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(CompactRestartCandidate)' != 'true'">
+    <Compile Remove="IsolatedCompactHost.cs" />
+  </ItemGroup>
   <ItemGroup>
     <!-- The colocated dashboard omits assemblies supplied by this installed shared runtime.
          The headless engine must declare the same runtime to resolve its SQL/DPAPI dependencies. -->

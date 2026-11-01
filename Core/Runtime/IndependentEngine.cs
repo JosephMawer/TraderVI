@@ -61,12 +61,16 @@ public sealed class IndependentEngine
     }
     public Task Completion => stopped.Task;
 
-    public static async Task InitializeHostAsync(EngineContinuity continuity, EngineBrokerService broker,
+    public static Task InitializeHostAsync(EngineContinuity continuity, EngineBrokerService broker,
+        Func<Task> startAuxiliary, bool verificationOnly, bool recoveryMaintenance) =>
+        InitializeHostAsync(() => continuity.StartAsync(), broker.StartAsync, startAuxiliary, verificationOnly, recoveryMaintenance);
+
+    internal static async Task InitializeHostAsync(Func<Task> startContinuity, Func<Task> startBroker,
         Func<Task> startAuxiliary, bool verificationOnly, bool recoveryMaintenance)
     {
-        if (verificationOnly) await broker.StartAsync().ConfigureAwait(false);
-        await continuity.StartAsync().ConfigureAwait(false);
-        if (!verificationOnly) await broker.StartAsync().ConfigureAwait(false);
+        if (verificationOnly) await startBroker().ConfigureAwait(false);
+        await startContinuity().ConfigureAwait(false);
+        if (!verificationOnly) await startBroker().ConfigureAwait(false);
         if (!recoveryMaintenance) await startAuxiliary().ConfigureAwait(false);
     }
     public Task StartAsync()

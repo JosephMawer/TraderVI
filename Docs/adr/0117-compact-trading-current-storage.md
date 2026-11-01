@@ -204,8 +204,38 @@ The settled-account fixture compares grant and strategy identity, the buy stop, 
 protection owners/floors/stages and progressive state, cash and allowance, risk references/holds,
 and the unfinished managed request set. It rejects an unsettled source. A saved observation
 cannot establish current Wealthsimple availability or cover a sale made outside the managed
-workflow. The fixture omits symbol evaluation progress and does not enable buying or selling.
+workflow. That initial comparison omitted symbol evaluation progress and kept buying and selling disabled.
 Capture and timing files containing private information stay under ignored local artifacts.
+
+### Abrupt-stop candidate
+
+Build the isolated engine with `-p:CompactRestartCandidate=true` and a separate artifacts path.
+Its ordinary `--run` entry compiles in the LocalDB and read-only broker composition. This binary
+has no installed-host fallback, broker order transport, or live control pipe. The default release
+build retains its existing startup policy. The candidate uses an independently supplied synthetic
+account observation and regular-session clock.
+
+The current-state writer seals a digest of the pending SQL rows and the exact assignment in one
+of two protected files before committing. SQL's current version selects the file on restart.
+An interrupted commit can leave a newer unused file. The preceding version still has its own
+receipt. The account lock covers the seal and SQL commit. Only a matching local and SQL run
+witness, database identity, compact version, operation ID and digest qualify the compact path.
+An unclean stop with matching evidence can proceed. A mismatch requires recovery. A saved
+incident remains active even if the witness file later reappears.
+
+At preparation, the approved Delphi assignment supplies original opening request IDs, target,
+protection owner and progressive policy. A new fill begins with no earned trailing floor. The
+writer records one symbol entry on the first applied fill and preserves the progressive state
+while updating average cost on later fills. The current symbol rows carry session/bar and input
+identities, entry/exit counts or times, confirmation start/expiry, minute policy and the saved
+evaluation reference. Fresh signal evaluation and the ordinary live strategy's ongoing publication
+of these rows still require integration before enabling broker dispatch.
+
+For the process-level check, stage a synthetic account with `PrepareCompactCandidateProcessBoundary`
+in a newly marked rehearsal database. Run [the interruption check](../../Operations/Test-InterruptedCompactCandidate.ps1)
+with that token. It kills its own child between sealing a protective-sale reservation and SQL commit,
+restarts with the unanswered buy, repeats the restart, then removes the isolated local witness.
+The old managed-session archive is absent throughout these launches.
 
 **Proposed controlled release**
 

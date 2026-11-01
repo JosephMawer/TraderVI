@@ -78,7 +78,10 @@ public sealed class EngineContinuity(IEngineContinuityStore store, IEngineContin
     private readonly SemaphoreSlim gate = new(1, 1);
     private EngineContinuityStamp? current;
     private bool faulted;
-    public async Task StartAsync(CancellationToken ct = default)
+    public Task StartAsync(CancellationToken ct = default) => StartAsync(null, ct);
+
+    internal bool ResumedInterruptedRun { get; private set; }
+    internal async Task StartAsync(Func<CancellationToken, Task<bool>>? qualifyCompactCheckpoint, CancellationToken ct)
     {
         await gate.WaitAsync(ct).ConfigureAwait(false);
         try
@@ -90,8 +93,20 @@ public sealed class EngineContinuity(IEngineContinuityStore store, IEngineContin
             { local = null; }
             var saved = await store.ReadAsync(ct).ConfigureAwait(false); saved.Database.Validate();
             Guid run = Guid.NewGuid();
-            if (local is null || saved.Stamp is null || local != saved.Stamp || !local.Clean || local.Database != saved.Database)
+            bool matching = local != null && local == saved.Stamp && local.Database == saved.Database;
+            bool qualified = false;
+            if (matching && qualifyCompactCheckpoint != null)
+            {
+                try { qualified = await qualifyCompactCheckpoint(ct).ConfigureAwait(false); }
+                catch (Exception error) when (error is IOException or InvalidDataException or CryptographicException or JsonException or InvalidOperationException)
+                { qualified = false; }
+            }
+            ResumedInterruptedRun = matching && !local!.Clean && qualified;
+            if (!matching || (qualifyCompactCheckpoint == null ? !local!.Clean : !qualified))
+            {
                 await store.HoldAsync("EngineContinuity/" + run.ToString("D"), "EngineRecoveryRequired", ct).ConfigureAwait(false);
+                if (qualifyCompactCheckpoint != null) throw new InvalidDataException("The saved restart checkpoints do not agree.");
+            }
             var next = new EngineContinuityStamp(1, saved.Database, run, checked((saved.Stamp?.Sequence ?? -1) + 1), false);
             await store.WriteAsync(saved.Stamp, next, ct).ConfigureAwait(false);
             file.Write(next); current = next;

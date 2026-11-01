@@ -135,9 +135,9 @@ public sealed partial class TradingCompactStorageTests
     }
 
     private async Task PrepareNormalStartupAsync(RestartRehearsalDatabase sql, TradingCurrentStore store,
-        BrokerExecutionHostGrantFileStore grants, ManualBuyFileJournal journal, EngineContinuityFile file, string sourceFile)
+        BrokerExecutionHostGrantFileStore grants, ManualBuyFileJournal journal, EngineContinuityFile file, string sourceFile, string? build = null)
     {
-        var fixture = await CrashAfterProtectiveTrigger();
+        var fixture = await CrashAfterProtectiveTrigger(build);
         var saved = fixture.Store.State!;
         var bound = saved.BindingId;
         var approval = saved.EffectiveReview;
@@ -177,7 +177,8 @@ public sealed partial class TradingCompactStorageTests
         var stamp = new EngineContinuityStamp(1, identity, Guid.NewGuid(), 0, true);
         await admin.ExecuteAsync("INSERT dbo.RehearsalWitness VALUES (1,@Json)", new { stamp.Json });
         file.Write(stamp);
-        await store.SaveAsync(Initial() with { Account = account, Settings = [settings], Positions = [p], Orders = [buy] });
+        await store.SaveAsync(Initial() with { Account = account, Settings = [settings], Positions = [p], Orders = [buy],
+            Symbols = CompactDelphiAssignment.CurrentSymbols(saved) });
         await RestartSellAdmission.SaveTriggerAsync(store, saved, held.PositionId, at);
         grants.Write(null, new(bound, saved.SessionId, saved.Strategy.Fingerprint, fixture.ImplementationIdentity, at, "Synthetic", true)
             { RestoreAfterRestart = true });

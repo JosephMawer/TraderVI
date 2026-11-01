@@ -18,6 +18,12 @@ internal static class Program
     // Construction/building never launches this host. Starting it is an explicit operator action.
     public static async Task<int> Main(string[] args)
     {
+#if COMPACT_RESTART_CANDIDATE
+        // This binary can only run on its marked rehearsal LocalDB. No live host fallback or RPC.
+        if (args is ["--candidate-capabilities"]) { Console.WriteLine("compact-localdb-only-v1"); return 0; }
+        return args is ["--run"] ? await IsolatedCompactHost.RunAsync() : 64;
+#else
+        if (args is ["--run"] && Environment.GetEnvironmentVariable("TRADERVI_CANDIDATE_REHEARSAL") != null) return 64;
         if (args.Length == 2 && args[0] is ("--stage-compact-rehearsal" or "--verify-compact-restart" or "--compare-compact-rehearsal"))
             return Guid.TryParseExact(args[1], "N", out var token) && token != Guid.Empty
                 ? await CompactRestartCommand.RunAsync(args[0], token) : 64;
@@ -198,5 +204,6 @@ internal static class Program
             }
         }
         catch { return 1; } // Never write credentials, account contents or SQL connection details to console/logs.
+#endif
     }
 }

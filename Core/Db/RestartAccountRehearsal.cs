@@ -74,7 +74,8 @@ public static class RestartAccountRehearsal
         }).ToImmutableArray();
         var marker = new TradingCheckpoint { BindingId = saved.BindingId, Slot = 0, OperationId = saved.RevisionId,
             OperationHash = manifestHash, OperationKind = "SavedAccountComparison", SavedUtc = saved.SavedAt.UtcDateTime };
-        var state = new TradingCurrentState(account, settings, positions, [], [], [], [marker]);
+        var symbols = CompactDelphiAssignment.CurrentSymbols(saved);
+        var state = new TradingCurrentState(account, settings, positions, symbols, [], [], [marker]);
         TradingCurrentStore.ValidateCurrent(state, saved.BindingId);
         await using var admin = await rehearsal.OpenAsync(ct);
         var plan = saved.Account.Import.Plan;
@@ -87,6 +88,7 @@ public static class RestartAccountRehearsal
         await tx.PutAsync(settings, true, ct);
         await tx.PutAsync(account, true, ct);
         foreach (var p in positions) await tx.PutAsync(p, true, ct);
+        foreach (var symbol in symbols) await tx.PutAsync(symbol, true, ct);
         await tx.PutAsync(marker, true, ct);
         await tx.CommitAsync(ct);
     }

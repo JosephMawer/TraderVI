@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="TraderVI.Core.Tests" />
+    <InternalsVisibleTo Include="TraderVI.Engine" />
   </ItemGroup>
 
 </Project>

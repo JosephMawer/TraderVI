@@ -20,10 +20,11 @@ public sealed partial class TradingCompactStorageTests
 {
     private sealed class SimulatedPowerLoss : Exception;
 
-    private static async Task<BrokerManagedSessionTests.Fixture> CrashAfterProtectiveTrigger()
+    private static async Task<BrokerManagedSessionTests.Fixture> CrashAfterProtectiveTrigger(string? implementation = null)
     {
         var f = new BrokerManagedSessionTests.Fixture();
         BrokerManagedSessionTests.UseNormalLive(f);
+        if (implementation != null) f.Strategy = f.Strategy with { Strategy = f.Strategy.Strategy with { ImplementationIdentity = implementation } };
         await f.Workflow().ApproveAsync(f.Approval(retain: true, ongoing: true));
         await f.Workflow().TickAsync(f.Binding.BindingId);
         f.Now = f.Now.AddMinutes(6);

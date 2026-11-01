@@ -10,7 +10,10 @@ namespace Core.Trader.Storage;
 
 // Supplied by the approved strategy for this original request. Recovery never chooses a stop.
 public sealed record BuyOpeningTerms(Guid BindingId, Guid PermissionId, Guid RequestId,
-    string ProtectionOwner, string ProtectionStage, decimal? ProtectionFloor, decimal? OriginalTarget);
+    string ProtectionOwner, string ProtectionStage, decimal? ProtectionFloor, decimal? OriginalTarget)
+{
+    public bool Progressive { get; init; }
+}
 
 /// <summary>Offline reconciliation of an original opening buy from its broker status.</summary>
 public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
@@ -47,7 +50,13 @@ public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
         var write = new TradingStateWrite(Guid.NewGuid(), "ReconcileOpeningBuy", observedAt.UtcDateTime,
             state.Account.Version, state.Account) { Orders = [receipt] };
         if (receipt.LatestFilledQuantity > 0)
+        {
             write = write with { Positions = [ApplyPositionFill(state, order, fact!, applied, cycle)] };
+            var symbol = state.Symbols.SingleOrDefault(s => s.Symbol == order.Symbol && s.StrategyId == state.Account.StrategyId);
+            if (order.AppliedFilledQuantity == 0 && symbol != null &&
+                symbol.TradingDate == PaperTradingMonitor.ToToronto(fact!.LastFilledAt!.Value.UtcDateTime).Date)
+                write = write with { Symbols = [symbol with { EntriesToday = checked(symbol.EntriesToday + 1) }] };
+        }
         return await store.SaveAsync(write, ct);
     }
 
@@ -73,13 +82,26 @@ public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
             position = new TradingPositionCurrent { BindingId = bindingId, PositionId = cycle, SecurityId = order.SecurityId,
                 Symbol = order.Symbol, FirstEntryUtc = fillUtc, LastEntryUtc = fillUtc, EntryCount = 1,
                 ProtectionOwner = terms.ProtectionOwner, ProtectionStage = terms.ProtectionStage,
-                ProtectionFloor = terms.ProtectionFloor, OriginalTarget = terms.OriginalTarget };
+                ProtectionFloor = terms.ProtectionFloor, OriginalTarget = terms.OriginalTarget,
+                ProtectionJson = terms.Progressive ? System.Text.Json.JsonSerializer.Serialize(
+                    ProgressiveProfitProtection.Carry(applied.Order.AppliedNetValue / applied.Order.AppliedFilledQuantity, terms.ProtectionFloor, fillUtc, null)) : "{}" };
         }
         else if (position.PositionId != cycle || position.Symbol != order.Symbol ||
             position.Quantity != order.AppliedFilledQuantity || position.CostBasis != order.AppliedNetValue ||
             fillUtc < position.LastEntryUtc || position.EntryCount != 1 || position.AddOnCount != 0)
             throw new InvalidOperationException("Saved position cannot be attributed to this opening buy alone.");
 
+        if (applied.QuantityDelta > 0 && position.Quantity > 0 && position.ProtectionJson != "{}")
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(position.ProtectionJson);
+            if (doc.RootElement.TryGetProperty(nameof(ProgressiveProfitProtectionState.RuleVersion), out var rule))
+            {
+                if (rule.GetString() != ProgressiveProfitProtection.Version) throw new InvalidOperationException("Unknown progressive protection version.");
+                var prior = System.Text.Json.JsonSerializer.Deserialize<ProgressiveProfitProtectionState>(position.ProtectionJson)!;
+                position = position with { ProtectionJson = System.Text.Json.JsonSerializer.Serialize(prior with
+                    { AverageCost = applied.Order.AppliedNetValue / applied.Order.AppliedFilledQuantity }) };
+            }
+        }
         return position with { IsOpen = true, Quantity = checked(position.Quantity + applied.QuantityDelta),
             CostBasis = position.CostBasis + applied.NetValueDelta, LastEntryUtc = fillUtc };
     }

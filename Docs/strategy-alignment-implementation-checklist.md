@@ -262,11 +262,17 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   Keep the candidate's existing check for a conflicting manual sale. An unexplained sale on
   the same shares needs reconciliation before another sale of those shares. Preserve visibility
   of the affected holding and original request.
-- [ ] Next release milestone: connect the default engine's Delphi Live startup to compact recovery
-  in an isolated, send-disabled build. Map the remaining strategy opening terms, per-symbol
-  progress and writers. Distinguish an interrupted process with matching checkpoints from a
-  missing or mismatched checkpoint before choosing the ordinary restart path. The existing
-  continuity tests still require recovery for both cases (`artifacts/restart-release/ordinary-interruption-baseline.trx`).
+- [x] Milestone 1, isolated send-disabled build. The candidate's default `--run` uses compact
+  recovery with the exact approved Delphi build, original opening terms, saved symbol progress
+  and alternate protected receipts for committed SQL state. A forced process exit inside the
+  protective-sale transaction left the original buy and previous compact checkpoint intact.
+  The restarted executable reached its decision in 0.998 s from launch, retained $100, booked $0,
+  and admitted the ten-share independent protective exit once. A second fresh process took
+  0.958 s and admitted zero new exits. Both used synthetic broker reads, with zero submissions.
+  A missing local witness blocked startup and restoring the file preserved the incident. The
+  default installation still uses legacy recovery. [Reproduction and scope](adr/0117-compact-trading-current-storage.md#abrupt-stop-candidate).
+  Local evidence: `artifacts/restart-release/d7b9360653ee4396baa43b98b2584750/interrupted-result.json`
+  and `artifacts/restart-release/m1-core.trx`.
 - [ ] Qualify broker coverage, native grant/journal fencing and exclusive writer ownership at
   cutover. Reprepare coverage before reuse if an older writer has owned the journal.
 - [x] October 31 ran migrations 054/055 against checksummed backups on disposable SQL Server

@@ -13,6 +13,38 @@ namespace TraderVI.Core.Tests;
 
 public sealed class EngineContinuityTests
 {
+    [Theory]
+    [InlineData("matching", true)]
+    [InlineData("compact mismatch", false)]
+    [InlineData("file missing", false)]
+    [InlineData("stamp mismatch", false)]
+    [InlineData("different database", false)]
+    public async Task CompactRecoveryRequiresBothWitnessesAndTheCurrentTradingCheckpoint(string scenario, bool canResume)
+    {
+        var store = new Store(); var file = new MemoryFile();
+        await new EngineContinuity(store, file).StartAsync();
+        if (scenario == "file missing") file.Value = null;
+        if (scenario == "stamp mismatch") file.Value = file.Value! with { Sequence = file.Value!.Sequence + 1 };
+        if (scenario == "different database") store.Identity = store.Identity with { RecoveryFork = Guid.NewGuid() };
+        var candidate = new EngineContinuity(store, file);
+        int reads = 0;
+        Task Start() => candidate.StartAsync(_ => { reads++; return Task.FromResult(scenario != "compact mismatch"); }, default);
+        if (canResume) await Start(); else await Assert.ThrowsAsync<InvalidDataException>(Start);
+        Assert.Equal(canResume, candidate.ResumedInterruptedRun);
+        Assert.Equal(scenario is "matching" or "compact mismatch" ? 1 : 0, reads);
+        Assert.Equal(canResume ? 1 : 2, store.Holds.Count);
+    }
+    [Fact]
+    public async Task CleanCandidateStartMustQualifyTheCompactCheckpointBeforeWorkersStart()
+    {
+        var store = new Store(); var file = new MemoryFile(); var first = new EngineContinuity(store, file);
+        await first.StartAsync(); await first.CloseAsync();
+        int reads = 0;
+        var candidate = new EngineContinuity(store, file);
+        await candidate.StartAsync(_ => { reads++; return Task.FromResult(true); }, default);
+        Assert.Equal(1, reads); Assert.False(candidate.ResumedInterruptedRun);
+    }
+
     [Fact]
     public async Task NewInstallationRequiresRecoveryAndOnlyDrainedCloseCreatesCleanWitness()
     {
