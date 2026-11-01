@@ -37,7 +37,7 @@ internal static class Program
             try { await EngineControlCommand.RunAsync(args[1], args[2], args.Length == 4 ? args[3] : null); return 0; }
             catch { return 1; }
         }
-        if (args.Length != 1 || args[0] is not ("--run" or "--verify" or "--recover-real" or "--prepare-observations" or "--prepare-working-state" or "--prepare-real-observations")) return 64;
+        if (args.Length != 1 || args[0] is not ("--run" or "--verify" or "--recover-real" or "--prepare-observations" or "--prepare-working-state" or "--prepare-real-observations" or "--prepare-compact-book")) return 64;
         bool recoveryMaintenance = args[0] == "--recover-real";
         bool verificationOnly = args[0] == "--verify" || recoveryMaintenance;
         try
@@ -67,8 +67,18 @@ internal static class Program
             var orderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TraderVI", "Wealthsimple", "ManualOrders");
             using var journal = new ManualBuyFileJournal(orderPath, new WindowsManualBuyProtector());
             var grants = new BrokerExecutionHostGrantFileStore(Path.Combine(orderPath, "execution-host.dat"), new WindowsManualBuyProtector());
-            var continuity = new EngineContinuity(new EngineContinuityRepository(),
-                new EngineContinuityFile(Path.Combine(EnginePaths.DirectoryPath, "continuity.dat"), new WindowsManualBuyProtector()));
+            var continuityStore = new EngineContinuityRepository();
+            var protector = new WindowsManualBuyProtector();
+            var witness = new EngineContinuityFile(Path.Combine(EnginePaths.DirectoryPath, "continuity.dat"), protector);
+            var continuity = new EngineContinuity(continuityStore, witness);
+            if (args[0] == "--prepare-compact-book")
+            {
+                var preparation = new CompactAccountPreparation(new SqlTradingStorageDatabase(EngineIntegrityRepository.OpenAsync),
+                    continuityStore, witness, new BrokerManagedSessionRepository(calendar, sharedStorage: true), grants,
+                    journal, protector, Path.Combine(EnginePaths.DirectoryPath, "Compact"));
+                await preparation.PrepareAsync(BrokerManagedSessionComposition.ImplementationIdentity, CancellationToken.None);
+                return 0;
+            }
             var broker = new EngineBrokerService(connection, journal, sessionStore, grants, calendar,
                 async (saved, ct) =>
                 {

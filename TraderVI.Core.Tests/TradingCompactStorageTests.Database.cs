@@ -13,7 +13,7 @@ public sealed partial class TradingCompactStorageTests
 {
     // Transactional test double, not a SQL performance simulator. Archived rows are never enumerated
     // by ReadCurrent; an independent active index models the intended query boundary.
-    private sealed class Database : ITradingStorageDatabase
+    internal sealed class Database : ITradingStorageDatabase
     {
         internal readonly Dictionary<(Type, Guid, object?), TradingStorageRow> Rows = new();
         private readonly Dictionary<(Type, Guid), Dictionary<object, TradingStorageRow>> active = new();

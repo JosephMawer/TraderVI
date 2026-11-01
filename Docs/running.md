@@ -45,6 +45,10 @@ It takes the same exclusive engine lock. The normal dashboard can complete Wealt
 and show its connection status. The service has no trading workers or database access. Select
 **Keep me signed in on this Windows account** to carry the sign-in into the replacement engine.
 Stop the sign-in service before starting the trading engine.
+The staged `--prepare-compact-book` command is a one-time account transfer. It requires
+matching local and database restart records, no unfinished order in the original account or
+journal, and an enabled ongoing permission for the exact build. It refuses to overwrite an
+existing book. Ordinary startup must never run this command to repair a missing receipt.
 These actions may be completed after close, on weekends or before open. Keep the laptop awake and
 the engine/collector running with the broker signed in. The resumed host waits for regular TSX hours;
 fresh account/orders, exact daily risk boundaries, strategy inputs and quote checks can delay buying

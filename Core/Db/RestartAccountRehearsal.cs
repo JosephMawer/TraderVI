@@ -18,6 +18,31 @@ public static class RestartAccountRehearsal
     public static async Task StageAsync(RestartRehearsalDatabase rehearsal, BrokerManagedSession saved,
         BrokerExecutionHostGrant grant, string installedBuild, string manifestHash, CancellationToken ct = default)
     {
+        var state = ProjectSettled(saved, grant, installedBuild, manifestHash, DateTimeOffset.UtcNow);
+        await using var admin = await rehearsal.OpenAsync(ct);
+        var plan = saved.Account.Import.Plan;
+        await admin.ExecuteAsync(new CommandDefinition("""
+            IF NOT EXISTS(SELECT 1 FROM dbo.BrokerAccountImportBinding WHERE BindingId=@BindingId)
+            INSERT dbo.BrokerAccountImportBinding VALUES (@BindingId,N'TFSA',@BrokerKey,@LegacyFingerprint,@SavedAt,N'Rehearsal copy');
+            """, new { saved.BindingId, plan.BrokerKey, plan.LegacyFingerprint, SavedAt = saved.SavedAt.UtcDateTime }, cancellationToken: ct));
+        ITradingStorageDatabase db = new SqlTradingStorageDatabase(rehearsal.OpenAsync);
+        await using var tx = await db.BeginAsync(saved.BindingId, true, ct);
+        await InsertInitialAsync(tx, state, ct);
+        await tx.CommitAsync(ct);
+    }
+
+    internal static async Task InsertInitialAsync(ITradingStorageTransaction tx, TradingCurrentState state, CancellationToken ct)
+    {
+        await tx.PutAsync(state.Settings, true, ct);
+        await tx.PutAsync(state.Account, true, ct);
+        foreach (var p in state.Positions) await tx.PutAsync(p, true, ct);
+        foreach (var symbol in state.Symbols) await tx.PutAsync(symbol, true, ct);
+        await tx.PutAsync(state.Checkpoints.Single(), true, ct);
+    }
+
+    internal static TradingCurrentState ProjectSettled(BrokerManagedSession saved, BrokerExecutionHostGrant grant,
+        string installedBuild, string manifestHash, DateTimeOffset now)
+    {
         // Do not guess which permission owned an old pending request, or invent a manual-fill attribution.
         if (saved.OngoingManagement?.ApprovedAt is not { } approved || saved.EffectiveReview.NoTransferScope is not null ||
             !saved.Blocks.IsEmpty || !saved.Account.NewRiskBlocks.IsEmpty || saved.TrialOrderReviewRequired ||
@@ -25,7 +50,7 @@ public static class RestartAccountRehearsal
             throw new InvalidOperationException("Saved assignment requires a mapping outside the settled rehearsal.");
         grant.Validate();
         if (grant.ImplementationIdentity != installedBuild) throw new InvalidOperationException("Installed grant build mismatch.");
-        BrokerExecutionHost.RequireMatchingAssignment(grant, saved, installedBuild, DateTimeOffset.UtcNow);
+        BrokerExecutionHost.RequireMatchingAssignment(grant, saved, installedBuild, now);
         var review = saved.EffectiveReview;
         var risk = saved.Account.Risk;
         var observation = saved.Account.Import.Plan.Observation;
@@ -77,19 +102,6 @@ public static class RestartAccountRehearsal
         var symbols = CompactDelphiAssignment.CurrentSymbols(saved);
         var state = new TradingCurrentState(account, settings, positions, symbols, [], [], [marker]);
         TradingCurrentStore.ValidateCurrent(state, saved.BindingId);
-        await using var admin = await rehearsal.OpenAsync(ct);
-        var plan = saved.Account.Import.Plan;
-        await admin.ExecuteAsync(new CommandDefinition("""
-            IF NOT EXISTS(SELECT 1 FROM dbo.BrokerAccountImportBinding WHERE BindingId=@BindingId)
-            INSERT dbo.BrokerAccountImportBinding VALUES (@BindingId,N'TFSA',@BrokerKey,@LegacyFingerprint,@SavedAt,N'Rehearsal copy');
-            """, new { saved.BindingId, plan.BrokerKey, plan.LegacyFingerprint, SavedAt = saved.SavedAt.UtcDateTime }, cancellationToken: ct));
-        ITradingStorageDatabase db = new SqlTradingStorageDatabase(rehearsal.OpenAsync);
-        await using var tx = await db.BeginAsync(saved.BindingId, true, ct);
-        await tx.PutAsync(settings, true, ct);
-        await tx.PutAsync(account, true, ct);
-        foreach (var p in positions) await tx.PutAsync(p, true, ct);
-        foreach (var symbol in symbols) await tx.PutAsync(symbol, true, ct);
-        await tx.PutAsync(marker, true, ct);
-        await tx.CommitAsync(ct);
+        return state;
     }
 }

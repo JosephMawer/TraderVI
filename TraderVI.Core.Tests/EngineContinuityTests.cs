@@ -101,14 +101,14 @@ public sealed class EngineContinuityTests
         Assert.Equal(file.Value, JsonSerializer.Deserialize<EngineContinuityStamp>(file.Value.Json));
         Assert.Equal(64, file.Value.Hash.Length); Assert.DoesNotContain("Hash", file.Value.Json);
     }
-    private sealed class MemoryFile : IEngineContinuityFile
+    internal sealed class MemoryFile : IEngineContinuityFile
     {
         public EngineContinuityStamp? Value;
         public bool FailWrite;
         public EngineContinuityStamp? Read() => Value;
         public void Write(EngineContinuityStamp value) { if (FailWrite) throw new IOException("Fixture write failure."); Value = value; }
     }
-    private sealed class Store : IEngineContinuityStore
+    internal sealed class Store : IEngineContinuityStore
     {
         public EngineDatabaseIdentity Identity = new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
         public EngineContinuityStamp? Value;
