@@ -12,27 +12,6 @@ public static class CalibrationSchemaVersions
     public const int LensTrace = 1;
 }
 
-public enum CalibrationRunPurpose
-{
-    OfficialPaper,
-    ExploratoryReplay,
-    LegacyReconstruction
-}
-
-public enum CalibrationAuditState
-{
-    Valid,
-    Degraded,
-    Invalid
-}
-
-public enum CalibrationOutcomeMaturityState
-{
-    Pending,
-    Matured,
-    NoEntry
-}
-
 public sealed record CodeProvenance(
     string Commit,
     string Source,
@@ -47,14 +26,6 @@ public sealed record ModelArtifactProvenance(
     DateTime? TrainedFromUtc,
     DateTime? TrainedToUtc,
     string ArtifactSha256);
-
-public sealed record OfficialEvidenceIdentity(
-    Guid StrategyVersionId,
-    string StrategyVersionName,
-    string InitialCodeCommit,
-    string DecisionRef,
-    int IncludedOfficialRuns,
-    int ExcludedOfficialRuns);
 
 public sealed record CalibrationRunEvidence(
     Guid RunId,

@@ -4,7 +4,7 @@ using Core.Calibration;
 using Shouldly;
 using Xunit;
 
-namespace TraderVI.Core.Tests;
+namespace Athena.Tests;
 
 public sealed class DelayedIntradayOutcomeReasonPresenterTests
 {

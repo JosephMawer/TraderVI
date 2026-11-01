@@ -218,8 +218,8 @@ var excursions = await EvaluateTradeableDefinitionAsync(
     SwingMarkToMarketOutcomeCalculator.CalculateExcursions);
 invalidWritten += swing.Invalid + excursions.Invalid;
 
-var intradayRepository = new IntradayEvidenceRepository();
-var calibrationEvidenceRepository = new CalibrationEvidenceRepository();
+var intradayRepository = new IntradayOutcomeReader();
+var calibrationEvidenceRepository = new FreshDelphiBreakoutEvidenceReader();
 TimeZoneInfo torontoTimeZone = ResolveTorontoTimeZone();
 var delayedPending = await outcomes.GetPendingPublishedCandidatesAsync(
     CalibrationOutcomeRepository.DelayedIntradaySwingDefinitionId);

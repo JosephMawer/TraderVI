@@ -1,12 +1,13 @@
 using Core.Calibration;
 using Core.ML;
+using Core.ML.Engine.Profit;
 using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace TraderVI.Core.Tests;
+namespace Athena.Tests;
 
 public class PredictionOutcomeCalculatorTests
 {
@@ -29,6 +30,13 @@ public class PredictionOutcomeCalculatorTests
         {
             "BinaryUp10", "BinaryDown10", "VolExpansionRelative10", "BreakoutEnhanced"
         });
+        foreach (var definition in ProfitTaskRegistry.All)
+        {
+            var recorded = result.Events.Single(item => item.TaskType == definition.TaskType);
+            recorded.Labeler.ShouldBe(definition.Labeler.Name);
+            recorded.EventOccurred.ShouldBe(
+                definition.Labeler.ComputeLabel(observation, future).ThreeWayClass == ThreeWayLabel.Buy);
+        }
     }
 
     [Fact]

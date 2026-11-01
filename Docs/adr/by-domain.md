@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0121](0121-independent-athena-build.md) — Athena owns evaluation/writes; shares labels, reports and policies with actual Core/WPF consumers
+
 - [ADR-0120](0120-independent-hermes-build.md) — Hermes owns ingestion/backup code and shares market facts, storage and TMX providers without Core
 
 - [ADR-0119](0119-independent-data-audit-build.md) — DataAudit owns its audit/SQL code and shares only market definitions with Core
@@ -138,6 +140,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-pipeline
+
+- [ADR-0121](0121-independent-athena-build.md) — Athena owns evaluation/writes; shares labels, reports and policies with actual Core/WPF consumers
 
 - [ADR-0120](0120-independent-hermes-build.md) — Hermes owns ingestion/backup code and shares market facts, storage and TMX providers without Core
 

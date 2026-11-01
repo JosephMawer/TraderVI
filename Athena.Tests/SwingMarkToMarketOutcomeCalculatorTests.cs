@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace TraderVI.Core.Tests;
+namespace Athena.Tests;
 
 public class SwingMarkToMarketOutcomeCalculatorTests
 {

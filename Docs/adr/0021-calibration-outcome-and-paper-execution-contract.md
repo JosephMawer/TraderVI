@@ -6,6 +6,8 @@
 - **Related:** ADR-0002, ADR-0007, ADR-0015, ADR-0020
 - **Refined by:** ADR-0023 for the primary swing-policy direction, ADR-0024 for coverage/cohort reporting, ADR-0025 for the initial three-session tradeable measure, ADR-0028 for the delayed intraday paper-exit challenger, and ADR-0029 for a deliberately non-official intraday ghost-entry pilot
 
+**November 1 ownership amendment:** [ADR-0121](0121-independent-athena-build.md) moves the canonical task settings and label instances to ProfitTaskRegistry in TraderVI.Calibration (namespace `Core.ML.Engine.Profit`). Core's ProfitModelRegistry attaches feature builders to the same definitions. Outcome semantics and the shared-label requirement below remain unchanged.
+
 ## Context
 
 The immediate problem is to define reproducible prediction and tradeable outcomes. The parent problem is separating whether Delphi's forecasts were correct from whether published recommendations were executable and profitable. The root goal is an honest comparison of Continuation, Breakout, and portfolio policies without look-ahead or optimistic fill/path assumptions.

@@ -47,6 +47,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TraderVI.MarketData\TraderVI.MarketData.csproj" />
+    <ProjectReference Include="..\TraderVI.Calibration\TraderVI.Calibration.csproj" />
     <ProjectReference Include="..\TraderVI.MarketStorage\TraderVI.MarketStorage.csproj" />
     <ProjectReference Include="..\TraderVI.MarketProviders\TraderVI.MarketProviders.csproj" />
   </ItemGroup>

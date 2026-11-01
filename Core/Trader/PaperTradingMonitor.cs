@@ -250,7 +250,7 @@ public sealed class PaperTradingMonitor
         {
             try
             {
-                breakoutTimeline = await new CalibrationEvidenceRepository()
+                breakoutTimeline = await new FreshDelphiBreakoutEvidenceReader()
                     .GetValidOfficialBreakoutTimelineAsync(
                         position.Symbol,
                         entryUtc,

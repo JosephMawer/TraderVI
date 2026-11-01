@@ -404,9 +404,9 @@ public static class OfficialPredictionScorecardCalculator
         PredictionOutcomeV1? outcome)
     {
         if (outcome is null ||
-            outcome.SchemaVersion != PredictionOutcomeCalculator.SchemaVersion ||
+            outcome.SchemaVersion != PredictionOutcomeContract.SchemaVersion ||
             outcome.ObservationDate.Date != source.MarketDataAsOf.Date ||
-            outcome.MaturedSessions < PredictionOutcomeCalculator.LabelHorizon ||
+            outcome.MaturedSessions < PredictionOutcomeContract.LabelHorizon ||
             outcome.Return10 is not double return10 ||
             outcome.XiuReturn10 is not double xiuReturn10 ||
             outcome.ExcessReturn10 is not double excessReturn10 ||

@@ -41,6 +41,10 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0121](0121-independent-athena-build.md) | Athena builds independently of Core | Accepted; source/build validated, not installed | architecture, data-pipeline |
+| [0120](0120-independent-hermes-build.md) | Hermes builds independently of Core | Accepted; source/build validated, not installed | architecture, data-pipeline |
+| [0119](0119-independent-data-audit-build.md) | DataAudit builds independently of Core | Accepted; source/build validated, not installed | architecture, data-pipeline |
+| [0118](0118-delphi-desktop-results-only.md) | Delphi desktop results only | Accepted; source implemented, not installed | architecture, user-interface |
 | [0117](0117-compact-trading-current-storage.md) | Compact trading current-state storage | Accepted first disconnected increment; not installed | architecture, data-pipeline |
 | [0116](0116-temporary-paper-continuation-during-reboot-recovery.md) | Temporary Paper continuation during reboot recovery | Installed; run subsequently cleared by native proof | architecture, data-pipeline |
 | [0115](0115-exact-audit-prefix-hash-reuse.md) | Exact audit prefix hash reuse | Accepted; installed, recovery acceptance pending | architecture, data-pipeline |

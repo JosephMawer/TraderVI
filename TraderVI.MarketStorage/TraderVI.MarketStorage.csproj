@@ -10,6 +10,8 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Core" />
+    <InternalsVisibleTo Include="TraderVI.Calibration" />
+    <InternalsVisibleTo Include="Athena" />
     <InternalsVisibleTo Include="TraderVI.Core.Tests" />
     <InternalsVisibleTo Include="TraderVI.Engine" />
   </ItemGroup>

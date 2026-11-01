@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace TraderVI.Core.Tests;
+namespace Athena.Tests;
 
 public sealed class DelayedIntradayOutcomeCalculatorTests
 {

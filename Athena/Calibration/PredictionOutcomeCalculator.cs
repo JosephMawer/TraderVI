@@ -6,23 +6,6 @@ using System.Linq;
 
 namespace Core.Calibration;
 
-public sealed record PredictionEventOutcome(
-    string TaskType,
-    string Labeler,
-    bool EventOccurred);
-
-public sealed record PredictionOutcomeV1(
-    int SchemaVersion,
-    DateTime ObservationDate,
-    int MaturedSessions,
-    double? Return1,
-    double? Return5,
-    double? Return10,
-    double? Return20,
-    double? XiuReturn10,
-    double? ExcessReturn10,
-    IReadOnlyList<PredictionEventOutcome> Events);
-
 public enum PredictionOutcomeReadinessState
 {
     Pending,
@@ -49,9 +32,9 @@ public sealed record InvalidPredictionOutcomeV1(
 
 public static class PredictionOutcomeCalculator
 {
-    public const int SchemaVersion = 1;
-    public const int LabelHorizon = 10;
-    public const int PathHorizon = 20;
+    public const int SchemaVersion = PredictionOutcomeContract.SchemaVersion;
+    public const int LabelHorizon = PredictionOutcomeContract.LabelHorizon;
+    public const int PathHorizon = PredictionOutcomeContract.PathHorizon;
 
     public static PredictionOutcomeReadiness AssessReadiness(
         DateTime observationDate,
@@ -158,7 +141,7 @@ public static class PredictionOutcomeCalculator
         var events = new List<PredictionEventOutcome>();
         if (matured >= LabelHorizon)
         {
-            foreach (var definition in ProfitModelRegistry.All)
+            foreach (var definition in ProfitTaskRegistry.All)
             {
                 if (definition.HorizonBars != LabelHorizon) continue;
                 var label = definition.Labeler.ComputeLabel(observationWindow, future);

@@ -1,5 +1,34 @@
 # TraderVI Project Status
 
+## November 1 — Athena builds independently of Core
+
+Athena owns outcome calculators, lens reports, CSV exports and maturation queries/writes. The shared
+TraderVI.Calibration project contains canonical labels/task settings used by Core training/inference,
+scorecards/readers used by WPF, and delayed-exit/breakout policies used by Core paper monitoring.
+Athena references Calibration → MarketStorage → MarketData, without Core, ML.NET or provider packages.
+[ADR-0121](adr/0121-independent-athena-build.md) records ownership and the unchanged outcome contracts.
+
+Athena Debug/Release builds passed; its normal Release output is **15.81 MiB / 59 files**, with no
+Core.dll, ML.NET, MKL, LightGBM or market-provider assembly. All **53 Athena tests** and **3,545 Core
+tests** passed; 16 existing operational checks were skipped. Outcome tests moved from Core to Athena;
+new Core regressions verify enabled tasks, feature mappings, settings and shared label instances.
+WPF/engine, collector, Delphi, Hercules, Hermes, DataAudit and Sandbox Release compatibility builds
+passed in isolated directories. All four nightly stages passed locked restores; 126 offline nightly
+assertions passed. The task catalog, moved SQL literals and retained package versions/hashes were
+checked against the prior implementation. Existing nullable-annotation/unused-code compiler warnings
+remain. NuGet security auditing was disabled; the full SQL-containing solution was not built.
+
+Private evidence: `artifacts/athena-extraction-20261101/athena-tests-final.log`, `core-tests.log`,
+`athena-release.log`, `build-*.log`, `locked-*.log`, `nightly-regressions.log`, `review.json` and
+`protected-hosts-verified.json`. Collector PID 1452, engine PID 22452 and WPF PID 6260 retain their
+original process paths/start times and executable/Core hashes/timestamps. No runtime replacement,
+restart, database/broker/provider operation or model training was performed.
+
+This is source/build validation, not an installed release. Moving types requires a complete rebuilt
+package and normal identity/installation qualification before deployment. The nightly runner still
+captures source and builds nightly; release reuse, bounded retention and old-folder cleanup remain
+separate work. Delphi is the remaining nightly application that directly depends on Core.
+
 ## November 1 — Hermes builds independently of Core
 
 Hermes owns its backup/retention, Yahoo/SPY ingestion, sector classification and leadership acquisition

@@ -126,7 +126,7 @@ No source-level tests referencing bootstrap/model activation or the trainer boun
 
 **Confirmed source mismatch; runtime validation required to determine the impact on current model artifacts.**
 
-[ProfitModelRegistry.cs:112](../../Core/ML/Engine/Profit/ProfitModelRegistry.cs#L112) enables BreakoutEnhanced
+[current canonical task catalog](../../TraderVI.Calibration/Labels/ProfitTaskRegistry.cs) enables BreakoutEnhanced
 with `EnhancedFeatureBuilder`. [Hercules Program.cs:124](../../ML.Train/Program.cs#L124) supplies XIU market
 bars during training, passed through [EnhancedFeatureBuilder.cs:23](../../Core/ML/Engine/Patterns/Features/EnhancedFeatureBuilder.cs#L23).
 The nested [TrendMomentumFeatureBuilder.cs:176](../../Core/ML/Engine/Patterns/Features/TrendMomentumFeatureBuilder.cs#L176)
@@ -219,9 +219,9 @@ projects have no focused build in this workflow. Their omission is a coverage li
 
 **Confirmed future change hazard; static evidence sufficient. No historical mislabelling asserted.**
 
-[CalibrationOutcomeRepository.cs:114](../../Core/Db/CalibrationOutcomeRepository.cs#L114) retrieves pending
+[CalibrationOutcomeRepository.cs](../../Athena/Db/CalibrationOutcomeRepository.cs) retrieves pending
 official candidates across strategy identities. [Athena Program.cs:185](../../Athena/Program.cs#L185)
-evaluates them using [PredictionOutcomeCalculator.cs:161](../../Core/Calibration/PredictionOutcomeCalculator.cs#L161),
+evaluates them using [PredictionOutcomeCalculator.cs](../../Athena/Calibration/PredictionOutcomeCalculator.cs),
 which iterates current `ProfitModelRegistry.All` labelers under the fixed `PredictionLabels10` version 1
 definition. A future label edit can change the meaning of outcomes for still-pending historical cohorts.
 

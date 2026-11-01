@@ -79,8 +79,8 @@ flowchart TB
 
 ## Components
 
-Most application processes still share Core. Hermes and DataAudit build independently; shared market
-facts, SQL repositories and provider clients have separate library boundaries under ADRs0119/0120.
+Most application processes still share Core. Hermes, DataAudit and Athena build independently; shared
+market facts, storage, providers and calibration rules have separate library boundaries under ADRs0119–0121.
 
 **Boundary:** Core boxes describe library responsibilities, not additional deployed services. This guide does not discover processes or check connectivity.
 
@@ -133,7 +133,7 @@ flowchart TB
 |---|---|
 | 01 / External providers | [TMX](#component-tmx), [Wealthsimple](#component-broker), [Language-model provider](#component-llm) |
 | 02 / Application hosts | [TraderVI.Collector](#component-collector), [TraderVI.Engine](#component-engine), [TraderVI.WPF](#component-wpf), [Hermes](#component-hermes), [Hercules](#component-hercules), [Delphi daily publication](#component-delphi), [Athena / Scorecards](#component-athena), [Oracle](#component-oracle), [Console / Practice / DataAudit](#component-tools) |
-| 03 / Shared libraries | [Core library](#component-core), [Market libraries and Hermes ownership](#component-hermes) |
+| 03 / Shared libraries | [Core library](#component-core), [Market libraries and Hermes ownership](#component-hermes), [Calibration library and Athena ownership](#component-athena) |
 | 04 / Persistence | [SQL Server / TraderDB](#component-sql), [Model artifacts](#component-artifacts), [Private local journals](#component-journals) |
 
 ## Evidence
@@ -507,6 +507,13 @@ Sources: [Docs/system-design.md](system-design.md), [README.md](../README.md).
 
 ### Athena / Scorecards
 
+**November 1 build ownership:** Athena owns outcome calculators, lens reports, CSV exports and maturation
+queries/writes, and builds without Core. TraderVI.Calibration shares canonical labels/task settings with
+Core training/inference, scorecards/readers with WPF, and delayed-exit/breakout policies with Core paper
+monitoring. WPF uses the shared read-only evidence reader. The dependency chain is Calibration →
+MarketStorage → MarketData, with no Core, ML.NET or provider dependency. See
+[ADR-0121](adr/0121-independent-athena-build.md); this is source/build validation, not installation.
+
 **Evidence — Official forecast outcomes.** Evaluate identified forecast cohorts and calibration evidence.
 
 **Inputs:** Official predictions, versioned outcome labels and coverage.
@@ -580,6 +587,8 @@ Sources: [README.md](../README.md), [Docs/running.md](running.md).
 **Responsibilities:** Core retains trading/runtime workflows, ML, RS and their repositories. Shared
 market definitions/calculations, market repositories and TMX providers now live in the three market
 libraries; their original Core namespaces remain. Hermes-only ingestion/backup code lives in Hermes.
+Athena owns outcome evaluation/writes; Calibration shares labels, reports/readers and paper policies.
+Core retains feature construction and ML execution, using the shared canonical task settings.
 
 **Boundaries:** Core is not a collection of separate services or a pure domain-only assembly. Trained ML and deterministic indicators retain their distinct roles.
 

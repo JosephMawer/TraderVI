@@ -646,7 +646,7 @@ Pattern detectors (`Trend10`, `Trend30`, `MaCrossover`, and any detector listed 
   showing the firing rate per pattern across the universe for sanity checking only.
 
 **Do NOT:**
-- Add pattern task types to `ProfitModelRegistry`.
+- Add pattern task types to `ProfitTaskRegistry` (the shared catalog behind Core's `ProfitModelRegistry`).
 - Re-introduce a trainer for any `IPatternDetector`.
 - Write pattern `.zip` files to disk or `[ModelRegistry]` rows to the DB.
 

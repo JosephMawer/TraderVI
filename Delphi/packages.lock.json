@@ -460,8 +460,15 @@
           "Microsoft.ML.TimeSeries": "[5.0.0, )",
           "Newtonsoft.Json": "[13.0.4, )",
           "RestSharp": "[112.1.0, )",
+          "TraderVI.Calibration": "[1.0.0, )",
           "TraderVI.MarketData": "[1.0.0, )",
           "TraderVI.MarketProviders": "[1.0.0, )",
+          "TraderVI.MarketStorage": "[1.0.0, )"
+        }
+      },
+      "tradervi.calibration": {
+        "type": "Project",
+        "dependencies": {
           "TraderVI.MarketStorage": "[1.0.0, )"
         }
       },

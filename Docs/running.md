@@ -887,7 +887,7 @@ Install the Windows task once, or rerun the installer when changing its schedule
 The task invokes the repository runner and configuration directly. ADR-0078 captures the latest tracked
 and untracked non-ignored source into a verified private copy at run start. Later edits belong to the next
 run. It restores the reviewed Core/Hermes/DataAudit/Delphi/Athena and shared TraderVI.MarketData,
-TraderVI.MarketStorage and TraderVI.MarketProviders lock files with `--locked-mode` into a dedicated
+TraderVI.MarketStorage, TraderVI.MarketProviders and TraderVI.Calibration lock files with `--locked-mode` into a dedicated
 cache, then builds the four Release projects inside that copy. Neither intermediate nor executable files
 are shared with development builds. Source and runner edits apply without reinstalling the task.
 
@@ -1033,7 +1033,7 @@ Hercules:
 
 1. Preserves the selected strategy's exact models and metadata for comparison and rollback.
 2. Loads stored equity histories and XIU, retaining a checksummed private data snapshot and source archive.
-3. Trains only profit tasks enabled in the code's `ProfitModelRegistry`, using the shared dated inputs.
+3. Trains only profit tasks enabled in the shared `ProfitTaskRegistry`; Core's `ProfitModelRegistry` attaches feature builders, using the shared dated inputs.
 4. Saves new files in a unique candidate directory and refuses to overwrite existing artifacts.
 5. Records experiment metrics, disabled model rows and a completed manifest only after all tasks succeed.
 
@@ -1412,6 +1412,19 @@ requires explicit operational authorization.
 
 **Project:** `Athena`
 **Entry point:** `Athena/Program.cs`
+**Build boundary:** Athena → TraderVI.Calibration → MarketStorage → MarketData, without Core,
+ML.NET or market-provider packages under [ADR-0121](adr/0121-independent-athena-build.md).
+
+Athena owns outcome evaluation, CSV exports and maturation storage. Calibration shares the same label
+catalog with Core training, the official scorecard reader/calculator with WPF, and replay policies with
+Core paper monitoring. Validate without running database evaluation or touching installed outputs:
+
+```powershell
+dotnet test Athena.Tests/Athena.Tests.csproj --artifacts-path artifacts/athena-validation
+dotnet build Athena/Athena.csproj -c Release --artifacts-path artifacts/athena-validation
+```
+
+These are build/test commands. Precompiled release reuse and nightly retention remain separate work.
 
 Athena reads immutable official calibration candidates and local `DailyBars`, reproduces the enabled production labelers, and idempotently writes matured 10-session labels, 20-session price paths, three-session marks/excursions, and delayed-intraday outcomes. It prints the identified active strategy scope and excludes/counts earlier strategy identities before reporting comparative coverage: distinct completed-market-session cohorts, official run and candidate counts, valid/degraded/invalid/pending outcomes, completion coverage, usable coverage, and whether the 95% reporting floor permits a primary descriptive score. ADR-0038 adds official-only probability calibration, eligible-lens rank quality, and descriptive technical/market slices. All metrics use nested candidate/run/market-session weighting so a deliberate Delphi rerun cannot inflate independent evidence. The report never changes a model, weight, gate, lens, or trading policy.
 

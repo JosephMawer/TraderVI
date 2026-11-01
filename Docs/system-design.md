@@ -22,6 +22,12 @@ market repositories and SQLBase live in TraderVI.MarketStorage, and the shared T
 TraderVI.MarketProviders. Core consumes the same implementations. DataAudit keeps its own SQL reader.
 Precompiled release reuse and retention remain separate work; this source split does not install apps.
 
+Athena builds independently under [ADR-0121](adr/0121-independent-athena-build.md). Outcome calculators,
+CSV exports and maturation queries/writes live in Athena. TraderVI.Calibration contains labels/task
+settings shared with training, scorecards/readers shared with WPF, and policies/timeline reads shared
+with Core paper monitoring. Core attaches its feature builders to the same task catalog; training and
+ML execution remain in Core. Calibration uses MarketStorage/MarketData without Core or provider/ML packages.
+
 ## Paper and Real share rules, not account state
 
 A **strategy** is the identified rulebook: selection, entry, exit, sizing, risk and data

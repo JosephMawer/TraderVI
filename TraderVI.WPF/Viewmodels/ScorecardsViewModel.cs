@@ -53,7 +53,7 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
         StatusBrush = Brushes.SlateGray;
         try
         {
-            var repository = new CalibrationOutcomeRepository();
+            var repository = new OfficialPredictionEvidenceReader();
             OfficialEvidenceIdentity identity =
                 await repository.GetActiveOfficialEvidenceIdentityAsync(cancellationToken);
             OfficialPredictionEvidenceSet evidence =

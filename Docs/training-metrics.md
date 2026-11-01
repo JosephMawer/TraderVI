@@ -117,5 +117,6 @@ This is a key sanity check:
 ## Related files
 - Trainer: `Core/ML/Engine/Profit/UnifiedProfitTrainer.cs`
 - Model definitions: `Core/ML/Engine/Profit/ProfitModelDefinition.cs`
-- Model registry: `Core/ML/Engine/Profit/ProfitModelRegistry.cs`
+- Shared task flags, label rules and settings: `TraderVI.Calibration/Labels/ProfitTaskRegistry.cs`
+- Core feature-builder composition: `Core/ML/Engine/Profit/ProfitModelRegistry.cs`
 - Runtime inference: `Core/ML/Engine/Profit/UnifiedProfitSignalModel.cs`

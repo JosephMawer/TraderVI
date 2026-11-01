@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using Xunit;
 
-namespace TraderVI.Core.Tests;
+namespace Athena.Tests;
 
 public class LensTradeabilityReportCalculatorTests
 {

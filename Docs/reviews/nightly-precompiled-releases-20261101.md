@@ -99,7 +99,7 @@ bounded set of releases provides the primary storage saving even with multiple f
 The operator suggested extracting the nightly applications' dependencies from Core so unrelated
 Core edits do not require their compilation/publication. Source inspection confirms meaningful
 shared consumers. The Delphi CLI uses DelphiWorkflow; WPF execution was subsequently removed below.
-Athena and WPF scorecards both use CalibrationOutcomeRepository. DelphiWorkflow also depends on market data, indicators, model
+Athena and WPF scorecards originally both used CalibrationOutcomeRepository; the Athena extraction below separates its writes from their shared read-only evidence queries. DelphiWorkflow also depends on market data, indicators, model
 loading, strategy logic and repositories. MarketDataAuditWorkflow depends on the SQL audit
 repository through a snapshot-source interface.
 
@@ -108,7 +108,7 @@ rule. The relevant boundary follows responsibilities and dependency direction. A
 library that still references the entire Core assembly retains the original coupling. Shared
 types and required services would need a lower-level home, or the unrelated execution code could
 move out of Core instead. The November 1 mapping below identifies the initial extraction boundaries.
-The DataAudit and Hermes slices are now implemented below; Delphi and Athena extraction remains proposed.
+The DataAudit, Hermes and Athena slices are now implemented below; Delphi extraction remains proposed.
 Bounded release storage can be implemented independently of it. Any future package-size claim requires
 checking which ML/native dependencies each extracted project actually retains.
 
@@ -163,6 +163,26 @@ The purpose is fewer dependencies and less unrelated change propagation. Changin
 Hermes uses still requires rebuilding Hermes. Running a build does not itself change that component.
 The installed nightly runner still captures source and builds each night; release reuse and bounded
 retention are the separate changes that stop accumulating another full output on each run.
+
+### Athena extraction — implemented November 1
+
+[ADR-0121](../adr/0121-independent-athena-build.md) records the third accepted extraction. Athena owns
+outcome calculators, lens reports, CSV exports, maturation queries/writes and the intraday outcome-bar
+reader. TraderVI.Calibration contains shared scorecards/queries for WPF, policies and the breakout
+timeline reader for Core paper monitoring, and canonical task/label definitions for training/evaluation.
+Core attaches its existing feature builders; Athena never constructs them or loads ML libraries.
+Only the needed enums, outcome records and identity/version contracts move out of the mixed Core files.
+The broader decision engine, gate traces and daily publication contracts remain for the Delphi slice.
+
+Athena references Calibration → MarketStorage → MarketData. Its normal isolated Release output is
+15.81 MiB across 59 files, excluding Core.dll, ML.NET, MKL, LightGBM and market-provider clients. This
+is a build output, not a single-file publish. SQL text, label parameters, enabled tasks, weights,
+feature mappings and outcome contracts remain unchanged. WPF uses a shared read-only evidence reader.
+
+Existing code/approval identities are not renewed. A future release must inventory every shared
+assembly and qualify complete-package installation; a Core.dll hash alone cannot identify the whole
+application. The running collector/engine/desktop retain their installed binaries. Nightly source
+capture/builds continue until release reuse is implemented, and old nightly folders remain untouched.
 
 ### Dependency findings — November 1, before extraction
 
@@ -225,7 +245,7 @@ Put the benchmark identity in the shared market definitions so DataAudit need no
   `UnifiedProfitSignalModel.VerifyStoredArtifact()`. This loads/checks saved ML model schemas.
   Removing daily execution therefore does not remove all WPF ML dependencies. Keep a narrow shared
   validation service unless changing settings behavior is separately agreed.
-- WPF Scorecards uses CalibrationOutcomeRepository and report calculators shared with Athena.
+- WPF Scorecards now uses OfficialPredictionEvidenceReader and report calculators in TraderVI.Calibration; Athena owns CalibrationOutcomeRepository and its writes.
 - `Core/Practice/PracticeSession.cs` still invokes DelphiWorkflow for historical replay. It must
   reference the extracted daily application, or receive it through its existing evaluator boundary.
 - The collector, trading engine and Hercules also consume shared facts/rules. Update their project
@@ -239,11 +259,11 @@ as part of that move.
 
 ### Recommended sequence and remaining choices
 
-The implemented **DataAudit and Hermes** slices above build with no Core reference or ML
-packages. Next separate daily result/evidence contracts and move Delphi's daily analysis and Athena's
-calibration functionality. Keep responsibilities separate enough that DataAudit does not inherit
-Delphi's ML packages through a single all-purpose nightly library. Project names and the exact number
-of further shared projects remain design choices; DataAudit and Hermes are implemented and accepted.
+The implemented **DataAudit, Hermes and Athena** slices above build with no Core reference or ML
+packages. Next separate daily result/evidence contracts and move Delphi's daily analysis. Keep
+responsibilities separate enough that the other apps do not inherit Delphi's ML packages through a
+single all-purpose nightly library. The remaining project boundaries are design choices; the three
+completed slices are implemented and accepted.
 
 Success means an unrelated broker/UI edit does not rebuild the four nightly applications. A change
 to a shared rule they actually use must still rebuild the affected apps. Precompiled release reuse
