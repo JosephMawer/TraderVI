@@ -12,7 +12,7 @@ namespace Core.Trader.Storage;
 public sealed record BuyOpeningTerms(Guid BindingId, Guid PermissionId, Guid RequestId,
     string ProtectionOwner, string ProtectionStage, decimal? ProtectionFloor, decimal? OriginalTarget);
 
-/// <summary>Offline reconciliation of a pending, partially filled or partially cancelled opening buy.</summary>
+/// <summary>Offline reconciliation of pending, partially filled, completed or partially cancelled opening buys.</summary>
 public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
     Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> readOriginalOrder,
     Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms)
@@ -36,23 +36,27 @@ public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
             fact.Symbol != order.Symbol || fact.Side != order.Side || fact.SubmittedQuantity != order.Quantity ||
             !WealthsimpleReconciliation.Valid(fact, observedAt))
             throw new InvalidOperationException("Missing or conflicting broker facts for the original buy.");
-        bool cancelled = fact.Status is "CANCELLED" or "CANCELED";
-        bool pendingWithoutFill = fact.Status == "PENDING" && fact.FilledQuantity == 0;
-        bool partialFill = (cancelled || fact.Status == "PARTIALLY_FILLED") && fact.FilledQuantity > 0 &&
-            fact.FilledQuantity < order.Quantity && fact.NetValue > 0 && fact.LastFilledAt.HasValue;
-        if (!pendingWithoutFill && !partialFill)
-            throw new InvalidOperationException("Unsupported opening-buy status or inconsistent cumulative fill.");
+        // The common broker validator above checks whole quantities, fill time and net cost.
+        bool partial = fact.FilledQuantity > 0 && fact.FilledQuantity < order.Quantity && fact.NetValue > 0;
+        string status = fact.Status switch
+        {
+            "PENDING" when fact.FilledQuantity == 0 => "Submitted",
+            "PARTIALLY_FILLED" when partial => "Submitted",
+            "CANCELLED" or "CANCELED" when partial => "Cancelled",
+            "FILLED" or "POSTED" when fact.FilledQuantity == order.Quantity && fact.NetValue > 0 => "Filled",
+            _ => throw new InvalidOperationException("Unsupported opening-buy status or inconsistent cumulative fill.")
+        };
         if (TradingStorageValidation.IsTerminal(order.Status) &&
-            (!cancelled || order.Status != "Cancelled" || order.LatestFilledQuantity != fact.FilledQuantity || order.LatestNetValue != fact.NetValue))
+            (order.Status != status || order.LatestFilledQuantity != fact.FilledQuantity || order.LatestNetValue != fact.NetValue))
             throw new InvalidOperationException("The broker outcome differs from the saved terminal receipt.");
 
         var applied = TradingFillApplication.Prepare(order, (int)fact.FilledQuantity, fact.NetValue ?? 0m);
-        var receipt = applied.Order with { Status = cancelled ? "Cancelled" : "Submitted", NeedsWork = !cancelled };
+        var receipt = applied.Order with { Status = status, NeedsWork = !TradingStorageValidation.IsTerminal(status) };
         // Poll the broker every time the request is active. Only persist a changed observation.
         if (!TradingStorageValidation.Same(receipt, order)) receipt = receipt with { LastCheckedUtc = observedAt.UtcDateTime };
         var write = new TradingStateWrite(Guid.NewGuid(), "ReconcileOpeningBuy", observedAt.UtcDateTime,
             state.Account.Version, state.Account) { Orders = [receipt] };
-        if (partialFill)
+        if (fact.FilledQuantity > 0)
             write = write with { Positions = [ApplyPositionFill(state, order, fact, applied, cycle)] };
         return await store.SaveAsync(write, ct);
     }

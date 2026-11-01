@@ -188,7 +188,14 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   response could not undo confirmed shares. The recovery component has only a broker status lookup.
   Three new cases and 55 prior focused cases passed. [Still-open buy tests](../TraderVI.Core.Tests/TradingCompactStorageTests.OpenBuy.cs).
   Local run record: `artifacts/compact-storage-20261030/results/open-buy.trx`.
-- [ ] Extend original-request recovery to remaining cases, including full fills. The offline
+- [x] October 31 full opening-buy fill, offline. On a $100 ceiling, recovery advanced from four
+  shares at $38 to ten at $96 net, applying six shares and $58. It cleared the $62 reservation
+  and left $4 available. The saved position kept its $9.25 protection floor and triggered exit.
+  A fresh second recovery made zero further lookups or writes and retained one original filled
+  receipt. The tests also cover a lost commit reply and a broker reporting the fill as posted.
+  All 61 focused tests passed. [Full-fill tests](../TraderVI.Core.Tests/TradingCompactStorageTests.FullBuy.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/full-buy.trx`.
+- [ ] Extend original-request recovery to remaining cases. The offline
   scenarios use a simulated broker lookup and fixture-supplied opening terms for the approved request.
   Production broker coverage, strategy-specific protection mapping, additional order outcomes and
   engine startup integration still need separate review.
