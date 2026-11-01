@@ -12,7 +12,7 @@ namespace Core.Trader.Storage;
 public sealed record BuyOpeningTerms(Guid BindingId, Guid PermissionId, Guid RequestId,
     string ProtectionOwner, string ProtectionStage, decimal? ProtectionFloor, decimal? OriginalTarget);
 
-/// <summary>Offline recovery boundary for an original opening buy whose remainder was cancelled.</summary>
+/// <summary>Offline reconciliation of a pending, partially filled or partially cancelled opening buy.</summary>
 public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
     Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> readOriginalOrder,
     Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms)
@@ -28,34 +28,51 @@ public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
         if (order.Side != "BUY" || order.PermissionId != state.Settings.PermissionId)
             throw new InvalidOperationException("This recovery requires the original buy and its approved settings.");
         string externalId = "order-" + requestId.ToString("D");
+        Guid cycle = BrokerManagedStrategy.StableId($"{bindingId:D}:{order.SecurityId}:{externalId}");
+        if (order.PositionId.HasValue && order.PositionId != cycle)
+            throw new InvalidOperationException("The original request belongs to a different position cycle.");
         var fact = await readOriginalOrder(bindingId, externalId, ct);
         if (fact is null || fact.ExternalId != externalId || fact.SecurityId != order.SecurityId ||
             fact.Symbol != order.Symbol || fact.Side != order.Side || fact.SubmittedQuantity != order.Quantity ||
             !WealthsimpleReconciliation.Valid(fact, observedAt))
             throw new InvalidOperationException("Missing or conflicting broker facts for the original buy.");
-        if (fact.Status is not ("CANCELLED" or "CANCELED") || fact.FilledQuantity <= 0 ||
-            fact.FilledQuantity >= order.Quantity || fact.NetValue is not > 0 || fact.LastFilledAt is null)
-            throw new InvalidOperationException("This recovery requires a partially filled buy with a confirmed cancellation.");
+        bool cancelled = fact.Status is "CANCELLED" or "CANCELED";
+        bool pendingWithoutFill = fact.Status == "PENDING" && fact.FilledQuantity == 0;
+        bool partialFill = (cancelled || fact.Status == "PARTIALLY_FILLED") && fact.FilledQuantity > 0 &&
+            fact.FilledQuantity < order.Quantity && fact.NetValue > 0 && fact.LastFilledAt.HasValue;
+        if (!pendingWithoutFill && !partialFill)
+            throw new InvalidOperationException("Unsupported opening-buy status or inconsistent cumulative fill.");
         if (TradingStorageValidation.IsTerminal(order.Status) &&
-            (order.Status != "Cancelled" || order.LatestFilledQuantity != fact.FilledQuantity || order.LatestNetValue != fact.NetValue))
+            (!cancelled || order.Status != "Cancelled" || order.LatestFilledQuantity != fact.FilledQuantity || order.LatestNetValue != fact.NetValue))
             throw new InvalidOperationException("The broker outcome differs from the saved terminal receipt.");
 
-        DateTime fillUtc = fact.LastFilledAt.Value.UtcDateTime;
+        var applied = TradingFillApplication.Prepare(order, (int)fact.FilledQuantity, fact.NetValue ?? 0m);
+        var receipt = applied.Order with { Status = cancelled ? "Cancelled" : "Submitted", NeedsWork = !cancelled };
+        // Poll the broker every time the request is active. Only persist a changed observation.
+        if (!TradingStorageValidation.Same(receipt, order)) receipt = receipt with { LastCheckedUtc = observedAt.UtcDateTime };
+        var write = new TradingStateWrite(Guid.NewGuid(), "ReconcileOpeningBuy", observedAt.UtcDateTime,
+            state.Account.Version, state.Account) { Orders = [receipt] };
+        if (partialFill)
+            write = write with { Positions = [ApplyPositionFill(state, order, fact, applied, cycle)] };
+        return await store.SaveAsync(write, ct);
+    }
+
+    private TradingPositionCurrent ApplyPositionFill(TradingCurrentState state, TradingOrder order, BrokerOrderFact fact,
+        TradingFillApplication applied, Guid cycle)
+    {
+        var bindingId = order.BindingId;
+        DateTime fillUtc = fact.LastFilledAt!.Value.UtcDateTime;
         if (fillUtc < order.CreatedUtc)
             throw new InvalidOperationException("Reported fill predates the original intent.");
         if (PaperTradingMonitor.ToToronto(fact.CreatedAt.UtcDateTime).Date != PaperTradingMonitor.ToToronto(fillUtc).Date)
             throw new InvalidOperationException("Resolve individual entry timing for this multi-session buy.");
-        var applied = TradingFillApplication.Prepare(order, (int)fact.FilledQuantity, fact.NetValue.Value);
-        Guid cycle = BrokerManagedStrategy.StableId($"{bindingId:D}:{order.SecurityId}:{externalId}");
         var position = state.Positions.SingleOrDefault(p => p.SecurityId == order.SecurityId);
-        if (order.PositionId.HasValue && order.PositionId != cycle)
-            throw new InvalidOperationException("The original request belongs to a different position cycle.");
         if (position is null)
         {
             if (order.AppliedFilledQuantity != 0 || order.AppliedNetValue != 0)
                 throw new InvalidOperationException("Previously applied buy has no current position.");
             var terms = openingTerms(state.Settings, order);
-            if (terms.BindingId != bindingId || terms.PermissionId != order.PermissionId || terms.RequestId != requestId)
+            if (terms.BindingId != bindingId || terms.PermissionId != order.PermissionId || terms.RequestId != order.RequestId)
                 throw new InvalidOperationException("Opening protection does not belong to the original approved buy.");
             if (terms.ProtectionFloor is <= 0 || terms.OriginalTarget is <= 0)
                 throw new InvalidOperationException("Invalid opening floor or target for the original buy.");
@@ -69,10 +86,7 @@ public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
             fillUtc < position.LastEntryUtc || position.EntryCount != 1 || position.AddOnCount != 0)
             throw new InvalidOperationException("Saved position cannot be attributed to this opening buy alone.");
 
-        var updated = position with { IsOpen = true, Quantity = checked(position.Quantity + applied.QuantityDelta),
+        return position with { IsOpen = true, Quantity = checked(position.Quantity + applied.QuantityDelta),
             CostBasis = position.CostBasis + applied.NetValueDelta, LastEntryUtc = fillUtc };
-        var receipt = applied.Order with { Status = "Cancelled", NeedsWork = false, LastCheckedUtc = observedAt.UtcDateTime };
-        return await store.SaveAsync(new(Guid.NewGuid(), "RecoverCancelledOpeningBuy", observedAt.UtcDateTime,
-            state.Account.Version, state.Account) { Positions = [updated], Orders = [receipt] }, ct);
     }
 }

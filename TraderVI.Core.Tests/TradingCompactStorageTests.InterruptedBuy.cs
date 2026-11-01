@@ -98,7 +98,7 @@ public sealed partial class TradingCompactStorageTests
     [InlineData("missing")]
     [InlineData("wrong order")]
     [InlineData("wrong security")]
-    [InlineData("pending")]
+    [InlineData("pending with reported shares")]
     [InlineData("wrong protection")]
     [InlineData("closed cycle")]
     public async Task InconclusiveRecoveryLeavesOriginalBuyUnfinished(string problem)
@@ -115,7 +115,7 @@ public sealed partial class TradingCompactStorageTests
         }
         await db.Store.SaveAsync(initial);
         BrokerOrderFact? fact = problem switch { "missing" => null, "wrong order" => Cancellation with { ExternalId = "different" },
-            "wrong security" => Cancellation with { SecurityId = "different" }, "pending" => Cancellation with { Status = "PENDING" }, _ => Cancellation };
+            "wrong security" => Cancellation with { SecurityId = "different" }, "pending with reported shares" => Cancellation with { Status = "PENDING" }, _ => Cancellation };
         var recovery = new InterruptedBuyRecovery(db.Store, (_, _, _) => Task.FromResult(fact),
             (settings, buy) => SavedOpeningTerms(settings, buy) with { RequestId = problem == "wrong protection" ? Id(99) : buy.RequestId });
         int writes = db.CommittedWrites;

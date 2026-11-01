@@ -181,8 +181,15 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   Nine new cases and 46 prior focused cases passed offline, zero failures or skips.
   [Recovery tests](../TraderVI.Core.Tests/TradingCompactStorageTests.InterruptedBuy.cs).
   Local run record: `artifacts/compact-storage-20261030/results/interrupted-buy.trx`.
-- [ ] Extend original-request recovery beyond a cancelled, partially filled opening buy. The first
-  scenario uses a simulated broker lookup and fixture-supplied opening terms for the approved request.
+- [x] October 31 still-open opening buy, offline. Each recovery looked up the same original order.
+  On a $100 request the no-fill pending reply kept $100 reserved. Four shares for $38 left $62
+  reserved. Repeating that reply after restart wrote zero rows, including after a lost save reply.
+  Seven cumulative shares for $67 added just three shares and left $33 reserved. A stale zero-fill
+  response could not undo confirmed shares. The recovery component has only a broker status lookup.
+  Three new cases and 55 prior focused cases passed. [Still-open buy tests](../TraderVI.Core.Tests/TradingCompactStorageTests.OpenBuy.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/open-buy.trx`.
+- [ ] Extend original-request recovery to remaining cases, including full fills. The offline
+  scenarios use a simulated broker lookup and fixture-supplied opening terms for the approved request.
   Production broker coverage, strategy-specific protection mapping, additional order outcomes and
   engine startup integration still need separate review.
 - [ ] Near the end, measure SQL read/write latency and physical space and qualify round trips, locking,
@@ -192,7 +199,7 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   supersession of installed behavior and update #19 before integrating or activating that replacement.
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
   broker-coverage, writer-fencing and history-size acceptance before installation. No new recovery
-  behavior or production setting is installed. The compact store and first offline recovery scenario are implemented;
+  behavior or production setting is installed. The compact store and offline opening-buy recovery scenarios are implemented;
   the prepared schema is not installed and current production recovery behavior is unchanged.
 - Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to
   [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.
