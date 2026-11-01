@@ -61,8 +61,8 @@ balance as reserved. The receipt retains the full applied fill cost even if an o
 estimate. Reconciliation then charges the full terminal cost. For a $100 buy with $38 applied, the
 account carries $38 committed and $62 reserved. Cancelling the balance clears the $62 reservation.
 An identical cancellation arriving with a new check time preserves the completed receipt and totals.
-The future integration layer still supplies position accounting and maps broker observations to compact
-order states. Terminal orders leave the work set only after their recorded fill totals
+The offline recovery component maps opening buys and protective sells from original broker
+observations and applies cumulative position deltas. Terminal orders leave the work set only after their recorded fill totals
 agree and reservations are cleared. Contradictory/regressing facts are rejected for explicit
 reconciliation, not silently resubmitted. These are local invariants, not a new broker retry policy.
 
@@ -72,6 +72,26 @@ snapshots or historical fills are serialized into current rows. Payload budgets 
 UTF-8 JSON separately from SQL allocation, indexes, transaction logs and broker responses.
 
 ## Validation and limits
+
+The disconnected account rehearsal restores these inputs together from the compact book.
+
+| Saved input | How the offline restart uses it | Production source to qualify before switching |
+|---|---|---|
+| Account binding, assignment, strategy, approval, phase and execution flag | A new simulated sale requires active execution and a current sell permission. Order-status reads continue when submission is disabled. | Effective broker approval, installed build and valid host grant under the existing execution host |
+| Stop-buying flag, risk holds, purchase ceiling and reservations | Preserve each control and reconcile each original buy independently. The pass has no new-buy operation. | Current risk evidence and buying-mode writers |
+| Position ID, security, remaining shares, protection owner and saved exit decision/reason/time | Dispatch the already triggered protective exit first. An existing sell reservation or overlapping original request prevents a second sale. | Strategy protection state, original trigger identity and local broker journal |
+| Scoped restrictions and dated broker account observations | Read the account snapshot once after exit handling. Record cash and buying power, compare security quantities, and restrict a mismatch to that security. A newer agreement can clear only the comparison's own restriction. | Authenticated account binding, observation ordering, external trades and broker coverage |
+
+Only the pass that successfully reserves a **new** protective request may dispatch it. The receipt and
+share reservation commit together before the simulated send. Later passes look up that request.
+An ambiguous save before dispatch may leave zero submissions and an unresolved reservation.
+Its original ID stays visible for reconciliation. Rejected or partially cancelled exits retain
+the trigger on the unsold shares and report the original outcome for review.
+
+Position, receipt, allowance and existing symbol exit memory update together on a sell fill.
+The rehearsal uses a simulated transport, synthetic opening terms and current-state reads after changes.
+Production admission still requires native single-owner fencing, real grant/build validation, final
+authorization through dispatch, broker timeouts, journal coordination and end-to-end measurements.
 
 Offline tests cover interrupted transactions, lost commit replies, stale writers, original identities,
 repeated partial fills, current settings/protection/stop values, active-set boundaries and schema/migration

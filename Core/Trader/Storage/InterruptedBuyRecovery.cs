@@ -25,6 +25,14 @@ public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
             ?? throw new InvalidOperationException("Current account is missing.");
         var order = state.Orders.SingleOrDefault(o => o.RequestId == requestId);
         if (order is null) return null;
+        return await RecoverAsync(state, order, observedAt, ct);
+    }
+
+    internal async Task<TradingSaveResult> RecoverAsync(TradingCurrentState state, TradingOrder order,
+        DateTimeOffset observedAt, CancellationToken ct)
+    {
+        var bindingId = state.Account.BindingId;
+        var requestId = order.RequestId;
         if (order.Side != "BUY" || order.PermissionId != state.Settings.PermissionId)
             throw new InvalidOperationException("This recovery requires the original buy and its approved settings.");
         string externalId = "order-" + requestId.ToString("D");
@@ -32,38 +40,14 @@ public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
         if (order.PositionId.HasValue && order.PositionId != cycle)
             throw new InvalidOperationException("The original request belongs to a different position cycle.");
         var fact = await readOriginalOrder(bindingId, externalId, ct);
-        if (fact is null || fact.ExternalId != externalId || fact.SecurityId != order.SecurityId ||
-            fact.Symbol != order.Symbol || fact.Side != order.Side || fact.SubmittedQuantity != order.Quantity ||
-            !WealthsimpleReconciliation.Valid(fact, observedAt))
-            throw new InvalidOperationException("Missing or conflicting broker facts for the original buy.");
-        // The common broker validator above checks whole quantities, fill time and net cost.
-        bool partial = fact.FilledQuantity > 0 && fact.FilledQuantity < order.Quantity && fact.NetValue > 0;
-        bool unfilled = fact.FilledQuantity == 0;
-        string status = fact.Status switch
-        {
-            "PENDING" when unfilled => "Submitted",
-            "REJECTED" when unfilled => "Rejected",
-            "EXPIRED" when unfilled || partial => "Expired",
-            "PARTIALLY_FILLED" when partial => "Submitted",
-            "CANCEL_PENDING" when partial => "Submitted",
-            "CANCELLED" or "CANCELED" when unfilled || partial => "Cancelled",
-            "FILLED" or "POSTED" when fact.FilledQuantity == order.Quantity && fact.NetValue > 0 => "Filled",
-            _ when unfilled && fact.Status != "PARTIALLY_FILLED" && WealthsimplePendingOrder.FeedStatuses.Contains(fact.Status) => "Submitted",
-            _ => throw new InvalidOperationException("Unsupported opening-buy status or inconsistent cumulative fill.")
-        };
-        decimal netCost = fact.NetValue ?? 0m;
-        if (TradingStorageValidation.IsTerminal(order.Status) &&
-            (order.Status != status || order.LatestFilledQuantity != fact.FilledQuantity || order.LatestNetValue != netCost))
-            throw new InvalidOperationException("The broker outcome differs from the saved terminal receipt.");
-
-        var applied = TradingFillApplication.Prepare(order, (int)fact.FilledQuantity, netCost);
+        var (status, applied) = CompactOrderObservation.Reconcile(order, fact, observedAt);
         var receipt = applied.Order with { Status = status, NeedsWork = !TradingStorageValidation.IsTerminal(status) };
         // Poll the broker every time the request is active. Only persist a changed observation.
         if (!TradingStorageValidation.Same(receipt, order)) receipt = receipt with { LastCheckedUtc = observedAt.UtcDateTime };
         var write = new TradingStateWrite(Guid.NewGuid(), "ReconcileOpeningBuy", observedAt.UtcDateTime,
             state.Account.Version, state.Account) { Orders = [receipt] };
-        if (fact.FilledQuantity > 0)
-            write = write with { Positions = [ApplyPositionFill(state, order, fact, applied, cycle)] };
+        if (receipt.LatestFilledQuantity > 0)
+            write = write with { Positions = [ApplyPositionFill(state, order, fact!, applied, cycle)] };
         return await store.SaveAsync(write, ct);
     }
 

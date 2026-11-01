@@ -213,10 +213,22 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   skipped). The SQL project built and both prepared migrations parsed offline using the SQL 150 parser.
   [Additional cases](../TraderVI.Core.Tests/TradingCompactStorageTests.BuyRecoveryMatrix.cs).
   Local run record: `artifacts/compact-storage-20261030/results/offline-core.trx`.
-- [ ] Map the remaining current instructions and protection inputs and exercise an account-level restart
-  across multiple unfinished requests, including an independently valid protective sale during buy
-  uncertainty. Opening-buy tests use a simulated broker lookup and fixture-supplied opening terms.
-  Production broker coverage, sell recovery and engine startup integration remain open.
+- [x] October 31 offline account restart with a simulated broker. An uncertain buy retained its $100
+  reservation. A second buy reconciled four shares for $38. An independently triggered ten-share
+  sale was reserved, sent once and fully accounted for, ahead of unrelated buy lookups. The next
+  pass preserved the settings, buy stop, risk flags, original reservation and completed sale.
+  One account snapshot supplied dated cash, buying power and holdings. A mismatch restricted only
+  its security and a later agreement cleared only that comparison's restriction.
+- [x] Exercise the account pass under overlapping restarts, lost reservation and submission replies,
+  partial/repeated sell fills, rejection, cancellation, expired or disabled authority, scope-specific
+  restrictions, ambiguous share reservations and invalid broker snapshots. All 20 account scenarios
+  passed in the full Core run (3,538 passed, zero failed, 10 opt-in native tests skipped).
+  [Account tests](../TraderVI.Core.Tests/TradingCompactStorageTests.AccountRestart.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/account-restart-core.trx`.
+- [ ] Complete production writer/reader and host-grant mapping from the
+  [offline input map](adr/0117-compact-trading-current-storage.md#validation-and-limits). Establish
+  strategy-specific opening terms, broker coverage for manual/external activity, durable single-owner
+  dispatch and encrypted-journal coordination before wiring this into startup.
 - [ ] Near the end, measure SQL read/write latency and physical space and qualify round trips, locking,
   crash/rollback and active query plans. October 31 operator deferred this work. Review the test
   environment before execution.
@@ -224,7 +236,7 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   supersession of installed behavior and update #19 before integrating or activating that replacement.
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
   broker-coverage, writer-fencing and history-size acceptance before installation. No new recovery
-  behavior or production setting is installed. The compact store and offline opening-buy recovery scenarios are implemented;
+  behavior or production setting is installed. Compact storage and the disconnected account rehearsal are implemented;
   the prepared schema is not installed and current production recovery behavior is unchanged.
 - Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to
   [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.

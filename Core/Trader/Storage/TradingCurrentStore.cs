@@ -28,6 +28,21 @@ public sealed class TradingCurrentStore
     private readonly ITradingStorageDatabase database;
     internal TradingCurrentStore(ITradingStorageDatabase database) => this.database = database;
 
+    // A latched exit can outlive its active order (for example after rejection).
+    internal async Task<TradingOrder?> ReadOrderAsync(Guid bindingId, Guid requestId, CancellationToken ct)
+    {
+        await using var tx = await database.BeginAsync(bindingId, false, ct);
+        var row = await tx.FindAsync<TradingOrder>(requestId, ct);
+        if (row is not null)
+        {
+            TradingStorageValidation.Validate(row);
+            if (row.BindingId != bindingId || row.RequestId != requestId)
+                throw new InvalidOperationException("Original receipt lookup returned a different identity.");
+        }
+        await tx.CommitAsync(ct);
+        return row;
+    }
+
     public async Task<TradingCurrentState?> ReadAsync(Guid bindingId, CancellationToken ct = default)
     {
         if (bindingId == Guid.Empty) throw new ArgumentException("Account identity is required.");
