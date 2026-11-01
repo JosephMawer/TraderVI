@@ -5,6 +5,8 @@
 - **Domains:** architecture, data-pipeline
 - **Related:** [ADR-0120](0120-independent-hermes-build.md), [ADR-0021](0021-calibration-outcome-and-paper-execution-contract.md), [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md), [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md)
 
+**Operational follow-up:** [ADR-0122](0122-existing-output-nightly-execution.md) now selects the existing November 1 outputs for reuse at 06:30 without building/copying. The extraction checkpoint below predates that runner change; collector/engine/UI installation remains unchanged.
+
 ## Decision and purpose
 
 Athena owns outcome evaluation and builds without Core. The immediate problem is copying ML and

@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "task": {
     "name": "TraderVI Nightly",
-    "localTime": "00:30",
+    "localTime": "06:30",
     "daysOfWeek": [
       "Monday",
       "Tuesday",
@@ -14,48 +14,49 @@
     ],
     "executionTimeLimitHours": 10
   },
-  "build": {
-    "configuration": "Release",
-    "timeoutMinutes": 30,
-    "restoreDependencies": true,
-    "captureAttempts": 3,
-    "restoreAttempts": 3,
-    "retryDelaySeconds": 10,
-    "restoreTimeoutMinutes": 5
-  },
   "stages": [
     {
       "name": "Hermes",
-      "project": "Hermes/Hermes.csproj",
-      "entryAssembly": "Hermes/bin/Release/net10.0/Hermes.dll",
+      "entryAssembly": "artifacts/athena-extraction-20261101/build/bin/Hermes/release/Hermes.dll",
       "timeoutMinutes": 360,
-      "successExitCodes": [0],
+      "successExitCodes": [
+        0
+      ],
       "attentionExitCodes": [],
       "failurePatterns": [
         "Failed:\\s*[1-9]\\d*",
         "collection failed:"
       ],
-      "attentionPatterns": ["HermesSymbolUnavailable:"],
+      "attentionPatterns": [
+        "HermesSymbolUnavailable:"
+      ],
       "continueAfterFailure": false
     },
     {
       "name": "DataAudit",
-      "project": "DataAudit/DataAudit.csproj",
-      "entryAssembly": "DataAudit/bin/Release/net10.0/DataAudit.dll",
-      "arguments": ["--json"],
+      "entryAssembly": "artifacts/athena-extraction-20261101/build/bin/DataAudit/release/DataAudit.dll",
+      "arguments": [
+        "--json"
+      ],
       "timeoutMinutes": 30,
-      "successExitCodes": [0],
-      "attentionExitCodes": [1, 2],
+      "successExitCodes": [
+        0
+      ],
+      "attentionExitCodes": [
+        1,
+        2
+      ],
       "failurePatterns": [],
       "attentionPatterns": [],
       "continueAfterFailure": true
     },
     {
       "name": "Delphi",
-      "project": "Delphi/Delphi.csproj",
-      "entryAssembly": "Delphi/bin/Release/net10.0/Delphi.dll",
+      "entryAssembly": "artifacts/athena-extraction-20261101/build/bin/Delphi/release/Delphi.dll",
       "timeoutMinutes": 120,
-      "successExitCodes": [0],
+      "successExitCodes": [
+        0
+      ],
       "attentionExitCodes": [],
       "failurePatterns": [
         "audit=Invalid"
@@ -67,14 +68,19 @@
     },
     {
       "name": "Athena",
-      "project": "Athena/Athena.csproj",
-      "entryAssembly": "Athena/bin/Release/net10.0/Athena.dll",
+      "entryAssembly": "artifacts/athena-extraction-20261101/build/bin/Athena/release/Athena.dll",
       "timeoutMinutes": 120,
-      "successExitCodes": [0],
-      "attentionExitCodes": [2],
+      "successExitCodes": [
+        0
+      ],
+      "attentionExitCodes": [
+        2
+      ],
       "failurePatterns": [],
       "attentionPatterns": [],
       "continueAfterFailure": false
     }
-  ]
+  ],
+  "executionMode": "ExistingOutputs",
+  "outputsManifest": "Operations/nightly-outputs-20261101.json"
 }

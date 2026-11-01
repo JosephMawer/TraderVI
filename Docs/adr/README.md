@@ -41,6 +41,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0122](0122-existing-output-nightly-execution.md) | Reuse existing nightly outputs at 06:30 | Installed; first scheduled execution pending | architecture, data-pipeline |
 | [0121](0121-independent-athena-build.md) | Athena builds independently of Core | Accepted; source/build validated, not installed | architecture, data-pipeline |
 | [0120](0120-independent-hermes-build.md) | Hermes builds independently of Core | Accepted; source/build validated, not installed | architecture, data-pipeline |
 | [0119](0119-independent-data-audit-build.md) | DataAudit builds independently of Core | Accepted; source/build validated, not installed | architecture, data-pipeline |
@@ -79,7 +80,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 | [0086](0086-supervised-broker-strategy-session.md) | Durable supervised broker strategy session | Source/offline tests and installed storage; launch NO-GO pending native qualification and rollout | architecture, risk-management, market-microstructure |
 | [0083](0083-opening-account-values-and-shared-engine-hosting.md) | Opening account values and shared engine hosting | Continuation and orchestration tested; native source qualification pending | architecture, data-sources |
 | [0084](0084-external-broker-trade-synchronization.md) | External broker trade synchronization | Installed; resolved-order native acceptance verified | architecture, data-sources, risk-management, user-interface |
-| [0078](0078-isolated-latest-source-nightly-builds.md) | Isolated latest-source nightly builds | Accepted; implemented | architecture, data-pipeline |
+| [0078](0078-isolated-latest-source-nightly-builds.md) | Isolated latest-source nightly builds | Superseded by ADR-0122 for nightly preparation | architecture, data-pipeline |
 | [0079](0079-broker-reconciliation-and-market-handover.md) | Broker reconciliation and first market-order handover | Reconciliation implemented; execution pending | architecture, risk-management, market-microstructure, user-interface |
 | [0080](0080-reviewed-broker-history-import.md) | Reviewed broker history import | Implemented; migration and native linked refresh verified | architecture, risk-management, user-interface |
 | [0082](0082-compact-live-snapshots-and-backup-retention.md) | Compact Live snapshots and verified backup retention | Installed and verified September 17; bounded history reads remain | architecture, data-pipeline |

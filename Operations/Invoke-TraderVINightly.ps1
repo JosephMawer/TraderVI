@@ -8,9 +8,7 @@ param(
 
     [switch] $Force,
 
-    [switch] $ValidateOnly,
-
-    [switch] $BuildOnly
+    [switch] $ValidateOnly
 )
 
 Set-StrictMode -Version Latest
@@ -126,19 +124,24 @@ function Get-ArtifactSnapshot {
     )
 
     if (-not (Test-Path -LiteralPath $EntryAssembly -PathType Leaf)) {
-        throw "Built entry assembly is missing: $EntryAssembly"
+        throw "Compiled entry assembly is missing: $EntryAssembly"
     }
 
+    $EntryAssembly = Assert-NightlyOutputPath $RepoRoot $EntryAssembly
     $artifactDirectory = Split-Path -Parent $EntryAssembly
     $records = New-Object System.Collections.Generic.List[string]
-    foreach ($file in @(Get-ChildItem -LiteralPath $artifactDirectory -Recurse -File | Sort-Object FullName)) {
+    foreach ($file in @(Get-NightlyOutputFiles $artifactDirectory | Sort-Object FullName)) {
         $relativePath = Get-RepoRelativePath -BasePath $artifactDirectory -TargetPath $file.FullName
         $records.Add("$relativePath`t$((Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash)")
     }
 
+    # Ordinal ordering makes the fingerprint identical in Windows PowerShell 5.1
+    # and PowerShell 7, whose culture-sensitive sort orders can differ.
+    [string[]] $canonicalRecords = $records.ToArray()
+    [Array]::Sort($canonicalRecords, [StringComparer]::Ordinal)
     return [pscustomobject] [ordered]@{
         path = Get-RepoRelativePath -BasePath $RepoRoot -TargetPath $artifactDirectory
-        sha256 = Get-Sha256ForText -Text ($records -join "`n")
+        sha256 = Get-Sha256ForText -Text ($canonicalRecords -join "`n")
         fileCount = $records.Count
     }
 }
@@ -186,7 +189,7 @@ function Invoke-CapturedProcess {
     $completed = $process.WaitForExit([int] $timeoutMilliseconds)
     if (-not $completed) {
         try {
-            # Windows PowerShell lacks Process.Kill(entireProcessTree). Stop compiler children too.
+            # Windows PowerShell lacks Process.Kill(entireProcessTree). Stop this stage's children too.
             & "$env:SystemRoot\System32\taskkill.exe" /PID $process.Id /T /F 2>$null | Out-Null
             if (-not $process.WaitForExit(10000)) { throw 'Process tree did not stop.' }
         }
@@ -225,35 +228,20 @@ function Test-Configuration {
         [Parameter(Mandatory = $true)] [string] $RepoRoot
     )
 
-    if ($Configuration.schemaVersion -ne 3) {
-        throw "Unsupported nightly-runner configuration schema '$($Configuration.schemaVersion)'."
+    if ($Configuration.schemaVersion -ne 4 -or $Configuration.executionMode -ne 'ExistingOutputs') {
+        throw 'The nightly runner requires schema 4 and ExistingOutputs mode; builds and source copies are unsupported.'
     }
-    if ([string] $Configuration.build.configuration -ne 'Release') {
-        throw 'The unattended runner requires the Release build configuration.'
-    }
-    if (-not [bool] $Configuration.build.restoreDependencies) {
-        throw 'The isolated nightly build requires locked dependency restore.'
-    }
-    if ([int] $Configuration.build.timeoutMinutes -le 0) {
-        throw 'The build timeout must be positive.'
-    }
-    foreach ($setting in @('captureAttempts', 'restoreAttempts')) {
-        if ([int] $Configuration.build.$setting -lt 1 -or [int] $Configuration.build.$setting -gt 3) {
-            throw "$setting must be between 1 and 3."
-        }
-    }
-    if ([int] $Configuration.build.retryDelaySeconds -lt 0 -or [int] $Configuration.build.retryDelaySeconds -gt 60 -or
-        [int] $Configuration.build.restoreTimeoutMinutes -lt 1) {
-        throw 'Invalid preparation retry delay or restore timeout.'
+    [void] (Resolve-ConfiguredPath $RepoRoot ([string] $Configuration.outputsManifest))
+    if (($Configuration.stages.name -join ',') -ne 'Hermes,DataAudit,Delphi,Athena') {
+        throw 'The configured stage order must be Hermes, DataAudit, Delphi, Athena.'
     }
     if (@($Configuration.stages).Count -eq 0) {
         throw 'The nightly configuration contains no stages.'
     }
 
     foreach ($stage in $Configuration.stages) {
-        $projectPath = Resolve-ConfiguredPath -RepoRoot $RepoRoot -ConfiguredPath ([string] $stage.project)
-        if (-not (Test-Path -LiteralPath $projectPath -PathType Leaf)) {
-            throw "Stage '$($stage.name)' project does not exist: $projectPath"
+        if ([IO.Path]::GetFileName([string] $stage.entryAssembly) -ne "$($stage.name).dll") {
+            throw "Stage '$($stage.name)' must select its compiled DLL directly."
         }
         [void] (Resolve-ConfiguredPath -RepoRoot $RepoRoot -ConfiguredPath ([string] $stage.entryAssembly))
         if ([int] $stage.timeoutMinutes -le 0) {
@@ -293,7 +281,7 @@ function Invoke-NightlyStage {
     }
     $Status.stages += $stageStatus
     Write-JsonAtomically -Value $Status -Path $script:StatusPath
-    Write-RunLog "Starting stage '$($Stage.name)' from the current-source build '$entryAssembly'."
+    Write-RunLog "Starting stage '$($Stage.name)' from selected existing outputs '$entryAssembly'."
 
     $stageArguments = @($entryAssembly)
     if ($Stage.PSObject.Properties.Name -contains 'arguments') { $stageArguments += @($Stage.arguments) }
@@ -304,8 +292,8 @@ function Invoke-NightlyStage {
         -TimeoutMinutes ([int] $Stage.timeoutMinutes) `
         -Label "stage '$($Stage.name)'" `
         -EnvironmentOverrides @{
-            TRADERVI_CODE_VERSION = $Status.build.sourceBefore.gitCommit
-            TRADERVI_WORKING_TREE_STATE = $Status.build.sourceBefore.workingTreeState
+            TRADERVI_CODE_VERSION = $Status.outputs.sourceCommit
+            TRADERVI_WORKING_TREE_STATE = $Status.outputs.workingTreeState
             TRADERVI_PREPARATION_DATE = $Status.preparationDate
         }
 
@@ -380,7 +368,7 @@ function Invoke-NightlyStages {
     foreach ($stage in $Configuration.stages) {
         $result = Invoke-NightlyStage `
             -Stage $stage `
-            -RepoRoot $Status.build.sourceDirectory `
+            -RepoRoot $Status.repositoryRoot `
             -DotnetPath $DotnetPath `
             -ExpectedArtifact $ArtifactSnapshots[[string] $stage.name] `
             -Status $Status
@@ -398,7 +386,7 @@ function Invoke-NightlyStages {
     return [pscustomobject]@{ HasFailure=$hasFailure; HasAttention=$hasAttention }
 }
 
-. (Join-Path $PSScriptRoot 'NightlyBuild.ps1')
+. (Join-Path $PSScriptRoot 'NightlyOutputs.ps1')
 . (Join-Path $PSScriptRoot 'NightlyDataAudit.ps1')
 
 $resolvedConfigurationPath = (Resolve-Path -LiteralPath $ConfigurationPath).Path
@@ -413,14 +401,17 @@ if (-not (Test-Path -LiteralPath $dotnetPath -PathType Leaf)) {
 }
 
 if ($ValidateOnly) {
-    Write-Host "Nightly latest-source configuration is valid: $resolvedConfigurationPath"
+    $validationLocks = $null
+    try {
+        $validationLocks = Open-NightlyOutputLocks $configuration $repoRoot
+        $validated = Get-NightlyExistingOutputs $configuration $repoRoot
+        Write-Host "Existing outputs verified: $($validated.outputSetId). No build, copy, operational stage or status write."
+    }
+    finally { Close-NightlyOutputLocks $validationLocks }
     exit 0
 }
 
 $stateDirectory = [System.IO.Path]::GetFullPath($StateDirectory)
-if ($BuildOnly -and -not $stateDirectory.StartsWith((Join-Path $repoRoot 'artifacts\'), [StringComparison]::OrdinalIgnoreCase)) {
-    throw 'BuildOnly requires a separate StateDirectory under repository artifacts; it cannot overwrite operational status.'
-}
 [System.IO.Directory]::CreateDirectory($stateDirectory) | Out-Null
 $logsDirectory = Join-Path $stateDirectory 'logs'
 [System.IO.Directory]::CreateDirectory($logsDirectory) | Out-Null
@@ -429,6 +420,7 @@ $runId = [Guid]::NewGuid().ToString('D')
 $script:LogPath = Join-Path $logsDirectory "$([DateTimeOffset]::Now.ToString('yyyyMMdd-HHmmss'))-$runId.log"
 $lockPath = Join-Path $stateDirectory 'nightly.lock'
 $lockStream = $null
+$outputLocks = $null
 $status = $null
 
 try {
@@ -449,7 +441,7 @@ try {
     }
 
     $status = [pscustomobject] [ordered]@{
-        schemaVersion = 3
+        schemaVersion = 4
         runId = $runId
         state = 'Running'
         localRunDate = [DateTimeOffset]::Now.ToString('yyyy-MM-dd')
@@ -461,43 +453,39 @@ try {
         repositoryRoot = $repoRoot
         configurationPath = $resolvedConfigurationPath
         logPath = $script:LogPath
-        build = [pscustomobject] [ordered]@{
+        outputs = [pscustomobject] [ordered]@{
             state = 'Pending'
-            startedUtc = $null
-            completedUtc = $null
-            durationSeconds = $null
-            sourceBefore = $null
-            sourceAfter = $null
-            projects = @()
+            mode = 'ExistingOutputs'
+            outputSetId = $null
+            sourceCommit = $null
+            workingTreeState = $null
+            manifestSha256 = $null
             artifacts = @()
-            restores = @()
-            runDirectory = $null
-            sourceDirectory = $null
-            packageDirectory = $null
-            sdkVersion = $null
-            captureAttempts = 0
-            message = 'Build preflight has not started.'
+            message = 'Existing-output verification has not started.'
         }
         stages = @()
         message = 'Nightly pipeline is running.'
     }
     Write-JsonAtomically -Value $status -Path $script:StatusPath
-    Write-RunLog "TraderVI nightly run $runId started from current source for preparation date $resolvedPreparationDate."
-
-    $artifactSnapshots = Invoke-LatestSourceBuild `
-        -Configuration $configuration `
-        -RepoRoot $repoRoot `
-        -DotnetPath $dotnetPath `
-        -Status $status
-
-    if ($BuildOnly) {
-        $status.state = 'Prepared'
-        $status.completedUtc = [DateTimeOffset]::UtcNow.ToString('O')
-        $status.message = 'Build-only validation completed. No operational stage was started.'
-        Write-JsonAtomically -Value $status -Path $script:StatusPath
-        Write-RunLog $status.message
-        exit 0
+    Write-RunLog "TraderVI nightly run $runId started from existing outputs for preparation date $resolvedPreparationDate."
+    $status.outputs.state = 'Running'
+    $outputLocks = Open-NightlyOutputLocks $configuration $repoRoot
+    $selected = Get-NightlyExistingOutputs $configuration $repoRoot
+    $artifactSnapshots = $selected.artifacts
+    $status.outputs.outputSetId = $selected.outputSetId
+    $status.outputs.sourceCommit = $selected.sourceCommit
+    $status.outputs.workingTreeState = $selected.workingTreeState
+    $status.outputs.manifestSha256 = $selected.manifestSha256
+    foreach ($stage in $configuration.stages) {
+        $snapshot = $artifactSnapshots[[string] $stage.name]
+        $status.outputs.artifacts += [pscustomobject]@{
+            stage=$stage.name; path=$snapshot.path; sha256=$snapshot.sha256; fileCount=$snapshot.fileCount
+        }
     }
+    $status.outputs.state = 'Verified'
+    $status.outputs.message = 'Selected existing outputs verified and held read-only for this run. Nothing restored, compiled or copied.'
+    Write-JsonAtomically -Value $status -Path $script:StatusPath
+    Write-RunLog $status.outputs.message
 
     $outcome = Invoke-NightlyStages $configuration $status $dotnetPath $artifactSnapshots
 
@@ -512,7 +500,7 @@ try {
     }
     else {
         $status.state = 'Succeeded'
-        $status.message = 'The current source built successfully and all nightly stages completed successfully.'
+        $status.message = 'Selected existing outputs verified and all nightly stages completed successfully.'
     }
 
     Write-JsonAtomically -Value $status -Path $script:StatusPath
@@ -531,7 +519,7 @@ catch {
         try {
             if ($null -eq $status) {
                 $status = [pscustomobject] [ordered]@{
-                    schemaVersion = 3
+                    schemaVersion = 4
                     runId = $runId
                     state = 'Failed'
                     localRunDate = [DateTimeOffset]::Now.ToString('yyyy-MM-dd')
@@ -541,7 +529,7 @@ catch {
                     repositoryRoot = $repoRoot
                     configurationPath = $resolvedConfigurationPath
                     logPath = $script:LogPath
-                    build = $null
+                    outputs = $null
                     stages = @()
                     message = $message
                 }
@@ -550,10 +538,9 @@ catch {
                 $status.state = 'Failed'
                 $status.completedUtc = [DateTimeOffset]::UtcNow.ToString('O')
                 $status.message = $message
-                if ($null -ne $status.build -and $status.build.state -in @('Running', 'Failed')) {
-                    $status.build.state = 'Failed'
-                    $status.build.completedUtc = [DateTimeOffset]::UtcNow.ToString('O')
-                    $status.build.message = $message
+                if ($null -ne $status.outputs -and $status.outputs.state -in @('Running', 'Failed')) {
+                    $status.outputs.state = 'Failed'
+                    $status.outputs.message = $message
                 }
             }
             Write-JsonAtomically -Value $status -Path $script:StatusPath
@@ -564,6 +551,7 @@ catch {
     exit 1
 }
 finally {
+    Close-NightlyOutputLocks $outputLocks
     if ($null -ne $lockStream) {
         $lockStream.Dispose()
     }

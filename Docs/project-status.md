@@ -1,5 +1,36 @@
 # TraderVI Project Status
 
+## November 1 — Nightly reuses existing outputs at 06:30
+
+At 12:07 Toronto the existing **TraderVI Nightly** Windows task was changed to **06:30 local time,
+every day**, under [ADR-0122](adr/0122-existing-output-nightly-execution.md). Scheduler reports its next
+run as **November 2, 06:30:30**; the trigger boundary is 06:30:00 without a fixed timezone offset.
+The task remains Ready. Its account, action and settings match the pre-change XML; the previous run
+time/result and operational status file are unchanged. No immediate run was started.
+
+The runner now selects the November 1 existing outputs in
+`artifacts/athena-extraction-20261101/build/bin/{Hermes,DataAudit,Delphi,Athena}/release/` and verifies
+their pinned directory hashes/provenance from `Operations/nightly-outputs-20261101.json`. Those four
+directories are active runtime dependencies and must be protected during cleanup. Files stay in place;
+the runner has no source capture, restore, build, publish or binary-copy path. It holds selected files
+read-only during execution and stops on missing/changed outputs. The ordinary project Release folders
+contain September binaries and are not selected. Future source edits require a deliberate compiled-output
+selection update before they affect nightly execution. The proposed separate publishing system and
+further Delphi extraction are not prerequisites for this installed workflow.
+
+All **132 offline PowerShell regression assertions passed**, including real Windows file-sharing guards,
+selected-code provenance, local-time/DST behavior, preparation failure, stage ordering and audit reports.
+The real Windows PowerShell 5.1 `-ValidateOnly` check passed against all four outputs without starting
+applications or writing operational status. Fingerprints use ordinal filename ordering, verified across
+PowerShell 5.1 and 7. No .NET restore/build, database/broker/provider call, model training or cleanup ran.
+First scheduled operational execution with this configuration remains **pending**, not proven by preflight.
+
+Collector PID 1452, engine PID 22452 and WPF PID 6260 retain their original start times, process paths,
+executable/Core hashes and file timestamps. Private before/after task XML, installed-task verification,
+test/preflight logs and protected-host records are under `artifacts/nightly-existing-outputs-20261101/`.
+The earlier extraction entries below retain their checkpoint scope; this entry supersedes their
+description of a still-source-capturing nightly runner. Historical artifact and log/cache cleanup remain open.
+
 ## November 1 — Athena builds independently of Core
 
 Athena owns outcome calculators, lens reports, CSV exports and maturation queries/writes. The shared

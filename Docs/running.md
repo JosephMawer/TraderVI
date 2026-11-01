@@ -865,7 +865,7 @@ After a successful Hermes data update, Hermes automatically creates and verifies
 
 ## Guarded nightly pipeline
 
-ADR-0046, as corrected by ADR-0058, schedules one deterministic pipeline at 00:30 Toronto/Eastern every calendar day:
+[ADR-0122](adr/0122-existing-output-nightly-execution.md) schedules one deterministic pipeline at 06:30 Toronto/Eastern every calendar day:
 Hermes, then DataAudit, then Delphi, then Athena under [ADR-0113](adr/0113-nightly-data-audit-report.md).
 Running after midnight defaults Delphi to the new Toronto recommendation date while it uses the prior completed TSX
 session. [ADR-0114](adr/0114-explicit-nightly-preparation-date.md) also permits an explicitly authorized
@@ -884,32 +884,32 @@ Install the Windows task once, or rerun the installer when changing its schedule
 ./Operations/Install-TraderVINightlyTask.ps1
 ```
 
-The task invokes the repository runner and configuration directly. ADR-0078 captures the latest tracked
-and untracked non-ignored source into a verified private copy at run start. Later edits belong to the next
-run. It restores the reviewed Core/Hermes/DataAudit/Delphi/Athena and shared TraderVI.MarketData,
-TraderVI.MarketStorage, TraderVI.MarketProviders and TraderVI.Calibration lock files with `--locked-mode` into a dedicated
-cache, then builds the four Release projects inside that copy. Neither intermediate nor executable files
-are shared with development builds. Source and runner edits apply without reinstalling the task.
+The task invokes the repository runner and configuration directly. Schema 4 uses only selected existing
+outputs. It does not capture source, restore dependencies, compile, publish or copy binaries. The selected
+DLLs are under `artifacts/athena-extraction-20261101/build/bin/<App>/release/`, for Hermes, DataAudit,
+Delphi and Athena. These four existing directories are now protected active outputs; exclude them from
+cleanup. The ordinary project Release folders still contain September builds and are not selected.
 
-Capture and transient restore failures get at most three preparation attempts, with ten-second pauses.
-A restore attempt has five minutes; a thirty-minute preparation budget is checked before each process.
-Compiler errors, missing/changed dependency locks and package integrity failures stop before any stage.
-The copied source is verified after building and executable hashes are checked before every stage.
-Commit and working-tree provenance passed to Delphi identify the captured source.
+`Operations/nightly-outputs-20261101.json` pins each complete directory hash and its compiled-code
+provenance. The runner verifies all four directories before any stage, holds their existing files with
+read-only sharing for the run, and rechecks each directory before its stage. Missing or changed files
+fail preparation; there is no rebuild or older-output fallback. Source edits do not change the selected
+binaries. A future update requires reviewing new compiled outputs and explicitly changing the selected
+paths/hashes/provenance; an ordinary development build alone does not change the nightly selection.
 
-Run offline regression checks or actual build-only validation without starting operational programs:
+Run offline regression checks or verify the selected real files without starting operational programs:
 
 ```powershell
 ./Operations/Test-TraderVINightly.ps1
-./Operations/Invoke-TraderVINightly.ps1 -BuildOnly -StateDirectory C:\src\TraderVI\artifacts\nightly-build-check
+./Operations/Invoke-TraderVINightly.ps1 -ValidateOnly
 ```
 
-Build-only status is separate from operational status and records `Prepared`. Run copies and their full
-source manifests live under ignored `artifacts/nightly/<run-id>/`; the dedicated package cache is
-`artifacts/nightly/packages`. Cleanup is currently manual. When dependency declarations change, generate
-and review the affected Core/Hermes/DataAudit/Delphi/Athena and shared-project `packages.lock.json` files with `dotnet restore
---use-lock-file` before the next night. Restore uses `Operations/nightly-nuget.config`; package-security
-audits are separate from the unattended build and must be reported independently.
+ValidateOnly writes no operational status, builds nothing and starts no application. BuildOnly is removed.
+The 06:30 trigger uses local wall-clock time across daylight-saving changes, with its first occurrence in
+the future when installed. Existing stage/task time limits are unchanged; the start time is not a promise
+of completion before market open. Per-run logs/status/audit reports remain under local application data.
+Old `artifacts/nightly/<run-id>` source/build folders and `artifacts/nightly/packages` are no longer
+created or populated by the runner; historical cleanup and retention remain separate work.
 
 The authorized September 23 one-time storage cleanup removed compiled binaries from older artifact
 builds while preserving their source snapshots, manifests and evidence. Directories with
@@ -927,20 +927,20 @@ Read the latest status without starting any operational program:
 ```
 
 The runner writes atomic `status.json` state and per-run logs beneath
-`%LOCALAPPDATA%\TraderVI\Nightly`. `Succeeded` means the current source built and all four stages passed.
+`%LOCALAPPDATA%\TraderVI\Nightly`. `Succeeded` means the selected existing outputs verified and all four stages passed. Schema 4 records `outputs`, not a build.
 DataAudit's full structured findings appear in `status.json` and the run log, with comparison against
 the last completed scan in `data-audit-last-completed.json`. New findings and warning-to-error escalations
 are highlighted. Completed audit findings produce Attention; inability to run or validate/save its report
 produces Failed. Delphi and Athena continue after audit failure under their own independent checks.
 `Attention` includes explicitly marked Hermes individual daily-bar/stock-sector read warnings
 (`HermesSymbolUnavailable:`), Athena exit code 2 or a Delphi run degraded by an actual evidence limitation; a dirty
-working tree by itself remains recorded provenance and does not change the run audit state. `Failed` includes build failures,
-unstable source capture, dependency-lock failures, post-build artifact changes, timeouts, Hermes failures, invalid Delphi
+working tree at compilation remains recorded provenance and does not change the run audit state. `Failed` includes missing,
+changed or inaccessible selected outputs, timeouts, Hermes failures, invalid Delphi
 provenance, or any unexpected exit code. Under ADR-0110, isolated ticker-source warnings allow Delphi
 and Athena to continue, preserving existing per-stock exclusions and required benchmark checks.
 Database/processing failures, missing required shared inputs and backup failures are not downgraded.
 An attention marker cannot hide a fatal exit or timeout. Hermes failure stops later stages; Delphi failure
-does not prevent Athena from maturing earlier evidence. Only source capture and transient dependency restore may retry before any stage starts. Neither the runner
+does not prevent Athena from maturing earlier evidence. There is no build/restore/copy retry path. Neither the runner
 nor Task Scheduler retries a failed operational pipeline automatically. A completed run for the same preparation date is suppressed unless an operator explicitly uses
 `-Force` after reviewing it.
 

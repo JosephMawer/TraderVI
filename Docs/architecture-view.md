@@ -82,6 +82,8 @@ flowchart TB
 Most application processes still share Core. Hermes, DataAudit and Athena build independently; shared
 market facts, storage, providers and calibration rules have separate library boundaries under ADRs0119–0121.
 
+**November 1 nightly execution:** [ADR-0122](adr/0122-existing-output-nightly-execution.md) runs selected existing outputs at 06:30 Toronto: Hermes → DataAudit → Delphi → Athena. The runner verifies and reads fixed directories, without source capture, building or binary copying. Collector/engine/UI installation remains separate.
+
 **Boundary:** Core boxes describe library responsibilities, not additional deployed services. This guide does not discover processes or check connectivity.
 
 ```mermaid
@@ -451,7 +453,7 @@ classification and leadership acquisition live in Hermes. MarketData contains sh
 and deterministic calculations; MarketStorage contains shared repositories/SQLBase; MarketProviders
 contains the TMX client shared with the collector and other Core callers. DataAudit references only
 MarketData. [ADR-0120](adr/0120-independent-hermes-build.md) records this source boundary; installation
-and precompiled nightly release reuse remain separate.
+of the collector/engine/UI remains separate. Existing nightly outputs are now selected under [ADR-0122](adr/0122-existing-output-nightly-execution.md).
 
 **Process — Daily market-history collection.** Prepare daily market history and deterministic derived evidence.
 
@@ -512,7 +514,7 @@ queries/writes, and builds without Core. TraderVI.Calibration shares canonical l
 Core training/inference, scorecards/readers with WPF, and delayed-exit/breakout policies with Core paper
 monitoring. WPF uses the shared read-only evidence reader. The dependency chain is Calibration →
 MarketStorage → MarketData, with no Core, ML.NET or provider dependency. See
-[ADR-0121](adr/0121-independent-athena-build.md); this is source/build validation, not installation.
+[ADR-0121](adr/0121-independent-athena-build.md). [ADR-0122](adr/0122-existing-output-nightly-execution.md) selects these existing outputs for nightly reuse; first scheduled execution remains pending.
 
 **Evidence — Official forecast outcomes.** Evaluate identified forecast cohorts and calibration evidence.
 

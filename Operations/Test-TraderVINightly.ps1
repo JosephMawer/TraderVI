@@ -24,8 +24,19 @@ Assert ($parseErrors.Count -eq 0) 'Runner parses in Windows PowerShell.'
 foreach ($definition in $ast.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] }, $false)) {
     . ([scriptblock]::Create($definition.Extent.Text))
 }
-. (Join-Path $PSScriptRoot 'NightlyBuild.ps1')
+. (Join-Path $PSScriptRoot 'NightlyOutputs.ps1')
 . (Join-Path $PSScriptRoot 'NightlyDataAudit.ps1')
+$installerAst = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'Install-TraderVINightlyTask.ps1'), [ref]$null, [ref]$parseErrors)
+Assert ($parseErrors.Count -eq 0) 'Installer parses in Windows PowerShell.'
+foreach ($definition in $installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] }, $false)) {
+    . ([scriptblock]::Create($definition.Extent.Text))
+}
+$nextStart = Get-NightlyNextLocalStart '06:30' ([DateTime]'2026-11-01T12:00:00')
+Assert ($nextStart -eq [DateTime]'2026-11-02T06:30:00') 'Installation after the selected hour cannot trigger a missed run today.'
+Assert ($nextStart.Kind -eq [DateTimeKind]::Unspecified) 'Task boundary is local wall-clock time, not a fixed timezone offset.'
+Assert ((Get-NightlyNextLocalStart '06:30' ([DateTime]'2027-03-14T01:00:00')) -eq [DateTime]'2027-03-14T06:30:00') 'Spring daylight-saving transition preserves local 06:30.'
+Assert ((Get-NightlyNextLocalStart '06:30' ([DateTime]'2026-11-01T01:00:00')) -eq [DateTime]'2026-11-01T06:30:00') 'Fall daylight-saving transition preserves local 06:30.'
+Assert-Throws { Get-NightlyNextLocalStart '25:30' } 'HH:mm'
 $evening = [DateTimeOffset]::Parse('2026-10-28T21:00:00-04:00')
 Assert ((Resolve-NightlyPreparationDate '' $evening) -eq '2026-10-28') 'Default uses actual Toronto date.'
 Assert ((Resolve-NightlyPreparationDate '2026-10-29' $evening) -eq '2026-10-29') 'Closed-session early preparation is explicit.'
@@ -40,48 +51,8 @@ Assert (-not (Test-NightlyPreparationCompleted $completed '2026-10-30')) 'The su
 $completed.state='Failed'
 Assert (-not (Test-NightlyPreparationCompleted $completed '2026-10-29')) 'A failed run never counts as completed.'
 Assert (Test-NightlyPreparationCompleted ([pscustomobject]@{localRunDate='2026-10-28';state='Succeeded'}) '2026-10-28') 'Legacy status retains date suppression.'
-& git init --quiet $fixture
-if ($LASTEXITCODE) { throw 'Fixture Git initialization failed.' }
-[IO.File]::WriteAllText((Join-Path $fixture '.gitignore'), "artifacts/`n*.log`nstatus.json`n")
-[IO.File]::WriteAllText((Join-Path $fixture 'tracked.cs'), 'original')
-[IO.File]::WriteAllText((Join-Path $fixture 'deleted.cs'), 'removed later')
-& git -C $fixture add .
-& git -C $fixture -c user.name=NightlyTests -c user.email=nightly@example.invalid commit --quiet --no-gpg-sign -m fixture
-if ($LASTEXITCODE) { throw 'Fixture commit failed.' }
-[IO.File]::WriteAllText((Join-Path $fixture 'tracked.cs'), 'uncommitted')
-[IO.File]::WriteAllText((Join-Path $fixture 'new.cs'), 'untracked')
-# Explicit single fixture file, no recursive removal.
-Remove-Item -LiteralPath (Join-Path $fixture 'deleted.cs')
-$run = Join-Path $fixture 'artifacts/capture'
-$copy = New-NightlySourceCopy $fixture $run 3 0
-Assert ((Get-Content (Join-Path $copy.root 'tracked.cs') -Raw) -eq 'uncommitted') 'Includes uncommitted edits.'
-Assert (Test-Path (Join-Path $copy.root 'new.cs')) 'Includes untracked source.'
-Assert (-not (Test-Path (Join-Path $copy.root 'deleted.cs'))) 'Preserves tracked deletions.'
-Assert (-not (Test-Path (Join-Path $copy.root 'artifacts'))) 'Excludes ignored output.'
-Assert ($copy.manifest.source.workingTreeState -eq 'Dirty') 'Records real dirty state.'
-[IO.File]::WriteAllText((Join-Path $fixture 'tracked.cs'), 'later development')
-Assert-NightlyCopy $copy.manifest $copy.root
-Assert ((Get-Content (Join-Path $copy.root 'tracked.cs') -Raw) -eq 'uncommitted') 'Later development cannot modify copy.'
-[IO.File]::WriteAllText((Join-Path $copy.root 'tracked.cs'), 'tampered')
-Assert-Throws { Assert-NightlyCopy $copy.manifest $copy.root } 'Source copy changed'
+[IO.File]::WriteAllText((Join-Path $fixture 'tracked.cs'), 'editable source')
 Assert-Throws { Resolve-ConfiguredPath $fixture '../outside.cs' } 'escapes'
-
-# Force an edit between copying and the second source manifest.
-$script:OriginalAssertCopy = ${function:Assert-NightlyCopy}
-$script:ChangesRemaining = 1
-function Assert-NightlyCopy($Manifest, $CopyRoot) {
-    & $script:OriginalAssertCopy $Manifest $CopyRoot
-    if ($script:ChangesRemaining -gt 0) {
-        [IO.File]::AppendAllText((Join-Path $fixture 'tracked.cs'), ' changed')
-        $script:ChangesRemaining--
-    }
-}
-$retryCopy = New-NightlySourceCopy $fixture (Join-Path $fixture 'artifacts/retry') 3 0
-Assert ($retryCopy.attempts -eq 2) 'Retries a changing source capture.'
-$script:ChangesRemaining = 3
-Assert-Throws { New-NightlySourceCopy $fixture (Join-Path $fixture 'artifacts/exhausted') 3 0 } 'Source changed during capture'
-Assert ($script:ChangesRemaining -eq 0) 'Capture retries are bounded.'
-Set-Item Function:Assert-NightlyCopy $script:OriginalAssertCopy
 
 function Result([int] $ExitCode=0, [string] $Output='') {
     [pscustomobject]@{ Completed=$true; ExitCode=$ExitCode; StandardOutput=$Output; StandardError='' }
@@ -95,67 +66,82 @@ function AuditJson([object[]] $Findings=@(), [int] $WarningSessions=2, [int] $Sc
             WarningCount=@($Findings | Where-Object Severity -eq 'Warning').Count }
     }} | ConvertTo-Json -Depth 10 -Compress
 }
-Assert (Test-TransientRestoreFailure (Result 1 'NU1301: unavailable')) 'Network restore error is retryable.'
-Assert (-not (Test-TransientRestoreFailure (Result 1 'NU1004 lock changed; NU1301'))) 'Lock mismatch cannot retry as network error.'
-Assert (-not (Test-TransientRestoreFailure (Result 1 'NU1403 hash mismatch'))) 'Package hash mismatch is not transient.'
-Assert (-not (Test-TransientRestoreFailure (Result 1 'error CS0103'))) 'Compiler errors are not transient.'
-
 $config = Get-Content (Join-Path $PSScriptRoot 'nightly-runner.json') -Raw | ConvertFrom-Json
-$config.build.retryDelaySeconds = 0
+$manifest = [ordered]@{schemaVersion=1;directoryHashFormat='RelativePathTabSha256OrdinalV1';outputSetId='fixture';sourceCommit=('1' * 40);workingTreeState='Dirty';stages=@()}
+$config.outputsManifest = 'selection.json'
 foreach ($stage in $config.stages) {
-    $project = Join-Path $fixture $stage.project
-    [void] [IO.Directory]::CreateDirectory((Split-Path -Parent $project))
-    [IO.File]::WriteAllText($project, '<Project Sdk="Microsoft.NET.Sdk"/>')
-    [IO.File]::WriteAllText((Join-Path (Split-Path -Parent $project) 'packages.lock.json'), '{}')
+    $stage.entryAssembly = "outputs/$($stage.name)/$($stage.name).dll"
+    $entry = Join-Path $fixture $stage.entryAssembly
+    $directory = Split-Path -Parent $entry
+    [void] [IO.Directory]::CreateDirectory($directory)
+    [IO.File]::WriteAllText($entry, 'synthetic assembly')
+    [IO.File]::WriteAllText((Join-Path $directory "$($stage.name).deps.json"), '{}')
+    [IO.File]::WriteAllText((Join-Path $directory "$($stage.name).runtimeconfig.json"), '{}')
+    $snapshot = Get-ArtifactSnapshot $fixture $entry
+    $manifest.stages += [pscustomobject]@{name=$stage.name;entryAssembly=$stage.entryAssembly;sha256=$snapshot.sha256;fileCount=$snapshot.fileCount}
 }
-[void] [IO.Directory]::CreateDirectory((Join-Path $fixture 'Operations'))
-[IO.File]::WriteAllText((Join-Path $fixture 'Operations/nightly-nuget.config'), '<configuration/>')
+$manifestPath = Join-Path $fixture $config.outputsManifest
+[IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 5))
+Test-Configuration $config $fixture
 function New-TestStatus {
-    [pscustomobject]@{ runId=[Guid]::NewGuid().ToString('D'); preparationDate='2026-10-29'; stages=@(); build=[pscustomobject]@{
-        state='Pending'; startedUtc=$null; completedUtc=$null; durationSeconds=$null; message=''
-        runDirectory=$null; sourceDirectory=$null; sourceBefore=$null; sourceAfter=$null
-        captureAttempts=0; sdkVersion=$null; packageDirectory=$null; restores=@(); projects=@(); artifacts=@()
-    } }
+    [pscustomobject]@{runId=[Guid]::NewGuid().ToString('D');repositoryRoot=$fixture;preparationDate='2026-10-29';stages=@();outputs=[pscustomobject]@{
+        sourceCommit=('1' * 40);workingTreeState='Dirty'
+    }}
 }
-$script:Mode = 'Transient'
 $script:StageOverride = $null
 $script:StageOverrideName = 'Hermes'
 $script:Calls = @()
 function Invoke-CapturedProcess($FileName, $Arguments, $WorkingDirectory, $TimeoutMinutes, $Label, $EnvironmentOverrides=@{}) {
-    $script:Calls += [pscustomobject]@{ arguments=$Arguments; workingDirectory=$WorkingDirectory; environment=$EnvironmentOverrides }
-    if ($Arguments[0] -eq '--version') { return Result 0 '10.0.401' }
-    if ($Arguments[0] -eq 'restore') {
-        if ($script:Mode -eq 'Transient') { $script:Mode='Success'; return Result 1 'NU1301' }
-        if ($script:Mode -eq 'Locked') { return Result 1 'NU1004' }
-        if ($script:Mode -eq 'Network') { return Result 1 'NU1301' }
-        return Result
-    }
-    if ($Arguments[0] -eq 'build') {
-        if ($script:Mode -eq 'Compiler') { return Result 1 'CS0103' }
-        $stage = $config.stages | Where-Object { $Arguments[1] -eq (Join-Path $WorkingDirectory $_.project) }
-        $entry = Join-Path $WorkingDirectory $stage.entryAssembly
-        [void] [IO.Directory]::CreateDirectory((Split-Path -Parent $entry))
-        [IO.File]::WriteAllText($entry, 'synthetic assembly')
-        [IO.File]::AppendAllText((Join-Path $fixture 'tracked.cs'), ' editor')
-        return Result
-    }
+    $script:Calls += [pscustomobject]@{arguments=$Arguments;workingDirectory=$WorkingDirectory;environment=$EnvironmentOverrides}
+    if ($Arguments[0] -in @('build','restore','publish','run','--version')) { throw 'Unexpected preparation process.' }
     if ($null -ne $script:StageOverride -and $Arguments[0] -match ($script:StageOverrideName + '[.]dll$')) { return $script:StageOverride }
     if ($Arguments[0] -match 'DataAudit[.]dll$') { return Result 0 (AuditJson) }
     return Result
 }
+$beforeFiles = @(Get-ChildItem -LiteralPath $fixture -Recurse -File).Count
+$selected = Get-NightlyExistingOutputs $config $fixture
+$built = $selected.artifacts
+Assert ($built.Count -eq 4) 'All four existing outputs verified before any process.'
+Assert ($script:Calls.Count -eq 0) 'Preflight starts no compiler, restore, SDK probe or application.'
+Assert (@(Get-ChildItem -LiteralPath $fixture -Recurse -File).Count -eq $beforeFiles) 'Preflight creates no copies or run folders.'
+[IO.File]::AppendAllText((Join-Path $fixture 'tracked.cs'), ' later edit')
+$again = Get-NightlyExistingOutputs $config $fixture
+Assert ($again.sourceCommit -eq ('1' * 40) -and $again.workingTreeState -eq 'Dirty') 'Later source edits do not replace the compiled-code provenance.'
+Assert ($again.artifacts.Hermes.sha256 -eq $built.Hermes.sha256) 'Later source edits leave selected binaries unchanged.'
+$config.executionMode='Build'
+Assert-Throws { Test-Configuration $config $fixture } 'ExistingOutputs'
+$config.executionMode='ExistingOutputs'
+$config.schemaVersion=3
+Assert-Throws { Test-Configuration $config $fixture } 'schema 4'
+$config.schemaVersion=4
 $status = New-TestStatus
-$built = Invoke-LatestSourceBuild $config $fixture 'synthetic-dotnet' $status
-Assert ($status.build.state -eq 'Succeeded' -and $built.Count -eq 4) 'All four isolated builds succeed despite ongoing edits.'
-Assert ($status.build.environmentFiles.Count -eq 4) 'MSBuild parent imports and SDK discovery are bounded.'
-Assert ($status.build.restores.Count -eq 5) 'Exactly one transient restore retry.'
-Assert (@($script:Calls | Where-Object { $_.arguments[0] -eq 'restore' -and $_.arguments -notcontains '--locked-mode' }).Count -eq 0) 'Every restore is locked.'
-Assert (@($script:Calls | Where-Object { $_.workingDirectory -eq $fixture }).Count -eq 0) 'Build commands never use live source directory.'
-Assert ($status.stages.Count -eq 0) 'Preparation launches no operational stage.'
-$stageResult = Invoke-NightlyStage $config.stages[0] $status.build.sourceDirectory 'synthetic-dotnet' $built.Hermes $status
-Assert ($stageResult.state -eq 'Succeeded') 'Verified artifact starts once.'
-Assert ($script:Calls[-1].environment.TRADERVI_CODE_VERSION -eq $status.build.sourceBefore.gitCommit) 'Stage receives captured commit provenance.'
-Assert ($script:Calls[-1].environment.TRADERVI_WORKING_TREE_STATE -eq 'Dirty') 'Stage receives captured working-tree state.'
+$stageResult = Invoke-NightlyStage $config.stages[0] $fixture 'synthetic-dotnet' $built.Hermes $status
+Assert ($stageResult.state -eq 'Succeeded') 'Verified existing artifact starts once.'
+Assert ($script:Calls[-1].arguments[0] -eq (Join-Path $fixture $config.stages[0].entryAssembly)) 'Stage launches the selected DLL in place.'
+Assert ($script:Calls[-1].workingDirectory -eq $fixture) 'Working directory remains the repository for established resource paths.'
+Assert ($script:Calls[-1].environment.TRADERVI_CODE_VERSION -eq $selected.sourceCommit) 'Stage receives selected build provenance, never current Git HEAD.'
+Assert ($script:Calls[-1].environment.TRADERVI_WORKING_TREE_STATE -eq 'Dirty') 'Stage retains the compiled working-tree state.'
 Assert ($script:Calls[-1].environment.TRADERVI_PREPARATION_DATE -eq '2026-10-29') 'Stage receives explicit preparation date.'
+
+# Real Windows file sharing protects the existing files throughout execution.
+$hermesEntry = Join-Path $fixture $config.stages[0].entryAssembly
+$dataAuditEntry = Join-Path $fixture $config.stages[1].entryAssembly
+$held = $null
+try {
+    $held = Open-NightlyOutputLocks $config $fixture
+    Assert ($held.Streams.Count -eq 12) 'All selected files are held read-only.'
+    Assert-Throws { [IO.File]::AppendAllText($hermesEntry, 'bad write') } 'used by another process|being used|sharing'
+    Assert ((Get-NightlyExistingOutputs $config $fixture).artifacts.Count -eq 4) 'Verification can read while locks are held.'
+}
+finally { Close-NightlyOutputLocks $held }
+[IO.File]::WriteAllText($hermesEntry, 'synthetic assembly')
+Assert ($true) 'Locks release after the run; intentional future builds are possible.'
+Remove-Item -LiteralPath $dataAuditEntry
+Assert-Throws { Open-NightlyOutputLocks $config $fixture } 'missing'
+[IO.File]::WriteAllText($hermesEntry, 'synthetic assembly')
+Assert ($true) 'Partial lock acquisition releases earlier handles on failure.'
+[IO.File]::WriteAllText($dataAuditEntry, 'synthetic assembly')
+
 # Exercise the same stage loop used by the scheduled runner, with no operational processes.
 foreach ($scenario in @(
     @{ result=(Result 0 'HermesSymbolUnavailable: sector-metadata WM: No results'); expected='Attention'; stages=4 },
@@ -168,7 +154,7 @@ foreach ($scenario in @(
 )) {
     $script:StageOverride = $scenario.result
     $pipeline = New-TestStatus
-    $pipeline.build = $status.build
+    $pipeline.outputs = $status.outputs
     $outcome = Invoke-NightlyStages $config $pipeline 'synthetic-dotnet' $built
     Assert ($pipeline.stages[0].state -eq $scenario.expected) "Hermes classifies $($scenario.expected) correctly."
     Assert ($pipeline.stages.Count -eq $scenario.stages) 'Ticker warnings continue; fatal conditions stop later stages.'
@@ -187,7 +173,7 @@ foreach ($scenario in @(
     $script:StageOverrideName = $scenario.name
     $script:StageOverride = $scenario.result
     $pipeline = New-TestStatus
-    $pipeline.build = $status.build
+    $pipeline.outputs = $status.outputs
     $outcome = Invoke-NightlyStages $config $pipeline 'synthetic-dotnet' $built
     $observed = $pipeline.stages | Where-Object name -eq $scenario.name
     Assert ($observed.state -eq $scenario.expected) "$($scenario.name) retains its existing audit/exit contract."
@@ -208,7 +194,7 @@ foreach ($scenario in @(
     @{result=([pscustomobject]@{Completed=$false; ExitCode=124; StandardOutput=(AuditJson); StandardError=''}); state='Failed'}
 )) {
     $script:StageOverride = $scenario.result
-    $pipeline = New-TestStatus; $pipeline.build = $status.build
+    $pipeline = New-TestStatus; $pipeline.outputs = $status.outputs
     $baseline = Join-Path $fixture 'data-audit-last-completed.json'
     $priorHash = (Get-FileHash $baseline).Hash
     $outcome = Invoke-NightlyStages $config $pipeline 'synthetic-dotnet' $built
@@ -251,17 +237,64 @@ Assert-Throws { Save-NightlyDataAuditReport ($wrongCounts | ConvertTo-Json -Dept
 $script:StatusPath = $savedStatusPath
 $script:StageOverride = $null
 $script:StageOverrideName = 'Hermes'
-[IO.File]::AppendAllText((Join-Path $status.build.sourceDirectory $config.stages[0].entryAssembly), 'tampered')
+[IO.File]::AppendAllText((Join-Path $fixture $config.stages[0].entryAssembly), 'tampered')
 $beforeCalls = $script:Calls.Count
-Assert-Throws { Invoke-NightlyStage $config.stages[0] $status.build.sourceDirectory 'synthetic-dotnet' $built.Hermes $status } 'changed after preflight'
+Assert-Throws { Invoke-NightlyStage $config.stages[0] $fixture 'synthetic-dotnet' $built.Hermes $status } 'changed after preflight'
 Assert ($script:Calls.Count -eq $beforeCalls) 'Artifact tampering cannot launch a process.'
-foreach ($mode in @('Locked', 'Network', 'Compiler')) {
-    $script:Mode=$mode; $script:Calls=@(); $failed=New-TestStatus
-    Assert-Throws { Invoke-LatestSourceBuild $config $fixture 'synthetic-dotnet' $failed } 'failed'
-    Assert ($failed.stages.Count -eq 0) "$mode failure starts no operational stage."
-    if ($mode -eq 'Network') { Assert ($failed.build.restores.Count -eq 3) 'Restore retries stop after three attempts.' }
-    if ($mode -eq 'Locked') { Assert ($failed.build.restores.Count -eq 1) 'Lock mismatch stops immediately.' }
+[IO.File]::WriteAllText($hermesEntry, 'synthetic assembly')
+# Pinned outputs fail closed before the first operational stage, without a fallback build.
+$beforeCalls = $script:Calls.Count
+[IO.File]::AppendAllText($dataAuditEntry, 'modified')
+Assert-Throws { Get-NightlyExistingOutputs $config $fixture } 'changed or are incomplete'
+Assert ($script:Calls.Count -eq $beforeCalls) 'Changed later-stage outputs launch nothing.'
+[IO.File]::WriteAllText($dataAuditEntry, 'synthetic assembly')
+$extraFile = Join-Path (Split-Path -Parent $hermesEntry) 'unexpected.dll'
+[IO.File]::WriteAllText($extraFile, 'added')
+Assert-Throws { Get-NightlyExistingOutputs $config $fixture } 'changed or are incomplete'
+Remove-Item -LiteralPath $extraFile
+$runtimeConfig = Join-Path (Split-Path -Parent $hermesEntry) 'Hermes.runtimeconfig.json'
+Remove-Item -LiteralPath $runtimeConfig
+Assert-Throws { Open-NightlyOutputLocks $config $fixture } 'missing'
+[IO.File]::WriteAllText($runtimeConfig, '{}')
+$manifest.sourceCommit='not-a-commit'
+[IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 5))
+Assert-Throws { Get-NightlyExistingOutputs $config $fixture } 'provenance'
+$manifest.sourceCommit=('1' * 40)
+$manifest.stages[0].entryAssembly='other/Hermes.dll'
+[IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 5))
+Assert-Throws { Get-NightlyExistingOutputs $config $fixture } 'does not match'
+$manifest.stages[0].entryAssembly=$config.stages[0].entryAssembly
+$manifest.stages[1].name='Hermes'
+[IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 5))
+Assert-Throws { Get-NightlyExistingOutputs $config $fixture } 'exactly once'
+$manifest.stages[1].name='DataAudit'
+[IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 5))
+Assert ((Get-NightlyExistingOutputs $config $fixture).artifacts.Count -eq 4) 'Unchanged reviewed outputs remain reusable after all fixtures.'
+# Exercise the real script entry point only against inert fixture files. A failed
+# manifest must stop before any application, and ValidateOnly must not write status.
+$fixtureOperations = Join-Path $fixture 'Operations'
+[void][IO.Directory]::CreateDirectory($fixtureOperations)
+$fixtureConfig = Join-Path $fixtureOperations 'nightly-runner.json'
+[IO.File]::WriteAllText($fixtureConfig, ($config | ConvertTo-Json -Depth 8))
+$fixtureState = Join-Path $fixture 'entrypoint-state'
+$windowsPowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+& $windowsPowerShell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'Invoke-TraderVINightly.ps1') -ConfigurationPath $fixtureConfig -StateDirectory $fixtureState -ValidateOnly *> (Join-Path $fixture 'validate-entrypoint.log')
+Assert ($LASTEXITCODE -eq 0) 'Real ValidateOnly entry point accepts pinned fixture outputs.'
+Assert (-not (Test-Path -LiteralPath $fixtureState)) 'ValidateOnly does not create operational state or log directories.'
+$manifest.sourceCommit='invalid'
+[IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 5))
+$savedErrorPreference = $ErrorActionPreference
+try {
+    # Windows PowerShell turns expected native stderr into error records even when redirected.
+    $ErrorActionPreference = 'Continue'
+    & $windowsPowerShell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'Invoke-TraderVINightly.ps1') -ConfigurationPath $fixtureConfig -StateDirectory $fixtureState *> (Join-Path $fixture 'failed-entrypoint.log')
+    $failedEntryExit = $LASTEXITCODE
 }
-Remove-Item -LiteralPath (Join-Path $fixture 'Hermes/packages.lock.json')
-Assert-Throws { Assert-NightlyDependencyLocks (Join-Path $fixture 'Hermes/Hermes.csproj') $fixture @{} } 'lock missing'
-Write-Host "Passed $script:Assertions nightly regression assertions. No operational programs or external services ran."
+finally { $ErrorActionPreference = $savedErrorPreference }
+Assert ($failedEntryExit -eq 1) 'Real runner fails closed on invalid selected build provenance.'
+$failedStatus = Get-Content -LiteralPath (Join-Path $fixtureState 'status.json') -Raw | ConvertFrom-Json
+Assert ($failedStatus.state -eq 'Failed' -and $failedStatus.outputs.state -eq 'Failed') 'Preflight failure is saved truthfully.'
+Assert ($failedStatus.stages.Count -eq 0) 'No stage begins after a preflight failure.'
+[IO.File]::WriteAllText($hermesEntry, 'synthetic assembly')
+Assert ($true) 'Real entry point releases output handles on failure.'
+Write-Host "Passed $script:Assertions nightly regression assertions. No operational programs, builds, copies or external services ran."

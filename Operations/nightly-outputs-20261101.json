@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "directoryHashFormat": "RelativePathTabSha256OrdinalV1",
+  "outputSetId": "athena-extraction-20261101-validated",
+  "recordedUtc": "2026-11-01T17:06:26.3433242+00:00",
+  "sourceCommit": "d479c7cab495a529e21c2951b31acd8d71667290",
+  "workingTreeState": "Dirty",
+  "reviewedSourceCommit": "0326771d4f7cb4fe90ac87a79ee8a32efde6e63c",
+  "provenanceNote": "Compiled during the Athena extraction on d479c7ca with working-tree changes; that reviewed source was subsequently committed as 0326771d. This selection reads existing outputs and performs no build.",
+  "stages": [
+    {
+      "name": "Hermes",
+      "entryAssembly": "artifacts/athena-extraction-20261101/build/bin/Hermes/release/Hermes.dll",
+      "sha256": "630CDAD1966167FB9517CA3A3A65BD80CE6950A9D8522295900D3C52C2E155D0",
+      "fileCount": 66,
+      "informationalVersion": "1.0.0+d479c7cab495a529e21c2951b31acd8d71667290"
+    },
+    {
+      "name": "DataAudit",
+      "entryAssembly": "artifacts/athena-extraction-20261101/build/bin/DataAudit/release/DataAudit.dll",
+      "sha256": "E4ED647D4E08324DA7CFE61903DCD2B4DAE83BCB84DD61A1C2BCA102012EE188",
+      "fileCount": 55,
+      "informationalVersion": "1.0.0+d479c7cab495a529e21c2951b31acd8d71667290"
+    },
+    {
+      "name": "Delphi",
+      "entryAssembly": "artifacts/athena-extraction-20261101/build/bin/Delphi/release/Delphi.dll",
+      "sha256": "FBCD5EB9DA17368F84BCBBA0DA256751EE6365B6CB8389D13D908A1A9D6F8BE4",
+      "fileCount": 129,
+      "informationalVersion": "1.0.0+d479c7cab495a529e21c2951b31acd8d71667290"
+    },
+    {
+      "name": "Athena",
+      "entryAssembly": "artifacts/athena-extraction-20261101/build/bin/Athena/release/Athena.dll",
+      "sha256": "719F1EE50BB25F6260BF0CD447B530200C3D0C0AF1A1944484180098E5D2EE45",
+      "fileCount": 59,
+      "informationalVersion": "1.0.0+d479c7cab495a529e21c2951b31acd8d71667290"
+    }
+  ]
+}

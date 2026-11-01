@@ -1,10 +1,15 @@
 # Nightly precompiled releases — design draft, November 1, 2026
 
-The operator accepted precompiled releases for Hermes, DataAudit, Delphi and Athena during the
-disk-space review. Release preparation, activation, scheduling, a dashboard action and retention
-details remain proposals for discussion. This draft records that boundary. It is not an accepted
-replacement ADR or authorization to install a release, change the scheduled task, run the pipeline,
-delete files, or change SQL. The installed runner still follows ADR-0078.
+**Current decision — November 1:** The operator chose a simpler approach in
+[ADR-0122](../adr/0122-existing-output-nightly-execution.md): run today's already compiled outputs in
+place at 06:30 Toronto, with no rebuilding, publishing or source/binary copying. The runner and Windows
+task are updated; first scheduled execution remains pending. The selected output paths and fingerprints
+are in `Operations/nightly-outputs-20261101.json`. Preserve those active directories during cleanup.
+
+The release-preparation/activation machinery proposed below is not the current implementation plan.
+Further Delphi extraction is not required for the accepted runner change. Historical cleanup/retention,
+single-file packaging and a dashboard action remain separate discussions. The rest of this document
+preserves the earlier proposals and dependency findings; it does not authorize those deferred changes.
 
 ## Problem and intended outcome
 
@@ -23,7 +28,7 @@ reviewed older-library subset contained 10,684 files in 34 run directories, tota
 allocated. All selected files remained present during this discussion. The private inventory is
 `artifacts/nightly-library-cleanup-20261101/storage-inventory.txt`.
 
-## Current behavior
+## Previous behavior — before ADR-0122
 
 The scheduled task starts the repository PowerShell runner daily at 00:30 Toronto. The runner
 captures source, restores locked dependencies and compiles four applications into a fresh run
@@ -34,7 +39,7 @@ Source isolation was accepted to allow edits during preparation. Current task se
 waking and a missed start while the Windows user remains signed in. The WPF application has a
 Delphi action. A single action for the full nightly pipeline would be new.
 
-## Decision record
+## Earlier decision record — revised by ADR-0122
 
 - **Accepted direction.** Use precompiled releases for nightly execution. The prior requirement
   to capture and compile the latest working files each night is being reconsidered explicitly.
@@ -257,7 +262,7 @@ daily analysis build/model contract, rather than accidentally recording the new 
 identity. Review internal access, saved JSON shapes, provenance, model schemas and file-path assumptions
 as part of that move.
 
-### Recommended sequence and remaining choices
+### Earlier recommended sequence — no longer the runner prerequisite
 
 The implemented **DataAudit, Hermes and Athena** slices above build with no Core reference or ML
 packages. Next separate daily result/evidence contracts and move Delphi's daily analysis. Keep

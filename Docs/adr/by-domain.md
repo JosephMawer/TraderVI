@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0122](0122-existing-output-nightly-execution.md) — Reuse pinned existing outputs at 06:30; no nightly build or copy
+
 - [ADR-0121](0121-independent-athena-build.md) — Athena owns evaluation/writes; shares labels, reports and policies with actual Core/WPF consumers
 
 - [ADR-0120](0120-independent-hermes-build.md) — Hermes owns ingestion/backup code and shares market facts, storage and TMX providers without Core
@@ -140,6 +142,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-pipeline
+
+- [ADR-0122](0122-existing-output-nightly-execution.md) — Reuse pinned existing outputs at 06:30; no nightly build or copy
 
 - [ADR-0121](0121-independent-athena-build.md) — Athena owns evaluation/writes; shares labels, reports and policies with actual Core/WPF consumers
 

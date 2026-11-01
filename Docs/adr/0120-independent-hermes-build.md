@@ -5,6 +5,8 @@
 - **Domains:** architecture, data-pipeline
 - **Related:** [ADR-0119](0119-independent-data-audit-build.md), [ADR-0078](0078-isolated-latest-source-nightly-builds.md), [ADR-0058](0058-daily-ingestion-and-observed-benchmark-confirmation.md), [ADR-0114](0114-explicit-nightly-preparation-date.md)
 
+**Operational follow-up:** [ADR-0122](0122-existing-output-nightly-execution.md) now selects the existing November 1 outputs for reuse at 06:30 without building/copying. The extraction checkpoint below predates that runner change; collector/engine/UI installation remains unchanged.
+
 ## Decision and purpose
 
 Hermes owns its collection-specific code and builds without Core. It shares existing implementations

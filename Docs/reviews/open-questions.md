@@ -1499,11 +1499,12 @@ See [the connected workspace draft](../concepts/trading-workspace-redesign-draft
 
 ## Nightly build retention (ADR-0078, 2026-09-14)
 
-On November 1 the operator accepted the direction of precompiled nightly releases. The
-[design draft](nightly-precompiled-releases-20261101.md) owns the open release activation,
-scheduling, dashboard action and retention choices. The installed runner still compiles each run.
-Choose historical cleanup and future release/cache retention after those boundaries are settled.
-Operational logs and source identities must remain attributable.
+On November 1 the operator selected existing compiled outputs in place at 06:30 Toronto under
+[ADR-0122](../adr/0122-existing-output-nightly-execution.md). The installed runner no longer builds,
+restores or copies source/binaries. The earlier release-publishing proposal is not required.
+Historical cleanup, log/cache retention and a dashboard action remain open in the
+[design history](nightly-precompiled-releases-20261101.md). Preserve the four active output directories
+named by `Operations/nightly-outputs-20261101.json`, attributable logs and compiled-code identities.
 
 The September 23 user-authorized [one-time cleanup](../project-status.md#latest-operational-evidence)
 removed reviewed old compiled outputs while retaining source/evidence, models, the latest two nightly
