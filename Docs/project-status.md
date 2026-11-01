@@ -8,26 +8,38 @@ run as **November 2, 06:30:30**; the trigger boundary is 06:30:00 without a fixe
 The task remains Ready. Its account, action and settings match the pre-change XML; the previous run
 time/result and operational status file are unchanged. No immediate run was started.
 
-The runner now selects the November 1 existing outputs in
+The runner initially selects the November 1 existing outputs in
 `artifacts/athena-extraction-20261101/build/bin/{Hermes,DataAudit,Delphi,Athena}/release/` and verifies
 their pinned directory hashes/provenance from `Operations/nightly-outputs-20261101.json`. Those four
 directories are active runtime dependencies and must be protected during cleanup. Files stay in place;
 the runner has no source capture, restore, build, publish or binary-copy path. It holds selected files
 read-only during execution and stops on missing/changed outputs. The ordinary project Release folders
-contain September binaries and are not selected. Future source edits require a deliberate compiled-output
-selection update before they affect nightly execution. The proposed separate publishing system and
+contain September binaries and are not selected. At the operator's subsequent request, successful
+Windows Release builds of the four CLI projects now automatically record their existing output paths,
+fingerprints and compiled revisions in `artifacts/nightly-output-registry/<App>.json`. The next nightly
+run chooses the latest registered build independently for each app, freezing that selection for the run.
+There is no manual path/hash update, task reinstall, binary publishing or copy step. Source edits or a
+Core/WPF-only build do not update an unbuilt nightly app. Automatic receipts record Unknown compiled
+working-tree state and per-app provenance; missing/changed registered files fail preparation rather than
+falling back. The initial November 1 outputs remain selected until a newer successful build registers.
+The proposed separate publishing system and
 further Delphi extraction are not prerequisites for this installed workflow.
 
-All **132 offline PowerShell regression assertions passed**, including real Windows file-sharing guards,
-selected-code provenance, local-time/DST behavior, preparation failure, stage ordering and audit reports.
+All **170 offline PowerShell regression assertions passed**, including real Windows file-sharing guards,
+automatic registration/replacement, per-app provenance, frozen selection, local-time/DST behavior,
+preparation failure, stage ordering and audit reports. An SDK-free MSBuild fixture verified that only
+successful runnable Release builds invoke registration; failed, Debug, design-time and Linux builds skip it.
 The real Windows PowerShell 5.1 `-ValidateOnly` check passed against all four outputs without starting
 applications or writing operational status. Fingerprints use ordinal filename ordering, verified across
-PowerShell 5.1 and 7. No .NET restore/build, database/broker/provider call, model training or cleanup ran.
+PowerShell 5.1 and 7 at the initial checkpoint. No TraderVI restore/build, database/broker/provider call,
+model training or cleanup ran. The automatic hook has been tested with inert fixtures, not a new real
+application build; this preserves the operator's no-rebuild instruction.
 First scheduled operational execution with this configuration remains **pending**, not proven by preflight.
 
 Collector PID 1452, engine PID 22452 and WPF PID 6260 retain their original start times, process paths,
 executable/Core hashes and file timestamps. Private before/after task XML, installed-task verification,
 test/preflight logs and protected-host records are under `artifacts/nightly-existing-outputs-20261101/`.
+Automatic-selection validation and unchanged-host checks are under `artifacts/nightly-auto-selection-20261101/`.
 The earlier extraction entries below retain their checkpoint scope; this entry supersedes their
 description of a still-source-capturing nightly runner. Historical artifact and log/cache cleanup remain open.
 

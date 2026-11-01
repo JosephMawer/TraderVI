@@ -297,4 +297,121 @@ Assert ($failedStatus.state -eq 'Failed' -and $failedStatus.outputs.state -eq 'F
 Assert ($failedStatus.stages.Count -eq 0) 'No stage begins after a preflight failure.'
 [IO.File]::WriteAllText($hermesEntry, 'synthetic assembly')
 Assert ($true) 'Real entry point releases output handles on failure.'
-Write-Host "Passed $script:Assertions nightly regression assertions. No operational programs, builds, copies or external services ran."
+
+# Successful Release registrations supersede the seed independently, without copying
+# outputs. Mock only compiled version reading; all hashing, locks and receipt IO are real.
+$manifest.sourceCommit=('1' * 40)
+[IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 5))
+$registry = Join-Path $fixture $config.outputRegistry
+Assert-Throws { Get-NightlyCompiledIdentity $hermesEntry } 'Compiled source commit is unavailable'
+$identityReader = (Get-Item Function:Get-NightlyCompiledIdentity).ScriptBlock
+function Get-NightlyCompiledIdentity($EntryAssembly) {
+    [pscustomobject]@{sourceCommit=('2' * 40);informationalVersion=('1.0.0+' + ('2' * 40))}
+}
+try {
+    $nextHermes = Join-Path $fixture 'ordinary Release/Hermes/Hermes.dll'
+    [void] [IO.Directory]::CreateDirectory((Split-Path -Parent $nextHermes))
+    [IO.File]::WriteAllText($nextHermes, 'newer synthetic Release')
+    [IO.File]::WriteAllText((Join-Path (Split-Path -Parent $nextHermes) 'Hermes.deps.json'), '{}')
+    [IO.File]::WriteAllText((Join-Path (Split-Path -Parent $nextHermes) 'Hermes.runtimeconfig.json'), '{}')
+    $beforeRegistration = Get-ArtifactSnapshot $fixture $nextHermes
+    $receipt = Register-NightlyBuildOutput 'Hermes' $nextHermes $fixture $registry
+    Assert ($receipt.workingTreeState -eq 'Unknown') 'Registration never infers compiled working-tree state from the current checkout.'
+    Assert ($receipt.sha256 -eq $beforeRegistration.sha256) 'Registration reads existing binaries without changing them.'
+    Assert ((Get-ArtifactSnapshot $fixture $nextHermes).sha256 -eq $beforeRegistration.sha256) 'Registration writes no files into the output directory.'
+    Assert (@(Get-ChildItem -LiteralPath $registry -File).Count -eq 2) 'One receipt and one reusable lock are the only registration files.'
+    $frozen = Resolve-NightlyOutputSelection $config $fixture
+    $latest = Get-NightlyExistingOutputs $config $fixture $frozen
+    Assert ($latest.artifacts.Hermes.entryAssembly -eq $receipt.entryAssembly) 'The next run automatically chooses the latest successful Hermes Release.'
+    Assert ($latest.artifacts.DataAudit.entryAssembly -eq $config.stages[1].entryAssembly) 'Other apps retain their last known successful outputs independently.'
+    Assert ($latest.sourceCommit -eq 'Mixed') 'Mixed build revisions are not mislabeled as one common revision.'
+    $status = New-TestStatus
+    [void] (Invoke-NightlyStage $config.stages[0] $fixture 'synthetic-dotnet' $latest.artifacts.Hermes $status)
+    Assert ($script:Calls[-1].arguments[0] -eq $nextHermes) 'Execution uses the registered path, not the seed config path.'
+    Assert ($script:Calls[-1].environment.TRADERVI_CODE_VERSION -eq ('2' * 40)) 'Each app receives its own compiled revision.'
+    Assert ($script:Calls[-1].environment.TRADERVI_WORKING_TREE_STATE -eq 'Unknown') 'Unknown compiled working-tree state remains honest.'
+    Assert ($status.stages[0].sourceCommit -eq ('2' * 40)) 'Per-app provenance is saved in stage status.'
+    $held = Open-NightlyOutputLocks $frozen $fixture
+    try {
+        Assert-Throws { [IO.File]::AppendAllText($nextHermes, 'overwrite') } 'used by another process|being used|sharing'
+        # A newer successful build in another folder can register during a run. It
+        # affects the next selection, never the already frozen run's paths/identity.
+        $later = Register-NightlyBuildOutput 'Hermes' $hermesEntry $fixture $registry
+        Assert ((Get-NightlyExistingOutputs $config $fixture $frozen).artifacts.Hermes.entryAssembly -eq $receipt.entryAssembly) 'An active run keeps its original selection after a newer registration.'
+        Assert ((Get-NightlyExistingOutputs $config $fixture).artifacts.Hermes.entryAssembly -eq $later.entryAssembly) 'The following run sees the newer successful registration automatically.'
+    }
+    finally { Close-NightlyOutputLocks $held }
+    Assert (@(Get-ChildItem -LiteralPath $registry -File).Count -eq 2) 'Repeated successful builds replace metadata without accumulating receipts.'
+    $receiptPath = Join-Path $registry 'Hermes.json'
+    $oldReceiptHash = (Get-FileHash -LiteralPath $receiptPath).Hash
+    $missingDependency = Join-Path (Split-Path -Parent $nextHermes) 'Hermes.deps.json'
+    Remove-Item -LiteralPath $missingDependency
+    Assert-Throws { Register-NightlyBuildOutput 'Hermes' $nextHermes $fixture $registry } 'missing'
+    Assert ((Get-FileHash -LiteralPath $receiptPath).Hash -eq $oldReceiptHash) 'Incomplete outputs cannot replace the last successful receipt.'
+    [IO.File]::WriteAllText($missingDependency, '{}')
+    Assert-Throws { Register-NightlyBuildOutput 'TraderVI.Engine' $nextHermes $fixture $registry } 'Only the four'
+    Assert-Throws { Register-NightlyBuildOutput 'Hermes' $nextHermes $fixture (Split-Path -Parent $nextHermes) } 'outside the compiled'
+    Assert-Throws { Register-NightlyBuildOutput 'Hermes' '../Hermes.dll' $fixture $registry } 'escapes'
+    # A failed overwrite of the last successful directory invalidates its hash;
+    # the runner must not fall back to older files or start any operational stage.
+    [IO.File]::AppendAllText($hermesEntry, 'partial failed rebuild')
+    Assert-Throws { Get-NightlyExistingOutputs $config $fixture } 'changed or are incomplete'
+    $savedErrorPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        & $windowsPowerShell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'Invoke-TraderVINightly.ps1') -ConfigurationPath $fixtureConfig -StateDirectory $fixtureState *> (Join-Path $fixture 'failed-registration-entrypoint.log')
+        $failedRegistrationExit = $LASTEXITCODE
+    }
+    finally { $ErrorActionPreference = $savedErrorPreference }
+    $failedStatus = Get-Content -LiteralPath (Join-Path $fixtureState 'status.json') -Raw | ConvertFrom-Json
+    Assert ($failedRegistrationExit -eq 1 -and $failedStatus.stages.Count -eq 0) 'Real entry point rejects changed registered files before launching any stage.'
+    [IO.File]::WriteAllText($hermesEntry, 'synthetic assembly')
+    $invalidReceipt = Read-NightlyBuildReceiptText $receiptPath | ConvertFrom-Json
+    $invalidReceipt.configuration = 'Debug'
+    [IO.File]::WriteAllText($receiptPath, ($invalidReceipt | ConvertTo-Json -Depth 5))
+    Assert-Throws { Resolve-NightlyOutputSelection $config $fixture } 'Invalid successful Release'
+    [IO.File]::WriteAllText($receiptPath, ($later | ConvertTo-Json -Depth 5))
+    & $windowsPowerShell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'Invoke-TraderVINightly.ps1') -ConfigurationPath $fixtureConfig -StateDirectory (Join-Path $fixture 'registered-validation-state') -ValidateOnly *> (Join-Path $fixture 'registered-validation.log')
+    Assert ($LASTEXITCODE -eq 0) 'Real ValidateOnly entry point accepts an automatically registered selection.'
+    Assert (-not (Test-Path -LiteralPath (Join-Path $fixture 'registered-validation-state'))) 'Registered ValidateOnly still creates no operational state.'
+}
+finally { Set-Item Function:Get-NightlyCompiledIdentity -Value $identityReader }
+
+# Exercise the real MSBuild hook using an SDK-free inert project: its Build target
+# only emits a message or fails. No compiler, restore, app or application binary is involved.
+$hookDirectory = Join-Path $fixture 'MSBuild hook with spaces'
+[void] [IO.Directory]::CreateDirectory($hookDirectory)
+$hookStub = Join-Path $hookDirectory 'registration stub.ps1'
+$hookProject = Join-Path $hookDirectory 'Hermes.proj'
+[IO.File]::WriteAllText($hookStub, @'
+param([string] $ApplicationName, [string] $EntryAssembly)
+if ($ApplicationName -ne 'Hermes' -or $EntryAssembly -ne (Join-Path $PSScriptRoot 'not a binary.dll')) { exit 12 }
+[IO.File]::AppendAllText((Join-Path $PSScriptRoot 'hook-calls.txt'), "registered`n")
+'@)
+$targetImport = [Security.SecurityElement]::Escape((Join-Path $PSScriptRoot 'NightlyReleaseRegistration.targets'))
+$escapedStub = [Security.SecurityElement]::Escape($hookStub)
+$inertPath = [Security.SecurityElement]::Escape((Join-Path $hookDirectory 'not a binary.dll'))
+[IO.File]::WriteAllText($hookProject, @"
+<Project>
+  <PropertyGroup><NightlyRegistrationScript>$escapedStub</NightlyRegistrationScript><TargetPath>$inertPath</TargetPath></PropertyGroup>
+  <Target Name="Build"><Message Text="Inert hook fixture; nothing compiled." Importance="high" /><Error Condition="'`$(FixtureFail)' == 'true'" Text="Intentional failed build fixture." /></Target>
+  <Import Project="$targetImport" />
+</Project>
+"@)
+$hookCalls = Join-Path $hookDirectory 'hook-calls.txt'
+$dotnet = Join-Path $env:ProgramFiles 'dotnet/dotnet.exe'
+foreach ($scenario in @(
+    @{name='debug'; properties=@('-p:Configuration=Debug'); exit=0; calls=0},
+    @{name='failed'; properties=@('-p:Configuration=Release','-p:FixtureFail=true'); exit=1; calls=0},
+    @{name='design-time'; properties=@('-p:Configuration=Release','-p:DesignTimeBuild=true'); exit=0; calls=0},
+    @{name='linux'; properties=@('-p:Configuration=Release','-p:RuntimeIdentifier=linux-x64'); exit=0; calls=0},
+    @{name='release'; properties=@('-p:Configuration=Release'); exit=0; calls=1},
+    @{name='release-again'; properties=@('-p:Configuration=Release'); exit=0; calls=2}
+)) {
+    $properties = $scenario.properties
+    & $dotnet msbuild $hookProject -nologo -verbosity:minimal -target:Build @properties *> (Join-Path $hookDirectory "$($scenario.name).log")
+    Assert ($LASTEXITCODE -eq $scenario.exit) "Inert $($scenario.name) build has the expected result."
+    $callCount = if (Test-Path -LiteralPath $hookCalls) { @(Get-Content -LiteralPath $hookCalls).Count } else { 0 }
+    Assert ($callCount -eq $scenario.calls) "Only successful runnable Release builds register: $($scenario.name)."
+}
+Write-Host "Passed $script:Assertions nightly regression assertions, including inert MSBuild hook fixtures. No TraderVI application was built, copied or launched; no external services ran."

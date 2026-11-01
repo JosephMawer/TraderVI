@@ -14,4 +14,5 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Hermes.Tests" />
   </ItemGroup>
+  <Import Project="..\Operations\NightlyReleaseRegistration.targets" />
 </Project>

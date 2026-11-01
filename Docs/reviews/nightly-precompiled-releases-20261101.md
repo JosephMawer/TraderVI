@@ -4,7 +4,9 @@
 [ADR-0122](../adr/0122-existing-output-nightly-execution.md): run today's already compiled outputs in
 place at 06:30 Toronto, with no rebuilding, publishing or source/binary copying. The runner and Windows
 task are updated; first scheduled execution remains pending. The selected output paths and fingerprints
-are in `Operations/nightly-outputs-20261101.json`. Preserve those active directories during cleanup.
+start in `Operations/nightly-outputs-20261101.json`. Successful future CLI Release builds automatically
+register their existing paths/hashes, with no manual selection step. Preserve the currently selected
+directories during cleanup; the runner fixes its selection once per run.
 
 The release-preparation/activation machinery proposed below is not the current implementation plan.
 Further Delphi extraction is not required for the accepted runner change. Historical cleanup/retention,

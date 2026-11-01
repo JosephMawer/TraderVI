@@ -10,4 +10,5 @@
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 
+  <Import Project="..\Operations\NightlyReleaseRegistration.targets" />
 </Project>

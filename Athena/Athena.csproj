@@ -7,4 +7,5 @@
   <ItemGroup>
     <ProjectReference Include="..\TraderVI.Calibration\TraderVI.Calibration.csproj" />
   </ItemGroup>
+  <Import Project="..\Operations\NightlyReleaseRegistration.targets" />
 </Project>

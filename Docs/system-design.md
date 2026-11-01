@@ -20,7 +20,7 @@ Hermes also builds independently under [ADR-0120](adr/0120-independent-hermes-bu
 and ingestion helpers live in Hermes. Shared facts/calculations remain package-free in MarketData;
 market repositories and SQLBase live in TraderVI.MarketStorage, and the shared TMX client lives in
 TraderVI.MarketProviders. Core consumes the same implementations. DataAudit keeps its own SQL reader.
-These source splits do not replace the installed collector, engine or UI. [ADR-0122](adr/0122-existing-output-nightly-execution.md) now reuses selected existing nightly outputs at 06:30, without nightly building or copying; retention remains separate.
+These source splits do not replace the installed collector, engine or UI. [ADR-0122](adr/0122-existing-output-nightly-execution.md) reuses each nightly app's latest successfully built Release outputs at 06:30. Successful CLI builds register paths/hashes automatically; nightly performs no building or copying. Retention remains separate.
 
 Athena builds independently under [ADR-0121](adr/0121-independent-athena-build.md). Outcome calculators,
 CSV exports and maturation queries/writes live in Athena. TraderVI.Calibration contains labels/task

@@ -82,7 +82,7 @@ flowchart TB
 Most application processes still share Core. Hermes, DataAudit and Athena build independently; shared
 market facts, storage, providers and calibration rules have separate library boundaries under ADRs0119–0121.
 
-**November 1 nightly execution:** [ADR-0122](adr/0122-existing-output-nightly-execution.md) runs selected existing outputs at 06:30 Toronto: Hermes → DataAudit → Delphi → Athena. The runner verifies and reads fixed directories, without source capture, building or binary copying. Collector/engine/UI installation remains separate.
+**November 1 nightly execution:** [ADR-0122](adr/0122-existing-output-nightly-execution.md) runs each app's latest successful Release at 06:30 Toronto: Hermes → DataAudit → Delphi → Athena. Successful CLI builds register their existing paths/hashes automatically. The runner fixes its selection at startup and verifies those directories, without source capture, building or binary copying. Collector/engine/UI installation remains separate.
 
 **Boundary:** Core boxes describe library responsibilities, not additional deployed services. This guide does not discover processes or check connectivity.
 

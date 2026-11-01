@@ -1,0 +1,11 @@
+<Project>
+  <!-- Imported only by the four nightly CLI projects. This records a completed build;
+       it never builds another project, copies outputs or changes a running process. -->
+  <PropertyGroup>
+    <NightlyRegistrationScript Condition="'$(NightlyRegistrationScript)' == ''">$(MSBuildThisFileDirectory)Register-TraderVINightlyOutput.ps1</NightlyRegistrationScript>
+  </PropertyGroup>
+  <Target Name="RegisterTraderVINightlyRelease" AfterTargets="Build"
+          Condition="'$(Configuration)' == 'Release' and '$(DesignTimeBuild)' != 'true' and '$(IsCrossTargetingBuild)' != 'true' and '$(OS)' == 'Windows_NT' and ('$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'win-x64')">
+    <Exec Command="&quot;$(SystemRoot)\System32\WindowsPowerShell\v1.0\powershell.exe&quot; -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(NightlyRegistrationScript)&quot; -ApplicationName &quot;$(MSBuildProjectName)&quot; -EntryAssembly &quot;$(TargetPath)&quot;" />
+  </Target>
+</Project>

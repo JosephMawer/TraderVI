@@ -884,18 +884,28 @@ Install the Windows task once, or rerun the installer when changing its schedule
 ./Operations/Install-TraderVINightlyTask.ps1
 ```
 
-The task invokes the repository runner and configuration directly. Schema 4 uses only selected existing
-outputs. It does not capture source, restore dependencies, compile, publish or copy binaries. The selected
-DLLs are under `artifacts/athena-extraction-20261101/build/bin/<App>/release/`, for Hermes, DataAudit,
-Delphi and Athena. These four existing directories are now protected active outputs; exclude them from
-cleanup. The ordinary project Release folders still contain September builds and are not selected.
+The task invokes the repository runner and configuration directly. Schema 4 uses the latest successfully
+built existing Release outputs independently for Hermes, DataAudit, Delphi and Athena. Nightly does not
+capture source, restore dependencies, compile, publish or copy binaries. The initial DLLs are under
+`artifacts/athena-extraction-20261101/build/bin/<App>/release/`; ordinary project Release folders contained
+September builds at installation. Preserve each currently selected directory during cleanup.
 
-`Operations/nightly-outputs-20261101.json` pins each complete directory hash and its compiled-code
-provenance. The runner verifies all four directories before any stage, holds their existing files with
+`Operations/nightly-outputs-20261101.json` pins the initial directories and compiled-code provenance.
+After a successful Release build of any nightly CLI project, its imported registration target automatically
+replaces `artifacts/nightly-output-registry/<App>.json` with a small receipt recording the actual path,
+hash and compiled revision. Normal Release and custom build directories within this checkout both work;
+no manual selection update or task reinstall is needed. Only metadata is written: one receipt and reusable
+lock per app. Debug, failed, design-time and non-Windows builds do not register. The hook accepts
+framework-dependent or win-x64 outputs. A Core/WPF-only build does not rebuild or update the nightly apps.
+
+The runner reads registrations once at startup, using the initial manifest for apps with no receipt yet.
+It verifies all four selected directories before any stage, holds their existing files with
 read-only sharing for the run, and rechecks each directory before its stage. Missing or changed files
-fail preparation; there is no rebuild or older-output fallback. Source edits do not change the selected
-binaries. A future update requires reviewing new compiled outputs and explicitly changing the selected
-paths/hashes/provenance; an ordinary development build alone does not change the nightly selection.
+fail preparation; there is no rebuild or older-output fallback. A registration during a run affects the next
+run. Source edits alone do not change binaries. A failed build that overwrites the last successful folder
+invalidates its fingerprint; another successful build is needed before nightly can reuse that folder.
+Automatic receipts carry the compiled commit and Unknown working-tree state, not the current checkout's
+identity. Status and stage environment record each application's own provenance.
 
 Run offline regression checks or verify the selected real files without starting operational programs:
 
@@ -978,8 +988,9 @@ dotnet test Hermes.Tests/Hermes.Tests.csproj --artifacts-path artifacts/hermes-v
 dotnet build Hermes/Hermes.csproj -c Release --artifacts-path artifacts/hermes-validation
 ```
 
-These commands build/test only. A normal Hermes invocation still writes SQL and calls providers.
-No precompiled release activation or nightly retention change is installed by this extraction.
+These commands build/test only; a successful Windows Release build also registers its existing output
+for the next nightly run under ADR-0122. A normal Hermes invocation still writes SQL and calls providers.
+No binary publishing/copying or nightly retention change is installed.
 
 Hermes currently:
 

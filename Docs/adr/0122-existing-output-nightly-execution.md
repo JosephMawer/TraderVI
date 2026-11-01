@@ -8,7 +8,7 @@
 
 ## Decision and purpose
 
-Run Hermes, DataAudit, Delphi and Athena from explicitly selected existing Release outputs every
+Run Hermes, DataAudit, Delphi and Athena from their latest successfully built existing Release outputs every
 calendar day at 06:30 Toronto local time. The immediate problem is selecting binaries without touching
 the running collector, engine or UI. The parent problem is unnecessary nightly copying and compilation.
 The root goal is dependable daily preparation without another full binary/source copy on disk each night.
@@ -21,8 +21,9 @@ Further Delphi extraction is not a prerequisite for this workflow.
 
 ## Selected outputs and identity
 
-`Operations/nightly-runner.json` schema 4 selects ExistingOutputs mode and the reviewed
-`Operations/nightly-outputs-20261101.json` manifest. Each application runs from its existing directory:
+`Operations/nightly-runner.json` schema 4 selects ExistingOutputs mode. The reviewed
+`Operations/nightly-outputs-20261101.json` manifest supplies the initial outputs until a newer successful
+Release build registers for each application. The initial directories are:
 
 ```text
 C:\src\TraderVI\artifacts\athena-extraction-20261101\build\bin\Hermes\release
@@ -32,7 +33,7 @@ C:\src\TraderVI\artifacts\athena-extraction-20261101\build\bin\Athena\release
 ```
 
 These are now active selected runtime directories despite the historical validation-folder name.
-Preserve them during cleanup and do not rebuild into them while selected. The normal project Release
+Preserve selected directories during cleanup and do not rebuild into them while a nightly run is active. The normal project Release
 directories contain September binaries; they are not selected. No binary was moved, copied or rebuilt
 to install this change. The collector, engine and WPF retain their separate existing installed files.
 
@@ -46,8 +47,37 @@ preparation; there is no repair or build fallback.
 These binaries identify compilation on `d479c7ca` with a Dirty working tree; the reviewed extraction was
 subsequently committed as `0326771d`. Both facts are recorded. The runner passes the selected build's
 commit/working-tree provenance to the applications, never the checkout's current HEAD. Later source
-edits do not alter this selection. A future application update needs a deliberate reviewed change to
-the selected paths/hashes/provenance after its build completes; automatic promotion is not installed.
+edits alone do not alter this selection.
+
+### November 1 refinement: automatic selection after successful Release builds
+
+The operator rejected requiring a manual paths/hashes update for future builds. This supersedes the
+initial manual-selection rule: each of the four CLI projects imports
+`Operations/NightlyReleaseRegistration.targets`. After that application's successful Windows Release
+Build target, the hook records its actual output path, directory fingerprint and compiled revision.
+It accepts framework-dependent or win-x64 outputs, excluding Debug, design-time and other-platform builds.
+It does not build another project, run tests or apps, copy binaries, publish, or touch installed hosts.
+A successful application build is eligible independently of other projects or later test/solution outcomes.
+A build of only Core or WPF does not update an unbuilt nightly app.
+
+`artifacts/nightly-output-registry/<App>.json` holds one atomically replaced receipt per application,
+with one reusable metadata lock per application; receipts do not accumulate. Both ordinary Release
+folders and custom output folders within this checkout work without changing configuration. An output
+in another checkout does not register here. The next nightly run reads each application's receipt once,
+then locks and verifies those exact files. New registrations during a run apply to the following run.
+Until an app first registers, it uses the initial November 1 manifest. An invalid receipt or changed/missing
+registered output fails preparation; it does not silently fall back to the seed or older September files.
+
+Each app's source commit comes from its compiled informational version, not current Git HEAD. Automatic
+receipts conservatively record working-tree state as Unknown, because a post-build checkout check cannot
+prove which uncommitted source bytes were compiled. Directory hashes identify the actual executed bytes.
+Per-app provenance is passed to each stage and saved in status; mixed revisions are not attributed to one
+common commit. Build-hook failure fails that build rather than claiming registration succeeded.
+
+Reusing files in place cannot preserve an earlier successful build after a later failed build overwrites
+that same folder. The recorded hash detects this and nightly stops; a subsequent successful build repairs
+the selection. During nightly execution, read locks reject writes to selected files. No rollback copies
+or automatic repair/rebuild are introduced. Cleanup must preserve the currently selected output folders.
 
 ## Schedule and unchanged operational scope
 
@@ -66,8 +96,10 @@ and logs are retained. No broker order, model training, migration or live-host r
 
 ## Validation and remaining work
 
-`Operations/Test-TraderVINightly.ps1` checks inert synthetic outputs, pinning, provenance, read locks,
-local-time scheduling and the existing stage/report behavior. Real `-ValidateOnly` reads and fingerprints
+`Operations/Test-TraderVINightly.ps1` checks inert synthetic outputs, automatic per-app registration,
+frozen run selection, provenance, read locks, local-time scheduling and the existing stage/report behavior.
+An SDK-free MSBuild fixture verifies success/failure/Debug/design-time/platform hook conditions without
+compiling any TraderVI application. Real `-ValidateOnly` reads and fingerprints
 the selected outputs without starting programs or writing operational status. The old BuildOnly option
 and source-copy/build implementation are removed; changing source cannot silently re-enable them.
 

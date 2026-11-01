@@ -70,82 +70,6 @@ function Write-RunLog {
     [System.IO.File]::AppendAllText($script:LogPath, "$line$([Environment]::NewLine)", (New-Object System.Text.UTF8Encoding($false)))
 }
 
-function Get-RepoRelativePath {
-    param(
-        [Parameter(Mandatory = $true)] [string] $BasePath,
-        [Parameter(Mandatory = $true)] [string] $TargetPath
-    )
-
-    $baseFullPath = [System.IO.Path]::GetFullPath($BasePath).TrimEnd('\') + '\'
-    $targetFullPath = [System.IO.Path]::GetFullPath($TargetPath)
-    $baseUri = New-Object System.Uri($baseFullPath)
-    $targetUri = New-Object System.Uri($targetFullPath)
-    return [System.Uri]::UnescapeDataString($baseUri.MakeRelativeUri($targetUri).ToString()).Replace('/', '\')
-}
-
-function Resolve-ConfiguredPath {
-    param(
-        [Parameter(Mandatory = $true)] [string] $RepoRoot,
-        [Parameter(Mandatory = $true)] [string] $ConfiguredPath
-    )
-
-    $resolved = if ([System.IO.Path]::IsPathRooted($ConfiguredPath)) {
-        [System.IO.Path]::GetFullPath($ConfiguredPath)
-    }
-    else {
-        [System.IO.Path]::GetFullPath((Join-Path $RepoRoot $ConfiguredPath))
-    }
-
-    $rootPrefix = [System.IO.Path]::GetFullPath($RepoRoot).TrimEnd('\') + '\'
-    if (-not $resolved.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
-        throw "Configured path escapes the repository: $ConfiguredPath"
-    }
-
-    return $resolved
-}
-
-function Get-Sha256ForText {
-    param([Parameter(Mandatory = $true)] [string] $Text)
-
-    $bytes = (New-Object System.Text.UTF8Encoding($false)).GetBytes($Text)
-    $hasher = [System.Security.Cryptography.SHA256]::Create()
-    try {
-        return ([BitConverter]::ToString($hasher.ComputeHash($bytes))).Replace('-', '')
-    }
-    finally {
-        $hasher.Dispose()
-    }
-}
-
-function Get-ArtifactSnapshot {
-    param(
-        [Parameter(Mandatory = $true)] [string] $RepoRoot,
-        [Parameter(Mandatory = $true)] [string] $EntryAssembly
-    )
-
-    if (-not (Test-Path -LiteralPath $EntryAssembly -PathType Leaf)) {
-        throw "Compiled entry assembly is missing: $EntryAssembly"
-    }
-
-    $EntryAssembly = Assert-NightlyOutputPath $RepoRoot $EntryAssembly
-    $artifactDirectory = Split-Path -Parent $EntryAssembly
-    $records = New-Object System.Collections.Generic.List[string]
-    foreach ($file in @(Get-NightlyOutputFiles $artifactDirectory | Sort-Object FullName)) {
-        $relativePath = Get-RepoRelativePath -BasePath $artifactDirectory -TargetPath $file.FullName
-        $records.Add("$relativePath`t$((Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash)")
-    }
-
-    # Ordinal ordering makes the fingerprint identical in Windows PowerShell 5.1
-    # and PowerShell 7, whose culture-sensitive sort orders can differ.
-    [string[]] $canonicalRecords = $records.ToArray()
-    [Array]::Sort($canonicalRecords, [StringComparer]::Ordinal)
-    return [pscustomobject] [ordered]@{
-        path = Get-RepoRelativePath -BasePath $RepoRoot -TargetPath $artifactDirectory
-        sha256 = Get-Sha256ForText -Text ($canonicalRecords -join "`n")
-        fileCount = $records.Count
-    }
-}
-
 function ConvertTo-ArgumentString {
     param([Parameter(Mandatory = $true)] [object[]] $Arguments)
 
@@ -232,6 +156,9 @@ function Test-Configuration {
         throw 'The nightly runner requires schema 4 and ExistingOutputs mode; builds and source copies are unsupported.'
     }
     [void] (Resolve-ConfiguredPath $RepoRoot ([string] $Configuration.outputsManifest))
+    if ($Configuration.PSObject.Properties.Name -contains 'outputRegistry') {
+        [void] (Resolve-ConfiguredPath $RepoRoot ([string] $Configuration.outputRegistry))
+    }
     if (($Configuration.stages.name -join ',') -ne 'Hermes,DataAudit,Delphi,Athena') {
         throw 'The configured stage order must be Hermes, DataAudit, Delphi, Athena.'
     }
@@ -262,7 +189,7 @@ function Invoke-NightlyStage {
         [Parameter(Mandatory = $true)] [object] $Status
     )
 
-    $entryAssembly = Resolve-ConfiguredPath -RepoRoot $RepoRoot -ConfiguredPath ([string] $Stage.entryAssembly)
+    $entryAssembly = Resolve-ConfiguredPath -RepoRoot $RepoRoot -ConfiguredPath ([string] $ExpectedArtifact.entryAssembly)
     $currentArtifact = Get-ArtifactSnapshot -RepoRoot $RepoRoot -EntryAssembly $entryAssembly
     if (-not [string]::Equals([string] $ExpectedArtifact.sha256, [string] $currentArtifact.sha256, [StringComparison]::OrdinalIgnoreCase)) {
         throw "Built artifacts for '$($Stage.name)' changed after preflight. The stage was not started."
@@ -277,6 +204,9 @@ function Invoke-NightlyStage {
         durationSeconds = $null
         exitCode = $null
         artifactSha256 = [string] $currentArtifact.sha256
+        entryAssembly = [string] $ExpectedArtifact.entryAssembly
+        sourceCommit = [string] $ExpectedArtifact.sourceCommit
+        workingTreeState = [string] $ExpectedArtifact.workingTreeState
         message = $null
     }
     $Status.stages += $stageStatus
@@ -292,8 +222,8 @@ function Invoke-NightlyStage {
         -TimeoutMinutes ([int] $Stage.timeoutMinutes) `
         -Label "stage '$($Stage.name)'" `
         -EnvironmentOverrides @{
-            TRADERVI_CODE_VERSION = $Status.outputs.sourceCommit
-            TRADERVI_WORKING_TREE_STATE = $Status.outputs.workingTreeState
+            TRADERVI_CODE_VERSION = $ExpectedArtifact.sourceCommit
+            TRADERVI_WORKING_TREE_STATE = $ExpectedArtifact.workingTreeState
             TRADERVI_PREPARATION_DATE = $Status.preparationDate
         }
 
@@ -403,9 +333,11 @@ if (-not (Test-Path -LiteralPath $dotnetPath -PathType Leaf)) {
 if ($ValidateOnly) {
     $validationLocks = $null
     try {
-        $validationLocks = Open-NightlyOutputLocks $configuration $repoRoot
-        $validated = Get-NightlyExistingOutputs $configuration $repoRoot
+        $selection = Resolve-NightlyOutputSelection $configuration $repoRoot
+        $validationLocks = Open-NightlyOutputLocks $selection $repoRoot
+        $validated = Get-NightlyExistingOutputs $configuration $repoRoot $selection
         Write-Host "Existing outputs verified: $($validated.outputSetId). No build, copy, operational stage or status write."
+        foreach ($stage in $selection.stages) { Write-Host "$($stage.name): $($stage.entryAssembly)" }
     }
     finally { Close-NightlyOutputLocks $validationLocks }
     exit 0
@@ -469,8 +401,9 @@ try {
     Write-JsonAtomically -Value $status -Path $script:StatusPath
     Write-RunLog "TraderVI nightly run $runId started from existing outputs for preparation date $resolvedPreparationDate."
     $status.outputs.state = 'Running'
-    $outputLocks = Open-NightlyOutputLocks $configuration $repoRoot
-    $selected = Get-NightlyExistingOutputs $configuration $repoRoot
+    $selection = Resolve-NightlyOutputSelection $configuration $repoRoot
+    $outputLocks = Open-NightlyOutputLocks $selection $repoRoot
+    $selected = Get-NightlyExistingOutputs $configuration $repoRoot $selection
     $artifactSnapshots = $selected.artifacts
     $status.outputs.outputSetId = $selected.outputSetId
     $status.outputs.sourceCommit = $selected.sourceCommit
@@ -480,6 +413,8 @@ try {
         $snapshot = $artifactSnapshots[[string] $stage.name]
         $status.outputs.artifacts += [pscustomobject]@{
             stage=$stage.name; path=$snapshot.path; sha256=$snapshot.sha256; fileCount=$snapshot.fileCount
+            entryAssembly=$snapshot.entryAssembly; sourceCommit=$snapshot.sourceCommit; workingTreeState=$snapshot.workingTreeState
+            registeredUtc=$snapshot.registeredUtc; receiptSha256=$snapshot.receiptSha256
         }
     }
     $status.outputs.state = 'Verified'

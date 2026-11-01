@@ -82,5 +82,6 @@
     }
   ],
   "executionMode": "ExistingOutputs",
-  "outputsManifest": "Operations/nightly-outputs-20261101.json"
+  "outputsManifest": "Operations/nightly-outputs-20261101.json",
+  "outputRegistry": "artifacts/nightly-output-registry"
 }
