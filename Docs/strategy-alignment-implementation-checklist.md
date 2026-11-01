@@ -310,7 +310,10 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
   broker-coverage, writer-fencing and history-size acceptance before installation. No new recovery
   behavior or production setting is installed. Compact storage and the disconnected account rehearsal are implemented;
-  the prepared schema is not installed and current production recovery behavior is unchanged.
+  the compact trading host has not been activated.
+- [x] November 1 installed production migrations 054 and 055 after the verified, synchronized
+  backup. Independent readback confirmed seven empty tables and enabled storage guards.
+  Account transfer and exact-build trading approval remain separate.
 - Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to
   [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.
   Preserve existing exceptional-state handling and separate #12/#14 backup/restore qualification;

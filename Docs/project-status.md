@@ -1,5 +1,17 @@
 # TraderVI Project Status
 
+## November 1 — Compact restart database installed, trading activation pending
+
+At 00:34 Toronto both approved manual migrations (054 and 055) had committed on TraderDB.
+SQL Server verified the full backup with checksums. The OneDrive copy had the same SHA-256
+and Windows reported it in sync before migration. A separate database read found all seven
+tables empty, both immutable-record triggers enabled and both new order constraints enabled
+and trusted. The read-only account cannot inspect the constraint text. The collector reported
+a closed session without failures. At 00:23 the installed broker checks verified the saved
+login, zero pending orders and agreement between broker history and holdings. The dashboard
+and sign-in service were running. The trading host was off. Evidence is under the ignored
+`artifacts/restart-release`, `artifacts/read-only-db` and `artifacts/read-only-broker` folders.
+
 ## October 30 — Real execution resumed after recovery, 14:46 Toronto
 
 Run `e8ae09ac-8da8-4bec-ab00-662485ac9f44` completes at 14:33:13 with
