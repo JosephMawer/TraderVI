@@ -87,6 +87,8 @@ public static class TradingStorageValidation
         if (before is TradingPositionCurrent p && after is TradingPositionCurrent next &&
             (p.SecurityId != next.SecurityId || p.Symbol != next.Symbol || p.FirstEntryUtc != next.FirstEntryUtc))
             Fail("Position cycle identity changed.");
+        if (before is TradingPositionCurrent { IsOpen: false } && after is TradingPositionCurrent { IsOpen: true })
+            Fail("A closed position cycle cannot be reopened by a repeated fill.");
         if (before is TradingOrder old && after is TradingOrder updated)
         {
             var permitted = old with

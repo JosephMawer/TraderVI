@@ -171,6 +171,20 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   Seven new writer cases and all 39 prior focused cases passed offline (46 passed, zero failures/skips).
   [Writer tests](../TraderVI.Core.Tests/TradingCompactStorageTests.Allowance.cs).
   Local run record: `artifacts/compact-storage-20261030/results/allowance-writer.trx`.
+- [x] October 31 milestone 1 offline scenario. A fresh recovery instance reads an unfinished opening
+  buy by its original external ID. For a simulated $100 order cancelled after four shares filled
+  for $38, it saves those four shares, $38 cost, opening protection, completed receipt and allowance
+  together. A failed transaction preserves the original $100 reservation. Re-entry after a lost
+  commit reply leaves one receipt and releases the $62 once. Where two shares were already applied,
+  only two more are added and the existing protection floor and triggered exit survive. Conflicting
+  evidence leaves the request unfinished. A repeated fill cannot reopen a closed cycle.
+  Nine new cases and 46 prior focused cases passed offline, zero failures or skips.
+  [Recovery tests](../TraderVI.Core.Tests/TradingCompactStorageTests.InterruptedBuy.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/interrupted-buy.trx`.
+- [ ] Extend original-request recovery beyond a cancelled, partially filled opening buy. The first
+  scenario uses a simulated broker lookup and fixture-supplied opening terms for the approved request.
+  Production broker coverage, strategy-specific protection mapping, additional order outcomes and
+  engine startup integration still need separate review.
 - [ ] Near the end, measure SQL read/write latency and physical space and qualify round trips, locking,
   crash/rollback and active query plans. October 31 operator deferred this work. Review the test
   environment before execution.
@@ -178,7 +192,7 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   supersession of installed behavior and update #19 before integrating or activating that replacement.
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
   broker-coverage, writer-fencing and history-size acceptance before installation. No new recovery
-  behavior or production setting is installed. Only the disconnected storage increment above is implemented;
+  behavior or production setting is installed. The compact store and first offline recovery scenario are implemented;
   the prepared schema is not installed and current production recovery behavior is unchanged.
 - Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to
   [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.
