@@ -14,7 +14,8 @@ At 01:11 Toronto the installed trading engine reported Running and connected to 
 It completed the startup account check 2.88 seconds after process launch. The operator approved
 the new restart terms, then resumed the exact build. The execution host was waiting for a
 regular TSX session. SQL readback showed buy and sell permission enabled, buying unpaused,
-three protected holdings, zero unfinished orders and zero active compact restrictions.
+protection ownership assigned for all three holdings, zero unfinished orders and zero active compact restrictions.
+The deferred LSPD bid-read incident still limits confirmation of new market-hours protective triggers.
 The remaining Paper recovery incident is separate from Real execution. No order was sent in
 the switch. Monday's opening risk reference and fresh market checks still occur at the open.
 

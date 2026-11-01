@@ -8,19 +8,17 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
-**October 30 highest-priority design reassessment:** eliminate hour-long historical verification
-from ordinary engine restart readiness. The operator requests a new-session investigation of why
-each check exists, its database/JSON contracts and cost, and a simpler replacement with bounded
-recovery. Challenge full replay after an unclean stop; evaluate durable trusted checkpoints, bounded
-tail replay, current-state/broker reconciliation and separate historical auditing. These are options,
-not an accepted replacement design or authority to bypass existing guards. Preserve trading settings,
-collector operation and the LSPD hold. The [October 30 recovery record](project-status.md#october-30--real-execution-resumed-after-recovery-1446-toronto)
-documents the completed pass and Real hold clearance. This reassessment takes priority
-over the previously queued engineering work; coordinate existing GitHub issue #19 rather than duplicate it.
-The [October 30 investigation and draft replacement](reviews/restart-recovery-design-20261030.md)
-now supplies the check/schema inventory, synthetic measurements, bounded recovery proposal and
-validation/cutover plan. The replacement remains proposed; accepted decisions and native qualification
-are separate from completing this investigation.
+**November 1 priority.** The operator-approved compact restart is running for Delphi Live.
+Next, reduce the account history read and written during regular trade evaluation. Start with
+the current account and original unfinished orders. Measure SQL and broker calls against the
+existing checks, preserve risk and protection decisions, and keep the running release available
+through Monday's open. The [operational status](project-status.md) and
+[execution checklist](strategy-alignment-implementation-checklist.md) distinguish the installed
+switch from later offline changes. Continue under issue #19, ahead of the previously queued
+engineering work. Preserve collector operation, trading settings and the LSPD investigation hold.
+The [October 30 investigation](reviews/restart-recovery-design-20261030.md) retains the original
+check inventory and proposals. [ADR-0117](adr/0117-compact-trading-current-storage.md) records
+the accepted release boundary.
 
 **Scope narrowed during item 9 review:** new exceptional damaged-database/old-backup recovery design
 is deferred for discussion in [#25](https://github.com/JosephMawer/TraderVI/issues/25). It is not a

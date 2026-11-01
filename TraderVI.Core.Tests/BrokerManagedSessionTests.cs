@@ -143,6 +143,25 @@ public sealed partial class BrokerManagedSessionTests
     }
 
     [Fact]
+    public async Task RegularEvaluationReusesTheRecoveredAccountWithoutReadingItsHeadAgain()
+    {
+        var fixture = new Fixture();
+        var workflow = fixture.Workflow();
+        await workflow.ApproveAsync(fixture.Approval());
+        var id = fixture.Binding.BindingId;
+        int before = fixture.Store.Acquisitions;
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        await using var lease = await fixture.Store.AcquireAsync(id, timeout.Token);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => workflow.TickAsync(lease, Guid.NewGuid(), timeout.Token));
+        Assert.Equal(0, fixture.Transport.Sent);
+        var result = await workflow.TickAsync(lease, id, timeout.Token);
+        Assert.Equal(before + 1, fixture.Store.Acquisitions);
+        Assert.Same(result, lease.Current);
+        Assert.Single(result.Orders);
+        Assert.Equal(1, fixture.Transport.Sent);
+    }
+
+    [Fact]
     public async Task UncertainSubmissionAndRestartNeverTransmitReplacement()
     {
         var f = new Fixture(); f.Transport.ThrowOnSubmit = true;
@@ -452,9 +471,10 @@ public sealed partial class BrokerManagedSessionTests
         internal string? LoseResponseAtEvent;
         internal Action<BrokerManagedSession>? BeforeAppend;
         internal Action<string>? AfterAppend;
+        internal int Acquisitions;
         private readonly SemaphoreSlim gate = new(1);
         public async Task<IBrokerManagedSessionLease> AcquireAsync(Guid id, CancellationToken ct)
-        { await gate.WaitAsync(ct); return new Lease(this); }
+        { await gate.WaitAsync(ct); Acquisitions++; return new Lease(this); }
         internal void Restart() => State = JsonSerializer.Deserialize<BrokerManagedSession>(JsonSerializer.Serialize(State));
         private sealed class Lease(Store store) : IBrokerManagedSessionLease
         {

@@ -152,7 +152,8 @@ internal sealed class CompactEngineRestart(TradingCurrentStore store, ManualBuyF
                     .Concat(result.Current.Restrictions.Select(r => $"{r.ScopeKey} ({r.RestrictionId:D}). {r.Explanation}"));
                 return updated with { Blocks = updated.Blocks.Concat(reasons).Distinct().ToImmutableArray() };
             }
+            initial.Assignment.RequireAssignment(result.Current, grants.Read(), build, clock.GetUtcNow(), allowReadRecovery: true);
+            return await workflow.TickAsync(lease, observed.BindingId, ct);
         }
-        return await workflow.TickAsync(observed.BindingId, ct);
     }
 }

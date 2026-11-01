@@ -270,7 +270,7 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   and admitted the ten-share independent protective exit once. A second fresh process took
   0.958 s and admitted zero new exits. Both used synthetic broker reads, with zero submissions.
   A missing local witness blocked startup and restoring the file preserved the incident. The
-  default installation still uses legacy recovery. [Reproduction and scope](adr/0117-compact-trading-current-storage.md#abrupt-stop-candidate).
+  installation at that October 31 checkpoint still used legacy recovery. [Reproduction and scope](adr/0117-compact-trading-current-storage.md#abrupt-stop-candidate).
   Local evidence: `artifacts/restart-release/d7b9360653ee4396baa43b98b2584750/interrupted-result.json`
   and `artifacts/restart-release/m1-core.trx`.
 - [ ] Qualify broker coverage, native grant/journal fencing and exclusive writer ownership at
@@ -302,8 +302,8 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   A second fixture run alongside the Core suite took 2.486 s and 2.025 s respectively.
   The runs used a clean continuity checkpoint, SQL LocalDB, a protected grant and order journal,
   and fixed market-session time. They exclude process/test-runner launch, live broker latency,
-  production integrity-store checks, and unrelated background workers. The installed workflow
-  still follows the legacy gate. [Rehearsal](../TraderVI.Core.Tests/TradingCompactStorageTests.NormalStartup.cs).
+  production integrity-store checks, and unrelated background workers. The installation at
+  the time of that rehearsal used the legacy gate. [Rehearsal](../TraderVI.Core.Tests/TradingCompactStorageTests.NormalStartup.cs).
   Local receipts are under `artifacts/restart-release/normal-*.trx`.
 - [ ] Finish writer/consumer mapping and the replacement's failure/latency contract, record exact
   supersession of installed behavior and update #19 before integrating or activating that replacement.
@@ -322,6 +322,11 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   references and shared a single order-list reference. This excludes referenced data, indexes
   and logs. Measure those costs separately. Preserve risk continuation and audit readers
   when replacing the source record. SQL cleanup remains separate.
+- [x] First offline regular-cycle change reuses the account lock and current revision from
+  compact recovery when handing a settled book to ordinary strategy evaluation. It checks
+  the current permission again before the handoff. The test admitted the same fake order
+  with one account acquisition and rejected a different binding before dispatch. Focused
+  tests passed 680 with six opt-in skips. This change is separate from the installed release.
 - Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to
   [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.
   Preserve existing exceptional-state handling and separate #12/#14 backup/restore qualification;

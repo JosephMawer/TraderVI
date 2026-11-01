@@ -69,7 +69,15 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
     public async Task<BrokerManagedSession> TickAsync(Guid bindingId, CancellationToken ct = default)
     {
         await using var lease = await store.AcquireAsync(bindingId, ct);
+        return await TickAsync(lease, bindingId, ct);
+    }
+
+    // Recovery already holds the account lock and its verified current revision. Hand that
+    // same revision to regular evaluation instead of reopening SQL and loading it again.
+    internal async Task<BrokerManagedSession> TickAsync(IBrokerManagedSessionLease lease, Guid bindingId, CancellationToken ct)
+    {
         var state = lease.Current ?? throw new InvalidOperationException("Explicit reviewed execution approval is required.");
+        if (state.BindingId != bindingId) throw new InvalidOperationException("The account lock belongs to another assignment.");
         if (state.EffectiveReview.NoTransferScope is { PreOpenApproved: true } armed)
         {
             var open = Core.Trader.DelphiLive.ReviewedTsxSessionCalendar.At(armed.Session, new TimeOnly(9, 30));
