@@ -16,7 +16,7 @@ internal sealed record AccountRestartResult(TradingCurrentState Current, Immutab
 internal sealed class OfflineAccountRestart(TradingCurrentStore store,
     Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> lookup,
     Func<Guid, CancellationToken, Task<(Guid Binding, WealthsimpleTfsaSnapshot Snapshot)>> readBrokerAccount,
-    Func<TradingOrder, CancellationToken, Task> simulateSell,
+    Func<TradingOrder, CancellationToken, Task> simulateSell, Func<CancellationToken, Task<IRestartSellLease>> acquireSellLease,
     Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms, TimeProvider clock)
 {
     internal async Task<AccountRestartResult> RunAsync(Guid bindingId, CancellationToken ct = default)
@@ -51,6 +51,8 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore store,
                     notices.Add(new("Sell", position.Symbol, request, reason));
                     continue;
                 }
+                using var admission = await acquireSellLease(ct);
+                admission.Verify(current, position, request, clock.GetUtcNow(), final: false);
                 var sale = new TradingOrder { BindingId = bindingId, RequestId = request, DecisionId = decision,
                     PermissionId = current.Account.PermissionId, PositionId = id, SecurityId = position.SecurityId,
                     Symbol = position.Symbol, Side = "SELL", Quantity = position.Quantity, ReservedQuantity = position.Quantity,
@@ -64,7 +66,11 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore store,
                 if (saved.AlreadyCommitted || saved.WrittenRows == 0 || current.Account.Version != saved.Version ||
                     !CanSell(current, clock.GetUtcNow()))
                     notices.Add(new("Sell", sale.Symbol, request, "Reservation changed or authority expired before send. Check the original request."));
-                else await simulateSell(sale, ct);
+                else
+                {
+                    admission.Verify(current, position, request, clock.GetUtcNow(), final: true);
+                    await simulateSell(sale, ct);
+                }
             }
             catch (Exception e) when (Recoverable(e, ct))
             {

@@ -40,12 +40,20 @@ public sealed partial class TradingCompactStorageTests
         internal Func<WealthsimpleTfsaSnapshot> AccountBook = () => throw new TimeoutException();
         internal Guid SnapshotBinding = Binding;
         internal Func<Task>? AfterSend;
+        internal Func<CancellationToken, Task<IRestartSellLease>> AcquireSellLease = _ =>
+            Task.FromResult<IRestartSellLease>(new SimulatedLease());
         internal OfflineAccountRestart Restart() => new(db.Store, Lookup, (id, _) =>
         {
             Calls.Add("account");
             Assert.Equal(Binding, id);
             return Task.FromResult((SnapshotBinding, AccountBook()));
-        }, Submit, SavedOpeningTerms, new RecoveryClock());
+        }, Submit, AcquireSellLease, SavedOpeningTerms, new RecoveryClock());
+
+        private sealed class SimulatedLease : IRestartSellLease
+        {
+            public void Verify(TradingCurrentState state, TradingPositionCurrent position, Guid requestId, DateTimeOffset now, bool final) { }
+            public void Dispose() { }
+        }
 
         private Task<BrokerOrderFact?> Lookup(Guid binding, string externalId, CancellationToken ct)
         {

@@ -140,11 +140,26 @@ integrity lease and broker sell-context/quote checks. Substituting the compact t
 leave these waits in place. Changing the gates requires a reviewed policy change that preserves
 existing manual-order ownership and share reservations.
 
-**Next acceptance test.** Persist the original protective decision, reason, time and position
-at the first durable trigger, then simulate an interruption before order reservation. Recover the
-same trigger and original request through the SQL/local journal boundaries, including a revoked
-grant and a manual order on overlapping shares. Where an older latch cannot be linked to original
-evidence, surface that specific uncertainty for review.
+**October 31 offline qualification.** On the first newly qualified protective sell recommendation,
+the managed-session writer saves its decision ID, effective permission ID, reason and UTC decision
+time on that position in a separate revision before order reservation. The timestamp records when
+the strategy made the decision. The managed order path reuses this ID after a rebound. The
+compact input bridge checks the binding, session, permission, strategy, position, owner, remaining
+quantity and cost before accepting the saved trigger. A legacy reason without an original receipt
+remains ineligible for this bridge. The optional receipt is omitted from historical shapes when absent.
+
+The offline test interrupts immediately after that revision commits, restores it through the managed
+archive codec, and uses synthetic protected grant and journal files. Eligibility is checked before
+reservation and again before simulated dispatch. At dispatch, the grant lock is shared with the
+grant writer's exclusion protocol and the journal owns its normal directory lease. Revocation or a
+conflicting manual sale at either boundary prevents the simulated send. An exact request already in
+the journal requires original-ID reconciliation. An unaccounted manual fill on the same position
+cycle also needs reconciliation even if the manual journal considers the sale complete. A journal
+sale on another security leaves the independently supported exit eligible.
+
+The tests cover an interruption following a committed save. A crash before any durable trigger exists
+still requires qualified original evidence. Production integration still needs a bounded journal
+lookup, native writer/dispatch coordination, full attribution of manual fills and a reviewed cutover.
 
 Source entry points: [engine composition](../../TraderVI.Engine/Program.cs),
 [host permission checks](../../Core/Trader/Promotion/BrokerExecutionHost.cs),

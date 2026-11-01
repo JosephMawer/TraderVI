@@ -21,6 +21,7 @@ public sealed partial class TradingCompactStorageTests
         private readonly Dictionary<(Guid, string), Guid> brokerIds = new();
         private readonly SemaphoreSlim gate = new(1, 1);
         internal bool LoseCommitReply;
+        internal Action? AfterNextWriteCommit;
         internal int FailAfterWrites;
         internal int CommittedWrites;
         internal int ReadRows;
@@ -102,6 +103,11 @@ public sealed partial class TradingCompactStorageTests
                 ct.ThrowIfCancellationRequested();
                 foreach (var row in pending.Values) db.Seed(row);
                 db.CommittedWrites += pending.Count;
+                if (pending.Count > 0 && db.AfterNextWriteCommit is { } after)
+                {
+                    db.AfterNextWriteCommit = null;
+                    after();
+                }
                 if (db.LoseCommitReply && pending.Count > 0)
                 {
                     db.LoseCommitReply = false;

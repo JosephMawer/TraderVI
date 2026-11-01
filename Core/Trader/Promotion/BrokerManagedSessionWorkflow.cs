@@ -256,6 +256,8 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             TradingRecommendationResult prepared;
             using (PaperCycleTimings.Start(PaperCycleStage.BrokerLivePrepare))
                 prepared = TradingRecommendationEngine.Evaluate(input with { Quotes = [] });
+            state = await CaptureProtectiveExits(lease, state, prepared, replay.Protection, ct);
+            replay.Protection = state.Protection;
             await source.PreserveRiskHoldsAsync(account, prepared.Memory, ct);
             state = await Save(lease, state with { Memory = prepared.Memory, Protection = replay.Protection,
                 LatestDecision = CaptureTrace(input, prepared, null, null, "QuoteObservationPending") }, "LiveProtectionPrepared", ct);
@@ -297,6 +299,8 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         if (!currentRiskDay)
             result = result with { Memory = result.Memory with { TradingDate = savedRiskTradingDate,
                 DailyLossHold = state.Memory.DailyLossHold || result.Memory.DailyLossHold } };
+        state = await CaptureProtectiveExits(lease, state, result, replay.Protection, ct);
+        replay.Protection = state.Protection;
         if (state.LatestDecision is not null)
             state = state with { LatestDecision = CaptureTrace(input, result, observedQuotes, null, "RiskHoldPersistencePending") };
         try { await source.PreserveRiskHoldsAsync(account, result.Memory, ct); }
@@ -328,7 +332,11 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             await RecordDecisionFailure(lease, state, "SecurityResolutionFailed", error);
             throw;
         }
-        Guid decisionId = BrokerManagedStrategy.StableId($"{state.SessionId:D}:{recommendation.Symbol}:{recommendation.Action}:{recommendation.Kind}:{recommendation.PositionId}:{recommendation.EvidenceId}:{recommendation.CandidateId}");
+        var firstExit = sell && recommendation.Kind == "RiskExit"
+            ? state.Protection.SingleOrDefault(p => p.PositionId == recommendation.PositionId)?.FirstExit : null;
+        if (firstExit is not null && (firstExit.PermissionId != state.EffectiveReview.RequestId || firstExit.Reason != recommendation.Reason))
+            throw new InvalidOperationException("The original protective decision requires its reviewed permission and reason.");
+        Guid decisionId = firstExit?.DecisionId ?? DecisionId(state, recommendation);
         if (state.Orders.Any(o => o.DecisionId == decisionId))
             return await SaveDecisionOutcome(lease, state, "OriginalDecisionAlreadyReserved", ct);
         decimal price = recommendation.ReferencePrice ?? 0;
@@ -436,6 +444,33 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             Phase = trialReview ? BrokerManagedPhase.Paused : state.Phase },
             "OrderTransmissionObserved", CancellationToken.None);
     }
+    private static Guid DecisionId(BrokerManagedSession state, TradingRecommendation r) =>
+        BrokerManagedStrategy.StableId($"{state.SessionId:D}:{r.Symbol}:{r.Action}:{r.Kind}:{r.PositionId}:{r.EvidenceId}:{r.CandidateId}");
+
+    private async Task<BrokerManagedSession> CaptureProtectiveExits(IBrokerManagedSessionLease lease, BrokerManagedSession prior,
+        TradingRecommendationResult evaluated, ImmutableArray<BrokerPositionProtection> protection, CancellationToken ct)
+    {
+        ImmutableArray<BrokerPositionProtection>.Builder? updated = null;
+        foreach (var row in evaluated.Recommendations.Where(r => r.Action == "Sell" && r.Kind == "RiskExit"))
+        {
+            var current = protection.Single(p => p.PositionId == row.PositionId);
+            if (current.FirstExit is not null) continue;
+            // Only a fresh transition has a known decision time. Never stamp an older saved exit at restart.
+            var old = prior.Protection.SingleOrDefault(p => p.PositionId == row.PositionId)?.State;
+            var memory = prior.Memory.Symbols.GetValueOrDefault(row.Symbol);
+            if (WasTriggered(old) || (memory?.PositionId == row.PositionId && WasTriggered(memory))) continue;
+            var receipt = new BrokerProtectiveExitDecision(DecisionId(prior, row), prior.EffectiveReview.RequestId,
+                row.Reason, clock.GetUtcNow().UtcDateTime);
+            updated ??= protection.ToBuilder();
+            updated[protection.IndexOf(current)] = current with { FirstExit = receipt };
+        }
+        if (updated is null) return prior with { Protection = protection };
+        return await Save(lease, prior with { Protection = updated.ToImmutable(), Memory = evaluated.Memory }, "ProtectiveExitTriggered", ct);
+    }
+
+    private static bool WasTriggered(TradingSymbolState? state) => state?.ExitReason is not null ||
+        state?.LiveProtection?.Progressive?.ExitTriggered == true || state?.ShadowProtection?.Progressive?.ExitTriggered == true;
+
     private async Task<BrokerManagedSession> Save(IBrokerManagedSessionLease lease, BrokerManagedSession state, string reason, CancellationToken ct)
     {
         using var timing = PaperCycleTimings.Start(PaperCycleStage.BrokerStateSave);

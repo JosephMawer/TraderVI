@@ -194,10 +194,17 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             foreach (var old in prior.Protection)
             {
                 var fresh = next.Protection.SingleOrDefault(p => p.PositionId == old.PositionId);
+                if (old.FirstExit is null && fresh?.FirstExit is { } trigger &&
+                    (next.Event != "ProtectiveExitTriggered" || trigger.DecisionId == Guid.Empty ||
+                     trigger.PermissionId != next.EffectiveReview.RequestId || string.IsNullOrWhiteSpace(trigger.Reason) ||
+                     trigger.TriggeredUtc.Kind != DateTimeKind.Utc || trigger.TriggeredUtc < prior.SavedAt.UtcDateTime ||
+                     trigger.TriggeredUtc > next.SavedAt.UtcDateTime || next.Orders.Length != prior.Orders.Length))
+                    throw new InvalidOperationException("An original protective decision needs a separate durable trigger boundary.");
                 if (fresh is null || fresh.Owner != old.Owner || fresh.EstablishedAt != old.EstablishedAt ||
                     old.CarriedFloor.HasValue && (fresh.CarriedFloor is null || fresh.CarriedFloor < old.CarriedFloor) ||
                     old.ThroughUtc.HasValue && (fresh.ThroughUtc is null || fresh.ThroughUtc < old.ThroughUtc) ||
-                    old.State.ExitReason is not null && fresh.State.ExitReason != old.State.ExitReason)
+                    old.State.ExitReason is not null && fresh.State.ExitReason != old.State.ExitReason ||
+                    old.FirstExit is not null && fresh.FirstExit != old.FirstExit)
                     throw new InvalidOperationException("Established protection ownership, floors and exit obligations cannot be reset.");
             }
     }

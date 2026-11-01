@@ -232,9 +232,19 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   tests passed. [Verified sources, limits and gaps](adr/0117-compact-trading-current-storage.md#installed-input-verification).
   Private local evidence: `artifacts/minute-source-check-20261027/execution-diagnostics-20261030T184605799Z.json`
   and `artifacts/compact-storage-20261030/results/installed-input-contracts.trx`.
-- [ ] Prove the durable pre-reservation trigger identity/time, exact managed-versus-manual journal
-  joins and revocation through final send. Map strategy-specific opening terms and remaining
-  writers, and qualify broker coverage and scoped order admission before wiring startup.
+- [x] October 31 offline protective decision capture. The managed workflow saved the original ID,
+  reason, decision time and permission before creating an order. After simulated power loss the
+  recovered workflow retained the decision through a rebound. The compact rehearsal sent the
+  eligible exit once and blocked either grant revocation or an overlapping journal sale at initial
+  admission and final send. Tests also covered an existing original request, a filled manual sale,
+  an unrelated sale, and a legacy reason missing the original ID/time. Full Core run: 3,548 passed,
+  zero failed, 10 opt-in native tests skipped. All ten new scenarios also passed with packed archive
+  restoration. [Trigger tests](../TraderVI.Core.Tests/TradingCompactStorageTests.ProtectiveDecision.cs).
+  Local receipts: `artifacts/compact-storage-20261030/results/protective-trigger.trx` and
+  `protective-trigger-codec.trx` in the same directory.
+- [ ] Qualify the bounded production journal index, exact attribution of manual fills, native
+  grant/journal fencing and broker coverage. Map strategy-specific opening terms and remaining
+  writers before connecting the compact restart path.
 - [ ] Near the end, measure SQL read/write latency and physical space and qualify round trips, locking,
   crash/rollback and active query plans. October 31 operator deferred this work. Review the test
   environment before execution.

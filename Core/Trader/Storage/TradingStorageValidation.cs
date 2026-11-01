@@ -89,6 +89,9 @@ public static class TradingStorageValidation
             Fail("Position cycle identity changed.");
         if (before is TradingPositionCurrent { IsOpen: false } && after is TradingPositionCurrent { IsOpen: true })
             Fail("A closed position cycle cannot be reopened by a repeated fill.");
+        if (before is TradingPositionCurrent { ExitDecisionId: not null } latched && after is TradingPositionCurrent changed &&
+            (latched.ExitDecisionId != changed.ExitDecisionId || latched.ExitTriggeredUtc != changed.ExitTriggeredUtc || latched.ExitReason != changed.ExitReason))
+            Fail("The first protective exit for this position cannot be rewritten.");
         if (before is TradingOrder old && after is TradingOrder updated)
         {
             var permitted = old with

@@ -11,7 +11,11 @@ public sealed record BrokerPositionProtection(Guid PositionId, string Owner, dec
     DateTimeOffset EstablishedAt, TradingSymbolState State)
 {
     public DateTime? ThroughUtc { get; init; }
+    // Absent on older revisions. A historical latch without this receipt cannot establish when it fired.
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerProtectiveExitDecision? FirstExit { get; init; }
 }
+public sealed record BrokerProtectiveExitDecision(Guid DecisionId, Guid PermissionId, string Reason, DateTime TriggeredUtc);
 public sealed record BrokerProtectionMark(Guid PositionId, decimal Price, DateTimeOffset ObservedAt, string EvidenceHash);
 
 public static class BrokerProtectionHandover

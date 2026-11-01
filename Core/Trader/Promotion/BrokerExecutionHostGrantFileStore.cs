@@ -20,7 +20,7 @@ public sealed class BrokerExecutionHostGrantFileStore(string path, IManualBuyPro
     {
         next.Validate();
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
-        using var lease = new FileStream(path + ".lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        using var lease = AcquireFence();
         if (Read() != expected) throw new InvalidOperationException("Execution-host permission changed. Read its saved mode before another action.");
         var temporary = path + "." + Guid.NewGuid().ToString("N") + ".pending";
         var bytes = protector.Protect(JsonSerializer.SerializeToUtf8Bytes(next));
@@ -28,4 +28,5 @@ public sealed class BrokerExecutionHostGrantFileStore(string path, IManualBuyPro
         { stream.Write(bytes); stream.Flush(true); }
         File.Move(temporary, path, overwrite: true);
     }
+    internal IDisposable AcquireFence() => new FileStream(path + ".lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
 }

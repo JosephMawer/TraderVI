@@ -341,13 +341,13 @@ public class ManualMarketSellWorkflowTests
         public Task<WealthsimpleReadResult<ManualSellInventory>> ReadManualSellInventoryAsync(ManualSellIntent intent,CancellationToken ct)
         {if(ThrowInventory)throw new IOException("fixture inventory failure");return Task.FromResult(new WealthsimpleReadResult<ManualSellInventory>(ReadStatus,Inventory));}
     }
-    private sealed class Protector : IManualBuyProtector
+    internal sealed class Protector : IManualBuyProtector
     {
         private readonly byte[] key=RandomNumberGenerator.GetBytes(32);
         public byte[] Protect(byte[] data){using var aes=new AesGcm(key,16);var nonce=RandomNumberGenerator.GetBytes(12);var result=new byte[28+data.Length];nonce.CopyTo(result,0);aes.Encrypt(nonce,data,result.AsSpan(28),result.AsSpan(12,16));return result;}
         public byte[] Unprotect(byte[] data){using var aes=new AesGcm(key,16);var result=new byte[data.Length-28];aes.Decrypt(data.AsSpan(0,12),data.AsSpan(28),data.AsSpan(12,16),result);return result;}
     }
-    private sealed class TempDirectory : IDisposable
+    internal sealed class TempDirectory : IDisposable
     {
         internal readonly string Path=System.IO.Path.Combine(System.IO.Path.GetTempPath(),"TraderVI-manual-sells-test-"+Guid.NewGuid().ToString("N"));
         public void Dispose(){var full=System.IO.Path.GetFullPath(Path);if(full.StartsWith(System.IO.Path.GetFullPath(System.IO.Path.GetTempPath()),StringComparison.OrdinalIgnoreCase)&&System.IO.Path.GetFileName(full).StartsWith("TraderVI-manual-sells-test-")&&Directory.Exists(full))Directory.Delete(full,true);}

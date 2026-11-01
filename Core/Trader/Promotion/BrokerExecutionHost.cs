@@ -173,6 +173,10 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
     }
 
     private void RequireMatchingAssignment(BrokerExecutionHostGrant grant, BrokerManagedSession saved)
+        => RequireMatchingAssignment(grant, saved, implementationIdentity, clock.GetUtcNow());
+
+    internal static void RequireMatchingAssignment(BrokerExecutionHostGrant grant, BrokerManagedSession saved,
+        string implementationIdentity, DateTimeOffset now)
     {
         saved.Strategy.Validate();
         if (saved.BindingId != grant.BindingId || saved.SessionId != grant.SessionId || saved.Strategy.Fingerprint != grant.StrategyFingerprint ||
@@ -185,7 +189,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
             saved.Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive ||
             saved.Strategy.GateProfile != PaperGateProfile.NormalV1 &&
                 (saved.SourceSwitch is null || saved.Strategy.GateProfile != PaperGateProfile.PortfolioRulesOnlyV1 || grant.ReviewedAt < saved.SourceSwitch.ApprovedAt) ||
-            saved.Strategy.Comparison is null || grant.ReviewedAt > clock.GetUtcNow())
+            saved.Strategy.Comparison is null || grant.ReviewedAt > now)
             throw new InvalidOperationException("Execution permission must match the exact approved Live source, account and running build.");
     }
     private void Present(string state, string message, DateTimeOffset? next = null)
