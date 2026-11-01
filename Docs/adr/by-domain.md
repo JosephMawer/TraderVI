@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0118](0118-delphi-desktop-results-only.md) — Remove both desktop daily Delphi execution paths; preserve saved-result viewing
+
 - [ADR-0117](0117-compact-trading-current-storage.md) — Scalar current rows and two reusable commit markers; disconnected storage increment
 - [ADR-0116](0116-temporary-paper-continuation-during-reboot-recovery.md) — Explicit expiring Paper continuation without financial activation or fabricated clearance
 
@@ -457,6 +459,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0006](0006-granville-light-volume-25-28.md) — Granville Light Volume indicators
 
 ## user-interface
+
+- [ADR-0118](0118-delphi-desktop-results-only.md) — Daily settings assignment awaits nightly results; desktop refresh reads saved evidence
 
 - [ADR-0113](0113-nightly-data-audit-report.md) — Replace manual Data Audit navigation with nightly reporting
 - [ADR-0112](0112-repository-documentation-outside-desktop.md) — Remove redundant documentation UI and preserve the architecture guide in Markdown

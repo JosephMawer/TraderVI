@@ -119,7 +119,7 @@ public sealed class DelphiSettingsViewModel : INotifyPropertyChanged
             SelectedStrategy = null;
             Strategies.Clear();
             foreach (var option in loaded.Strategies) Strategies.Add(option);
-            ActiveSummary = $"{current.Strategy.VersionName} · shared by desktop and nightly Delphi";
+            ActiveSummary = $"{current.Strategy.VersionName} · selected for the next Delphi run";
             SelectedStrategy = loaded.Strategies.FirstOrDefault(s => s.Strategy.VersionId == select) ?? current;
             Status = "Select a saved model set to load its strategy. Browsing and editing do not change the engine.";
             await RefreshAccessAsync();
@@ -139,7 +139,7 @@ public sealed class DelphiSettingsViewModel : INotifyPropertyChanged
             throw new InvalidOperationException("Load and select a saved strategy first.");
         var values = Thresholds.Select(x => x.Parse()).ToArray();
         var gates = new DelphiGateSettings(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]);
-        string code = $"assembly-mvid:{typeof(DelphiWorkflow).Module.ModuleVersionId:D}";
+        string code = $"assembly-mvid:{typeof(DelphiSettingsChange).Module.ModuleVersionId:D}";
         return DelphiSettingsChange.Prepare(catalog, SelectedStrategy, gates, NewVersionName, ReviewReason, code);
     }
 

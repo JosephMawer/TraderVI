@@ -374,8 +374,9 @@ path above the current source limit is not implemented (ADR-0087).
 and eight persisted decision-gate settings. A threshold edit creates a new strategy version; it must not
 mutate an existing version's evidence identity. Preserve the source input-policy dispatch and immutable
 model metadata. Save Version never changes assignments. Explicit Assign is serialized with daily
-evaluation and starts an official reevaluation under the new selection. UI configuration is not proof of
-performance or cross-strategy/account promotion.
+evaluation; new results await the next nightly Delphi run under
+[ADR-0118](adr/0118-delphi-desktop-results-only.md). UI configuration is not proof of performance
+or cross-strategy/account promotion.
 
 [ADR-0060](adr/0060-central-settings-and-scoped-configuration.md) governs central settings and whole-target
 reassignment. Its revised operating contract requires the affected family to be paused and empty before

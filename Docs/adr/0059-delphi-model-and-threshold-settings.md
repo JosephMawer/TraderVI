@@ -6,8 +6,10 @@
 - **Related:** ADR-0034, ADR-0055, ADR-0057, ADR-0058
 
 **Interaction update:** ADR-0060 supersedes the original nested-tab and combined Apply flow below.
-The editor is now under top-level Settings; Save Version and Assign are separate, and Assign initiates
-an official reevaluation. The preserved-model and daily selection-lock contracts remain applicable.
+The editor is now under top-level Settings; Save Version and Assign are separate.
+[ADR-0118](0118-delphi-desktop-results-only.md) subsequently removes desktop daily reevaluation;
+the assigned selection is used by the next nightly Delphi run. The preserved-model and daily
+selection-lock contracts remain applicable.
 
 ## Context
 

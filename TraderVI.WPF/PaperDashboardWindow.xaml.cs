@@ -218,13 +218,6 @@ public partial class PaperDashboardWindow : Window
 
     private async Task<string> ReevaluateSettingsAsync(string family)
     {
-        if (family == "Daily")
-        {
-            using var report = new System.IO.StringWriter();
-            var result = await Task.Run(() => new Core.Runtime.DelphiWorkflow().RunAsync(output: report, cancellationToken: shutdown.Token));
-            await DelphiTabView.RefreshSettingsResultAsync();
-            return result.Succeeded ? "Daily reevaluation completed." : "Assignment active; daily reevaluation needs attention. See Delphi's report and run again to retry.";
-        }
         if (family == Core.Runtime.EngineStrategySettings.Live)
         {
             await DelphiLiveTabView.TickAsync(shutdown.Token);
@@ -480,11 +473,11 @@ public partial class PaperDashboardWindow : Window
     {
         if (monitorStopped) { base.OnClosing(e); return; }
         if (closingMonitor) { e.Cancel = true; return; }
-        if (DelphiTabView.IsRunning || SettingsTabView.IsBusy)
+        if (SettingsTabView.IsBusy)
         {
             e.Cancel = true;
             MessageBox.Show(
-                "A Delphi run or settings change is still in progress. Keep TraderVI open until it finishes so its evidence and state changes are not interrupted.",
+                "A settings change is still in progress. Keep TraderVI open until it finishes so its evidence and state changes are not interrupted.",
                 "Work in progress",
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);

@@ -5,6 +5,10 @@
 - **Domains:** architecture, user-interface, decision-engine
 - **Related:** ADR-0051, ADR-0053, ADR-0055, ADR-0057, ADR-0059
 
+**Daily timing amendment (2026-11-01):** [ADR-0118](0118-delphi-desktop-results-only.md)
+supersedes immediate daily Delphi reevaluation after assignment. The desktop saves the selection
+and waits for the next nightly run to generate results. Other families' reevaluation remains unchanged.
+
 ## Context
 
 The immediate problem is locating settings for daily Delphi, Delphi Live, Shadow and portfolio management.

@@ -5,6 +5,10 @@
 - **Domains:** architecture, data-pipeline, decision-engine, risk-management
 - **Related:** ADR-0020, ADR-0023, ADR-0033
 
+**Partial supersession (2026-11-01):** [ADR-0118](0118-delphi-desktop-results-only.md)
+removes desktop execution and its run/closure controls. Saved-result viewing remains; the CLI
+continues to use the shared workflow. The original decision below is historical for those controls.
+
 ## Context
 
 The immediate problem is adding Delphi to the TraderVI desktop shell without

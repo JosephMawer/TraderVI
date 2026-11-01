@@ -98,7 +98,7 @@ bounded set of releases provides the primary storage saving even with multiple f
 
 The operator suggested extracting the nightly applications' dependencies from Core so unrelated
 Core edits do not require their compilation/publication. Source inspection confirms meaningful
-shared consumers. The Delphi CLI and WPF use DelphiWorkflow. Athena and WPF scorecards both use
+shared consumers. The Delphi CLI uses DelphiWorkflow; WPF execution was subsequently removed below. Athena and WPF scorecards both use
 CalibrationOutcomeRepository. DelphiWorkflow also depends on market data, indicators, model
 loading, strategy logic and repositories. MarketDataAuditWorkflow depends on the SQL audit
 repository through a snapshot-source interface.
@@ -112,16 +112,14 @@ This remains an architectural option, with no class moves or project split autho
 release storage can be implemented independently of it. Any future package-size claim requires
 checking which ML/native dependencies each extracted project actually retains.
 
-The operator clarified that the WPF Delphi surface is needed to view saved results, and proposed
-removing its Run official Delphi action. Its existing DelphiPublishedRecommendationReader already
-loads the saved SQL output independently of execution. Inspection also found a second execution
-path after assigning daily strategy settings, through DelphiSettingsView and the dashboard's
-ReevaluateSettingsAsync callback. Removing the UI's execution dependency would require addressing
-both paths and its code-identity reference, then moving execution behind the selected assembly
-boundary. The UI would continue to need the saved-result types and reader. Decide how to present
-settings awaiting a fresh run and how that interacts with the earlier full-pipeline Run now idea.
-This finding narrows the desired UI role; it does not establish that the remaining shared Core
-dependencies have been separated or that either UI path has been removed.
+The operator subsequently authorized removing both desktop daily Delphi execution paths.
+[ADR-0118](../adr/0118-delphi-desktop-results-only.md) records the implemented source change:
+the Run official Delphi button and automatic run after daily settings assignment are removed.
+The settings code-identity reference now uses DelphiSettingsChange in the same Core module.
+The UI retains the saved-result reader and presentation types. Assignment leaves buying paused
+and explains that new results await the next nightly Delphi run. This change has not been
+installed, and it does not yet separate the remaining shared Core dependencies. The earlier
+full-pipeline Run now idea remains a separate unresolved choice.
 
 ## Candidate acceptance checks and next decisions
 

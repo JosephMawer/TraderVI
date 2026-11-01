@@ -1,5 +1,16 @@
 # TraderVI Project Status
 
+## November 1 — Desktop daily Delphi execution removed from source
+
+The official-run button and automatic run after daily strategy assignment are removed. Saved-result
+views and Refresh remain; settings explain that new results await the next nightly Delphi run.
+[ADR-0118](adr/0118-delphi-desktop-results-only.md) supersedes the affected desktop execution rules.
+The isolated WPF build passed and 23 focused settings, presentation and workflow-contract tests passed.
+Build warnings concern existing nullable annotations and unused variables; dependency security auditing
+was disabled for this focused validation. This is a source change, not an installed release. No app,
+nightly workflow, database operation or model evaluation was launched; live application outputs remain
+untouched. Private validation logs are under `artifacts/nightly-ui-20261101/`.
+
 ## November 1 — Latest-minute collector running, trading engine retained
 
 At 08:38 EST migration 057 committed after a fresh checksum-verified backup, hash-matched copy

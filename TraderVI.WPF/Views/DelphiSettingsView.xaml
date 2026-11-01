@@ -106,7 +106,7 @@
                         <TextBox Text="{Binding NewVersionName, UpdateSourceTrigger=PropertyChanged}" MaxLength="32" AutomationProperties.Name="New strategy name"/>
                         <TextBlock Text="Reason for this selection or threshold change" Margin="0,12,0,6"/>
                         <TextBox Text="{Binding ReviewReason, UpdateSourceTrigger=PropertyChanged}" MaxLength="350" AutomationProperties.Name="Review reason"/>
-                        <TextBlock Text="Save Version preserves your edits without changing the engine. Assign uses a saved version immediately and starts an official daily reevaluation. Model candidates become selectable after a reviewed model set is registered." Foreground="#9BA8BA" Margin="0,14,0,14"/>
+                        <TextBlock Text="Save Version preserves your edits without changing the engine. Assign selects a saved version for the next nightly Delphi run; new daily results appear after that run. Model candidates become selectable after a reviewed model set is registered." Foreground="#9BA8BA" Margin="0,14,0,14"/>
                         <WrapPanel><Button Content="Review and save version" Click="Save_Click" IsEnabled="{Binding CanWrite}" Margin="0,0,12,0"/><Button Content="Assign saved version…" Click="Review_Click" IsEnabled="{Binding CanWrite}"/><Button Content="Discard draft" Click="Discard_Click" Margin="12,0,0,0"/></WrapPanel>
                     </StackPanel>
                 </Border>

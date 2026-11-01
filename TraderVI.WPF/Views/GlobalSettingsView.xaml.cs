@@ -25,7 +25,6 @@ public partial class GlobalSettingsView : UserControl
     public GlobalSettingsView()
     {
         InitializeComponent(); DataContext = model;
-        DailyEditor.ReevaluateAsync = () => ReevaluateAsync?.Invoke("Daily") ?? Task.FromResult("Assigned; reevaluation is awaiting the desktop host.");
         Loaded += async (_, _) => { if (!loaded) { loaded = true; await model.RefreshAsync(); } };
     }
     public void InitializePreferences(bool fallback)

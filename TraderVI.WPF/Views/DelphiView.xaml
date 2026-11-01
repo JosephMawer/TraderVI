@@ -150,10 +150,7 @@
                 </Border>
                 <Button x:Name="RefreshButton" Content="Refresh saved" Click="RefreshButton_Click"
                         Background="#354154" Foreground="#EAF0F8" BorderThickness="0"
-                        Padding="15,9" Margin="0,0,8,0" FontWeight="SemiBold" Cursor="Hand"/>
-                <Button x:Name="RunDelphiButton" Content="Run official Delphi" Click="RunDelphiButton_Click"
-                        Background="{StaticResource DelphiAccent}" Foreground="#120B20" BorderThickness="0"
-                        Padding="17,9" FontWeight="SemiBold" Cursor="Hand"/>
+                        Padding="15,9" FontWeight="SemiBold" Cursor="Hand"/>
                 <Button Content="Paper portfolios" Click="Portfolios_Click" Style="{StaticResource WorkspaceButton}" Margin="8,0,0,0"/>
             </WrapPanel>
         </Grid>

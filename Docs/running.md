@@ -739,11 +739,12 @@ When the affected family has zero holdings and pending orders, its strategy fiel
 version or template, edit related sections, name the draft and enter a reason, then **Review and save
 version**. Navigation retains the combined draft in memory. Saving changes no assignment. Select the saved
 version and target, then **Review assignment**. Assignment remains paused; choose **Resume buys** separately.
-Existing account risk holds remain in force. If reevaluation fails, the assignment stays active and the
-failure is reported for retry.
+Existing account risk holds remain in force. For families that request immediate reevaluation,
+a failure leaves the assignment active and is reported for retry.
 
 Daily Delphi selects complete preserved four-model sets and eight gates; it does not mix arbitrary
-individual candidates. Assign also starts an official local-data run. Live and Shadow use deterministic
+individual candidates. Assign leaves buying paused and waits for the next nightly Delphi run to
+generate new results; it does not run Delphi in the desktop. Live and Shadow use deterministic
 policy editors, not the daily ML-model selector. Trading limits belong to the strategy; financial facts
 belong to accounts. The initial editor does not expose fixed calendar, evidence or Shadow lens/slot
 contracts as tunable controls. Shared Daily changes require all dependent families paused and empty;
@@ -1200,7 +1201,7 @@ under **Delphi Live → Replay account** and is not an operational portfolio in 
 
 The Data Audit tab is retired under [ADR-0113](adr/0113-nightly-data-audit-report.md). Its shared read-only workflow and CLI remain; the nightly pipeline now records its findings after Hermes. See [DataAudit](#dataaudit--read-only-local-data-quality-scan).
 
-The Delphi tab calls the same host-neutral `DelphiWorkflow` as the retained Delphi console application. Opening or refreshing the tab only reads the latest saved Continuation and Breakout picks and their matching saved presentation evidence. Its inner views are Overview, Picks, Market, Granville, Diagnostics, and Full Report. New official runs reopen from a typed immutable snapshot stored inside the existing calibration run context. Runs from before ADR-0035 show a clearly labelled, date-aligned reconstruction; missing facts remain unavailable rather than being replaced with newer values.
+The Delphi tab displays results produced by the retained Delphi console application. Opening or refreshing the tab only reads the latest saved Continuation and Breakout picks and their matching saved presentation evidence. Its inner views are Overview, Picks, Market, Granville, Diagnostics, and Full Report. New official runs reopen from a typed immutable snapshot stored inside the existing calibration run context. Runs from before ADR-0035 show a clearly labelled, date-aligned reconstruction; missing facts remain unavailable rather than being replaced with newer values.
 
 The Picks view can create a monitored Ghost position or record a Real position
 from a selected saved Continuation or Breakout recommendation. The operator
@@ -1241,7 +1242,7 @@ outcomes, so their performance sections remain correctly unavailable.
 
 Read project documentation on GitHub, starting with [README](../README.md), [project status](project-status.md) and the [architecture guide](architecture-view.md). The desktop Docs and Architecture sections and their supporting code are removed from source under [ADR-0112](adr/0112-repository-documentation-outside-desktop.md). The architecture guide preserves the former maps and component descriptions; it is dated explanatory documentation, not live runtime status. See project status for the installation boundary.
 
-`Run official Delphi` first shows a confirmation describing the operation: it reads local market data and registered model files, appends immutable calibration evidence, and replaces same-date operational picks and supporting records. It does not place a broker order or create a paper position. Do not confirm it merely to test the interface; use focused builds and tests instead.
+Under [ADR-0118](adr/0118-delphi-desktop-results-only.md), both desktop daily execution paths are removed: the official-run button and automatic execution after daily strategy assignment. Use **Refresh saved** to read the latest persisted results. Daily generation remains with the nightly Delphi CLI; existing saved results remain visible with their original identity while a new selection awaits a run. See project status for the installation boundary.
 
 ```powershell
 dotnet run --project TraderVI.WPF

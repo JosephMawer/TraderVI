@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -20,8 +19,6 @@ namespace TraderVI.WPF.Viewmodels;
 public sealed class DelphiViewModel : INotifyPropertyChanged
 {
     private readonly DelphiPublishedRecommendationReader reader = new();
-    private readonly DelphiWorkflow workflow = new();
-    private bool isRunning;
     private string status = "Loading the latest saved recommendations…";
     private string recommendationDate = "—";
     private string savedAt = "—";
@@ -43,7 +40,6 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
     private string fullReport = "No Delphi report is available.";
     private Brush statusBrush = Brushes.SlateGray;
     private Brush recommendationBrush = Brushes.SlateGray;
-    private DateTime? publishedPickDate;
     private DelphiPickRow? selectedPaperPick;
     private string paperShares = "1";
     private string paperFillPrice = "";
@@ -65,7 +61,6 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
     public ObservableCollection<DelphiGateRow> BestPickGates { get; } = [];
     public ObservableCollection<DelphiObvRow> ObvSymbols { get; } = [];
 
-    public bool IsRunning { get => isRunning; private set => Set(ref isRunning, value); }
     public string Status { get => status; private set => Set(ref status, value); }
     public string RecommendationDate { get => recommendationDate; private set => Set(ref recommendationDate, value); }
     public string SavedAt { get => savedAt; private set => Set(ref savedAt, value); }
@@ -196,13 +191,8 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
         }
     }
 
-    public bool HasRecommendationsFor(DateTime date) => publishedPickDate == date.Date;
-
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
-        if (IsRunning)
-            return;
-
         Status = "Reading the latest saved Delphi session…";
         StatusBrush = Brushes.SlateGray;
         try
@@ -220,73 +210,7 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
         }
     }
 
-    public async Task RunOfficialAsync(CancellationToken cancellationToken = default)
-    {
-        if (IsRunning)
-            return;
-
-        IsRunning = true;
-        Status = "Official Delphi evaluation running · please keep TraderVI open…";
-        StatusBrush = Brushes.Goldenrod;
-        FullReport = "Delphi is evaluating the local market snapshot. Results will appear here when it finishes.";
-
-        using var output = new StringWriter(CultureInfo.InvariantCulture);
-        try
-        {
-            DelphiWorkflowRunResult result = await Task.Run(
-                () => workflow.RunAsync(new DelphiWorkflowOptions(), output, cancellationToken),
-                cancellationToken);
-
-            if (result.Presentation is not null)
-                ApplyPresentation(result.Presentation);
-            else
-                FullReport = result.SummaryReport ?? output.ToString();
-
-            if (result.Succeeded)
-            {
-                if (result.ContinuationPickCount > 0)
-                {
-                    await LoadLatestAsync(cancellationToken, updateStatus: false);
-                }
-                else
-                {
-                    publishedPickDate = null;
-                    ContinuationPicks.Clear();
-                    BreakoutPicks.Clear();
-                    RecommendationDate = result.RecommendationDate.ToString("MMM d, yyyy");
-                    SavedAt = "No picks published";
-                    TopPick = "—";
-                    NotifyCounts();
-                }
-                Status = $"Official Delphi run completed · {result.ContinuationPickCount} continuation and {result.BreakoutPickCount} breakout picks";
-                StatusBrush = Brushes.MediumSeaGreen;
-            }
-            else
-            {
-                Status = $"Delphi did not publish recommendations · {result.Status}";
-                StatusBrush = Brushes.Goldenrod;
-            }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            Status = "Delphi run cancelled";
-            StatusBrush = Brushes.Goldenrod;
-            FullReport = output.ToString();
-        }
-        catch (Exception ex)
-        {
-            Status = $"Delphi failed · {ex.GetType().Name}: {ex.Message}";
-            StatusBrush = Brushes.IndianRed;
-            string diagnostics = output.ToString();
-            FullReport = string.IsNullOrWhiteSpace(diagnostics) ? ex.Message : diagnostics;
-        }
-        finally
-        {
-            IsRunning = false;
-        }
-    }
-
-    private async Task LoadLatestAsync(CancellationToken cancellationToken, bool updateStatus = true)
+    private async Task LoadLatestAsync(CancellationToken cancellationToken)
     {
         DelphiPublishedRecommendations? published = await reader.LoadLatestAsync(cancellationToken);
         SelectPaperPick(null);
@@ -295,18 +219,15 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
 
         if (published is null)
         {
-            publishedPickDate = null;
             RecommendationDate = "None saved";
             SavedAt = "—";
             TopPick = "—";
             ApplyPresentation(null);
             NotifyCounts();
-            if (updateStatus)
-                Status = "No saved Delphi recommendations were found";
+            Status = "No saved Delphi recommendations were found";
             return;
         }
 
-        publishedPickDate = published.PickDate.Date;
         foreach (DailyPickInfo pick in published.Continuation)
             ContinuationPicks.Add(DelphiPickRow.Create(pick));
         foreach (DailyPickInfo pick in published.Breakout)
@@ -323,13 +244,10 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
         ApplyPresentation(published.Presentation);
         NotifyCounts();
 
-        if (updateStatus)
-        {
-            Status = published.Presentation?.IsReconstructed == true
-                ? "Showing saved picks with a date-aligned legacy evidence reconstruction · Delphi was not run"
-                : "Showing the saved Delphi session · Delphi was not run";
-            StatusBrush = published.Presentation is null ? Brushes.Goldenrod : Brushes.MediumSeaGreen;
-        }
+        Status = published.Presentation?.IsReconstructed == true
+            ? "Showing saved picks with a date-aligned legacy evidence reconstruction · Delphi was not run"
+            : "Showing the saved Delphi session · Delphi was not run";
+        StatusBrush = published.Presentation is null ? Brushes.Goldenrod : Brushes.MediumSeaGreen;
     }
 
     private void ApplyPresentation(DelphiPresentationSnapshot? snapshot)
