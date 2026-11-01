@@ -18,6 +18,9 @@ internal static class Program
     // Construction/building never launches this host. Starting it is an explicit operator action.
     public static async Task<int> Main(string[] args)
     {
+        if (args.Length == 2 && args[0] is ("--stage-compact-rehearsal" or "--verify-compact-restart" or "--compare-compact-rehearsal"))
+            return Guid.TryParseExact(args[1], "N", out var token) && token != Guid.Empty
+                ? await CompactRestartCommand.RunAsync(args[0], token) : 64;
         if (args.Length is 3 or 4 && args[0] == "--control")
         {
             try { await EngineControlCommand.RunAsync(args[1], args[2], args.Length == 4 ? args[3] : null); return 0; }

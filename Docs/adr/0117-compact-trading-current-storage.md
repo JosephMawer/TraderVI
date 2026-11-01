@@ -169,6 +169,47 @@ Source entry points: [engine composition](../../TraderVI.Engine/Program.cs),
 [shared broker preflight](../../Core/WSTrade/Orders/BrokerManagedOrderTransport.cs) and
 [protected journal](../../Core/WSTrade/Orders/ManualBuyFileJournal.cs).
 
+## Release rehearsal and rollback boundary
+
+Migrations 054 and 055 ran from their reviewed files on isolated SQL Server 17 LocalDB instances.
+Each had its own TraderDB and checksum-verified pre-migration backup. SQL initially read 39,479
+pages to return ten unfinished orders at one million finished receipts. The filtered index took
+48 logical reads on that book. The current reader now selects the active indexes explicitly.
+The measured native fixture and connection-loss results are in the implementation checklist.
+
+The candidate executable accepts a dedicated rehearsal token before constructing the normal host.
+The token selects a named LocalDB whose database marker must match. The ordinary installed
+`--verify` command can disable the saved grant and is unsuitable for this test.
+The comparison uses one saved TFSA revision captured through the installed read-only SQL helper
+with receipt hashes verified. Preparation validates the manifest, all shared content and the
+revision identity, then checks a copy of the protected host grant against the installed build.
+Preparation decodes that single revision once. Subsequent verification processes read only
+the copied grant and current SQL rows. They have no broker transport or dispatch workers.
+
+The settled-account fixture compares grant and strategy identity, the buy stop, holdings,
+protection owners/floors/stages and progressive state, cash and allowance, risk references/holds,
+and the unfinished managed request set. It rejects an unsettled source. A saved observation
+cannot establish current Wealthsimple availability or cover a sale made outside the managed
+workflow. The fixture omits symbol evaluation progress and does not enable buying or selling.
+Capture and timing files containing private information stay under ignored local artifacts.
+
+**Proposed controlled release**
+
+1. Complete the missing symbol, strategy and journal mappings and exercise a real startup pass
+   with a read-only broker adapter and dispatch disabled. Compare ready/held decisions,
+   including an unfinished buy and an unrelated protective sale. Time the pass through broker reconciliation.
+2. Before a separately authorized production installation, record the current build, settings,
+   grant and journal boundary, keep the old binary, and take and verify the required fresh backup.
+   Apply each additive migration manually. Keep legacy records available throughout the swap.
+3. At the agreed switch, drain the old writer, fix the comparison boundary, verify identical
+   account and unfinished-request ownership, and obtain approval for the exact new build before
+   allowing its one order writer to start.
+4. If comparison fails before dispatch, keep the old writer authoritative and restart it with
+   its own verified grant. After any possible new dispatch, first stop new submissions, look up
+   original request IDs at the broker and carry every new receipt/reservation back to the
+   fallback writer. Resume only after quantities, cash, protection and request ownership agree.
+   Restoring a pre-switch database alone could repeat an order already received by Wealthsimple.
+
 ## Alternatives and consequences
 
 Retrofitting the cumulative session blobs would retain history-dependent reads and obscure field

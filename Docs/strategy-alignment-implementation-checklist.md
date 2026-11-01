@@ -254,6 +254,14 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   `artifacts/restart-release/indexed.trx`, with the original comparison in `native.trx`.
 - [ ] Finish performance qualification on representative hardware, including first-open latency,
   per-table/wire and log costs, and production-shaped writer contention.
+- [x] October 31 ran the isolated candidate executable against a copy of one settled account and
+  its encrypted grant. Permission, holdings, protection, cash, risk and the empty unfinished
+  managed order set agreed. Across 100 fresh processes the median/p95 elapsed from launch to
+  verification exit was 0.750/1.386 seconds. Fresh compact reads including opening the connection
+  took 0.935 seconds at p95 and 1.124 seconds at p99, exceeding the 0.250/1.000 second read targets
+  even on this smaller fixture. No broker call or order dispatch occurred. The candidate build
+  differs from the approved build. See the [release and rollback boundary](adr/0117-compact-trading-current-storage.md#release-rehearsal-and-rollback-boundary).
+  The default Core suite passed 3,548 with 11 opt-in skips, including the separately run native rehearsal.
 - [ ] Finish writer/consumer mapping and the replacement's failure/latency contract, record exact
   supersession of installed behavior and update #19 before integrating or activating that replacement.
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
