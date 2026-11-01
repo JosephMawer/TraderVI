@@ -98,8 +98,8 @@ bounded set of releases provides the primary storage saving even with multiple f
 
 The operator suggested extracting the nightly applications' dependencies from Core so unrelated
 Core edits do not require their compilation/publication. Source inspection confirms meaningful
-shared consumers. The Delphi CLI uses DelphiWorkflow; WPF execution was subsequently removed below. Athena and WPF scorecards both use
-CalibrationOutcomeRepository. DelphiWorkflow also depends on market data, indicators, model
+shared consumers. The Delphi CLI uses DelphiWorkflow; WPF execution was subsequently removed below.
+Athena and WPF scorecards both use CalibrationOutcomeRepository. DelphiWorkflow also depends on market data, indicators, model
 loading, strategy logic and repositories. MarketDataAuditWorkflow depends on the SQL audit
 repository through a snapshot-source interface.
 
@@ -107,7 +107,7 @@ Other callers can reference an extracted shared library and keep one implementat
 rule. The relevant boundary follows responsibilities and dependency direction. A new nightly
 library that still references the entire Core assembly retains the original coupling. Shared
 types and required services would need a lower-level home, or the unrelated execution code could
-move out of Core instead. The better boundary requires mapping these dependencies first.
+move out of Core instead. The November 1 mapping below identifies the initial extraction boundaries.
 This remains an architectural option, with no class moves or project split authorized. Bounded
 release storage can be implemented independently of it. Any future package-size claim requires
 checking which ML/native dependencies each extracted project actually retains.
@@ -121,9 +121,123 @@ and explains that new results await the next nightly Delphi run. This change has
 installed, and it does not yet separate the remaining shared Core dependencies. The earlier
 full-pipeline Run now idea remains a separate unresolved choice.
 
+### Dependency findings — November 1
+
+All four CLI projects still reference Core.csproj. Moving only DelphiWorkflow to another project
+that references Core would leave every nightly build coupled to Core. The proposed dependency
+direction is: each CLI uses its own application functionality plus small shared libraries;
+the remaining Core, desktop, collector and trading engine can also use those shared libraries.
+The extracted libraries must have no reference back to the remaining Core assembly.
+
+| Application | Functionality that needs a home outside the broad Core assembly | Existing source locations |
+|---|---|---|
+| DataAudit | Audit rules, report models, snapshot-source interface and SQL snapshot reader | `Core/DataQuality/MarketDataAuditWorkflow.cs`, `MarketDataAuditor.cs`, `MarketDataAuditModels.cs`, `MarketDataFreshness.cs`, `SecurityNameHeuristics.cs`; `Core/Db/MarketDataAuditRepository.cs` |
+| Hermes | Daily collection providers, ingestion/validation, indicator calculations, repositories and backup service | Relevant `Core/TMX` provider clients and models; `Core/Indicators`; `Core/Db/QuoteRepository.cs`, symbol/sector/breadth/OBV/leadership repositories and `TraderDbBackupService.cs`; `Core/Runtime/SpyBenchmarkIngestion.cs`, `DailyBenchmarkPolicy.cs`, `NightlyPreparationDate.cs` |
+| Delphi | Daily orchestration, prediction from saved models, ranking/gates/sizing, reports, provenance and publication | `Core/Runtime/DelphiWorkflow*.cs`, `DelphiBootstrap.cs`, `DelphiHistoricalInputs.cs`, `DelphiReportBuilder.cs`; relevant `Core/ML/Engine/Profit`, `Core/ML/Engine/Patterns`, `Core/Trader/Gates`, `Core/RelativeStrength`; `TradeDecisionEngine.cs`, `StrategyConfig.cs`, lens/sizing classes; daily strategy/model/evidence/publication repositories; pure `Core/Oracle/DecisionDossier.cs` and `DecisionDossierBuilder.cs` |
+| Athena | Outcome maturation, shared label definitions, report/scorecard calculations, evidence queries and writes | Relevant `Core/Calibration` calculators/reports; `Core/Db/CalibrationOutcomeRepository.cs`, `CalibrationEvidenceRepository.cs`, `IntradayEvidenceRepository.cs`, `QuoteRepository.cs`; `Core/Trader/DelayedIntradaySwingExitPolicy.cs`, `FreshDelphiBreakoutEvidenceResolver.cs`; pure label definitions currently under `Core/ML/Engine/Profit` |
+
+These are responsibilities, not a proposal to move each entire directory. Hermes needs provider
+clients; a SQL reader should not acquire those packages just to share a bar or sector type.
+Likewise, Delphi needs prediction support, while the model trainers can remain with Hercules.
+Athena uses the same outcome-label rules as training; copying those rules would risk disagreement
+between training and evaluation. Move their shared definitions once and update both consumers.
+
+The first shared layer needs these concrete separations:
+
+1. **Market facts and calendar.** Move DailyBar out of `Core/ML/TimeSeriesUtils.cs`, where it shares
+   a file with an obsolete ML training prototype. Share the bar/quote/sector types, benchmark
+   symbols, freshness rules and reviewed session calendar independently of training/live hosts.
+   `ITsxSessionCalendar` currently lives in `Core/Trader/DelphiLive/DelphiLiveWorkflowContracts.cs`.
+   `DailyBenchmarkSnapshot.ComputeRegime()` in `DailyBenchmarkPolicy.cs` calls TradeDecisionEngine;
+   separate this analysis operation from the validation methods Hermes and QuoteRepository use.
+2. **SQL access and record shapes.** Extract the common SQL connection/query foundation and the
+   repositories each app actually uses. Split `Core/Db/ModelExperimentInfo.cs`: it contains five
+   repositories plus strategy, pick, position and trade records. A saved pick should not bring the
+   active-position implementation with it. Keep result readers available to WPF.
+3. **Decision and evidence contracts.** SignalResult, MarketRegime, TradeDirection, TradeDecisionResult
+   and RankedPick currently share `Core/Trader/TradeDecisionEngine.cs` with the evaluator. Move these
+   data shapes into shared contracts, preserving their meaning and serialization. CalibrationEvidence
+   needs SignalResult, not the evaluator. Separate common gate traces from gate execution similarly.
+4. **Daily analysis versus intraday helpers.** `DelphiReportBuilder.DescribeMinuteConfirmation`
+   accepts DelphiLiveMinutePair from the live evaluation implementation. Move that formatting helper
+   to the live reporting area or accept a small shared result contract. Also move the simple
+   SystemShadowDelphiRun/Candidate records out of `Core/Trader/SystemShadowLedger.cs`, or separate the
+   daily evidence queries returning them. That repository/file chain currently reaches PaperGateComparison
+   and live experiment code. Daily analysis should not need those live implementations.
+5. **Prediction versus training.** Keep model loading, prediction schema checks and required native
+   prediction libraries with an ML prediction component. Keep reusable feature/label definitions
+   shared with Hercules and Athena; keep trainers out of the nightly dependency chain. Delphi
+   uses ML predictions. Hermes, DataAudit and Athena do not need to run a trainer.
+
+An especially small accidental link is `MarketDataAuditor` reading only `SpyBenchmarkIngestion.Symbol`.
+That constant is declared alongside ingestion logic, which uses DailyBar and DailyBenchmarkPolicy.
+Put the benchmark identity in the shared market definitions so DataAudit need not reference ingestion.
+
+### Consumers that must continue working
+
+- WPF still needs DelphiPublishedRecommendationReader, DelphiPersistedPresentationReader and
+  DelphiPresentationSnapshot. The persisted reader also reconstructs legacy evidence using saved
+  facts and deterministic calculators; preserving that fallback is part of extraction.
+- Daily settings still call `DelphiSettingsChange.VerifyArtifacts()` →
+  `UnifiedProfitSignalModel.VerifyStoredArtifact()`. This loads/checks saved ML model schemas.
+  Removing daily execution therefore does not remove all WPF ML dependencies. Keep a narrow shared
+  validation service unless changing settings behavior is separately agreed.
+- WPF Scorecards uses CalibrationOutcomeRepository and report calculators shared with Athena.
+- `Core/Practice/PracticeSession.cs` still invokes DelphiWorkflow for historical replay. It must
+  reference the extracted daily application, or receive it through its existing evaluator boundary.
+- The collector, trading engine and Hercules also consume shared facts/rules. Update their project
+  references to the same implementation; do not duplicate logic or change the installed processes.
+
+Moving types between assemblies changes module identity. The current settings identity adjustment
+is equivalent because both types remain in Core. A later split must deliberately identify the
+daily analysis build/model contract, rather than accidentally recording the new contracts assembly's
+identity. Review internal access, saved JSON shapes, provenance, model schemas and file-path assumptions
+as part of that move.
+
+### Recommended sequence and remaining choices
+
+Start with the small market/SQL foundations and **DataAudit**. It provides the clearest first proof
+that a nightly app builds with no Core reference and no ML packages. Then extract Hermes's collection
+support, separate daily result/evidence contracts, and move Delphi's daily analysis and Athena's
+calibration functionality. Keep responsibilities separate enough that DataAudit does not inherit
+Delphi's ML packages through a single all-purpose nightly library. Project names and the exact number
+of shared projects remain design choices; no split is implemented or approved by this investigation.
+
+Success means an unrelated broker/UI edit does not rebuild the four nightly applications. A change
+to a shared rule they actually use must still rebuild the affected apps. Precompiled release reuse
+and bounded retention address disk accumulation independently of this extraction.
+
+There is also a package-level candidate: `Core/Core.csproj` references Microsoft.ML.TimeSeries, and
+`Core/packages.lock.json` shows it brings Microsoft.ML.Mkl.Redist, the large library found in the
+disk inventory. The semantic scan found no direct source dependency on TimeSeries in Core or the
+four CLIs, and a text check also found none in ML.Train. This supports reviewing that package's
+necessity; it does not prove it can be removed without validating saved-model loading and any
+indirect runtime requirements. No package reference was changed.
+
+### Evidence and limits of this mapping
+
+A local Roslyn semantic scan inspected 578 Core source files and all source in the four CLIs,
+using the .NET 10 reference assemblies and restored package compile references. Each analysis
+compilation had zero errors. It did not launch application code. The private scanner and complete
+file/dependency lists are under `artifacts/nightly-ui-20261101/dependencies/`.
+
+| App | Core files referenced directly | Core files reached if each referenced source file moves unchanged |
+|---|---:|---:|
+| DataAudit | 2 | 68 |
+| Hermes | 38 | 116 |
+| Delphi | 4 | 181 |
+| Athena | 19 | 111 |
+
+These are conservative whole-file compile dependencies, including unused methods, co-located
+types and constants. They are not runtime call counts or a list of files that must all move.
+For example, DataAudit's SPY constant and DailyBar's mixed file exaggerate its real needs.
+The mapping does not resolve reflection, saved-model deserialization, package trimming or all
+runtime deployment requirements. Source-level package candidates and proposed assembly boundaries
+require focused builds/tests after actual extraction. No package size saving is claimed here.
+
 ## Candidate acceptance checks and next decisions
 
-Before implementation, settle release activation and the routine development workflow, then the
+Before release-pipeline implementation, settle release activation and the routine development workflow, then the
 schedule and whether the dashboard action belongs in the first increment. A final accepted ADR
 should supersede the affected ADR-0078 source/build rules and identify any other changed contracts.
 
