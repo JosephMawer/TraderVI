@@ -20,6 +20,8 @@ public sealed partial class BrokerManagedSessionTests
     [InlineData("different-database")]
     [InlineData("disabled")]
     [InlineData("old-terms")]
+    [InlineData("weekend")]
+    [InlineData("unexpected-risk")]
     public Task InitialCompactTransferRequiresTheExactAssignmentAndCannotReplaceAnExistingBook(string scenario) =>
         VerifyTransferAsync(scenario);
 
@@ -40,6 +42,9 @@ public sealed partial class BrokerManagedSessionTests
     {
         var fixture = await OngoingFixture();
         var saved = await fixture.Workflow().ApproveAsync(fixture.Review);
+        if (scenario is "weekend" or "unexpected-risk")
+            fixture.F.Store.State = saved = saved with { Account = saved.Account with { NewRiskBlocks =
+                [scenario == "weekend" ? BrokerAccountProjector.RiskSessionContinuationRequired : "Unverified cash change"] } };
         if (scenario != "old-terms")
         {
             var reviewed = new BrokerImplementationReview(Guid.NewGuid(), saved.RevisionId, "fixture-hash", "prior-build",
@@ -74,7 +79,7 @@ public sealed partial class BrokerManagedSessionTests
             using var journal = new ManualBuyFileJournal(dir, protector);
             var prepare = new CompactAccountPreparation(sql, run, witness, fixture.F.Store, grants, journal, protector, dir);
             var build = scenario == "different-build" ? "unapproved" : grant.ImplementationIdentity;
-            if (scenario != "approved")
+            if (scenario is not ("approved" or "weekend"))
             {
                 await Assert.ThrowsAnyAsync<Exception>(() => prepare.PrepareAsync(build, default));
                 Assert.Null(await store.ReadAsync(saved.BindingId));
@@ -83,6 +88,9 @@ public sealed partial class BrokerManagedSessionTests
             await prepare.PrepareAsync(build, default);
             var current = (await store.ReadAsync(saved.BindingId))!;
             Assert.Equal(saved.NewBuysStopped, current.Account.NewBuysStopped);
+            Assert.Equal(saved.Account.Risk.TradingDate.ToDateTime(TimeOnly.MinValue), current.Account.TradingDate);
+            Assert.Equal(saved.Account.Risk.SessionReference.Value, current.Account.SessionReference);
+            Assert.Equal(saved.Account.NewRiskBlocks, fixture.F.Store.State!.Account.NewRiskBlocks);
             Assert.Equal(saved.CommittedPurchaseCost, current.Account.CommittedPurchaseCost);
             var sealedBook = CompactDelphiCheckpoint.Read(CompactAccountPreparation.Slot(dir, 0), protector);
             Assert.True(sealedBook.Matches(saved.BindingId, run.Identity, current));

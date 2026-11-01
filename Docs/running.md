@@ -55,6 +55,10 @@ The staged `--prepare-compact-book` command is a one-time account transfer. It r
 matching local and database restart records, no unfinished order in the original account or
 journal, and an enabled ongoing permission for the exact build. It refuses to overwrite an
 existing book. Ordinary startup must never run this command to repair a missing receipt.
+When a separately built transfer utility prepares the installed package, pass the absolute
+path to that package's `Core.dll` after `--prepare-compact-book`. The utility hashes the
+file and verifies the actual reviewed grant. The standard weekend opening-risk wait is
+preserved until the market supplies the next reference. Other risk blocks refuse transfer.
 Verify the running package, connected account, successful **Restart account check**, current
 execution status and collector. Outside trading hours the armed host waits for the next
 regular session. The regular strategy still consumes its earlier account representation.

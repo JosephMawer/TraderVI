@@ -37,7 +37,8 @@ internal static class Program
             try { await EngineControlCommand.RunAsync(args[1], args[2], args.Length == 4 ? args[3] : null); return 0; }
             catch { return 1; }
         }
-        if (args.Length != 1 || args[0] is not ("--run" or "--review-build" or "--verify" or "--recover-real" or "--prepare-observations" or "--prepare-working-state" or "--prepare-real-observations" or "--prepare-compact-book")) return 64;
+        bool prepareInstalled = args is ["--prepare-compact-book", _];
+        if ((!prepareInstalled && args.Length != 1) || args[0] is not ("--run" or "--review-build" or "--verify" or "--recover-real" or "--prepare-observations" or "--prepare-working-state" or "--prepare-real-observations" or "--prepare-compact-book")) return 64;
         bool recoveryMaintenance = args[0] == "--recover-real";
         bool verificationOnly = args[0] == "--verify" || recoveryMaintenance;
         try
@@ -76,7 +77,17 @@ internal static class Program
                 var preparation = new CompactAccountPreparation(new SqlTradingStorageDatabase(EngineIntegrityRepository.OpenAsync),
                     continuityStore, witness, new BrokerManagedSessionRepository(calendar, sharedStorage: true), grants,
                     journal, new CompactReceiptProtector(), CompactManagedWriter.DirectoryPath);
-                await preparation.PrepareAsync(BrokerManagedSessionComposition.ImplementationIdentity, CancellationToken.None);
+                // Maintenance can run separately from the approved trading package. Its target
+                // is the actual installed binary, never a caller-supplied hash or edited grant.
+                string reviewedBuild = BrokerManagedSessionComposition.ImplementationIdentity;
+                if (prepareInstalled)
+                {
+                    if (!Path.IsPathFullyQualified(args[1]) || Path.GetFileName(args[1]) != "Core.dll" ||
+                        !File.Exists(Path.Combine(Path.GetDirectoryName(args[1])!, "TraderVI.Engine.exe"))) return 64;
+                    using var installedCore = File.OpenRead(args[1]);
+                    reviewedBuild = "CoreSha256:" + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(installedCore));
+                }
+                await preparation.PrepareAsync(reviewedBuild, CancellationToken.None);
                 return 0;
             }
             var sessions = new BrokerManagedSessionRepository(calendar, sharedStorage: true, mayReuse: async (binding, ct) =>
@@ -240,6 +251,12 @@ internal static class Program
                 stopAccepting.Cancel();
                 await serving.ConfigureAwait(false);
             }
+        }
+        catch (Exception error) when (args[0] == "--prepare-compact-book")
+        {
+            var method = new System.Diagnostics.StackTrace(error).GetFrame(0)?.GetMethod();
+            Console.Error.WriteLine($"Compact transfer refused. {error.GetType().Name} in {method?.DeclaringType?.Name}.{method?.Name}.");
+            return 1;
         }
         catch { return 1; } // Never write credentials, account contents or SQL connection details to console/logs.
 #endif

@@ -36,7 +36,9 @@ internal sealed class CompactAccountPreparation(ITradingStorageDatabase database
         if (await tx.ReadCurrentAsync(ct) != null)
             throw new InvalidOperationException("A compact account already exists. Verify its existing checkpoint.");
         string sourceHash = Core.WSTrade.Accounts.BrokerAccountImport.Hash(saved);
-        var frozen = RestartAccountRehearsal.ProjectSettled(saved, grant, build, sourceHash, now);
+        // Weekend review observes the current account without advancing the market's daily risk
+        // reference. Preserve the actual risk date and controls. Only the regular worker may advance them.
+        var frozen = RestartAccountRehearsal.ProjectSettled(saved, grant, build, sourceHash, now, transferReviewedAccount: true);
         var initial = frozen with
         {
             Settings = frozen.Settings with { BuyAllowed = true, SellAllowed = true },

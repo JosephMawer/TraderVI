@@ -8,7 +8,24 @@ regular full backups remained in each folder. SQL used 26.20 GiB of data-file sp
 since October 21. The largest new table holds 2.73 GiB of collector receipts from three trading days.
 [Rotation evidence, growth measurements and compression sample](reviews/sql-cleanup-inventory-20261031.md#november-1-follow-up-on-backup-rotation-and-database-growth)
 
-## November 1 — Compact restart database installed, trading activation pending
+## November 1 — Compact restart active for Delphi Live
+
+At 01:11 Toronto the installed trading engine reported Running and connected to Wealthsimple.
+It completed the startup account check 2.88 seconds after process launch. The operator approved
+the new restart terms, then resumed the exact build. The execution host was waiting for a
+regular TSX session. SQL readback showed buy and sell permission enabled, buying unpaused,
+three protected holdings, zero unfinished orders and zero active compact restrictions.
+The remaining Paper recovery incident is separate from Real execution. No order was sent in
+the switch. Monday's opening risk reference and fresh market checks still occur at the open.
+
+Trading release `e507729c`, installed Core SHA-256
+`0EBB53C58B9582CA7C5DE042C23FA708A647E7729651DBDC14E7C35560370ADC`.
+The matching Release test assembly passed 3,596 tests with 16 opt-in skips. The separate
+native transfer rehearsal committed or rolled back the source revision and $100 reservation
+together. An initial transfer refusal identified the weekend opening-risk wait. The corrected
+one-time transfer tool verified the installed binary against the saved grant and copied the
+original risk date and references. The approved trading binaries were retained. The collector
+remained supervised and reported the closed session without failures.
 
 At 00:34 Toronto both approved manual migrations (054 and 055) had committed on TraderDB.
 SQL Server verified the full backup with checksums. The OneDrive copy had the same SHA-256
@@ -16,8 +33,8 @@ and Windows reported it in sync before migration. A separate database read found
 tables empty, both immutable-record triggers enabled and both new order constraints enabled
 and trusted. The read-only account cannot inspect the constraint text. The collector reported
 a closed session without failures. At 00:23 the installed broker checks verified the saved
-login, zero pending orders and agreement between broker history and holdings. The dashboard
-and sign-in service were running. The trading host was off. Evidence is under the ignored
+login, zero pending orders and agreement between broker history and holdings. At that initial
+check the dashboard and sign-in service were running and the trading host was off. Evidence is under the ignored
 `artifacts/restart-release`, `artifacts/read-only-db` and `artifacts/read-only-broker` folders.
 
 ## October 30 — Real execution resumed after recovery, 14:46 Toronto

@@ -41,11 +41,12 @@ public static class RestartAccountRehearsal
     }
 
     internal static TradingCurrentState ProjectSettled(BrokerManagedSession saved, BrokerExecutionHostGrant grant,
-        string installedBuild, string manifestHash, DateTimeOffset now)
+        string installedBuild, string manifestHash, DateTimeOffset now, bool transferReviewedAccount = false)
     {
         // Do not guess which permission owned an old pending request, or invent a manual-fill attribution.
         if (saved.OngoingManagement?.ApprovedAt is not { } approved || saved.EffectiveReview.NoTransferScope is not null ||
-            !saved.Blocks.IsEmpty || !saved.Account.NewRiskBlocks.IsEmpty || saved.TrialOrderReviewRequired ||
+            !saved.Blocks.IsEmpty || saved.Account.NewRiskBlocks.Any(b => !transferReviewedAccount ||
+                b != BrokerAccountProjector.RiskSessionContinuationRequired) || saved.TrialOrderReviewRequired ||
             saved.Orders.Any(o => !o.Reconciled || o.Latest is not { IsTerminal: true }))
             throw new InvalidOperationException("Saved assignment requires a mapping outside the settled rehearsal.");
         grant.Validate();

@@ -308,12 +308,20 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [ ] Finish writer/consumer mapping and the replacement's failure/latency contract, record exact
   supersession of installed behavior and update #19 before integrating or activating that replacement.
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
-  broker-coverage, writer-fencing and history-size acceptance before installation. No new recovery
-  behavior or production setting is installed. Compact storage and the disconnected account rehearsal are implemented;
-  the compact trading host has not been activated.
+  broker-coverage, writer-fencing and history-size acceptance. Preserve the remaining qualification
+  work separately from the operator-approved first production switch.
 - [x] November 1 installed production migrations 054 and 055 after the verified, synchronized
   backup. Independent readback confirmed seven empty tables and enabled storage guards.
-  Account transfer and exact-build trading approval remain separate.
+  Account transfer and exact-build trading approval followed separately.
+- [x] November 1 activated the reviewed compact restart for Delphi Live. The exact package
+  completed its live account check in 2.88 seconds and waited for regular trading hours.
+  No market-hours order was exercised. See [operational status](project-status.md).
+- [ ] Replace the regular strategy's cumulative writes and repeated broker history reads.
+  This follow-up starts immediately after the restart switch. A bounded sample of 100 Friday
+  revisions over 22 minutes stored 489,240 bytes of manifests, used 34 distinct account
+  references and shared a single order-list reference. This excludes referenced data, indexes
+  and logs. Measure those costs separately. Preserve risk continuation and audit readers
+  when replacing the source record. SQL cleanup remains separate.
 - Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to
   [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.
   Preserve existing exceptional-state handling and separate #12/#14 backup/restore qualification;
