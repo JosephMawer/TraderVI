@@ -8,6 +8,11 @@ regular full backups remained in each folder. SQL used 26.20 GiB of data-file sp
 since October 21. The largest new table holds 2.73 GiB of collector receipts from three trading days.
 [Rotation evidence, growth measurements and compression sample](reviews/sql-cleanup-inventory-20261031.md#november-1-follow-up-on-backup-rotation-and-database-growth)
 
+Collector receipt compression and resumable historical conversion passed an isolated SQL rehearsal.
+A 285-receipt production sample projects 2.31 GiB of payload savings. Migration 056 and the replacement
+writer are prepared. Production installation and conversion are pending.
+[Rehearsal and estimate](reviews/sql-cleanup-inventory-20261031.md#historical-conversion-rehearsal)
+
 ## November 1 — Compact restart active for Delphi Live
 
 At 01:11 Toronto the installed trading engine reported Running and connected to Wealthsimple.

@@ -18,7 +18,7 @@ public sealed record MarketCollectorLease(string SourceContract, Guid OwnerId, l
 /// <summary>
 /// ADR-0111 additive collector storage. Constructing this repository does not connect or migrate.
 /// Each append fences the owner and atomically saves raw receipt, first observations and conflicts.
-/// Native SQL qualification is separate from offline reducer tests; no installed caller yet.
+/// The logical ContentJson also reads legacy plain receipts during storage conversion.
 /// </summary>
 public sealed partial class MarketCollectorRepository : SQLBase
 {
@@ -115,8 +115,8 @@ IF NOT EXISTS(SELECT 1 FROM dbo.MarketCollectorAttempt WHERE RequestId=@RequestI
  AND SessionCloseUtc=@SessionCloseUtc AND ExpectedEndUtc=@ExpectedEndUtc AND OwnerId=@OwnerId AND FencingToken=@FencingToken
  AND ReservedUtc<=@FetchStartedUtc)
  THROW 54573,'Collector receipt requires its original fenced request intent.',1;
-INSERT dbo.MarketCollectorRequest(RequestId,SourceContract,Symbol,SessionOpenUtc,OwnerId,FencingToken,ContentHash,ContentJson)
-VALUES(@RequestId,@SourceContract,@Symbol,@SessionOpenUtc,@OwnerId,@FencingToken,@Hash,@Json);
+INSERT dbo.MarketCollectorRequest(RequestId,SourceContract,Symbol,SessionOpenUtc,OwnerId,FencingToken,ContentHash,PackedContent)
+VALUES(@RequestId,@SourceContract,@Symbol,@SessionOpenUtc,@OwnerId,@FencingToken,@Hash,COMPRESS(CONVERT(nvarchar(max),@Json)));
 """, receiptParameters, tx, cancellationToken: ct));
         var savedIds = saved.Observations.Select(o => o.ObservationId).ToHashSet();
         foreach (var o in next.Observations.Where(o => !savedIds.Contains(o.ObservationId)))

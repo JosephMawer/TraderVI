@@ -257,3 +257,64 @@ Five read-only helper receipts passed query-hash verification. The submitted SQL
 `result-20261101T` and UTC times `045655131Z` (allocation), `045800563Z` (recent writers),
 `045823195Z` (legacy writers), `045920780Z` (session windows) and `050110489Z` (compression sample).
 The investigation performed no database writes, deletions or operational rerun.
+
+### Collector implementation and poll-window comparison
+
+A full-session poll can detect a transient change to old data and recover late or missing minutes.
+The earlier batch processor also reapplied that same response once for every completed bar it
+contained. Commit `e3606119` compares the response and saved observations by timestamp, collects
+all conflicts before admitting any new bar, and preserves the original observation IDs and times.
+On a synthetic 390-bar repeat, median reducer time over five warmed runs was 711.34 ms for the
+previous local Debug Core build and 0.85 ms for the new Debug build. Both produced the same book
+hash. This isolates processing for one symbol. It excludes SQL, provider time and the legacy relay.
+
+The alternative considered here requests the latest three minutes on most polls. It requests the
+full session on first use, after a missed or failed poll, 15 minutes after the last successful full
+check, and at the close. A read-only replay of the October 28 symbol/session with a known conflict
+used the 376 recorded attempt times and success states. It yielded 35 full requests and 6,916
+requested minute-slots versus 75,188 historically, a 90.8% reduction in requested span at the same
+poll count. This models request bounds. No new provider requests were made and actual network bytes
+for that alternative are unknown.
+
+One receipt produced all 140 recorded conflicting bar starts across the three observed sessions.
+Each was 16–165 minutes behind the detecting poll. In the replay that receipt landed between full
+checks, eight minutes after one and seven minutes before the next. All 140 bar starts fell outside
+the proposed short request at detection. The next recorded response reverted. A persistent old
+correction could be found on a subsequent successful full check. A transient correction could escape
+detection entirely. One incident cannot estimate its future frequency. The approved five-minute
+signal used separate evidence, with no observed contamination in the original review.
+[October 28 incident](independent-engine-implementation-20261022.md#bte-saved-source-investigation--october-28-1535-toronto)
+
+The prepared collector keeps that correction coverage while reducing compute time and stored bytes.
+Compression operates per receipt. Identical history can still be present in different compressed
+receipts. The separate historical conversion keeps every logical receipt. Its measured effect on a
+production backup or the Windows data-file length remains unknown.
+[Storage decision](../adr/0111-independent-collector-and-recovered-confirmation.md#november-1--receipt-storage-and-historical-corrections)
+
+Private benchmark and replay evidence is under `artifacts/collector-efficiency-20261101/`.
+The two replay SQL files match the read-only receipts beginning `result-20261101T054320188Z`
+and `result-20261101T054347742Z`.
+
+### Historical conversion rehearsal
+
+The separately authorized test ran migration 056 and the bounded conversion against an isolated
+SQL Server database with the original 052 receipt table. Preview preserved all 65 plain receipts.
+One batch converted 64. A later run converted the last receipt and a further run found no work.
+All request IDs, original UTF-8 hashes and decoded JSON matched, including non-ASCII text and
+trailing spaces. A two-row batch with a bad fingerprint rolled back both rows with the immutable
+guard enabled. New collector writes, exact retries, changed-receipt rejection, lease takeover,
+restart readback, conflict latching and read isolation also passed.
+
+The first two rehearsal attempts exposed a SQL Server restriction on constraints referencing
+virtual computed columns and a collation mismatch during hash comparison. The corrected scripts
+passed together. All three synthetic rehearsal databases and their backups were retained. The
+private results are in `artifacts/collector-efficiency-20261101/results/`. The collector Release
+and SSDT builds passed. Seventy-four focused tests and 3,612 ordinary Core tests passed, with
+16 opt-in skips in the latter run. The collector SQL rehearsal passed separately.
+
+A read-only production sample selected every 128th receipt by sequence. All 285 original fingerprints
+matched. The 21,032,986 source bytes compressed to 1,116,993 bytes, a 94.69% reduction. At that ratio,
+the 2.44 GiB historical receipt payload would save about 2.31 GiB before page and index effects.
+This estimates encoded payload savings only. The production schema, writer and historical receipts
+still use the original format at this checkpoint. Read-only receipt `result-20261101T055207749Z`
+matches `history-preflight.sql`.

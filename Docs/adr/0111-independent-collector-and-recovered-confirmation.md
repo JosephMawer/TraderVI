@@ -151,6 +151,27 @@ cannot qualify full-universe capacity or venue completeness. Do not infer source
 HTTP reads. Replacement provider, paid subscription and revised missing-minute rules need a separate
 decision if TMX is insufficient. No overnight test can prove tomorrow's live coverage in advance.
 
+## November 1 — Receipt storage and historical corrections
+
+The collector needs to preserve the first value it saw and detect a later contradiction. The
+full-session request also recovers missed minutes after downtime. Rechecking the same response
+once per returned bar and storing the expanded JSON on disk are avoidable costs.
+
+Compare each validated response with the saved minute book in one batch. Preserve original
+observation identities, first-arrival times and the existing rule that any completed-bar conflict
+blocks new observations for that book. Store the exact serialized receipt in losslessly compressed
+form. Keep the original request ID, content hash, timestamps and observation/conflict references.
+Migration 056 exposes the original JSON to readers for both old and new rows. Convert historical
+receipts only by matching the existing fingerprint and verifying the exact decoded bytes in bounded
+transactions. File reclamation and evidence expiry have separate owners.
+
+The prepared writer retains the full-session request. A three-minute routine request plus a full
+check every 15 minutes would miss transient historical contradictions outside the shorter window.
+An actual October 28 response contained 140 such contradictions. Changing this acquisition policy
+requires explicit acceptance of that coverage loss and new source qualification. The underlying
+provider's response to narrower requests has not been measured.
+[Poll replay and measurements](../reviews/sql-cleanup-inventory-20261031.md#collector-implementation-and-poll-window-comparison)
+
 ## Review questions
 
 1. Which operations remain with the trading engine when intraday collection is extracted?

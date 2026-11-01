@@ -18,7 +18,7 @@ namespace TraderVI.Core.Tests;
 
 /// <summary>Explicit opt-in only. Creates and retains synthetic collector tables in a unique local
 /// database. No production connection, financial tables, broker or market transport is constructed.</summary>
-public sealed class MarketCollectorSqlTests(ITestOutputHelper output)
+public sealed partial class MarketCollectorSqlTests(ITestOutputHelper output)
 {
     [NativeCollectorSqlFact]
     [Trait("Category", "NativeSql")]
@@ -38,7 +38,10 @@ public sealed class MarketCollectorSqlTests(ITestOutputHelper output)
         await control.OpenAsync(); Assert.Equal(database, control.Database);
         var names = new[] { "Lease", "Attempt", "Book", "Request", "Observation", "Conflict" };
         foreach (string name in names)
-            await Apply("MarketCollector" + name + ".sql");
+            if (name == "Request")
+                await CreateOriginalReceiptTableAsync(control);
+            else
+                await Apply("MarketCollector" + name + ".sql");
         foreach (string name in names.Where(n => n != "Lease"))
             await Apply("MarketCollector" + name + "_Immutable.sql");
         async Task Apply(string file)
@@ -48,6 +51,7 @@ public sealed class MarketCollectorSqlTests(ITestOutputHelper output)
                 if (!string.IsNullOrWhiteSpace(batch)) await control.ExecuteAsync(batch);
         }
 
+        await RehearseReceiptMigrationAsync(control, database);
         var repository = new MarketCollectorRepository(connection);
         const string source = "SyntheticCollectorQualificationV1";
         var owners = await Task.WhenAll(repository.TryAcquireAsync(source, Guid.NewGuid()), repository.TryAcquireAsync(source, Guid.NewGuid()));
@@ -63,6 +67,8 @@ public sealed class MarketCollectorSqlTests(ITestOutputHelper output)
         var first = Batch(attempt, 10m);
         var original = await repository.AppendAsync(lease, first);
         Assert.Single(original.Observations);
+        Assert.Equal(JsonSerializer.Serialize(first), await control.QuerySingleAsync<string>(
+            "SELECT ContentJson FROM dbo.MarketCollectorRequest WHERE RequestId=@RequestId AND PackedContent IS NOT NULL AND PlainContentJson IS NULL;", first));
         Assert.Equal(JsonSerializer.Serialize(original), JsonSerializer.Serialize(await repository.AppendAsync(lease, first)));
         await Assert.ThrowsAsync<InvalidDataException>(() => repository.AppendAsync(lease, first with { RawResponseJson = "{\"changed\":true}" }));
         Assert.NotNull(await repository.ReserveAsync(lease, subscriptions, "ABC", end, 3, default));

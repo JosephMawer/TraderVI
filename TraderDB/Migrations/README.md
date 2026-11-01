@@ -1,5 +1,28 @@
 # Manual database migrations
 
+## Collector receipt compression — prepared November 1
+
+[Migration 056](20261101_056_PackCollectorReceipts.sql) changes the physical encoding of collector
+request receipts. Existing rows retain their original plain data until separately converted.
+Both encodings expose the same `ContentJson` to queries. New collector writes require 056.
+The previous collector binary inserts into the old physical column and cannot write the new schema.
+Prepare and verify the replacement collector and a compatible fallback before stopping the writer.
+Apply the reviewed migration only in a coordinated maintenance window with a fresh checksum-verified
+full backup and matching copy. The script checks the original schema and refuses an active writer
+lease. Resume with a compatible writer.
+
+[Pack-CollectorReceiptBatch.sql](../Operations/Pack-CollectorReceiptBatch.sql) previews or converts
+existing receipts. Supply SQLCMD variables `ExecuteBatch=0`, `MaxBatches=1` and
+`VerifiedBackupFile=unused` to preview the first batch. An authorized write uses `ExecuteBatch=1`,
+the verified backup path, and a limit of 1–1000 batches. Start with one. Each transaction processes
+at most 64 receipts and 8 MiB of original JSON. It verifies the original application hash, the
+decoded bytes, length and request identity, and restores the immutability trigger before committing.
+Failure rolls back the current batch. Rerunning resumes with the oldest remaining plain receipt.
+Preview and execution report encoded byte totals. Check remaining plain rows, unchanged counts and
+hashes, guard state, and collector request/readback before ending maintenance. Freed SQL pages can
+be reused inside the existing file. Installation, production conversion and disk reclamation are
+separate from preparing the scripts.
+
 ## Compact trading storage — prepared only October 30
 
 `20261030_054_AddCompactTradingCurrentState.sql` prepares ADR-0117's seven isolated current-state,
