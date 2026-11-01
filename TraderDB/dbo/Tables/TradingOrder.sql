@@ -28,12 +28,12 @@ CREATE TABLE [dbo].[TradingOrder]
     CONSTRAINT [FK_TradingOrder_Account] FOREIGN KEY ([BindingId]) REFERENCES [dbo].[TradingAccountCurrent]([BindingId]),
     CONSTRAINT [FK_TradingOrder_Settings] FOREIGN KEY ([BindingId],[PermissionId]) REFERENCES [dbo].[TradingApprovedSettings]([BindingId],[PermissionId]),
     CONSTRAINT [CK_TradingOrder_1] CHECK ([Side] IN (N'BUY',N'SELL') AND [Quantity]>0 AND [ReferencePrice]>=0),
-    CONSTRAINT [CK_TradingOrder_2] CHECK ([Status] IN (N'Prepared',N'Submitted',N'Unknown',N'Filled',N'Rejected',N'Cancelled')),
+    CONSTRAINT [CK_TradingOrder_2] CHECK ([Status] IN (N'Prepared',N'Submitted',N'Unknown',N'Filled',N'Rejected',N'Cancelled',N'Expired')),
     CONSTRAINT [CK_TradingOrder_3] CHECK ([LatestFilledQuantity]>=0 AND [LatestFilledQuantity]<=[Quantity] AND [AppliedFilledQuantity]>=0 AND [AppliedFilledQuantity]<=[LatestFilledQuantity] AND [AppliedNetValue]>=0 AND [LatestNetValue]>=[AppliedNetValue]),
     CONSTRAINT [CK_TradingOrder_4] CHECK ([ReservedQuantity]>=0 AND [ReservedQuantity]<=[Quantity] AND [ReservedCash]>=0),
     CONSTRAINT [CK_TradingOrder_5] CHECK ([Status]<>N'Filled' OR [LatestFilledQuantity]=[Quantity]),
     CONSTRAINT [CK_TradingOrder_6] CHECK ([Status]<>N'Rejected' OR [LatestFilledQuantity]=0),
-    CONSTRAINT [CK_TradingOrder_7] CHECK ([NeedsWork]=1 OR ([Status] IN (N'Filled',N'Rejected',N'Cancelled') AND [AppliedFilledQuantity]=[LatestFilledQuantity] AND [AppliedNetValue]=[LatestNetValue] AND [ReservedQuantity]=0 AND [ReservedCash]=0)),
+    CONSTRAINT [CK_TradingOrder_7] CHECK ([NeedsWork]=1 OR ([Status] IN (N'Filled',N'Rejected',N'Cancelled',N'Expired') AND [AppliedFilledQuantity]=[LatestFilledQuantity] AND [AppliedNetValue]=[LatestNetValue] AND [ReservedQuantity]=0 AND [ReservedCash]=0)),
     CONSTRAINT [CK_TradingOrder_Symbol] CHECK (LEN([Symbol])>0 AND [Symbol]=UPPER([Symbol]))
 );
 GO

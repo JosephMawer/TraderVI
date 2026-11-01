@@ -58,7 +58,7 @@ public static class TradingStorageValidation
                 break;
             case TradingOrder o:
                 if (o.Side is not ("BUY" or "SELL") || o.Quantity <= 0 || o.ReferencePrice < 0 ||
-                    o.Status is not ("Prepared" or "Submitted" or "Unknown" or "Filled" or "Rejected" or "Cancelled") ||
+                    o.Status is not ("Prepared" or "Submitted" or "Unknown") && !IsTerminal(o.Status) ||
                     o.LatestFilledQuantity < 0 || o.LatestFilledQuantity > o.Quantity || o.AppliedFilledQuantity < 0 ||
                     o.AppliedFilledQuantity > o.LatestFilledQuantity || o.AppliedNetValue < 0 ||
                     o.LatestNetValue < o.AppliedNetValue || o.ReservedQuantity < 0 || o.ReservedQuantity > o.Quantity ||
@@ -120,7 +120,7 @@ public static class TradingStorageValidation
                 Fail("Only bounded scalar configuration is allowed; history and nested snapshots are prohibited.");
         }
     }
-    internal static bool IsTerminal(string status) => status is "Filled" or "Rejected" or "Cancelled";
+    internal static bool IsTerminal(string status) => status is "Filled" or "Rejected" or "Cancelled" or "Expired";
     private static void Fail(string message) => throw new InvalidOperationException(message);
 }
 

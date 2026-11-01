@@ -18,10 +18,19 @@ public sealed partial class TradingCompactStorageTests
     public void SqlDefinitionsMatchEveryMappedScalarColumnAndPreparedMigration()
     {
         string migration = Schema("20261030_054_AddCompactTradingCurrentState.sql").Replace("\r\n", "\n");
+        string expiryMigration = Schema("20261031_055_AllowExpiredCompactOrderReceipt.sql").Replace("\r\n", "\n");
         foreach (var table in TradingTable.All)
         {
             string sql = Schema(table.Name + ".sql").Replace("\r\n", "\n");
-            Assert.Contains(sql.Trim(), migration);
+            // 055 changes only the status lists in the order table and its immutable-outcome trigger.
+            if (table.RowType == typeof(TradingOrder))
+            {
+                var changedChecks = sql.Split('\n').Where(line => line.Contains("N'Expired'")).ToArray();
+                Assert.Equal(2, changedChecks.Length);
+                foreach (string check in changedChecks)
+                    Assert.Contains("WITH CHECK ADD " + check.Trim().TrimEnd(',') + ";", expiryMigration);
+            }
+            Assert.Contains(sql.Trim().Replace(",N'Expired'", ""), migration);
             Assert.DoesNotContain("nvarchar(max)", sql, StringComparison.OrdinalIgnoreCase);
             Assert.Equal(table.Columns.Select(c => c.Name).Order(), table.RowType.GetProperties().Select(p => p.Name).Order());
             foreach (var column in table.Columns)
@@ -33,8 +42,11 @@ public sealed partial class TradingCompactStorageTests
                 Assert.Contains(type, new[] { typeof(Guid), typeof(long), typeof(int), typeof(decimal), typeof(bool), typeof(string), typeof(DateTime) });
             }
         }
-        foreach (string file in new[] { "TradingCurrentState.sql", "TradingApprovedSettings_Immutable.sql", "TradingOrder_IntentImmutable.sql" })
+        foreach (string file in new[] { "TradingCurrentState.sql", "TradingApprovedSettings_Immutable.sql" })
             Assert.Contains(Schema(file).Replace("\r\n", "\n").Trim(), migration);
+        string trigger = Schema("TradingOrder_IntentImmutable.sql").Replace("\r\n", "\n").Trim();
+        Assert.Contains(trigger.Replace("CREATE TRIGGER", "ALTER TRIGGER"), expiryMigration);
+        Assert.Contains(trigger.Replace(",N'Expired'", ""), migration);
     }
 
     [Fact]

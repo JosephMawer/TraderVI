@@ -195,6 +195,15 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   receipt. The tests also cover a lost commit reply and a broker reporting the fill as posted.
   All 61 focused tests passed. [Full-fill tests](../TraderVI.Core.Tests/TradingCompactStorageTests.FullBuy.cs).
   Local run record: `artifacts/compact-storage-20261030/results/full-buy.trx`.
+- [x] October 31 rejected and expired opening buys with zero fills, offline. For each outcome a
+  fresh recovery checked the original order, returned the full $100 allowance, kept zero shares
+  and zero spend, and saved one receipt with the broker outcome. A second restart made zero
+  further lookups or writes, including after a lost commit reply. A zero-fill report conflicting
+  with an earlier confirmed fill preserved the reservation and the existing shares. Six new cases
+  and 61 prior focused cases passed. The SQL project built with distinct expiry status support.
+  Migration 055 is prepared for review and requires empty compact order storage following 054.
+  [Zero-fill tests](../TraderVI.Core.Tests/TradingCompactStorageTests.UnfilledBuy.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/unfilled-buy.trx`.
 - [ ] Extend original-request recovery to remaining cases. The offline
   scenarios use a simulated broker lookup and fixture-supplied opening terms for the approved request.
   Production broker coverage, strategy-specific protection mapping, additional order outcomes and

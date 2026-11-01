@@ -12,7 +12,7 @@ BEGIN
         WHERE (d.BrokerOrderId IS NOT NULL AND (i.BrokerOrderId IS NULL OR d.BrokerOrderId<>i.BrokerOrderId))
         OR i.LatestFilledQuantity<d.LatestFilledQuantity OR i.AppliedFilledQuantity<d.AppliedFilledQuantity
         OR i.LatestNetValue<d.LatestNetValue OR i.AppliedNetValue<d.AppliedNetValue
-        OR (d.Status IN (N'Filled',N'Rejected',N'Cancelled') AND d.Status<>i.Status)
+        OR (d.Status IN (N'Filled',N'Rejected',N'Cancelled',N'Expired') AND d.Status<>i.Status)
         OR (d.NeedsWork=0 AND (i.NeedsWork=1 OR i.LatestFilledQuantity<>d.LatestFilledQuantity
             OR i.AppliedFilledQuantity<>d.AppliedFilledQuantity OR i.LatestNetValue<>d.LatestNetValue
             OR i.AppliedNetValue<>d.AppliedNetValue OR i.ReservedQuantity<>d.ReservedQuantity OR i.ReservedCash<>d.ReservedCash)))

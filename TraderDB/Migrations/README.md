@@ -10,6 +10,11 @@ and offline schema-parity tests do not execute this script. It has **not been in
 transaction/latency qualification and individual installation review remain required. Do not deploy
 the DACPAC or use production SQL to rehearse the script without separate authority.
 
+The prepared follow-up `20261031_055_AllowExpiredCompactOrderReceipt.sql` gives expiry its own
+terminal receipt status. It requires 054's enabled guards, an empty compact order table, and a
+fresh verified backup. Apply both reviewed scripts in sequence before any activation. The offline
+schema build and parity tests cover the definitions. Installation remains pending.
+
 ## Independent collector storage — applied October 28 morning
 
 `20261028_052_AddIndependentCollectorEvidence.sql` was applied under Joseph's explicit approval after

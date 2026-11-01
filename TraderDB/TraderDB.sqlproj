@@ -280,6 +280,7 @@
     <Build Include="dbo/Triggers/TradingApprovedSettings_Immutable.sql" />
     <Build Include="dbo/Triggers/TradingOrder_IntentImmutable.sql" />
     <None Include="Migrations/20261030_054_AddCompactTradingCurrentState.sql" />
+    <None Include="Migrations/20261031_055_AllowExpiredCompactOrderReceipt.sql" />
   </ItemGroup>
   <Target Name="BlockTraderDbDeployment" BeforeTargets="Deploy;SqlDeploy">
     <Error Text="TraderDB deployment is intentionally disabled. Build the project for schema validation, then use a reviewed script from TraderDB/Migrations and follow Docs/database-operations.md." />
