@@ -1,5 +1,13 @@
 # TraderVI Project Status
 
+## November 1 — Backup rotation and database growth investigated
+
+The 00:26 pre-migration full backup verified. The scheduled nightly run ended at 00:31 Toronto
+during source capture, before Hermes could rotate backups. Five protected checkpoints and three
+regular full backups remained in each folder. SQL used 26.20 GiB of data-file space, up 4.98 GiB
+since October 21. The largest new table holds 2.73 GiB of collector receipts from three trading days.
+[Rotation evidence, growth measurements and compression sample](reviews/sql-cleanup-inventory-20261031.md#november-1-follow-up-on-backup-rotation-and-database-growth)
+
 ## November 1 — Compact restart database installed, trading activation pending
 
 At 00:34 Toronto both approved manual migrations (054 and 055) had committed on TraderDB.

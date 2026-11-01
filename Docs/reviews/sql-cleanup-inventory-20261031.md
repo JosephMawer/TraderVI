@@ -181,3 +181,79 @@ Private aggregate receipts under ignored artifacts/read-only-db/:
   query SHA-256 833E6C7F6A253DDA3D14AEAA5F84046D51AC17422D1C23727E743C31082D26FB.
 
 Only aggregate storage/count findings are recorded here; no account payloads or model artifacts.
+
+## November 1 follow-up on backup rotation and database growth
+
+### Why eight backup files remained
+
+At 00:56 Toronto, staging and the local OneDrive folder each contained eight matching filenames
+and lengths, totaling 19.48 GiB per folder. Five specially named `COPYONLY` recovery checkpoints
+accounted for 7.49 GiB per folder. They stay outside the two-generation rotation. The other three
+were regular `FULL` files dated October 30, October 31 and November 1.
+
+- The October 30 and 31 Hermes logs record deletions in both locations. On October 31 Hermes removed
+  the remaining October 29 full backup from each folder and completed a 4.07 GiB backup.
+- The November 1 00:26 full backup protected migrations 054 and 055. The standalone SQL backup
+  procedure uses the same filename pattern and skips rotation. The installation receipts identify
+  the exact file, SQL checksum verification, matching copy hash and local OneDrive in-sync state.
+- The scheduled 00:30 run retried after source changed during capture. Windows Task Scheduler
+  event 201 records the action ending at 00:31:24 with `0xC000013A` (`STATUS_CONTROL_C_EXIT`).
+  The runner still reported Running, but its exclusive lock was free and the scheduler showed Ready
+  and enabled. The run ended before Hermes. The records checked do not identify who or what interrupted it.
+  The next successful Hermes backup and copy should rotate the registered regular files back to two
+  per location. That subsequent rotation remains to be verified.
+
+Sources include the [backup procedure](../database-operations.md#onedrive-copy-and-retention),
+[retention implementation](../../Core/Db/TraderDbBackupRetention.cs) and
+[standalone SQL script](../../TraderDB/Operations/Backup-TraderDB.sql). The local nightly logs are
+under `%LOCALAPPDATA%\TraderVI\Nightly\logs`. The manual backup verification and sync receipts are
+under `artifacts/restart-release/live-backup*-20261101.*`.
+
+### What grew
+
+| Measurement | Earlier | Later | Change |
+|---|---:|---:|---:|
+| Compressed full backup, October 13 to November 1 | 2.22 GiB | 4.07 GiB | +83.6% |
+| Compressed full backup, October 18 pre-migration to November 1 | 2.81 GiB | 4.07 GiB | +44.8% |
+| Compressed full backup, October 31 to November 1 | 4.0653 GiB | 4.0696 GiB | +4.38 MiB (+0.11%) |
+| SQL data-file pages in use, October 21 evening to November 1 | 21.217 GiB | 26.197 GiB | +4.98 GiB |
+
+The November 1 SQL backup log reports 26,827 MiB before compression and 4,167 MiB after.
+At 00:56 the data file had 54.75 MiB free within its 26.25 GiB allocation. Windows reported
+about 427 GiB free on C: during inspection. The log file was 1.008 GiB allocated both on
+October 21 and November 1. [October 21 storage baseline](paper-workload-architecture-20261021.md#measured-evidence-and-limits)
+
+**Earlier October growth.** The legacy evaluation and research-outcome tables occupied 16.87 GiB
+combined on both October 21 and November 1 (64% of current used data-file space). From October 13
+through 21 UTC, the retained rows contain 3.79 GiB of evaluation inputs/results and 0.38 GiB of
+research outcomes. The old evaluator repeatedly saved price-bar histories for the stock and benchmark
+with each policy decision. The last recorded evaluation was October 21 and the last research outcome
+was October 16. These logical payload sizes exclude indexes and cannot be apportioned directly
+to compressed backup bytes.
+
+**Late October growth.** Three tables whose retained records start after the October 21 measurement
+now use 3.98 GiB, about 80% of the 4.98 GiB increase. Collector request receipts use 2.73 GiB,
+published engine inputs/results 0.83 GiB and shared engine evidence 0.42 GiB. Ordinary daily
+price bars use 87 MiB in total.
+
+The collector requests minute bars from the session open on each poll and persists both the raw
+response and the parsed bars. Successive receipts repeat much of the same history. Across October
+28–30, 36,380 receipts held 2.44 GiB of JSON. By UTC day the payloads were 846, 746 and 907 MiB.
+The mean receipt grew from 14.3 KiB for first-hour polls to 121.6 KiB for last-hour polls.
+13,274 receipts had no linked new observation or conflict and still held 608 MiB of JSON. Those
+receipts also support retries and audits. Their byte count alone does not establish deletion eligibility.
+[Collector request construction](../../Core/Runtime/TmxCollectorSource.cs) and
+[receipt persistence](../../Core/Db/MarketCollectorRepository.cs)
+
+**First engineering target.** A read-only SQL experiment losslessly compressed the exact stored
+JSON for 96 receipts selected in request-ID order. Payload size fell from 6.71 MiB to 0.37 MiB
+(94.5%). All 96 decompressed byte lengths and SHA-256 hashes matched. This was a payload sample.
+The effect on an already-compressed backup, production read/write latency and actual allocated pages
+remains unmeasured. A disconnected storage rehearsal can test those costs while preserving the
+original receipt and retry identity before any decision about production storage or expiry.
+
+Five read-only helper receipts passed query-hash verification. The submitted SQL is under
+`artifacts/backup-growth-20261101/`. Under `artifacts/read-only-db/` the result files use the prefix
+`result-20261101T` and UTC times `045655131Z` (allocation), `045800563Z` (recent writers),
+`045823195Z` (legacy writers), `045920780Z` (session windows) and `050110489Z` (compression sample).
+The investigation performed no database writes, deletions or operational rerun.
