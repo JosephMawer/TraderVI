@@ -1,17 +1,19 @@
 # TraderVI Project Status
 
-## November 1 — Backup rotation and database growth investigated
+## November 1 — Collector receipts compressed in production
 
 The 00:26 pre-migration full backup verified. The scheduled nightly run ended at 00:31 Toronto
-during source capture, before Hermes could rotate backups. Five protected checkpoints and three
-regular full backups remained in each folder. SQL used 26.20 GiB of data-file space, up 4.98 GiB
-since October 21. The largest new table holds 2.73 GiB of collector receipts from three trading days.
+during source capture, before Hermes could rotate backups. Before this maintenance, five protected
+checkpoints and three regular full backups remained in each folder. SQL used 26.20 GiB of data-file
+space, up 4.98 GiB since October 21. Collector receipts accounted for 2.73 GiB.
 [Rotation evidence, growth measurements and compression sample](reviews/sql-cleanup-inventory-20261031.md#november-1-follow-up-on-backup-rotation-and-database-growth)
 
-Collector receipt compression and resumable historical conversion passed an isolated SQL rehearsal.
-A 285-receipt production sample projects 2.31 GiB of payload savings. Migration 056 and the replacement
-writer are prepared. Production installation and conversion are pending.
-[Rehearsal and estimate](reviews/sql-cleanup-inventory-20261031.md#historical-conversion-rehearsal)
+After a fresh verified and synchronized backup, migration 056 was installed and all 36,380 receipts
+were converted. Their table fell to 229.88 MiB, releasing 2.51 GiB for reuse within SQL. Independent
+checks matched request identities, logical bytes and observation/conflict fingerprints. At 01:16 EST
+the replacement collector reported ClosedSession with zero failures. The trading engine kept its
+original process. First market-open use and the next routine backup size remain unmeasured.
+[Production conversion and verification](reviews/sql-cleanup-inventory-20261031.md#production-conversion--november-1)
 
 ## November 1 — Compact restart active for Delphi Live
 

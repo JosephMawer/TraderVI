@@ -1,6 +1,11 @@
 # Manual database migrations
 
-## Collector receipt compression — prepared November 1
+## Collector receipt compression — installed November 1
+
+Migration 056 was installed on TraderDB after a fresh verified backup and synchronized copy.
+All 36,380 existing receipts were converted and verified. The replacement collector is installed
+with a tested compatible fallback. Do not replay the schema migration.
+[Production evidence](../../Docs/reviews/sql-cleanup-inventory-20261031.md#production-conversion--november-1)
 
 [Migration 056](20261101_056_PackCollectorReceipts.sql) changes the physical encoding of collector
 request receipts. Existing rows retain their original plain data until separately converted.

@@ -285,10 +285,10 @@ detection entirely. One incident cannot estimate its future frequency. The appro
 signal used separate evidence, with no observed contamination in the original review.
 [October 28 incident](independent-engine-implementation-20261022.md#bte-saved-source-investigation--october-28-1535-toronto)
 
-The prepared collector keeps that correction coverage while reducing compute time and stored bytes.
+The optimized collector keeps that correction coverage while reducing compute time and stored bytes.
 Compression operates per receipt. Identical history can still be present in different compressed
-receipts. The separate historical conversion keeps every logical receipt. Its measured effect on a
-production backup or the Windows data-file length remains unknown.
+receipts. The separate historical conversion keeps every logical receipt. The next production
+backup will be the first opportunity to measure its effect on compressed backup size.
 [Storage decision](../adr/0111-independent-collector-and-recovered-confirmation.md#november-1--receipt-storage-and-historical-corrections)
 
 Private benchmark and replay evidence is under `artifacts/collector-efficiency-20261101/`.
@@ -315,6 +315,50 @@ and SSDT builds passed. Seventy-four focused tests and 3,612 ordinary Core tests
 A read-only production sample selected every 128th receipt by sequence. All 285 original fingerprints
 matched. The 21,032,986 source bytes compressed to 1,116,993 bytes, a 94.69% reduction. At that ratio,
 the 2.44 GiB historical receipt payload would save about 2.31 GiB before page and index effects.
-This estimates encoded payload savings only. The production schema, writer and historical receipts
-still use the original format at this checkpoint. Read-only receipt `result-20261101T055207749Z`
+This estimated encoded payload savings before the separately authorized production cutover below.
+Read-only receipt `result-20261101T055207749Z`
 matches `history-preflight.sql`.
+
+### Production conversion — November 1
+
+Times here are UTC because Toronto switched from daylight to standard time during the operation.
+The authorized 05:58 pre-migration full backup passed SQL checksum verification. Its 4,371,537,920-byte
+OneDrive copy matched SHA-256 and Windows reported cloud state 9 (in sync) at 06:03:38. This manual backup
+left four regular full backups and five protected checkpoints in each folder. The next successful
+routine rotation and the size of the next post-conversion backup remain to be observed.
+
+The primary and fallback packages used the retained installed collector source and dependencies.
+The primary Core library incorporates the two reviewed source changes. The fallback retains the
+previous processor and writes to the compatible plain-storage column. Both exact packages passed
+configuration, synthetic append, exact readback and retry checks before the production collector
+stopped. The first SQLCMD invocation rejected a Windows path argument before executing SQL.
+A read-only check verified the original guarded schema and 36,380 rows. Resolving the reviewed
+backup-path literal in a private script copy allowed migration 056 to commit at 06:10:38.
+
+The pilot converted 64 receipts. Independent verification found every original request identity,
+content hash, timestamp and ownership field matched the baseline aggregate fingerprint. The decoded
+byte count, observation and conflict digests, attempt and book counts matched as well. The next
+569 transactions converted the remaining 36,316 receipts. Each transaction checked the original
+application hash and exact bytes. The final independent read repeated the preservation checks across
+all 36,380 receipts, 26,099 observations and 140 conflict records. Both check constraints were trusted,
+the immutable trigger was enabled and zero plain receipts remained.
+
+| Production measurement | Before | After |
+|---|---:|---:|
+| Stored receipt payload | 2,621,478,976 bytes | 143,768,188 bytes |
+| Receipt table used pages, including indexes and large values | 2,798.10 MiB | 229.88 MiB |
+| Data-file space in use | 26.20 GiB | 23.71 GiB |
+| Allocated data / log file sizes | 26,880 / 1,032 MiB | 26,880 / 1,032 MiB |
+
+The payload decreased 94.52%. The table released 2.51 GiB, leaving 2.54 GiB free within the existing
+SQL data file at verification. The Windows file retained its allocated length. No shrink ran.
+The stable supervisor manifest selected the replacement collector. At 06:15:43 and 06:16:07 it
+reported ClosedSession and zero failures. Follow-up inspection verified a single collector, its
+loaded Core path and package hash, supervisor, cleared stop marker and the original trading-engine
+process. The market was closed, so this verifies restart and the synthetic writer proof. The first
+live market receipt under the new writer remains unverified. No market or broker probe ran.
+
+Backup receipts, packages, SQL logs and before/after comparisons are under
+`artifacts/collector-efficiency-20261101/`. Independent helper results with the prefix
+`result-20261101T` and UTC times `055709092Z`, `061113956Z`, `061510481Z` and `061612384Z`
+cover the baseline, pilot, final preservation and post-restart counts/file sizes.

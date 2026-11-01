@@ -165,7 +165,7 @@ Migration 056 exposes the original JSON to readers for both old and new rows. Co
 receipts only by matching the existing fingerprint and verifying the exact decoded bytes in bounded
 transactions. File reclamation and evidence expiry have separate owners.
 
-The prepared writer retains the full-session request. A three-minute routine request plus a full
+The installed writer retains the full-session request. A three-minute routine request plus a full
 check every 15 minutes would miss transient historical contradictions outside the shorter window.
 An actual October 28 response contained 140 such contradictions. Changing this acquisition policy
 requires explicit acceptance of that coverage loss and new source qualification. The underlying
