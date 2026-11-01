@@ -225,10 +225,16 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   passed in the full Core run (3,538 passed, zero failed, 10 opt-in native tests skipped).
   [Account tests](../TraderVI.Core.Tests/TradingCompactStorageTests.AccountRestart.cs).
   Local run record: `artifacts/compact-storage-20261030/results/account-restart-core.trx`.
-- [ ] Complete production writer/reader and host-grant mapping from the
-  [offline input map](adr/0117-compact-trading-current-storage.md#validation-and-limits). Establish
-  strategy-specific opening terms, broker coverage for manual/external activity, durable single-owner
-  dispatch and encrypted-journal coordination before wiring this into startup.
+- [x] October 31 trace the installed permission, protection and original-order sources. Paired
+  binary/debug symbols matched 18 selected source files. The installed reader validated the actual
+  host grant and one encrypted sample per order side. October 30 saved diagnostics provided the
+  assignment and protection comparison. All 104 selected offline host, protection and order workflow
+  tests passed. [Verified sources, limits and gaps](adr/0117-compact-trading-current-storage.md#installed-input-verification).
+  Private local evidence: `artifacts/minute-source-check-20261027/execution-diagnostics-20261030T184605799Z.json`
+  and `artifacts/compact-storage-20261030/results/installed-input-contracts.trx`.
+- [ ] Prove the durable pre-reservation trigger identity/time, exact managed-versus-manual journal
+  joins and revocation through final send. Map strategy-specific opening terms and remaining
+  writers, and qualify broker coverage and scoped order admission before wiring startup.
 - [ ] Near the end, measure SQL read/write latency and physical space and qualify round trips, locking,
   crash/rollback and active query plans. October 31 operator deferred this work. Review the test
   environment before execution.

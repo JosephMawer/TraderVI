@@ -111,6 +111,49 @@ controlled swap as separate increments. Expanded damaged-state/old-backup recove
 to #25. This ADR does not supersede installed ADR-0103/0109 recovery or execution contracts: a later
 reviewed integration decision must identify the exact superseded boundaries and installation evidence.
 
+## Installed input verification
+
+On October 31 the release directory was identified from the October 30 monitor. Its on-disk engine DLL reports
+source revision `1c299f04` and Core reports `4203b456`. The engine DLL also matched the October 29
+installation manifest. The Core DLL differs from that older manifest, so verification used the
+debug symbols paired to each current DLL by build ID. All 18 selected source documents matched
+their compiler checksums exactly or after normalizing line endings and the UTF-8 prefix. This
+identifies the relevant installed code on disk. The last execution evidence used here is the
+October 30 capture at 14:46 Toronto.
+
+| Rehearsal input | Verified installed source | Remaining bridge |
+|---|---|---|
+| Authority to resume | The installed reader validated the Windows-protected host grant. Its binding and session matched the saved engine diagnostic. Its build identity matched the installed Core hash. Enable and ongoing restore flags were set at this read. The engine also reads the SQL session and checks its effective approval, exact strategy, continuation/risk association, build review, pause, regular session and connectivity. It rereads the grant before delegating a cycle. | Keep the assignment ID, effective permission request ID and strategy version distinct. Compact execution and sell flags alone cannot prove these checks. Supply current, revocable authority through final dispatch. A current SQL-head match was outside this offline comparison. |
+| Position and protection | The saved diagnostic came from a verified managed-session revision. It contained holding protection, and every reported match checked Live position identity and average cost against the holding. The source preserves ownership, carried floor, Live floor, progressive stop, price evidence, processing boundaries and latched reason in position protection and symbol memory. | A diagnostic match does not certify every floor or a healthy current quote. Preserve the strategy-specific state and its evidence. Establishment time, last processed bar and last bid are different from the original trigger time. Before reservation the saved latch alone does not supply a proven `ExitDecisionId` / `ExitTriggeredUtc` pair. Do not invent either during restart. |
+| Original order and outcome | The installed public journal reader validated one committed encrypted buy and one sell envelope on isolated copies. Both contained an original intent, transmission status and broker observation. Their request IDs were distinct and both referenced the same broker account. The managed SQL order supplies decision ID, position attribution and original request ID. The journal filename and envelope validate the request ID, and the broker correlation is `order-{RequestId:D}`. | Journal files also contain manual orders. Join each managed intent by exact original request and verify account, side, security and quantity before attribution. These samples prove the file contract, not a complete SQL-to-journal match or broker acknowledgement for all requests. Broker acknowledgement IDs and submission status cannot substitute for a verified fill. |
+
+The installed write order matters during interruption. The workflow first commits the SQL reservation.
+The transport then flushes and renames the protected local intent file, sends once and records the
+submission result locally. The workflow subsequently saves its SQL transmission observation. A crash
+can leave a SQL reservation without a local file, or a flushed file without a known broker outcome.
+Both windows need explicit original-ID reconciliation.
+
+Two installed gates currently prevent the rehearsal's independent sale. The managed workflow returns
+early for unfinished orders or trial review. The shared preflight separately checks unresolved
+orders across the local journal and enumerates both sides for duplicates. Its sell path also uses the
+integrity lease and broker sell-context/quote checks. Substituting the compact tables alone would
+leave these waits in place. Changing the gates requires a reviewed policy change that preserves
+existing manual-order ownership and share reservations.
+
+**Next acceptance test.** Persist the original protective decision, reason, time and position
+at the first durable trigger, then simulate an interruption before order reservation. Recover the
+same trigger and original request through the SQL/local journal boundaries, including a revoked
+grant and a manual order on overlapping shares. Where an older latch cannot be linked to original
+evidence, surface that specific uncertainty for review.
+
+Source entry points: [engine composition](../../TraderVI.Engine/Program.cs),
+[host permission checks](../../Core/Trader/Promotion/BrokerExecutionHost.cs),
+[protection diagnostics](../../Core/Runtime/EngineBrokerDiagnostics.cs),
+[Live protection](../../Core/Trader/Promotion/BrokerLiveProtection.cs),
+[managed order reservation](../../Core/Trader/Promotion/BrokerManagedSessionWorkflow.cs),
+[shared broker preflight](../../Core/WSTrade/Orders/BrokerManagedOrderTransport.cs) and
+[protected journal](../../Core/WSTrade/Orders/ManualBuyFileJournal.cs).
+
 ## Alternatives and consequences
 
 Retrofitting the cumulative session blobs would retain history-dependent reads and obscure field
