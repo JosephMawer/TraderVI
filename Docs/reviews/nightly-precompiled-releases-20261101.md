@@ -112,6 +112,17 @@ This remains an architectural option, with no class moves or project split autho
 release storage can be implemented independently of it. Any future package-size claim requires
 checking which ML/native dependencies each extracted project actually retains.
 
+The operator clarified that the WPF Delphi surface is needed to view saved results, and proposed
+removing its Run official Delphi action. Its existing DelphiPublishedRecommendationReader already
+loads the saved SQL output independently of execution. Inspection also found a second execution
+path after assigning daily strategy settings, through DelphiSettingsView and the dashboard's
+ReevaluateSettingsAsync callback. Removing the UI's execution dependency would require addressing
+both paths and its code-identity reference, then moving execution behind the selected assembly
+boundary. The UI would continue to need the saved-result types and reader. Decide how to present
+settings awaiting a fresh run and how that interacts with the earlier full-pipeline Run now idea.
+This finding narrows the desired UI role; it does not establish that the remaining shared Core
+dependencies have been separated or that either UI path has been removed.
+
 ## Candidate acceptance checks and next decisions
 
 Before implementation, settle release activation and the routine development workflow, then the
