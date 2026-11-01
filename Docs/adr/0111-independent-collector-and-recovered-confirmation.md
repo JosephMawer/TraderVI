@@ -172,6 +172,19 @@ requires explicit acceptance of that coverage loss and new source qualification.
 provider's response to narrower requests has not been measured.
 [Poll replay and measurements](../reviews/sql-cleanup-inventory-20261031.md#collector-implementation-and-poll-window-comparison)
 
+### Superseding decision — latest completed minute and rule-driven history
+
+The operator chose latest-minute polling on November 1 after reviewing the transient-correction
+tradeoff above. Each routine request covers one completed minute of one monitored symbol. Use
+the first observations already in SQL for history. Only an active rule with missing required
+minutes may request those gaps through the collector. Restart, subscription and elapsed time alone
+do not request history. Nightly backfill is deferred until there is a concrete consumer.
+
+This supersedes the full-session acquisition choice above. Older transient corrections can go
+unobserved. Preserve conflicts actually seen, the time recovered evidence became available and
+the original deadlines. Existing trading decisions and earlier receipts retain their meaning.
+The change requires fresh source qualification before minute-strategy adoption.
+
 ## Review questions
 
 1. Which operations remain with the trading engine when intraday collection is extracted?

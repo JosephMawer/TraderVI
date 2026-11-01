@@ -75,7 +75,7 @@ public sealed record CollectorTickResult(string State, int Attempted, int Saved,
 
 /// <summary>
 /// Single-flight collector loop with no account/order capability. Fresh endpoints have priority;
-/// the bounded same-session source response also supplies recovery history. No catch-up request loop.
+/// each routine TMX read targets the latest completed minute.
 /// </summary>
 public sealed class IntradayCollector
 {
@@ -153,7 +153,8 @@ public sealed class IntradayCollector
                 {
                     var ended = clock();
                     receipt = new(attempt.RequestId, source.SourceContract, symbol, subscriptions.SessionOpenUtc,
-                        subscriptions.SessionCloseUtc, end, limits.DeadlineOffset, started, ended, ended, [], "{}", "SourceReadFailed");
+                        subscriptions.SessionCloseUtc, end, limits.DeadlineOffset, started, ended, ended, [], "{}", "SourceReadFailed")
+                        { RequestedStartUtc = source.SourceContract == TmxCollectorSource.Contract ? end.AddMinutes(-1) : null };
                 }
                 // SQL append fences again. A storage error stops the cycle; never make a second request.
                 await store.SaveAsync(lease, receipt, ct);

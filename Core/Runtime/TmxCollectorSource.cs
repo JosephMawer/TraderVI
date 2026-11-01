@@ -42,10 +42,13 @@ query getTimeSeriesData($symbol: String!, $interval: Int, $startDateTime: Int, $
     {
         if (attempt.SourceContract != Contract) throw new ArgumentException("Wrong source contract.");
         DateTime started = clock();
+        DateTime start = attempt.ExpectedEndUtc.AddMinutes(-1);
+        if (start < attempt.SessionOpenUtc || attempt.ExpectedEndUtc > attempt.SessionCloseUtc || started <= attempt.ExpectedEndUtc)
+            throw new ArgumentException("The requested minute must have completed before the read starts.");
         string body = JsonSerializer.Serialize(new { operationName = "getTimeSeriesData", query = Query,
             variables = new { symbol = attempt.Symbol, interval = 1,
-                startDateTime = new DateTimeOffset(attempt.SessionOpenUtc).ToUnixTimeSeconds(),
-                endDateTime = new DateTimeOffset(attempt.ExpectedEndUtc).ToUnixTimeSeconds() } });
+                startDateTime = new DateTimeOffset(start).ToUnixTimeSeconds(),
+                endDateTime = new DateTimeOffset(attempt.ExpectedEndUtc).ToUnixTimeSeconds() - 1 } });
         using var request = new HttpRequestMessage(HttpMethod.Post, "https://app-money.tmx.com/graphql")
         { Content = new StringContent(body, Encoding.UTF8, "application/json") };
         using var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
@@ -78,6 +81,7 @@ query getTimeSeriesData($symbol: String!, $interval: Int, $startDateTime: Int, $
                     string text = row.GetProperty("dateTime").GetString() ?? "";
                     if (!Regex.IsMatch(text, @"(Z|[+-]\d{2}:\d{2})$", RegexOptions.CultureInvariant)) throw new InvalidDataException();
                     DateTime timestamp = DateTimeOffset.Parse(text, CultureInfo.InvariantCulture).UtcDateTime;
+                    if (timestamp != start) continue;
                     builder.Add(new(timestamp, row.GetProperty("open").GetDecimal(), row.GetProperty("high").GetDecimal(),
                         row.GetProperty("low").GetDecimal(), row.GetProperty("close").GetDecimal(), row.GetProperty("volume").GetInt64()));
                 }
@@ -93,7 +97,8 @@ query getTimeSeriesData($symbol: String!, $interval: Int, $startDateTime: Int, $
                 envelope = JsonSerializer.Serialize(new { invalidRawSha256 = DelphiLiveCollectorBatches.Hash(raw), oversizedEscapedEvidence = true });
         }
         var batch = new DelphiLiveCollectorBatch(attempt.RequestId, Contract, attempt.Symbol, attempt.SessionOpenUtc,
-            attempt.SessionCloseUtc, attempt.ExpectedEndUtc, deadlineOffset, started, received, clock(), bars, envelope, failure);
+            attempt.SessionCloseUtc, attempt.ExpectedEndUtc, deadlineOffset, started, received, clock(), bars, envelope, failure)
+            { RequestedStartUtc = start };
         try { DelphiLiveCollectorBatches.Validate(batch); }
         catch (ArgumentException) { batch = batch with { Bars = [], FailureCode = "InvalidBars" }; DelphiLiveCollectorBatches.Validate(batch); }
         return batch;

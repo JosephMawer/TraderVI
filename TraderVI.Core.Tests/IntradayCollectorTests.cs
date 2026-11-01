@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -217,6 +218,28 @@ public sealed class IntradayCollectorTests
         Assert.Contains("dateTime", receipt.RawResponseJson);
     }
 
+    [Theory]
+    [InlineData(1)]
+    [InlineData(390)]
+    public async Task RoutineRequestIsTheExactCompletedMinuteEvenWhenSourceReturnsOtherRows(int minute)
+    {
+        var end = Open.AddMinutes(minute);
+        object Row(DateTime time) => new { dateTime = time, open = 10, high = 11, low = 9, close = 10, volume = 1 };
+        var raw = JsonSerializer.Serialize(new { data = new { getTimeSeriesData = new[] {
+            Row(end.AddMinutes(-2)), Row(end.AddMinutes(-1)), Row(end) } } });
+        var handler = new Handler(raw);
+        using var source = new TmxCollectorSource(handler, () => end.AddSeconds(3));
+        var receipt = await source.FetchAsync(new(Guid.NewGuid(), source.SourceContract, "XIU", Open, Open.AddHours(6.5),
+            end, end.AddSeconds(1)), Limits.DeadlineOffset, default);
+        using var sent = JsonDocument.Parse(handler.Body!);
+        var variables = sent.RootElement.GetProperty("variables");
+        Assert.Equal(new DateTimeOffset(end.AddMinutes(-1)).ToUnixTimeSeconds(), variables.GetProperty("startDateTime").GetInt64());
+        Assert.Equal(new DateTimeOffset(end).ToUnixTimeSeconds() - 1, variables.GetProperty("endDateTime").GetInt64());
+        Assert.Null(receipt.FailureCode);
+        Assert.Equal(end.AddMinutes(-1), Assert.Single(receipt.Bars).TimestampUtc);
+        Assert.Equal(raw, receipt.RawResponseJson);
+    }
+
     private sealed class Rig
     {
         public DateTime Now = Open.AddSeconds(5);
@@ -268,7 +291,8 @@ public sealed class IntradayCollectorTests
     private sealed class Handler(string raw) : HttpMessageHandler
     {
         public int Requests;
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
-        { Requests++; return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(raw) }); }
+        public string? Body;
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+        { Requests++; Body = await request.Content!.ReadAsStringAsync(ct); return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(raw) }; }
     }
 }
