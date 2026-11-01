@@ -58,7 +58,7 @@ public sealed partial class TradingCompactStorageTests
         string indexes = Schema("TradingCurrentState.sql");
         foreach (var table in TradingTable.All.Where(t => t.ActiveColumn is not null))
         {
-            Assert.Contains($"FROM dbo.[{table.Name}] WHERE [BindingId]=@BindingId AND [{table.ActiveColumn}]=1;", sql);
+            Assert.Contains($"FROM dbo.[{table.Name}] WITH (INDEX([IX_{table.Name}_Active])) WHERE [BindingId]=@BindingId AND [{table.ActiveColumn}]=1;", sql);
             Assert.Contains($"ON [dbo].[{table.Name}] ([BindingId]", indexes);
             Assert.Contains($"WHERE [{table.ActiveColumn}]=1", indexes);
         }

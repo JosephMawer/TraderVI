@@ -245,9 +245,15 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [ ] Qualify the bounded production journal index, exact attribution of manual fills, native
   grant/journal fencing and broker coverage. Map strategy-specific opening terms and remaining
   writers before connecting the compact restart path.
-- [ ] Near the end, measure SQL read/write latency and physical space and qualify round trips, locking,
-  crash/rollback and active query plans. October 31 operator deferred this work. Review the test
-  environment before execution.
+- [x] October 31 ran migrations 054/055 against checksummed backups on disposable SQL Server
+  LocalDB 17. The native fixture kept 154 rows, two markers and 232 KiB of used table/index pages
+  through 10,000 saves (p95 4.82 ms). Concurrent retries committed once. An injected SQL failure
+  and a connection killed before commit each preserved the prior state. Explicit current-row indexes
+  corrected an account-history scan. At 1k/100k/1m completed orders the same 78,236-byte book
+  read in 6.10/5.57/3.19 ms at p95. Total receipt storage still grew. Local evidence:
+  `artifacts/restart-release/indexed.trx`, with the original comparison in `native.trx`.
+- [ ] Finish performance qualification on representative hardware, including first-open latency,
+  per-table/wire and log costs, and production-shaped writer contention.
 - [ ] Finish writer/consumer mapping and the replacement's failure/latency contract, record exact
   supersession of installed behavior and update #19 before integrating or activating that replacement.
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,

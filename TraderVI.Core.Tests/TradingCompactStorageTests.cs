@@ -242,11 +242,7 @@ public sealed partial class TradingCompactStorageTests(ITestOutputHelper output)
         output.WriteLine($"{historyCount:N0} archived receipts: {db.ReadRows} active rows returned, {TradingStorageValidation.PayloadBytes(after)} current JSON bytes. Test-double result, not a SQL timing claim.");
     }
 
-    [Fact]
-    public async Task BenchmarkBookFitsPayloadBudget()
-    {
-        var db = new Database();
-        var initial = Initial() with
+    private static TradingStateWrite BenchmarkBook() => Initial() with
         {
             Positions = Enumerable.Range(1, 20).Select(i => Position(i) with { ProtectionJson = "{\"highestClose\":11,\"tightestGap\":0.02,\"exitTriggered\":false}" }).ToImmutableArray(),
             Symbols = Enumerable.Range(1, 100).Select(i => new TradingSymbolCurrent { BindingId = Binding,
@@ -257,6 +253,12 @@ public sealed partial class TradingCompactStorageTests(ITestOutputHelper output)
                 RestrictionId = Id(i), ScopeKey = "TEST" + i, ActionCode = "Buy", ReasonCode = "Synthetic",
                 Explanation = "Synthetic fixture restriction", LastCheckedUtc = Now }).ToImmutableArray()
         };
+
+    [Fact]
+    public async Task BenchmarkBookFitsPayloadBudget()
+    {
+        var db = new Database();
+        var initial = BenchmarkBook();
         await db.Store.SaveAsync(initial);
         var state = (await db.Store.ReadAsync(Binding))!;
         await db.Store.SaveAsync(Change(state) with { Account = state.Account with { ObservedCash = 10000 } });

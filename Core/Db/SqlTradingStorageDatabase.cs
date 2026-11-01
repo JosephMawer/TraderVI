@@ -60,7 +60,12 @@ public sealed class SqlTradingStorageDatabase : ITradingStorageDatabase
         t.RowType == typeof(TradingAccountCurrent) ? 0 : t.RowType == typeof(TradingApprovedSettings) ? 1 : 2)
         .Select(t => t.RowType == typeof(TradingApprovedSettings)
             ? $"SELECT {string.Join(",", t.Columns.Select(c => "s.[" + c.Name + "]"))} FROM dbo.[{t.Name}] s JOIN dbo.TradingAccountCurrent a ON a.BindingId=s.BindingId AND a.PermissionId=s.PermissionId WHERE a.BindingId=@BindingId;"
-            : $"SELECT {t.ColumnSql} FROM dbo.[{t.Name}] WHERE [BindingId]=@BindingId{(t.ActiveColumn is null ? "" : " AND [" + t.ActiveColumn + "]=1")};"));
+            : $"SELECT {t.ColumnSql} FROM dbo.[{t.Name}]{ActiveIndex(t)} WHERE [BindingId]=@BindingId{(t.ActiveColumn is null ? "" : " AND [" + t.ActiveColumn + "]=1")};"));
+
+    // A cached account-range scan can visit every completed receipt. These filtered
+    // indexes contain only current rows, even for an account with years of history.
+    private static string ActiveIndex(TradingTable table) => table.ActiveColumn is null ? "" :
+        $" WITH (INDEX([IX_{table.Name}_Active]))";
 
     private sealed class Session(SqlConnection connection, SqlTransaction transaction, Guid bindingId, bool write)
         : ITradingStorageTransaction
