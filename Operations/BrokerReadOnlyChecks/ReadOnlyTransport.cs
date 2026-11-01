@@ -13,6 +13,9 @@ internal sealed class ReadOnlyTransport(string access, HttpMessageHandler inner)
     internal const int MaximumRequests = 64;
     private readonly HashSet<string> discoveredOrders = new(StringComparer.Ordinal);
     internal int RequestCount => Math.Min(requests, MaximumRequests);
+#if GROUPED_HISTORY_CHECK
+    internal List<int> GroupSizes { get; } = [];
+#endif
     internal void BindIdentity(string id) { if (identity is not null) throw Rejected(); identity = id; }
     internal void BindAccount(string id) { if (identity is null || account is not null) throw Rejected(); account = id; }
 
@@ -32,6 +35,13 @@ internal sealed class ReadOnlyTransport(string access, HttpMessageHandler inner)
     {
         await ValidateAsync(request, ct);
         if (Interlocked.Increment(ref requests) > MaximumRequests) throw Rejected();
+#if GROUPED_HISTORY_CHECK
+        if (request.Headers.TryGetValues("x-ws-operation-name", out var operations) && operations.SequenceEqual(["TraderVIRegularOrderGroup"]))
+        {
+            using var payload = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(ct));
+            GroupSizes.Add(payload.RootElement.GetProperty("variables").EnumerateObject().Count() - 1);
+        }
+#endif
         var response = await base.SendAsync(request, ct);
         try
         {
@@ -79,11 +89,24 @@ internal sealed class ReadOnlyTransport(string access, HttpMessageHandler inner)
         var root = json.RootElement;
         Keys(root, "operationName", "query", "variables");
         var operation = root.GetProperty("operationName").GetString();
-        if (operation is null || !Queries.TryGetValue(operation, out var canonical)
-            || root.GetProperty("query").GetString() != canonical) throw Rejected();
         if (!request.Headers.TryGetValues("x-ws-identity-id", out var owners) || !owners.SequenceEqual([identity])
             || !request.Headers.TryGetValues("x-ws-operation-name", out var names) || !names.SequenceEqual([operation])) throw Rejected();
         var vars = root.GetProperty("variables");
+#if GROUPED_HISTORY_CHECK
+        if (operation == "TraderVIRegularOrderGroup")
+        {
+            int size = vars.EnumerateObject().Count() - 1;
+            if (size is < 2 or > 8 || account == null || root.GetProperty("query").GetString() != GroupQuery(size))
+                throw Rejected();
+            var keys = Enumerable.Range(0, size).Select(i => "id" + i).ToArray();
+            Keys(vars, ["branchId", .. keys]); Text(vars, "branchId", "TR");
+            var ids = keys.Select(k => vars.GetProperty(k).GetString()).ToArray();
+            if (ids.Distinct(StringComparer.Ordinal).Count() != size || ids.Any(id => id == null || !discoveredOrders.Contains(id))) throw Rejected();
+            return;
+        }
+#endif
+        if (operation is null || !Queries.TryGetValue(operation, out var canonical)
+            || root.GetProperty("query").GetString() != canonical) throw Rejected();
         switch (operation)
         {
             case "TraderVITfsaAccounts":
@@ -121,6 +144,15 @@ internal sealed class ReadOnlyTransport(string access, HttpMessageHandler inner)
     }
 
     private void Selected(JsonElement vars, string key) { if (account is null) throw Rejected(); Text(vars, key, account); }
+#if GROUPED_HISTORY_CHECK
+    // Independent allow-list assembled from the individually reviewed field selection. No response-supplied query text.
+    internal static string GroupQuery(int size)
+    {
+        var indices = Enumerable.Range(0, size);
+        return "query TraderVIRegularOrderGroup($branchId: String!, " + string.Join(", ", indices.Select(i => $"$id{i}: String!")) +
+            ") { " + string.Join("\n", indices.Select(i => $"order{i}: orderServiceExtendedOrderByExternalId(branchId: $branchId, externalId: $id{i}) {{ {WealthsimpleAuthClient.ReviewedOrderFields} }}")) + " }";
+    }
+#endif
     private void IdArray(JsonElement vars, string key)
     {
         var ids = vars.GetProperty(key);

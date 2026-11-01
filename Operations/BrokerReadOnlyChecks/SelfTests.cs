@@ -8,7 +8,7 @@ using System.Text.Json;
 namespace BrokerReadOnlyChecks;
 
 // All credentials, identities and responses below are synthetic. No DPAPI file or network access.
-internal static class SelfTests
+internal static partial class SelfTests
 {
     private const string Token = "synthetic-read-only-token";
     private const string Identity = "synthetic-identity";
@@ -80,7 +80,13 @@ internal static class SelfTests
             Require(!await rejected.VerifyReadOnlyAsync(default) && rejectedHandler.Forwarded == 1);
         Require(!typeof(WealthsimpleAuthClient).GetMethods().Any(m => m.Name is "RefreshAsync" or "BeginLoginAsync" or "ProtectSessionAsync" or "FromBrowserHar"));
         Require(!typeof(WealthsimpleAuthClient).Assembly.GetReferencedAssemblies().Any(a => a.Name is "Core" or "Microsoft.Data.SqlClient"));
-        Console.WriteLine(JsonSerializer.Serialize(new { HelperVersion = 2, OfflineChecksPassed = checks, NetworkRequests = 0, SavedSessionAccess = false }));
+#if GROUPED_HISTORY_CHECK
+        await GroupChecksAsync();
+        const int version = 3;
+#else
+        const int version = 2;
+#endif
+        Console.WriteLine(JsonSerializer.Serialize(new { HelperVersion = version, OfflineChecksPassed = checks, NetworkRequests = 0, SavedSessionAccess = false }));
         return 0;
     }
     private static async Task Pipeline(bool foreignPosition = false, bool graphQlError = false)

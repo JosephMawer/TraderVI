@@ -6,6 +6,12 @@
     <Nullable>enable</Nullable>
     <AssemblyName>TraderVI.BrokerReadOnlyChecks</AssemblyName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(GroupedHistoryCheck)' == 'true'">
+    <DefineConstants>$(DefineConstants);GROUPED_HISTORY_CHECK</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(GroupedHistoryCheck)' == 'true'">
+    <Compile Include="../../Core/WSTrade/Authentication/WealthsimpleAuthClient.RegularTradingHistory.cs" Link="Readers/RegularTradingHistory.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" />
     <!-- Reuse only read-query parsers/models. No Core reference or login/order mutation code. -->

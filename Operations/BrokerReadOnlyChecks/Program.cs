@@ -31,6 +31,17 @@ try
         throw new CheckFailure("UniqueOwnedTfsaUnavailable");
     var account = catalog.Data[0];
     client.SelectReadOnlyAccount(account);
+#if GROUPED_HISTORY_CHECK
+    var comparison = await GroupedHistoryCheck.RunAsync(client, account, ct);
+    var finalSession = await ReadProtectedAsync(sessionPath, ct);
+    if (!CryptographicOperations.FixedTimeEquals(originalHash, SHA256.HashData(finalSession)))
+        throw new CheckFailure("SavedSessionChanged");
+    string json = JsonSerializer.Serialize(comparison);
+    using (var receipt = new FileStream(Path.Combine(outputRoot, $"grouped-history-{Guid.NewGuid():N}.json"), FileMode.CreateNew, FileAccess.Write, FileShare.None))
+        await receipt.WriteAsync(Encoding.UTF8.GetBytes(json), ct);
+    Console.WriteLine(json);
+    return comparison.Success ? 0 : 1;
+#else
     var history = await client.ReadTfsaOrderHistoryAsync(account, ct);
     if (history.Status != WealthsimpleReadStatus.Success || history.Data is null)
         throw new CheckFailure("OrderHistory" + history.Status);
@@ -97,6 +108,7 @@ try
         await output.WriteAsync(Encoding.UTF8.GetBytes(json), ct);
     Console.WriteLine(json);
     return 0;
+#endif
 }
 catch (Exception error)
 {

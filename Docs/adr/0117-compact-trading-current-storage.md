@@ -285,8 +285,9 @@ older fee or net fill value is unchanged. The offline candidate groups discovere
 in one read and checks each result against the original ID, account, owner, security and side.
 An incomplete or conflicting group cannot produce a successful history. Manual reconciliation,
 original-order recovery and the installed read-only helper retain their individual reads.
-Broker support for the grouped request remains unverified. See the
-[execution checklist](../strategy-alignment-implementation-checklist.md) for offline measurements.
+The November 1 read-only comparison verified broker support and agreement for the observed
+account. The trading engine still uses individual reads. See the
+[execution checklist](../strategy-alignment-implementation-checklist.md) for the offline and live measurements.
 
 Retrofitting the cumulative session blobs would retain history-dependent reads and obscure field
 ownership. Reusing two full snapshots would still copy the active book on every change. Separate scalar

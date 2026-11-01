@@ -1,5 +1,23 @@
 # Fixed read-only broker checks
 
+## November 1 grouped history comparison
+
+The separately built v3 diagnostic compares the individual and grouped readers on the same
+selected TFSA. Both passes discover order IDs from the owned activity feed. The transport
+accepts only the reviewed grouped query shapes (two through eight distinct discovered IDs).
+The comparison checks the parsed cumulative records by original ID, instrument listing
+evidence, limitations and the ending activity fingerprint. Retrieval times and raw JSON
+formatting are excluded. It does not separately compare wire-only fields such as the
+reported average fill price. It writes one aggregate result and stores no order payload.
+
+Use the build property `GroupedHistoryCheck=true` and a separate output folder for v3.
+The default build remains v2. The standalone v3 build passed 82 offline checks. The v2
+compatibility build passed its 66 checks. Both had two existing nullable warnings.
+The operator authorized the hash-verified local v3 diagnostic and one live read only.
+No recurring approval rule was added. Future runs require separate authorization.
+The [execution checklist](../../Docs/strategy-alignment-implementation-checklist.md)
+records the observed comparison.
+
 ## October 19 reviewed history extension (v2)
 
 The v2 helper is installed alongside the unchanged v1 helper after explicit operator approval.

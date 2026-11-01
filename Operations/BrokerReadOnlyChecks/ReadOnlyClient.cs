@@ -85,6 +85,10 @@ public sealed partial class WealthsimpleAuthClient : IDisposable
     }
 
     internal static string ReadOnlyPendingQuery => PendingOrdersQuery;
+#if GROUPED_HISTORY_CHECK
+    internal IReadOnlyList<int> GroupSizes => transport.GroupSizes;
+    internal static string ReviewedOrderFields => OrderDetailFields;
+#endif
     internal static string ReadOnlyHistoryQuery => ReconciliationActivityQuery;
     internal static string ReadOnlyHistoricalOrderQuery => ReconciliationOrderQuery;
     private bool OwnsAccount(WealthsimpleTfsaAccount account) => catalogIdentity == session.IdentityId && tfsaAccounts.Contains(account);

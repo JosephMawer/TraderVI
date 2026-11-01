@@ -335,9 +335,14 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   broker projections produced identical Delphi Live buy, protective sell and hold
   recommendations on repeat polls. A corrected old fee with unchanged feed metadata still
   required review. [Offline replay](../TraderVI.Core.Tests/WealthsimpleAccountTests.RegularTradingHistory.cs).
-- [ ] Verify broker support for the grouped read through a separately authorized read-only
-  check before activation. The installed engine still uses individual history requests.
-  Removing historical records from ordinary reads altogether requires evidence that would
+- [x] November 1, 01:54 Toronto. The authorized read-only Wealthsimple comparison returned
+  the same 46 parsed order records and instrument listings in both passes. Five groups of
+  eight and one of six were accepted. Including activity pages, the individual history
+  pass used 48 requests and the grouped pass used eight. The final activity fingerprint
+  matched both passes. No order was sent. The trading engine continued running its
+  existing reader. Local receipt under `artifacts/read-only-broker/grouped-history-f089a7d0fb4e4a9ba3af07b27e5c4d97.json`.
+- [ ] Activation of the grouped reader remains pending. Removing historical records
+  from ordinary reads altogether requires evidence that would
   detect financial corrections missing from the activity feed. Database write reduction remains open.
 - Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to
   [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.
