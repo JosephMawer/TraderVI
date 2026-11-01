@@ -23,6 +23,11 @@ internal static class Program
         if (args is ["--candidate-capabilities"]) { Console.WriteLine("compact-localdb-only-v1"); return 0; }
         return args is ["--run"] ? await IsolatedCompactHost.RunAsync() : 64;
 #else
+        if (args is ["--sign-in"])
+        {
+            try { await RunSignInAsync(); return 0; }
+            catch { return 1; }
+        }
         if (args is ["--run"] && Environment.GetEnvironmentVariable("TRADERVI_CANDIDATE_REHEARSAL") != null) return 64;
         if (args.Length == 2 && args[0] is ("--stage-compact-rehearsal" or "--verify-compact-restart" or "--compare-compact-rehearsal"))
             return Guid.TryParseExact(args[1], "N", out var token) && token != Guid.Empty
@@ -206,4 +211,28 @@ internal static class Program
         catch { return 1; } // Never write credentials, account contents or SQL connection details to console/logs.
 #endif
     }
+
+#if !COMPACT_RESTART_CANDIDATE
+    private static async Task RunSignInAsync()
+    {
+        using var owner = new EngineOwnershipLease(EnginePaths.OwnershipPath);
+        using var sessions = new WindowsWealthsimpleSessionStore();
+        using var stop = new CancellationTokenSource();
+        var connection = new WealthsimpleConnection(sessions);
+        var instance = Guid.NewGuid();
+        IndependentEngineStatus Status(string state) => new(instance, state, DateTimeOffset.UtcNow, []);
+        // The operator signs in explicitly. Do not restore or rotate an expired token at startup.
+        var server = new EngineRpcServer(EnginePaths.PipeName, async request =>
+        {
+            if (request.Operation == EngineOperation.Status) return Status("Sign-in only");
+            if (request.Operation == EngineOperation.ExecutionStatus)
+                return new BrokerExecutionHostStatus("Off", "Broker sign-in only. Trading is off.", DateTimeOffset.UtcNow);
+            if (request.Operation == EngineOperation.Stop) { stop.Cancel(); return Status("Stopping"); }
+            if (request.Operation == EngineOperation.Connection) return EngineConnectionStatus.Read(connection);
+            return await EngineAuthenticationCommands.DispatchAsync(request, connection, sessions);
+        });
+        try { await server.RunAsync(stop.Token); }
+        finally { await connection.StopAsync(); }
+    }
+#endif
 }

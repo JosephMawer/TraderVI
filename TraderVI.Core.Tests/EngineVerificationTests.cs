@@ -10,6 +10,21 @@ namespace TraderVI.Core.Tests;
 
 public sealed class EngineVerificationTests
 {
+    [Fact]
+    public async Task SignInServiceRejectsEveryNonAuthenticationCommandBeforeAccessingBroker()
+    {
+        foreach (var operation in Enum.GetValues<EngineOperation>())
+        {
+            bool authentication = operation is EngineOperation.SignIn or EngineOperation.SubmitOtp or
+                EngineOperation.CancelSignIn or EngineOperation.ConnectProtectedSession or EngineOperation.CheckConnection or
+                EngineOperation.RememberSession or EngineOperation.Disconnect;
+            Assert.Equal(authentication, EngineAuthenticationCommands.Accepts(operation));
+            if (!authentication)
+                await Assert.ThrowsAsync<InvalidOperationException>(() => EngineAuthenticationCommands.DispatchAsync(
+                    new(2, Guid.NewGuid(), operation, default), null!, null!));
+        }
+    }
+
     [Theory]
     [InlineData(EngineOperation.SubmitBuy)]
     [InlineData(EngineOperation.SellAll)]

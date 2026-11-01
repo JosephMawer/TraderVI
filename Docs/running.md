@@ -40,6 +40,11 @@ For a changed build on this existing agreement, the October29 after-hours review
 (see [current installation state](project-status.md)). Stop execution host if enabled,
 confirm the truthful no-outside-changes statement, choose **Review updated build**, inspect the facts,
 then **Approve reviewed build** within two minutes. Separately choose **Resume stopped execution host**.
+During a release, the staged engine can run with `--sign-in` while the trading engine is stopped.
+It takes the same exclusive engine lock. The normal dashboard can complete Wealthsimple sign-in
+and show its connection status. The service has no trading workers or database access. Select
+**Keep me signed in on this Windows account** to carry the sign-in into the replacement engine.
+Stop the sign-in service before starting the trading engine.
 These actions may be completed after close, on weekends or before open. Keep the laptop awake and
 the engine/collector running with the broker signed in. The resumed host waits for regular TSX hours;
 fresh account/orders, exact daily risk boundaries, strategy inputs and quote checks can delay buying

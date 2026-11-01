@@ -114,21 +114,14 @@ public sealed class EngineBrokerService
             var json = EngineRpcJson.Options(resolve: reference => accountCatalogue.Resolve(reference,
                 connection.SessionRevision, connection.IsConnected));
             T Read<T>() => request.Payload.Deserialize<T>(json) ?? throw new InvalidOperationException("Missing command input.");
+            if (EngineAuthenticationCommands.Accepts(request.Operation))
+            {
+                var result = await EngineAuthenticationCommands.DispatchAsync(request, connection, protector);
+                if (request.Operation == EngineOperation.Disconnect) reviews.Clear();
+                return result;
+            }
             switch (request.Operation)
             {
-                case EngineOperation.SignIn:
-                    var login = Read<EngineSignIn>();
-                    await connection.SignInAsync(login.Email, login.Password, login.Remember); return true;
-                case EngineOperation.SubmitOtp: await connection.SubmitOtpAsync(Read<string>()); return true;
-                case EngineOperation.CancelSignIn: await connection.CancelSignInAsync(); return true;
-                case EngineOperation.ConnectProtectedSession:
-                    var transfer = Read<EngineProtectedSession>();
-                    try { await connection.ConnectAsync(WealthsimpleAuthClient.FromProtectedSession(transfer.ProtectedSession, protector), transfer.Remember); }
-                    finally { System.Security.Cryptography.CryptographicOperations.ZeroMemory(transfer.ProtectedSession); }
-                    return true;
-                case EngineOperation.CheckConnection: await connection.CheckAsync(true); return true;
-                case EngineOperation.RememberSession: await connection.SetRememberAsync(Read<bool>()); return true;
-                case EngineOperation.Disconnect: await connection.DisconnectAsync(); reviews.Clear(); return true;
                 case EngineOperation.Accounts:
                     long accountRevision = connection.SessionRevision;
                     var catalogue = await connection.ReadTfsaAccountsAsync();
