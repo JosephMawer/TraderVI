@@ -52,21 +52,7 @@ public static class RestartAccountRehearsal
         if (grant.ImplementationIdentity != installedBuild) throw new InvalidOperationException("Installed grant build mismatch.");
         BrokerExecutionHost.RequireMatchingAssignment(grant, saved, installedBuild, now);
         var review = saved.EffectiveReview;
-        var risk = saved.Account.Risk;
-        var observation = saved.Account.Import.Plan.Observation;
-        var account = new TradingAccountCurrent
-        {
-            BindingId = saved.BindingId, AssignmentId = saved.SessionId, PermissionId = review.RequestId,
-            BaselineId = review.BaselineId, StrategyId = saved.Strategy.VersionId, Phase = saved.Phase.ToString(),
-            ExecutionEnabled = grant.Enabled, NewBuysStopped = saved.NewBuysStopped, TradingDate = risk.TradingDate.ToDateTime(TimeOnly.MinValue),
-            RiskEvidenceId = risk.RevisionId ?? risk.BaselineId, RiskThroughUtc = risk.Through.UtcDateTime,
-            DailyLossHold = risk.DailyLossHold || saved.Memory.DailyLossHold,
-            CapitalReviewRequired = risk.CapitalReviewRequired || saved.Memory.CapitalReviewRequired,
-            HighestClosingValue = saved.Account.Account.HighestClosingValue, SessionReference = risk.SessionReference.Value,
-            DrawdownReference = risk.DrawdownReference.Value, ObservedCash = observation.Cash,
-            ObservedBuyingPower = observation.BuyingPower, BrokerObservedUtc = observation.SnapshotAt.UtcDateTime,
-            CommittedPurchaseCost = saved.CommittedPurchaseCost
-        };
+        var account = Account(saved, grant.Enabled);
         var settings = new TradingApprovedSettings
         {
             BindingId = saved.BindingId, AssignmentId = saved.SessionId, PermissionId = review.RequestId, BaselineId = review.BaselineId,
@@ -76,9 +62,41 @@ public static class RestartAccountRehearsal
             BuyAllowed = false, SellAllowed = false, ConfigurationJson = JsonSerializer.Serialize(new
                 { StrategyFingerprint = saved.Strategy.Fingerprint, grant.RestoreAfterRestart })
         };
-        var positions = saved.Account.Positions.Select(h =>
+        var positions = Positions(saved);
+        var marker = new TradingCheckpoint { BindingId = saved.BindingId, Slot = 0, OperationId = saved.RevisionId,
+            OperationHash = manifestHash, OperationKind = "SavedAccountComparison", SavedUtc = saved.SavedAt.UtcDateTime };
+        var symbols = CompactDelphiAssignment.CurrentSymbols(saved);
+        var state = new TradingCurrentState(account, settings, positions, symbols, [], [], [marker]);
+        TradingCurrentStore.ValidateCurrent(state, saved.BindingId);
+        return state;
+    }
+    internal static TradingAccountCurrent Account(BrokerManagedSession saved, bool enabled)
+    {
+        var review = saved.EffectiveReview;
+        var risk = saved.Account.Risk;
+        var observation = saved.Account.Import.Plan.Observation;
+        return new TradingAccountCurrent
         {
-            var p = saved.Protection.Single(x => x.PositionId == h.PositionId);
+            BindingId = saved.BindingId, AssignmentId = saved.SessionId, PermissionId = review.RequestId,
+            BaselineId = review.BaselineId, StrategyId = saved.Strategy.VersionId, Phase = saved.Phase.ToString(),
+            ExecutionEnabled = enabled, NewBuysStopped = saved.NewBuysStopped, TradingDate = risk.TradingDate.ToDateTime(TimeOnly.MinValue),
+            RiskEvidenceId = risk.RevisionId ?? risk.BaselineId, RiskThroughUtc = risk.Through.UtcDateTime,
+            DailyLossHold = risk.DailyLossHold || saved.Memory.DailyLossHold,
+            CapitalReviewRequired = risk.CapitalReviewRequired || saved.Memory.CapitalReviewRequired,
+            HighestClosingValue = saved.Account.Account.HighestClosingValue, SessionReference = risk.SessionReference.Value,
+            DrawdownReference = risk.DrawdownReference.Value, ObservedCash = observation.Cash,
+            ObservedBuyingPower = observation.BuyingPower, BrokerObservedUtc = observation.SnapshotAt.UtcDateTime,
+            CommittedPurchaseCost = saved.CommittedPurchaseCost
+        };
+    }
+
+    internal static ImmutableArray<TradingPositionCurrent> Positions(BrokerManagedSession saved, bool includeNewFills = false) =>
+        saved.Account.Positions.Select(h =>
+        {
+            var p = saved.Protection.SingleOrDefault(x => x.PositionId == h.PositionId);
+            if (p == null && includeNewFills && saved.ActivatedAt.HasValue)
+                p = BrokerLiveProtection.Transfer(saved.Strategy, h, null, h.EntryCompletedAt);
+            if (p == null) throw new InvalidOperationException("The position's saved protection is missing.");
             var live = p.State.LiveProtection ?? throw new InvalidOperationException("Unsupported protection family.");
             if (live.PositionId != h.PositionId || ((p.State.ExitReason != null || live.Progressive?.ExitTriggered == true) && p.FirstExit == null))
                 throw new InvalidOperationException("Protection identity or original exit receipt requires review.");
@@ -97,11 +115,4 @@ public static class RestartAccountRehearsal
                 ProtectionJson = live.Progressive is null ? "{}" : JsonSerializer.Serialize(live.Progressive)
             };
         }).ToImmutableArray();
-        var marker = new TradingCheckpoint { BindingId = saved.BindingId, Slot = 0, OperationId = saved.RevisionId,
-            OperationHash = manifestHash, OperationKind = "SavedAccountComparison", SavedUtc = saved.SavedAt.UtcDateTime };
-        var symbols = CompactDelphiAssignment.CurrentSymbols(saved);
-        var state = new TradingCurrentState(account, settings, positions, symbols, [], [], [marker]);
-        TradingCurrentStore.ValidateCurrent(state, saved.BindingId);
-        return state;
-    }
 }

@@ -202,6 +202,22 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
                 Memory = state.Memory with { Symbols = protection.ToImmutableDictionary(p => account.Positions.Single(h => h.PositionId == p.PositionId).Symbol,
                     p => p.State, StringComparer.OrdinalIgnoreCase) } }, "ProtectionTransferredAndStrategyActivated", ct);
         }
+        return await EvaluateAsync(lease, state, account, now, today, false, ct);
+    }
+
+    internal Task<BrokerManagedSession> CheckProtectionDuringRestartAsync(IBrokerManagedSessionLease lease, CancellationToken ct)
+    {
+        var saved = lease.Current ?? throw new InvalidOperationException("Missing trading assignment.");
+        if (!saved.HasReviewedCompactRestart || saved.Phase != BrokerManagedPhase.Active || saved.ReviewInvalidated ||
+            saved.TrialOrderReviewRequired || source.ImplementationIdentity != saved.Strategy.Strategy.ImplementationIdentity)
+            return Task.FromResult(saved);
+        var now = clock.GetUtcNow();
+        return EvaluateAsync(lease, saved, saved.Account, now, DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)), true, ct);
+    }
+
+    private async Task<BrokerManagedSession> EvaluateAsync(IBrokerManagedSessionLease lease, BrokerManagedSession state,
+        BrokerAccountProjection account, DateTimeOffset now, DateOnly today, bool protectionOnly, CancellationToken ct)
+    {
         // A strategy fill opens a real cycle at its own fill boundary, independently of the activation time.
         var acquired = account.Positions.Where(p => !state.Protection.Any(s => s.PositionId == p.PositionId)).ToArray();
         if (acquired.Length > 0)
@@ -237,7 +253,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         bool trialPurchasesEnded = state.EffectiveReview.NoTransferScope is { LimitedFirstSessionTrial: true } trial &&
             (trial.Session != today || trial.PurchaseExpiresAt is null || now >= trial.PurchaseExpiresAt);
         var savedRiskTradingDate = state.Memory.TradingDate;
-        input = input with { EntriesPaused = input.EntriesPaused || state.NewBuysStopped || trialPurchasesEnded || !currentRiskDay || !account.NewRiskBlocks.IsEmpty,
+        input = input with { EntriesPaused = protectionOnly || input.EntriesPaused || state.NewBuysStopped || trialPurchasesEnded || !currentRiskDay || !account.NewRiskBlocks.IsEmpty,
             PreviousMemory = state.Memory, ActualFills = account.Fills,
             ProtectionBoundaries = state.Protection.ToImmutableDictionary(p => p.PositionId, p => p.EstablishedAt.UtcDateTime) };
         if (!currentRiskDay)
@@ -301,6 +317,9 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
                 DailyLossHold = state.Memory.DailyLossHold || result.Memory.DailyLossHold } };
         state = await CaptureProtectiveExits(lease, state, result, replay.Protection, ct);
         replay.Protection = state.Protection;
+        if (protectionOnly)
+            return await Save(lease, state with { Memory = result.Memory, Protection = replay.Protection },
+                "RestartProtectionChecked", ct);
         if (state.LatestDecision is not null)
             state = state with { LatestDecision = CaptureTrace(input, result, observedQuotes, null, "RiskHoldPersistencePending") };
         try { await source.PreserveRiskHoldsAsync(account, result.Memory, ct); }

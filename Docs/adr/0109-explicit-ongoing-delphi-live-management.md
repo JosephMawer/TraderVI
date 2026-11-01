@@ -38,6 +38,10 @@ remains distinct. Shutdown drains admitted work and preserves explicitly approve
 Restart rechecks build, assignment, account, orders, calendar, source, integrity and risk. Stopped buying
 stays stopped. Material changes require review.
 
+[ADR-0117](0117-compact-trading-current-storage.md#november-1-release-boundary-and-operator-approval)
+supersedes this intervention rule only when the operator approves the scoped restart terms for
+the exact replacement build. Existing approvals retain their original scope.
+
 This supersedes ADR-0105's dated expiry/separate enable only for the newly approved agreement and its
 combined app action. Legacy trials/grants retain their limits. Activation remains Joseph's app action.
 Additive omitted-when-absent JSON fields and append-only risk events require no schema migration.

@@ -24,9 +24,9 @@ public sealed class InterruptedBuyRecovery
     internal InterruptedBuyRecovery(TradingCurrentStore store, Func<TradingOrder, CancellationToken, Task<BrokerOrderFact?>> lookup,
         Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms)
     { this.store = store; this.readOriginalOrder = lookup; this.openingTerms = openingTerms; }
-    public InterruptedBuyRecovery(TradingCurrentStore store, Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> lookup,
+    public InterruptedBuyRecovery(TradingCurrentStore store, Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> readOriginalOrder,
         Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms)
-        : this(store, (order, ct) => lookup(order.BindingId, "order-" + order.RequestId.ToString("D"), ct), openingTerms) { }
+        : this(store, (order, ct) => readOriginalOrder(order.BindingId, "order-" + order.RequestId.ToString("D"), ct), openingTerms) { }
     // A null result means this request has no active work. Both external lookups are read-only.
     public async Task<TradingSaveResult?> RecoverAsync(Guid bindingId, Guid requestId, DateTimeOffset observedAt,
         CancellationToken ct = default)

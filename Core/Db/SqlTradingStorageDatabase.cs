@@ -30,22 +30,7 @@ public sealed class SqlTradingStorageDatabase : ITradingStorageDatabase
         {
             if (connection.State != ConnectionState.Open) throw new InvalidOperationException("Connection factory must return an open owned connection.");
             transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
-            await connection.ExecuteAsync(new CommandDefinition("""
-                SET ANSI_NULLS ON;
-                SET ANSI_PADDING ON;
-                SET ANSI_WARNINGS ON;
-                SET ARITHABORT ON;
-                SET CONCAT_NULL_YIELDS_NULL ON;
-                SET QUOTED_IDENTIFIER ON;
-                SET NUMERIC_ROUNDABORT OFF;
-                SET XACT_ABORT ON;
-                SET NOCOUNT OFF;
-                DECLARE @result int;
-                EXEC @result=sys.sp_getapplock @Resource=@Resource, @LockMode=@Mode,
-                    @LockOwner='Transaction', @LockTimeout=5000;
-                IF @result<0 THROW 54600,'Compact current-state account is busy.',1;
-                """, new { Resource = "TradingCurrent:" + bindingId.ToString("D"), Mode = write ? "Exclusive" : "Shared" },
-                transaction, commandTimeout: 10, cancellationToken: ct));
+            await LockAccountAsync(connection, transaction, bindingId, write, ct);
             return new Session(connection, transaction, bindingId, write);
         }
         catch
@@ -54,6 +39,40 @@ public sealed class SqlTradingStorageDatabase : ITradingStorageDatabase
             await connection.DisposeAsync();
             throw;
         }
+    }
+
+    // Publication and the original strategy revision must either both commit or both roll back.
+    internal static TradingCurrentStore InTransaction(SqlConnection connection, SqlTransaction transaction) =>
+        new(new Joined(connection, transaction));
+
+    private sealed class Joined(SqlConnection connection, SqlTransaction transaction) : ITradingStorageDatabase
+    {
+        public async Task<ITradingStorageTransaction> BeginAsync(Guid bindingId, bool write, CancellationToken ct)
+        {
+            await LockAccountAsync(connection, transaction, bindingId, write, ct);
+            return new Session(connection, transaction, bindingId, write, ownsTransaction: false);
+        }
+    }
+
+    private static async Task LockAccountAsync(SqlConnection connection, SqlTransaction transaction, Guid bindingId,
+        bool write, CancellationToken ct)
+    {
+        await connection.ExecuteAsync(new CommandDefinition("""
+            SET ANSI_NULLS ON;
+            SET ANSI_PADDING ON;
+            SET ANSI_WARNINGS ON;
+            SET ARITHABORT ON;
+            SET CONCAT_NULL_YIELDS_NULL ON;
+            SET QUOTED_IDENTIFIER ON;
+            SET NUMERIC_ROUNDABORT OFF;
+            SET XACT_ABORT ON;
+            SET NOCOUNT OFF;
+            DECLARE @result int;
+            EXEC @result=sys.sp_getapplock @Resource=@Resource, @LockMode=@Mode,
+                @LockOwner='Transaction', @LockTimeout=5000;
+            IF @result<0 THROW 54600,'Compact current-state account is busy.',1;
+            """, new { Resource = "TradingCurrent:" + bindingId.ToString("D"), Mode = write ? "Exclusive" : "Shared" },
+            transaction, commandTimeout: 10, cancellationToken: ct));
     }
 
     internal static string CurrentReadSql => string.Join("\n", TradingTable.All.OrderBy(t =>
@@ -67,7 +86,7 @@ public sealed class SqlTradingStorageDatabase : ITradingStorageDatabase
     private static string ActiveIndex(TradingTable table) => table.ActiveColumn is null ? "" :
         $" WITH (INDEX([IX_{table.Name}_Active]))";
 
-    private sealed class Session(SqlConnection connection, SqlTransaction transaction, Guid bindingId, bool write)
+    private sealed class Session(SqlConnection connection, SqlTransaction transaction, Guid bindingId, bool write, bool ownsTransaction = true)
         : ITradingStorageTransaction
     {
         public async Task<T?> FindAsync<T>(object? key, CancellationToken ct) where T : TradingStorageRow
@@ -123,10 +142,11 @@ public sealed class SqlTradingStorageDatabase : ITradingStorageDatabase
         public async Task CommitAsync(CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
-            await transaction.CommitAsync(ct);
+            if (ownsTransaction) await transaction.CommitAsync(ct);
         }
         public async ValueTask DisposeAsync()
         {
+            if (!ownsTransaction) return;
             try { await transaction.DisposeAsync(); }
             finally { await connection.DisposeAsync(); }
         }

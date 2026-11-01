@@ -28,18 +28,30 @@ public sealed record ManualSellContext(WealthsimpleTfsaAccount Account, Wealthsi
     public override string ToString() => "Manual-sell context (financial data omitted)";
 }
 
+public sealed record OriginalProtectiveSale(Guid DecisionId, Guid PositionId, DateTime TriggeredUtc);
+
 public sealed record ManualSellIntent(Guid RequestId, string IdentityId, string AccountId, string SecurityId,
     string AccountName, string Symbol, string Exchange, int Quantity, DateTimeOffset DisplayedSnapshotAt,
-    ManualBuyQuote CheckedQuote, DateTimeOffset CreatedAt)
+    ManualBuyQuote? CheckedQuote, DateTimeOffset CreatedAt)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public OriginalProtectiveSale? ProtectiveSale { get; init; }
     public void Validate()
     {
         if (RequestId == Guid.Empty || Quantity < 1 || string.IsNullOrWhiteSpace(IdentityId) ||
             string.IsNullOrWhiteSpace(AccountId) || string.IsNullOrWhiteSpace(SecurityId) ||
             string.IsNullOrWhiteSpace(AccountName) || string.IsNullOrWhiteSpace(Symbol) ||
-            Exchange is not ("XTSE" or "XTSX") || CheckedQuote is null || CheckedQuote.Bid <= 0 ||
-            CheckedQuote.Ask < CheckedQuote.Bid || CreatedAt == default || DisplayedSnapshotAt == default)
+            Exchange is not ("XTSE" or "XTSX") || CreatedAt == default || DisplayedSnapshotAt == default)
             throw new ArgumentException("The saved manual sell is incomplete.");
+        if (ProtectiveSale is { } exit)
+        {
+            if (CheckedQuote != null || exit.PositionId == Guid.Empty || exit.DecisionId == Guid.Empty ||
+                Core.Trader.Promotion.BrokerManagedStrategy.StableId(exit.DecisionId.ToString("D")) != RequestId ||
+                exit.TriggeredUtc == default || exit.TriggeredUtc.Kind != DateTimeKind.Utc || exit.TriggeredUtc > CreatedAt.UtcDateTime)
+                throw new ArgumentException("The original protective decision and sale request do not match.");
+        }
+        else if (CheckedQuote == null || CheckedQuote.Bid <= 0 || CheckedQuote.Ask < CheckedQuote.Bid)
+            throw new ArgumentException("The saved manual sell lacks its reviewed quote.");
     }
     public override string ToString() => "Manual-sell intent (financial data omitted)";
 }

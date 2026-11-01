@@ -149,7 +149,7 @@ public sealed class TradingCurrentStore
         }
         var account = write.Account with { Version = nextVersion, CommittedPurchaseCost = committed, ReservedPurchaseCost = reserved };
         TradingStorageValidation.Validate(account);
-        if (pending.Count == 0 && current is not null && TradingStorageValidation.Same(current, account))
+        if (!write.AdvanceCheckpoint && pending.Count == 0 && current is not null && TradingStorageValidation.Same(current, account))
         {
             await tx.CommitAsync(ct);
             return (new(current.Version, false, 0), false);

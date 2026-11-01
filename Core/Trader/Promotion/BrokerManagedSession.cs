@@ -163,9 +163,13 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
         }
     }
     [JsonIgnore] public DateTime? StrategyEffectiveUtc => OngoingManagement?.ApprovedAt?.UtcDateTime ?? SessionContinuation?.ApprovedAt?.UtcDateTime ?? October22?.ApprovedAt?.UtcDateTime ?? SourceSwitch?.ApprovedAt.UtcDateTime ?? ActivatedAt?.UtcDateTime;
-    [JsonIgnore] public bool RequiresFullFillReview => OngoingManagement is not null || EffectiveReview.NoTransferScope?.FullFillOnlyNativeTrial == true;
+    [JsonIgnore] public bool RequiresFullFillReview => OngoingManagement != null && !HasReviewedCompactRestart ||
+        EffectiveReview.NoTransferScope?.FullFillOnlyNativeTrial == true;
     [JsonIgnore] public BrokerManagedStrategy Strategy => EffectiveReview.Strategy;
     [JsonIgnore] public bool IsOngoing => OngoingManagement is not null || Approval.Review.Duration == BrokerExecutionDuration.Ongoing;
+    [JsonIgnore] public bool HasReviewedCompactRestart => OngoingManagement != null &&
+        ImplementationReview is { RestartPolicy: BrokerImplementationReview.ScopedRestart } reviewed &&
+        reviewed.PermissionRequestId == EffectiveReview.RequestId && reviewed.ImplementationIdentity == Strategy.Strategy.ImplementationIdentity;
     // An ongoing assignment does not refill its explicitly approved spending ceiling at midnight.
     [JsonIgnore] public decimal CommittedPurchaseCost => Orders.Where(o => o.Side == "BUY")
         .Sum(o => o.Reconciled ? o.Latest?.NetValue ?? 0 : o.Quantity * o.ReferencePrice);

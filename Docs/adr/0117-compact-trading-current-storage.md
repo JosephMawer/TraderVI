@@ -256,6 +256,29 @@ The old managed-session archive is absent throughout these launches.
 
 ## Alternatives and consequences
 
+### November 1 release boundary and operator approval
+
+Joseph selected the compact restart for the first release. Delphi Live remains the trader.
+Its ordinary strategy evaluation temporarily continues the original account journal and broker
+history checks. Reducing those regular reads and cumulative writes is the next piece of the
+same overhaul. Keep production data and fix forward if the new version needs repair.
+
+For this build the operator reviews the scoped restart permission in the desktop application.
+The receipt binds the terms, original permission, previous strategy revision and implementation.
+An older build approval cannot silently acquire those terms. After approval, an uncertain buy
+retains its reservation. A verified partial fill is counted once. A different position may use its
+original protective decision while the buy is unresolved. This supersedes the full-fill intervention
+rule in [ADR-0109](0109-explicit-ongoing-delphi-live-management.md) only for the reviewed scope.
+Daily risk boundaries, outside-account changes, the purchase ceiling and revocation remain effective.
+
+During the transition the normal strategy writer publishes changed compact rows and its current
+revision in the same SQL transaction. The protected receipt is written to the alternate slot
+before commit. A restart verifies the selected slot and source revision. The engine and dashboard
+must run the reviewed package. An unexpected source writer or receipt mismatch requires investigation.
+The initial transfer requires a settled account and the exact enabled permission. A second transfer
+cannot overwrite the first. The production schema was installed November 1. A successful migration
+does not mark the account transfer or engine activation complete.
+
 Retrofitting the cumulative session blobs would retain history-dependent reads and obscure field
 ownership. Reusing two full snapshots would still copy the active book on every change. Separate scalar
 rows and two markers make growth and changed-row costs measurable, at the cost of an explicit future

@@ -43,7 +43,8 @@ public sealed partial class ManualBuyCoordinator
         var projected=await components.AccountSource.SynchronizeAsync(saved.Orders,ct); check();
         var proposal=BrokerImplementationReviewWorkflow.Prepare(saved,normal.Review,normal.Updated,projected,
             storage.BaselineInstalled && storage.ContinuationInstalled && storage.SessionInstalled && storage.ImmutableStorageVerified,
-            BrokerManagedSessionComposition.ImplementationIdentity,Environment.UserName,executionCalendar!,DateTimeOffset.UtcNow);
+            BrokerManagedSessionComposition.ImplementationIdentity,Environment.UserName,executionCalendar!,DateTimeOffset.UtcNow,
+            reviewScopedRestart: saved.OngoingManagement != null);
         string summary=$"Updated build review\nExact strategy: {normal.Review.Strategy.Strategy.Name} · {normal.Review.Strategy.GateProfile}\n" +
             normal.Review.Strategy.Strategy.EntryReviewDescription + "\n" +
             $"Previous build: {BrokerAccountImport.Hash(proposal.Review.PreviousImplementation)[..16]}\nNew build: {BrokerAccountImport.Hash(proposal.Review.ImplementationIdentity)[..16]}\n" +
@@ -51,8 +52,9 @@ public sealed partial class ManualBuyCoordinator
             $"Original daily reference {projected.Risk.SessionReference.Value:N2} CAD; drawdown reference {projected.Risk.DrawdownReference.Value:N2} CAD; all source dates and history retained.\n" +
             (saved.OngoingManagement is not null ? $"Ongoing agreement retained with {saved.Account.Positions.Length} holdings and their saved protection. " : $"Original permission still expires {scope!.PurchaseExpiresAt?.ToLocalTime():g}. ") +
             "Gates, risk controls, memory, buying/paused mode and cumulative allowance are unchanged.\n\n" +
-            "Real holding protection now uses a fresh Wealthsimple bid matched to the account, security and quantity, with a broker timestamp no more than 60 seconds old. Missing or stale bids do not trigger an exit. Existing stop levels and broker sell checks remain unchanged.\n\n" +
-            "Review these facts, then Approve reviewed build within two minutes. This saves only the explicit build review; no order, baseline reset, risk event or host enable. Enable reviewed host separately afterward. " +
+            (proposal.Review.RestartPolicy == BrokerImplementationReview.ScopedRestart ?
+                "Restart permission for this build. Keep the money for an unfinished buy reserved. Look up its original order and count each confirmed fill once. A saved protective sell on a different holding may proceed without another quote or holdings refresh. A conflicting sale on those same shares still blocks that sale.\n\n" : "") +
+            "Review these facts, then approve the reviewed build within two minutes. Resume the reviewed host separately afterward. " +
             (saved.OngoingManagement is not null ? "You can review and resume the host after hours. It waits for a regular TSX session and fresh market, account, order and risk checks before trading. This review does not certify tomorrow's data or advance daily risk references." : "");
         return new(proposal,new(new BrokerManagedSessionRepository(executionCalendar!,sharedStorage:true),components.AccountSource,
             HostGrants(),executionCalendar!),summary);

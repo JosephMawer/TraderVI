@@ -208,7 +208,7 @@ public static class BrokerAccountImport
         return candidates.Length == 1 && candidates[0].SecurityId == order.SecurityId &&
             string.Equals(candidates[0].Symbol, order.Symbol, StringComparison.OrdinalIgnoreCase);
     }
-    private static bool CanadianTickerPair(string a, string b, string mic)
+    internal static bool CanadianTickerPair(string a, string b, string mic)
     {
         if (mic is not ("XTSE" or "XTSX") || new[] { a, b }.Any(s => string.IsNullOrWhiteSpace(s) ||
             s.Length > 32 || s.Any(c => !(char.IsAsciiLetterOrDigit(c) || c is '.' or '-')))) return false;

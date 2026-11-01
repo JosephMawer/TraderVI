@@ -14,6 +14,11 @@ public sealed record BrokerImplementationReview(Guid ReviewId, Guid PreviousRevi
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public Guid? PermissionRequestId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? RestartPolicy { get; init; }
+    public const string ScopedRestart = "ScopedOriginalOrderRecoveryV1";
+    internal static Guid RequestId(Guid prior, string build, string? restartPolicy) =>
+        BrokerManagedStrategy.StableId($"{prior:D}:ImplementationReview:{build}" + (restartPolicy == null ? "" : ":" + restartPolicy));
     public override string ToString() => "Reviewed implementation update (financial data omitted)";
 }
 public sealed record BrokerImplementationReviewProposal(Guid BindingId, BrokerImplementationReview Review,
@@ -26,7 +31,12 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
 
     public static BrokerImplementationReviewProposal Prepare(BrokerManagedSession prior, BrokerStrategyReview current,
         DateTimeOffset sourceUpdatedAt, BrokerAccountProjection account, bool storageReady, string implementation,
-        string reviewer, ITsxSessionCalendar calendar, DateTimeOffset now)
+        string reviewer, ITsxSessionCalendar calendar, DateTimeOffset now) =>
+        Prepare(prior, current, sourceUpdatedAt, account, storageReady, implementation, reviewer, calendar, now, false);
+
+    public static BrokerImplementationReviewProposal Prepare(BrokerManagedSession prior, BrokerStrategyReview current,
+        DateTimeOffset sourceUpdatedAt, BrokerAccountProjection account, bool storageReady, string implementation,
+        string reviewer, ITsxSessionCalendar calendar, DateTimeOffset now, bool reviewScopedRestart)
     {
         RequireSession(prior, calendar, now);
         BrokerOctober21Continuation.RequireSameDefinition(prior.Strategy, current.Strategy);
@@ -39,10 +49,13 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
             now.UtcDateTime - current.PreparedUtc > TimeSpan.FromMinutes(2))
             throw new InvalidOperationException("Review the fresh matching source, immutable storage and changed running build before approving its implementation.");
         RequireAccount(prior, account, now);
-        var id = BrokerManagedStrategy.StableId($"{prior.RevisionId:D}:ImplementationReview:{implementation}");
+        string? policy = reviewScopedRestart ? BrokerImplementationReview.ScopedRestart : null;
+        if (reviewScopedRestart && prior.OngoingManagement == null)
+            throw new InvalidOperationException("Scoped restart requires an approved ongoing Delphi assignment.");
+        var id = BrokerImplementationReview.RequestId(prior.RevisionId, implementation, policy);
         return new(prior.BindingId, new(id, prior.RevisionId, BrokerAccountImport.Hash(prior),
             prior.Strategy.Strategy.ImplementationIdentity, implementation, now, default, reviewer)
-            { PermissionRequestId = DatedPermission(prior) }, current.Strategy,
+            { PermissionRequestId = DatedPermission(prior), RestartPolicy = policy }, current.Strategy,
             sourceUpdatedAt, new DateTimeOffset(current.PreparedUtc));
     }
 
@@ -153,7 +166,8 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
     {
         RequireSession(prior,calendar,next.SavedAt);
         var review=next.ImplementationReview ?? throw new InvalidOperationException("A build review is required.");
-        if (review.ReviewId != BrokerManagedStrategy.StableId($"{prior.RevisionId:D}:ImplementationReview:{review.ImplementationIdentity}") ||
+        if (review.RestartPolicy != null && (review.RestartPolicy != BrokerImplementationReview.ScopedRestart || prior.OngoingManagement == null) ||
+            review.ReviewId != BrokerImplementationReview.RequestId(prior.RevisionId, review.ImplementationIdentity, review.RestartPolicy) ||
             next.Event != "ImplementationReviewed" || next.RevisionId != review.ReviewId ||
             review.PreviousRevisionId != prior.RevisionId || !BrokerHistoricalStateHash.Matches(prior, review.PreviousSessionHash, historical) ||
             review.PreviousImplementation != prior.Strategy.Strategy.ImplementationIdentity ||

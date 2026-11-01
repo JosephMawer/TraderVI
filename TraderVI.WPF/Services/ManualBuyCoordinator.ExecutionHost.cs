@@ -319,10 +319,10 @@ public sealed partial class ManualBuyCoordinator
                     if (saved.Strategy.Strategy.ImplementationIdentity != BrokerManagedSessionComposition.ImplementationIdentity)
                     {
                         reviewingBuild = true; reviewed = null;
-                        reviewSwitch.Content = "Review updated build"; approveSwitch.Content = "Approve reviewed build";
+                        reviewSwitch.Content = "Review updated build"; approveSwitch.Content = "Approve build and restart rules";
                         reviewSwitch.Visibility = approveSwitch.Visibility = noOutside.Visibility = Visibility.Visible;
                         summary.Text += "\n\nThe installed build changed. Stop execution host, confirm no outside changes, then Review updated build. " +
-                            "Approval is available after hours and preserves this ongoing agreement, original orders, holdings and protection. Resume the reviewed host afterward; it waits for market hours and fresh trading checks.";
+                            "Review the scoped restart rules for unfinished orders. Approval is available after hours. Resume the reviewed host separately afterward.";
                     }
                 }
                 else

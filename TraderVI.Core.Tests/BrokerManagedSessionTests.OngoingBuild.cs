@@ -15,7 +15,7 @@ namespace TraderVI.Core.Tests;
 public sealed partial class BrokerManagedSessionTests
 {
     [Theory]
-    [InlineData("valid")][InlineData("stale")][InlineData("cash")][InlineData("pending")]
+    [InlineData("valid")][InlineData("scoped")][InlineData("stale")][InlineData("cash")][InlineData("pending")]
     [InlineData("protection")][InlineData("risk")][InlineData("source")]
     public async Task OngoingInvestedBuildReviewPreservesAuthorityAndRequiresUnchangedCheckedBook(string scenario)
     {
@@ -50,11 +50,16 @@ public sealed partial class BrokerManagedSessionTests
         var current = x.Existing.Current with { PreparedUtc = x.F.Now.UtcDateTime,
             Strategy = prior.Strategy with { Strategy = prior.Strategy.Strategy with { ImplementationIdentity = x.F.ImplementationIdentity } } };
         BrokerImplementationReviewProposal Prepare() => BrokerImplementationReviewWorkflow.Prepare(prior, current,
-            scenario == "source" ? x.F.Now.AddMinutes(-3) : x.F.Now, fresh, true, x.F.ImplementationIdentity, "fixture", SelectedSessionCalendar(), x.F.Now);
-        if (scenario != "valid") { Assert.Throws<InvalidOperationException>(() => Prepare()); Assert.Equal(0, x.F.Transport.Sent); return; }
+            scenario == "source" ? x.F.Now.AddMinutes(-3) : x.F.Now, fresh, true, x.F.ImplementationIdentity, "fixture", SelectedSessionCalendar(), x.F.Now,
+            reviewScopedRestart: scenario == "scoped");
+        if (scenario is not ("valid" or "scoped")) { Assert.Throws<InvalidOperationException>(() => Prepare()); Assert.Equal(0, x.F.Transport.Sent); return; }
         var proposal = Prepare();
         var workflow = new BrokerImplementationReviewWorkflow(x.F.Store, x.F, x.Existing.Grants, SelectedSessionCalendar(), new HostClock(x.F));
         var saved = await workflow.ApproveAsync(proposal);
+        Assert.Equal(scenario == "scoped", saved.HasReviewedCompactRestart);
+        var changed = saved with { ImplementationReview = saved.ImplementationReview! with
+            { RestartPolicy = scenario == "scoped" ? null : BrokerImplementationReview.ScopedRestart } };
+        Assert.Throws<InvalidOperationException>(() => BrokerImplementationReviewWorkflow.ValidateAppend(prior, changed, SelectedSessionCalendar()));
         Assert.Equal(x.F.ImplementationIdentity, saved.Strategy.Strategy.ImplementationIdentity);
         Assert.Equal(prior.OngoingManagement, saved.OngoingManagement);
         Assert.Equal(prior.Orders, saved.Orders); Assert.Equal(prior.Protection, saved.Protection);

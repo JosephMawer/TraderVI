@@ -151,6 +151,8 @@ public sealed record TradingCurrentState(TradingAccountCurrent Account, TradingA
 public sealed record TradingStateWrite(Guid OperationId, string Kind, DateTime SavedUtc,
     long ExpectedVersion, TradingAccountCurrent Account)
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool AdvanceCheckpoint { get; init; }
     public ImmutableArray<TradingApprovedSettings> Settings { get; init; } = [];
     public ImmutableArray<TradingPositionCurrent> Positions { get; init; } = [];
     public ImmutableArray<TradingSymbolCurrent> Symbols { get; init; } = [];

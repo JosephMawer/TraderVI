@@ -13,6 +13,7 @@ namespace Core.Trader.Storage;
 internal sealed record CompactDelphiCheckpoint(Guid Rehearsal, EngineDatabaseIdentity Database, CompactDelphiAssignment Assignment,
     long Version, Guid Operation, string Digest)
 {
+    public Guid? ManagedRevision { get; init; }
     internal bool Matches(Guid token, EngineDatabaseIdentity database, TradingCurrentState state) =>
         Rehearsal == token && Database == database && state.Account.BindingId == Assignment.Grant.BindingId &&
         state.Account.Version == Version && state.Checkpoints.Any(c => c.Version == Version && c.OperationId == Operation) &&

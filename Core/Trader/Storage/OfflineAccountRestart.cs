@@ -18,7 +18,7 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore sourceStore,
     Func<Guid, CancellationToken, Task<(Guid Binding, WealthsimpleTfsaSnapshot Snapshot)>> readBrokerAccount,
     Func<TradingOrder, CancellationToken, Task> simulateSell, Func<CancellationToken, Task<IRestartSellLease>> acquireSellLease,
     Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms, TimeProvider clock,
-    RestartOrderJournal? orderJournal = null)
+    RestartOrderJournal? orderJournal = null, Func<TradingOrder, bool>? belongsToManagedSale = null)
 {
     internal OfflineAccountRestart(TradingCurrentStore store, Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> lookup,
         Func<Guid, CancellationToken, Task<(Guid Binding, WealthsimpleTfsaSnapshot Snapshot)>> snapshot,
@@ -191,7 +191,8 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore sourceStore,
     {
         var p = state.Positions.SingleOrDefault(p => p.PositionId == order.PositionId);
         if (p is null || p.SecurityId != order.SecurityId || p.Symbol != order.Symbol ||
-            p.ExitDecisionId != order.DecisionId || order.ReservedQuantity != order.Quantity - order.AppliedFilledQuantity ||
+            (p.ExitDecisionId != order.DecisionId && belongsToManagedSale?.Invoke(order) != true) ||
+            order.ReservedQuantity != order.Quantity - order.AppliedFilledQuantity ||
             p.ReservedSellQuantity != order.ReservedQuantity || p.Quantity < p.ReservedSellQuantity)
             throw new InvalidOperationException("Protective sell and saved position reservations do not agree.");
         var fact = await lookup(order, ct);

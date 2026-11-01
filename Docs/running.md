@@ -45,10 +45,19 @@ It takes the same exclusive engine lock. The normal dashboard can complete Wealt
 and show its connection status. The service has no trading workers or database access. Select
 **Keep me signed in on this Windows account** to carry the sign-in into the replacement engine.
 Stop the sign-in service before starting the trading engine.
+For the first compact switch, start the matching engine package with `--review-build` and
+open its dashboard. This service supports account reads and saving the operator's permission.
+It never polls the strategy or sends orders. Stop the old execution permission, review the
+updated build and choose **Approve build and restart rules** for the unchanged Delphi Live
+assignment. Resume the reviewed host to save permission for that exact package. Stop the review
+service, prepare the compact account and then start the new engine with `--run`.
 The staged `--prepare-compact-book` command is a one-time account transfer. It requires
 matching local and database restart records, no unfinished order in the original account or
 journal, and an enabled ongoing permission for the exact build. It refuses to overwrite an
 existing book. Ordinary startup must never run this command to repair a missing receipt.
+Verify the running package, connected account, successful **Restart account check**, current
+execution status and collector. Outside trading hours the armed host waits for the next
+regular session. The regular strategy still consumes its earlier account representation.
 These actions may be completed after close, on weekends or before open. Keep the laptop awake and
 the engine/collector running with the broker signed in. The resumed host waits for regular TSX hours;
 fresh account/orders, exact daily risk boundaries, strategy inputs and quote checks can delay buying

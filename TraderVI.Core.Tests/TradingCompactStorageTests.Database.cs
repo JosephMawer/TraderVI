@@ -63,8 +63,16 @@ public sealed partial class TradingCompactStorageTests
             }
             private ImmutableArray<T> Active<T>() where T : TradingStorageRow
             {
-                var result = db.active.TryGetValue((typeof(T), binding), out var values)
-                    ? values.Values.Cast<T>().ToImmutableArray() : [];
+                var rows = db.active.TryGetValue((typeof(T), binding), out var values)
+                    ? new Dictionary<object, TradingStorageRow>(values) : new();
+                var table = TradingTable.For<T>();
+                foreach (var row in pending.Values.OfType<T>())
+                {
+                    var key = table.Key(row)!;
+                    if ((bool)typeof(T).GetProperty(table.ActiveColumn!)!.GetValue(row)!) rows[key] = row;
+                    else rows.Remove(key);
+                }
+                var result = rows.Values.Cast<T>().ToImmutableArray();
                 db.ReadRows += result.Length;
                 return result;
             }

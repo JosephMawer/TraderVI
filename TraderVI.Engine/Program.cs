@@ -37,7 +37,7 @@ internal static class Program
             try { await EngineControlCommand.RunAsync(args[1], args[2], args.Length == 4 ? args[3] : null); return 0; }
             catch { return 1; }
         }
-        if (args.Length != 1 || args[0] is not ("--run" or "--verify" or "--recover-real" or "--prepare-observations" or "--prepare-working-state" or "--prepare-real-observations" or "--prepare-compact-book")) return 64;
+        if (args.Length != 1 || args[0] is not ("--run" or "--review-build" or "--verify" or "--recover-real" or "--prepare-observations" or "--prepare-working-state" or "--prepare-real-observations" or "--prepare-compact-book")) return 64;
         bool recoveryMaintenance = args[0] == "--recover-real";
         bool verificationOnly = args[0] == "--verify" || recoveryMaintenance;
         try
@@ -75,20 +75,41 @@ internal static class Program
             {
                 var preparation = new CompactAccountPreparation(new SqlTradingStorageDatabase(EngineIntegrityRepository.OpenAsync),
                     continuityStore, witness, new BrokerManagedSessionRepository(calendar, sharedStorage: true), grants,
-                    journal, protector, Path.Combine(EnginePaths.DirectoryPath, "Compact"));
+                    journal, new CompactReceiptProtector(), CompactManagedWriter.DirectoryPath);
                 await preparation.PrepareAsync(BrokerManagedSessionComposition.ImplementationIdentity, CancellationToken.None);
                 return 0;
             }
+            var sessions = new BrokerManagedSessionRepository(calendar, sharedStorage: true, mayReuse: async (binding, ct) =>
+            {
+                await continuity.VerifyAsync(ct).ConfigureAwait(false);
+                return (await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Broker, binding, ct)).ProtectionAllowed;
+            });
+            var build = BrokerManagedSessionComposition.ImplementationIdentity;
+            var compact = new CompactEngineRestart(new SqlTradingStorageDatabase(EngineIntegrityRepository.OpenAsync).CreateStore(),
+                journal, grants, connection, sessions, calendar, new CompactReceiptProtector(), CompactManagedWriter.DirectoryPath, build, TimeProvider.System);
             var broker = new EngineBrokerService(connection, journal, sessionStore, grants, calendar,
                 async (saved, ct) =>
                 {
                     await continuity.VerifyAsync(ct).ConfigureAwait(false);
                     await IndependentExecutionReadiness.VerifyAsync(saved, ct).ConfigureAwait(false);
-                }, async (binding, ct) =>
+                }, args[0] == "--review-build" ? new BrokerManagedSessionRepository(calendar, sharedStorage: true) : sessions,
+                build, verificationOnly, cycle: args[0] == "--run" && (grants.Read() is { RestoreAfterRestart: true } ||
+                    Directory.Exists(CompactManagedWriter.DirectoryPath)) ? compact.CycleAsync : null);
+            if (args[0] == "--review-build")
+            {
+                await RunReviewAsync(broker);
+                return 0;
+            }
+            async Task StartContinuity()
+            {
+                if (args[0] == "--run" && (grants.Read() is { RestoreAfterRestart: true } || Directory.Exists(CompactManagedWriter.DirectoryPath)))
                 {
-                    await continuity.VerifyAsync(ct).ConfigureAwait(false);
-                    return (await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Broker, binding, ct).ConfigureAwait(false)).ProtectionAllowed;
-                }, verificationOnly: verificationOnly);
+                    if (!Directory.Exists(CompactManagedWriter.DirectoryPath))
+                        throw new InvalidOperationException("Transfer the reviewed account before starting real trading.");
+                    await continuity.StartAsync(compact.QualifyAsync, CancellationToken.None);
+                }
+                else await continuity.StartAsync();
+            }
             var market = new IndependentMarketService(calendar);
             var paper = new IndependentPaperService(calendar, () => market.CurrentLease, market);
             var research = new IndependentResearchService(calendar, () => market.CurrentLease, market);
@@ -104,6 +125,8 @@ internal static class Program
                 new("Collection ownership", TimeSpan.FromSeconds(30), market.MaintainLeaseAsync),
                 new("Market inputs", TimeSpan.FromSeconds(30), market.TickAsync),
                 new("Real trading", TimeSpan.FromSeconds(1), broker.PollExecutionAsync),
+                new("Restart account check", TimeSpan.FromMinutes(1),
+                    args[0] == "--run" ? compact.CheckAccountOnceAsync : () => Task.CompletedTask),
                 new("Paper protection", TimeSpan.FromSeconds(10), paper.ProtectAsync),
                 new("Paper inputs", TimeSpan.FromSeconds(10), paper.ConsumeAsync),
                 new("Research inputs", TimeSpan.FromSeconds(30), research.ConsumeAsync),
@@ -113,7 +136,7 @@ internal static class Program
                 new("Shadow protection", TimeSpan.FromSeconds(10), auxiliary.ShadowProtectionAsync),
                 new("AI research", TimeSpan.FromSeconds(30), auxiliary.CheckAiAsync),
                 new("Historical audits", TimeSpan.FromSeconds(1), audits.TickAsync)
-            ], () => IndependentEngine.InitializeHostAsync(continuity, broker, auxiliary.StartAsync, verificationOnly, recoveryMaintenance), async () =>
+            ], () => IndependentEngine.InitializeHostAsync(StartContinuity, broker.StartAsync, auxiliary.StartAsync, verificationOnly, recoveryMaintenance), async () =>
             {
                 try
                 {
@@ -223,6 +246,33 @@ internal static class Program
     }
 
 #if !COMPACT_RESTART_CANDIDATE
+    private static async Task RunReviewAsync(EngineBrokerService broker)
+    {
+        using var stop = new CancellationTokenSource();
+        var instance = Guid.NewGuid();
+        IndependentEngineStatus Status(string state) => new(instance, state, DateTimeOffset.UtcNow, []);
+        var server = new EngineRpcServer(EnginePaths.PipeName, async request =>
+        {
+            if (request.Operation == EngineOperation.Status) return Status("Build review only");
+            if (request.Operation == EngineOperation.Stop) { broker.BeginStop(); stop.Cancel(); return Status("Stopping"); }
+            if (request.Operation == EngineOperation.IntegrityStatus) return await new EngineIntegrityRepository().ReadStatusAsync();
+            if (request.Operation == EngineOperation.ExecutionStatus)
+            {
+                var status = (BrokerExecutionHostStatus)await broker.DispatchAsync(request);
+                return status with { Message = "Build review only. The trading worker is stopped. " + status.Message };
+            }
+            if (!EngineAuthenticationCommands.Accepts(request.Operation) && request.Operation is not
+                (EngineOperation.Connection or EngineOperation.ExecutionStatus or EngineOperation.ExecutionDiagnostics or
+                 EngineOperation.Accounts or EngineOperation.AccountSnapshot or EngineOperation.PendingOrders or EngineOperation.DailyPerformance or
+                 EngineOperation.Orders or EngineOperation.Reconcile or EngineOperation.OrderHistory or EngineOperation.ActivityCheckpoint or
+                 EngineOperation.DisableExecution or EngineOperation.EnableExecution))
+                throw new InvalidOperationException("Trading is unavailable during build review.");
+            return await broker.DispatchAsync(request);
+        });
+        try { await broker.StartAsync(); await server.RunAsync(stop.Token); }
+        finally { broker.BeginStop(); await broker.CloseAsync(); }
+    }
+
     private static async Task RunSignInAsync()
     {
         using var owner = new EngineOwnershipLease(EnginePaths.OwnershipPath);

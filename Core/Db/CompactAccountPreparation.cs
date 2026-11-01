@@ -28,8 +28,8 @@ internal sealed class CompactAccountPreparation(ITradingStorageDatabase database
             throw new InvalidDataException("Local and database restart records disagree.");
         var now = DateTimeOffset.UtcNow;
         BrokerExecutionHost.RequireMatchingAssignment(grant, saved, build, now);
-        if (!grant.Enabled || !grant.RestoreAfterRestart || grant.ImplementationIdentity != build)
-            throw new InvalidOperationException("Approve and enable this exact trading build first.");
+        if (!saved.HasReviewedCompactRestart || !grant.Enabled || !grant.RestoreAfterRestart || grant.ImplementationIdentity != build)
+            throw new InvalidOperationException("Review the scoped restart terms and enable this exact trading build first.");
         if (journal.HasUnresolvedOrders())
             throw new InvalidOperationException("Resolve the original journal orders before the initial transfer.");
         await using var tx = await database.BeginAsync(grant.BindingId, true, ct);
@@ -48,10 +48,17 @@ internal sealed class CompactAccountPreparation(ITradingStorageDatabase database
             new ManualBuyFileJournal.RestartHolding(p.SecurityId, p.PositionId, p.FirstEntryUtc)).ToArray());
         await RestartAccountRehearsal.InsertInitialAsync(tx, initial, ct);
         var written = await tx.ReadCurrentAsync(ct) ?? throw new InvalidDataException("The new compact account cannot be read.");
-        if (CompactDelphiAssignment.StateDigest(written) != CompactDelphiAssignment.StateDigest(initial))
+        TradingCurrentStore.ValidateCurrent(written, grant.BindingId);
+        // SQL decimal(19,6) can return 10.000000 for a source value of 10. Compare typed
+        // values first, then seal the SQL representation that subsequent restarts will read.
+        if (written.Account != initial.Account || written.Settings != initial.Settings ||
+            !written.Positions.OrderBy(p => p.PositionId).SequenceEqual(initial.Positions.OrderBy(p => p.PositionId)) ||
+            !written.Symbols.OrderBy(s => s.Symbol, StringComparer.Ordinal).SequenceEqual(initial.Symbols.OrderBy(s => s.Symbol, StringComparer.Ordinal)) ||
+            !written.Orders.IsEmpty || !written.Restrictions.IsEmpty || !written.Checkpoints.SequenceEqual(initial.Checkpoints))
             throw new InvalidDataException("Stored account facts differ from the reviewed assignment.");
-        CompactDelphiCheckpoint.From(grant.BindingId, observed.Database, assignment, written)
-            .Write(Slot(directory, written.Account.Version), protector);
+        var checkpoint = CompactDelphiCheckpoint.From(grant.BindingId, observed.Database, assignment, written)
+            with { ManagedRevision = saved.RevisionId };
+        checkpoint.Write(Slot(directory, written.Account.Version), protector);
         await tx.CommitAsync(ct);
     }
 

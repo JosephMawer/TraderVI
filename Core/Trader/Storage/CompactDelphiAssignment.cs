@@ -38,7 +38,7 @@ internal sealed record CompactDelphiAssignment(BrokerExecutionHostGrant Grant, G
                 LastExitUtc = exit?.FillUtc, LastExitReason = exit?.ExitReason, LastInputId = last?.CurrentStockObservationId,
                 LastProcessedUtc = new[] { memory?.LastLiveBarUtc, minute?.LastEndUtc }.Max(),
                 ConfirmationStartedUtc = minute != null ? minute.EpisodeStartUtc : last?.ConfirmationStartedBarEndUtc,
-                SignalExpiresUtc = minute?.ExpiresUtc, ProgressJson = JsonSerializer.Serialize(new { saved.RevisionId,
+                SignalExpiresUtc = minute?.ExpiresUtc, ProgressJson = JsonSerializer.Serialize(new {
                     LiveSessionId = memory?.LiveSessionId, LiveEpoch = memory?.LiveEpoch, EvaluationId = last?.EvaluationId,
                     PolicyIdentity = minute?.PolicyIdentity, SessionOpenUtc = minute?.SessionOpenUtc, Confirmed = minute?.Confirmed }) };
         }).ToImmutableArray();
@@ -82,13 +82,18 @@ internal sealed record CompactDelphiAssignment(BrokerExecutionHostGrant Grant, G
         return result;
     }
 
-    internal void RequireAssignment(TradingCurrentState state, BrokerExecutionHostGrant? grant, string build, DateTimeOffset at)
+    internal void RequireAssignment(TradingCurrentState state, BrokerExecutionHostGrant? grant, string build, DateTimeOffset at,
+        bool allowReadRecovery = false)
     {
-        if (grant != Grant || grant is not { Enabled: true, RestoreAfterRestart: true } || grant.ReviewedAt > at ||
+        // Resuming the exact same stopped assignment produces a fresh operator/time receipt.
+        // A new binding, continuation, strategy or implementation still requires a new approval.
+        if (grant is not { Enabled: true, RestoreAfterRestart: true } || grant.ReviewedAt < Grant.ReviewedAt ||
+            grant != (Grant with { ReviewedAt = grant.ReviewedAt, ReviewedBy = grant.ReviewedBy }) || grant.ReviewedAt > at ||
             grant.BindingId != state.Account.BindingId || grant.SessionId != state.Account.AssignmentId ||
             grant.ImplementationIdentity != build || state.Settings.ImplementationIdentity != build ||
             state.Settings.PermissionId != Permission || state.Settings.SourceId != Source || state.Settings.StrategyId != Strategy ||
-            state.Settings.BaselineId != Baseline || !state.Account.ExecutionEnabled || state.Account.Phase != "Active" ||
+            state.Settings.BaselineId != Baseline || !state.Account.ExecutionEnabled ||
+            !(state.Account.Phase == "Active" || allowReadRecovery && state.Account.Phase == "NeedsAttention") ||
             state.Settings.ApprovedUtc > at.UtcDateTime || state.Settings.ExpiresUtc <= at.UtcDateTime)
             throw new InvalidOperationException("Restart permission, implementation or assignment changed.");
     }
@@ -105,7 +110,8 @@ internal sealed record CompactDelphiAssignment(BrokerExecutionHostGrant Grant, G
 
     internal Task<AccountRestartResult> RecoverWithBrokerAsync(TradingCurrentStore store, ManualBuyFileJournal journal,
         BrokerExecutionHostGrantFileStore grants, string build, WealthsimpleConnection broker, WealthsimpleTfsaAccount account,
-        Func<TradingOrder, CancellationToken, Task> submitReservedSell, TimeProvider time, CancellationToken ct)
+        ReservedProtectiveSale sales, Func<TradingOrder, CancellationToken, Task> recordManagedIntent,
+        Func<TradingOrder, bool> ownsSale, Func<bool> regularSession, TimeProvider time, CancellationToken ct)
     {
         long revision = broker.SessionRevision;
         void RequireConnection(Guid binding)
@@ -129,13 +135,19 @@ internal sealed record CompactDelphiAssignment(BrokerExecutionHostGrant Grant, G
                 throw new InvalidOperationException("Current broker holdings and cash could not be confirmed. Retry the account read.");
             return (binding, snapshot);
         }
-        return new OfflineAccountRestart(store, Original, Snapshot, (order, token) =>
+        return new OfflineAccountRestart(store, Original, Snapshot, async (order, token) =>
         {
             RequireConnection(order.BindingId);
-            return submitReservedSell(order, token);
-        }, _ => Task.FromResult<IRestartSellLease>(new Admission(this, grants, journal, build)),
+            var current = await store.ReadAsync(order.BindingId, token) ?? throw new InvalidOperationException("Missing reserved account.");
+            RequireAssignment(current, grants.Read(), build, time.GetUtcNow());
+            var reserved = current.Orders.Single(o => o.RequestId == order.RequestId);
+            var holding = current.Positions.Single(p => p.PositionId == reserved.PositionId);
+            await recordManagedIntent(reserved, token);
+            await sales.SendAsync(current, holding, reserved, Identity, token);
+        }, _ => regularSession() ? Task.FromResult<IRestartSellLease>(new Admission(this, grants, journal, build)) :
+            throw new InvalidOperationException("Protective decision saved until the regular trading session opens."),
             (settings, order) => Opening.Single(t => t.RequestId == order.RequestId && t.PermissionId == settings.PermissionId),
-            time, new RestartOrderJournal(journal, Grant.BindingId, Identity, Account)).RunAsync(Grant.BindingId, ct);
+            time, new RestartOrderJournal(journal, Grant.BindingId, Identity, Account), ownsSale).RunAsync(Grant.BindingId, ct);
     }
 
     private sealed class Admission(CompactDelphiAssignment assignment, BrokerExecutionHostGrantFileStore grants,
