@@ -25,7 +25,7 @@ public sealed class CollectorQualificationPackageTests
     [InlineData("missing")][InlineData("config-tampered")][InlineData("evidence-tampered")]
     [InlineData("source")][InlineData("deadline")][InlineData("subscriptions")][InlineData("relay")]
     [InlineData("storage")][InlineData("ownership")][InlineData("compatibility")]
-    [InlineData("restart")][InlineData("freshness")][InlineData("capacity")]
+    [InlineData("restart")][InlineData("freshness")][InlineData("capacity")][InlineData("history")]
     public void IncompleteChangedOrUnqualifiedPackagesCannotAuthorizeAdoption(string fault)
     {
         using var f = new Fixture();
@@ -41,7 +41,7 @@ public sealed class CollectorQualificationPackageTests
             default:
                 File.WriteAllText(f.EvidencePath, JsonSerializer.Serialize(new CollectorQualificationChecks(
                     fault != "storage", fault != "ownership", fault != "compatibility", fault != "restart",
-                    fault != "freshness", fault != "capacity")));
+                    fault != "freshness", fault != "capacity", fault != "history")));
                 f.WritePacket(); break;
         }
         Assert.Throws<InvalidDataException>(() => CollectorQualificationPackage.Read(f.Root, "reviewed-build", f.Now));
@@ -57,7 +57,7 @@ public sealed class CollectorQualificationPackageTests
         public Fixture()
         {
             Directory.CreateDirectory(Root); WriteConfig();
-            File.WriteAllText(EvidencePath, JsonSerializer.Serialize(new CollectorQualificationChecks(true, true, true, true, true, true)));
+            File.WriteAllText(EvidencePath, JsonSerializer.Serialize(new CollectorQualificationChecks(true, true, true, true, true, true, true)));
             WritePacket();
         }
         public void WriteConfig(string source = TmxCollectorSource.Contract, TimeSpan? deadline = null, bool subscriptions = true, int relay = 2) =>

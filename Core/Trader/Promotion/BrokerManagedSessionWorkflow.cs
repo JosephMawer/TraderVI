@@ -281,6 +281,9 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             using (PaperCycleTimings.Start(PaperCycleStage.BrokerLivePrepare))
                 prepared = TradingRecommendationEngine.Evaluate(input with { Quotes = [] });
             state = await CaptureProtectiveExits(lease, state, prepared, replay.Protection, ct);
+            if (input.RequiredMinuteHistory is { Minutes.Count: > 0 } needs &&
+                !await source.RequestMinuteHistoryAsync(needs, input.EvaluatedUtc, ct))
+                input = input with { SourceWarnings = input.SourceWarnings.Add("Collector history request unavailable; missing minutes remain unavailable.") };
             replay.Protection = state.Protection;
             await source.PreserveRiskHoldsAsync(account, prepared.Memory, ct);
             state = await Save(lease, state with { Memory = prepared.Memory, Protection = replay.Protection,

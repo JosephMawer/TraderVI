@@ -26,6 +26,34 @@ public sealed class CollectorLocalEvidenceTests
     }
 
     [Theory]
+    [InlineData(false, 1)]
+    [InlineData(true, 0)]
+    public void OnlyAnActiveEntryRuleReportsTheMissingSqlMinute(bool paused, int count)
+    {
+        var (input, account, source, books) = Fixture();
+        var stock = books["ABC"];
+        books["ABC"] = stock with { Observations = stock.Observations.RemoveAt(20) };
+        var demand = new CollectorRuleHistory(stock.SourceContract, stock.SessionOpenUtc, stock.SessionCloseUtc);
+        var result = TradingRecommendationEngine.Evaluate(input with { EntriesPaused = paused,
+            RequiredMinuteHistory = demand, MinuteInputs = Bind(input, account, source, books) });
+        Assert.DoesNotContain(result.Recommendations, r => r.Action == "Buy");
+        Assert.Equal(count, demand.Minutes.Count);
+        if (!paused) Assert.Equal(stock.Observations[20].Bar.TimestampUtc, Assert.Single(demand.Minutes).StartUtc);
+    }
+
+    [Fact]
+    public void HoldingRecoveryOnlyRequestsUnprocessedEligibleFiveMinuteCloses()
+    {
+        var (input, _, _, books) = Fixture();
+        var stock = books["ABC"];
+        var missing = stock with { Observations = stock.Observations.Where((_, i) => i != 1 && i != 7 && i != 12).ToImmutableArray() };
+        var demand = new CollectorRuleHistory(stock.SourceContract, stock.SessionOpenUtc, stock.SessionCloseUtc);
+        CollectorLocalEvidence.ProtectionBars(missing, input.EvaluatedUtc, demand, stock.SessionOpenUtc.AddMinutes(2),
+            stock.SessionOpenUtc.AddMinutes(10));
+        Assert.Equal(new MissingRuleMinute("ABC", stock.SessionOpenUtc.AddMinutes(12), "HoldingClose"), Assert.Single(demand.Minutes));
+    }
+
+    [Theory]
     [InlineData("missing-stock")][InlineData("missing-xiu")][InlineData("baseline")][InlineData("gap")][InlineData("conflict")]
     public void MissingOrConflictedLocalContextCannotBecomeAQualifyingEntry(string problem)
     {

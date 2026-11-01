@@ -240,6 +240,35 @@ public sealed class IntradayCollectorTests
         Assert.Equal(raw, receipt.RawResponseJson);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ExplicitHistoryUsesOnlyItsGapAndPartialFailurePreservesFreshMinute(bool historyError)
+    {
+        var end = Open.AddMinutes(65);
+        var gap = new CollectorHistoryRange(Open.AddMinutes(30), Open.AddMinutes(32));
+        object Row(DateTime t) => new { dateTime = t, open = 10, high = 11, low = 9, close = 10, volume = 1 };
+        var raw = JsonSerializer.Serialize(new { data = new { getTimeSeriesData = new[] { Row(end.AddMinutes(-1)) },
+            ruleHistory = new[] { Row(Open), Row(gap.StartUtc), Row(gap.StartUtc.AddMinutes(1)), Row(gap.EndUtc) } },
+            errors = historyError ? new[] { new { path = new[] { "ruleHistory" } } } : [] });
+        var handler = new Handler(raw);
+        using var source = new TmxCollectorSource(handler, () => end.AddSeconds(5));
+        var attempt = new CollectorAttempt(Guid.NewGuid(), source.SourceContract, "XIU", Open, Open.AddHours(6.5), end,
+            end.AddSeconds(1)) { RequiredHistory = gap };
+        var receipt = await source.FetchAsync(attempt, Limits.DeadlineOffset, default);
+        using var sent = JsonDocument.Parse(handler.Body!);
+        var vars = sent.RootElement.GetProperty("variables");
+        Assert.Equal(new DateTimeOffset(gap.StartUtc).ToUnixTimeSeconds(), vars.GetProperty("historyStart").GetInt64());
+        Assert.Equal(new DateTimeOffset(gap.EndUtc).ToUnixTimeSeconds()-1, vars.GetProperty("historyEnd").GetInt64());
+        Assert.Equal(1, handler.Requests);
+        Assert.Null(receipt.FailureCode);
+        Assert.Equal(historyError ? "HistoryUnavailable" : null, receipt.HistoryFailureCode);
+        var book = DelphiLiveCollectorBatches.Apply(DelphiLiveCollectorBatches.Empty(receipt), receipt);
+        Assert.Equal(historyError ? 1 : 3, book.Observations.Length);
+        Assert.True(book.Observations[^1].ObservedOnTime);
+        Assert.All(book.Observations.SkipLast(1), o => Assert.False(o.ObservedOnTime));
+    }
+
     private sealed class Rig
     {
         public DateTime Now = Open.AddSeconds(5);

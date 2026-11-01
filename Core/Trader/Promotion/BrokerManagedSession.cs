@@ -197,6 +197,8 @@ public interface IBrokerManagedAccountSource
     Task<BrokerAccountProjection> SynchronizeAsync(ImmutableArray<BrokerStrategyOrder> orders, CancellationToken ct);
     Task<ImmutableArray<BrokerProtectionMark>> ReadProtectionMarksAsync(BrokerAccountProjection account, CancellationToken ct);
     Task<TradingRecommendationInput> ReadStrategyInputAsync(BrokerManagedSession session, CancellationToken ct);
+    Task<bool> RequestMinuteHistoryAsync(Core.Trader.DelphiLive.CollectorRuleHistory needs, DateTime evaluatedUtc, CancellationToken ct) =>
+        Task.FromResult(false);
     Task<ImmutableArray<TradingQuote>> ReadQuotesAsync(TradingRecommendationInput input, CancellationToken ct) =>
         Task.FromResult(input.Quotes);
     async Task<TradingQuoteReadResult> ReadQuoteObservationAsync(TradingRecommendationInput input, CancellationToken ct) =>

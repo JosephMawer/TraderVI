@@ -25,6 +25,8 @@ public static partial class TradingRecommendationEngine
         if (observations.IsEmpty) warnings.Add("Minute confirmation is waiting for verified local collector evidence.");
         DateTime end = input.EvaluatedUtc.AddTicks(-(input.EvaluatedUtc - input.SessionOpenUtc).Ticks % TimeSpan.TicksPerMinute);
         if (end < input.SessionOpenUtc.AddMinutes(2) || end > input.SessionCloseUtc) return;
+        var entryStart = input.SessionOpenUtc + (policy.EntryWindowStart.ToTimeSpan() - TimeSpan.FromHours(9.5));
+        var cutoff = input.SessionOpenUtc + (policy.EntryCutoff.ToTimeSpan() - TimeSpan.FromHours(9.5));
         var qualified = new Dictionary<string, (TradingMinuteObservation Observation, DelphiLiveMinutePair Pair)>(StringComparer.OrdinalIgnoreCase);
         foreach (var observation in observations)
         {
@@ -32,8 +34,11 @@ public static partial class TradingRecommendationEngine
             if (observation.Stock.SessionOpenUtc != input.SessionOpenUtc || observation.Stock.SessionCloseUtc != input.SessionCloseUtc)
             { entries.Add(new(symbol, end, "MinuteSessionMismatch")); continue; }
             DelphiLiveMinutePair pair;
+            var history = riskAllowed && nav is not null && input.EvaluatedUtc >= entryStart && input.EvaluatedUtc < cutoff && !Held(input, symbol) &&
+                observation.Stock.ConflictingStartsUtc.IsEmpty && observation.Xiu.ConflictingStartsUtc.IsEmpty
+                ? input.RequiredMinuteHistory : null;
             try { pair = DelphiLiveMinuteEvaluator.EvaluatePair(strategy, observation.Stock, observation.Xiu, observation.Rulers,
-                observation.PreviousStockClose, observation.PreviousXiuClose, end, input.EvaluatedUtc); }
+                observation.PreviousStockClose, observation.PreviousXiuClose, end, input.EvaluatedUtc, history); }
             catch (ArgumentException) { entries.Add(new(symbol, end, "MinuteContractMismatch")); continue; }
             traces.Add(new(pair.Previous.Judgment, pair.Latest.Judgment, pair.Confirmation,
                 DelphiLiveCollectorBatches.Hash(System.Text.Json.JsonSerializer.Serialize(observation)),
@@ -75,8 +80,6 @@ public static partial class TradingRecommendationEngine
             if (quote is null) { Record(QuoteRejection(input, rank.Symbol)); continue; }
             if (quote.ReceivedUtc > pair.Confirmation.ExpiresUtc || quote.RequestedUtc > pair.Confirmation.ExpiresUtc)
             { Record("MinuteExpiredDuringQuote"); continue; }
-            var entryStart = input.SessionOpenUtc + (policy.EntryWindowStart.ToTimeSpan() - TimeSpan.FromHours(9.5));
-            var cutoff = input.SessionOpenUtc + (policy.EntryCutoff.ToTimeSpan() - TimeSpan.FromHours(9.5));
             if (input.EvaluatedUtc < entryStart || quote.ReceivedUtc >= cutoff)
             { Record(input.EvaluatedUtc < entryStart ? "BeforeEntryWindow" : "EntryCutoffPassed"); continue; }
             var fills = input.ActualFills.Where(f => Same(f.Symbol, rank.Symbol)).ToArray();

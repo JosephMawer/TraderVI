@@ -12,7 +12,7 @@ public sealed record CollectorQualificationPacket(string SourceContract, TimeSpa
     string ImplementationIdentity, DateTimeOffset QualifiedAt, string Reviewer,
     string ConfigurationPath, string ConfigurationSha256, string EvidencePath, string EvidenceSha256);
 public sealed record CollectorQualificationChecks(bool NativeStorage, bool WriterOwnership, bool LegacyCompatibility,
-    bool RestartRecovery, bool SourceFreshness, bool UniverseCapacity);
+    bool RestartRecovery, bool SourceFreshness, bool UniverseCapacity, bool LatestMinuteAndRuleHistory = false);
 
 /// <summary>Reviewed evidence only; this class cannot produce qualification or enable execution.
 /// No packet is included by default. The live study alone does not establish all required checks.</summary>
@@ -30,8 +30,8 @@ public static class CollectorQualificationPackage
         var checks = JsonSerializer.Deserialize<CollectorQualificationChecks>(ReadVerifiedFile(packet.EvidencePath, packet.EvidenceSha256), Options)
             ?? throw new InvalidDataException("Collector checks are missing.");
         if (!(checks.NativeStorage && checks.WriterOwnership && checks.LegacyCompatibility &&
-            checks.RestartRecovery && checks.SourceFreshness && checks.UniverseCapacity))
-            throw new InvalidDataException("Collector storage, ownership, compatibility, restart, freshness and full-universe capacity must all be qualified.");
+            checks.RestartRecovery && checks.SourceFreshness && checks.UniverseCapacity && checks.LatestMinuteAndRuleHistory))
+            throw new InvalidDataException("Collector qualification must cover storage, ownership, compatibility, restart, freshness, capacity and actual latest-minute/rule-history requests.");
         using var config = JsonDocument.Parse(configuration);
         var root = config.RootElement;
         if (root.GetProperty("SourceContract").GetString() != packet.SourceContract ||

@@ -108,6 +108,8 @@ IF NOT EXISTS(SELECT 1 FROM dbo.MarketCollectorBook WITH(UPDLOCK,HOLDLOCK)
             lease.OwnerId, lease.FencingToken, Hash = hash, Json = json });
         receiptParameters.Add(nameof(batch.FetchStartedUtc), batch.FetchStartedUtc, DbType.DateTime2);
         receiptParameters.Add(nameof(batch.ValidatedUtc), batch.ValidatedUtc, DbType.DateTime2);
+        receiptParameters.Add("HistoryStart", batch.RequestedHistory?.StartUtc, DbType.DateTime2);
+        receiptParameters.Add("HistoryEnd", batch.RequestedHistory?.EndUtc, DbType.DateTime2);
         await c.ExecuteAsync(new CommandDefinition("""
 IF @ValidatedUtc>SYSUTCDATETIME() THROW 54561,'Collector validation timestamp is in the future.',1;
 IF NOT EXISTS(SELECT 1 FROM dbo.MarketCollectorAttempt WHERE RequestId=@RequestId
@@ -115,6 +117,10 @@ IF NOT EXISTS(SELECT 1 FROM dbo.MarketCollectorAttempt WHERE RequestId=@RequestI
  AND SessionCloseUtc=@SessionCloseUtc AND ExpectedEndUtc=@ExpectedEndUtc AND OwnerId=@OwnerId AND FencingToken=@FencingToken
  AND ReservedUtc<=@FetchStartedUtc)
  THROW 54573,'Collector receipt requires its original fenced request intent.',1;
+IF (SELECT COUNT(*) FROM dbo.MarketCollectorHistoryNeed WHERE RequestId=@RequestId)<>ISNULL(DATEDIFF(MINUTE,@HistoryStart,@HistoryEnd),0)
+ OR EXISTS(SELECT 1 FROM dbo.MarketCollectorHistoryNeed WHERE RequestId=@RequestId AND
+    (SourceContract<>@SourceContract OR Symbol<>@Symbol OR SessionOpenUtc<>@SessionOpenUtc OR BarStartUtc<@HistoryStart OR BarStartUtc>=@HistoryEnd))
+ THROW 54648,'Collector history does not match the reserved rule demand.',1;
 INSERT dbo.MarketCollectorRequest(RequestId,SourceContract,Symbol,SessionOpenUtc,OwnerId,FencingToken,ContentHash,PackedContent)
 VALUES(@RequestId,@SourceContract,@Symbol,@SessionOpenUtc,@OwnerId,@FencingToken,@Hash,COMPRESS(CONVERT(nvarchar(max),@Json)));
 """, receiptParameters, tx, cancellationToken: ct));

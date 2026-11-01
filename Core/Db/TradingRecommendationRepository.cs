@@ -56,7 +56,7 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
         var marketSymbols = BrokerMarketSymbols.From(session.Account, session.Orders);
         var input = await BuildInput(c, t, "TFSA", assignment, account,
             new(account.LedgerFingerprint, account.Holdings, session.Account.Fills), null, session.Memory,
-            session.Strategy.GateProfile, session.Strategy.Comparison, session.ProtectionReplayFromUtc, independentInputs, marketSymbols);
+            session.Strategy.GateProfile, session.Strategy.Comparison, session.ProtectionReplayFromUtc, independentInputs, marketSymbols, session.Protection);
         var mappedBars = input.Bars.ToBuilder();
         foreach (var pair in marketSymbols)
             if (input.Bars.TryGetValue(pair.Value, out var bars)) mappedBars[pair.Key] = bars;
@@ -69,7 +69,7 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
         TradingStrategyAssignment assignment, ReportedTradingAccount? report, FinancialState financial,
         TradingRecommendationBatch? previous, TradingRecommendationMemory? brokerMemory, PaperGateProfile gateProfile,
         PaperComparisonAccount? comparison = null, DateTime? protectionReplayFromUtc = null, bool independentInputs = false,
-        ImmutableDictionary<string, string>? marketSymbols = null)
+        ImmutableDictionary<string, string>? marketSymbols = null, ImmutableArray<BrokerPositionProtection>? protection = null)
     {
             var now = DateTime.UtcNow; var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now));
             var warnings = ImmutableArray.CreateBuilder<string>();
@@ -187,6 +187,7 @@ AND s.TradingDate=@Date AND e.BarEndUtc>=COALESCE(
                     bars[group.Key] = group.Select(b => new TradingPriceBar(b.EvidenceId, Utc(b.StartUtc), Utc(b.ReceivedUtc), b.Minutes, b.Open, b.High, b.Low, b.Close)).ToImmutableArray();
             }
             ImmutableArray<TradingMinuteObservation>? minuteInputs = null;
+            CollectorRuleHistory? history = null;
             if (assignment.Strategy.MinuteEntry is { } minute && bounds is not null)
             {
                 minuteInputs = [];
@@ -199,6 +200,8 @@ AND s.TradingDate=@Date AND e.BarEndUtc>=COALESCE(
                     var required = selected.Concat(financial.Holdings.Select(h => marketSymbols?.GetValueOrDefault(h.Symbol) ?? h.Symbol))
                         .Append("XIU").Distinct(StringComparer.Ordinal).OrderBy(s => s, StringComparer.Ordinal).ToArray();
                     var books = new Dictionary<string, DelphiLiveMinuteEvidenceBook>(StringComparer.Ordinal);
+                    if (now > bounds.OpenUtc && now < bounds.CloseUtc)
+                        history = new(minute.SourceContract, bounds.OpenUtc, bounds.CloseUtc);
                     // Reuse this serializable transaction: stock, XIU, conflicts and adopted daily facts
                     // share one committed read boundary. Never read the benchmark on another connection.
                     foreach (string symbol in required)
@@ -208,8 +211,13 @@ AND s.TradingDate=@Date AND e.BarEndUtc>=COALESCE(
                     {
                         string symbol = marketSymbols?.GetValueOrDefault(holding.Symbol) ?? holding.Symbol;
                         var historical = bars.GetValueOrDefault(symbol, []).Where(b => b.StartUtc < bounds.OpenUtc);
-                        bars[symbol] = historical.Concat(books.TryGetValue(symbol, out var book)
-                            ? CollectorLocalEvidence.ProtectionBars(book, now) : []).ToImmutableArray();
+                        var saved = protection?.FirstOrDefault(p => p.PositionId == holding.PositionId);
+                        var boundary = saved?.EstablishedAt.UtcDateTime;
+                        var lastBuy = financial.Fills.Where(f => f.PositionId == holding.PositionId && f.Side == "BUY")
+                            .Select(f => (DateTime?)f.FillUtc).Max();
+                        if (lastBuy > boundary) boundary = lastBuy;
+                        var book = books.GetValueOrDefault(symbol) ?? new(symbol, minute.SourceContract, bounds.OpenUtc, bounds.CloseUtc, [], []);
+                        bars[symbol] = historical.Concat(CollectorLocalEvidence.ProtectionBars(book, now, history, boundary, saved?.ThroughUtc)).ToImmutableArray();
                     }
                     if (comparison is not null && adoptedSource is not null && run is { } currentRun)
                         minuteInputs = CollectorLocalEvidence.Bind(assignment.Strategy, comparison, adoptedSource, currentRun,
@@ -235,7 +243,8 @@ AND s.TradingDate=@Date AND e.BarEndUtc>=COALESCE(
             var input = new TradingRecommendationInput(Guid.NewGuid(), assignment, now, date, bounds?.OpenUtc ?? now.AddDays(1), bounds?.CloseUtc ?? now.AddDays(1).AddHours(6.5),
                 daily, run, ImplementationIdentity, report, financial.Fingerprint, paused, financial.Holdings, financial.Fills, candidates, bars.ToImmutable(),
                 liveInputs, ordinals.ToImmutable(), memory, warnings.ToImmutable())
-                { CandidateEffectiveUtc = candidateEffective, PriorProtectionSessions = priorProtectionSessions.ToImmutable(), MinuteInputs = minuteInputs };
+                { CandidateEffectiveUtc = candidateEffective, PriorProtectionSessions = priorProtectionSessions.ToImmutable(),
+                    MinuteInputs = minuteInputs, RequiredMinuteHistory = history };
             return input;
     }
     private sealed class Session(SqlConnection c, SqlTransaction t, TradingRecommendationInput input, Guid? prior) : ITradingRecommendationSession
@@ -246,6 +255,9 @@ AND s.TradingDate=@Date AND e.BarEndUtc>=COALESCE(
             token.ThrowIfCancellationRequested();
             if (evaluated.BatchId != input.BatchId || evaluated.Assignment != input.Assignment || evaluated.CurrentLedgerFingerprint != input.CurrentLedgerFingerprint)
                 throw new InvalidOperationException("Evaluation snapshot changed outside the transaction boundary.");
+            if (evaluated.RequiredMinuteHistory is { Minutes.Count: > 0 } needs &&
+                !await new MarketCollectorRepository().RequestHistoryAsync(needs, evaluated.EvaluatedUtc, token))
+                result = result with { Warnings = result.Warnings.Add("Collector history request unavailable; missing minutes remain unavailable.") };
             string json = Json(evaluated); string hash = EngineStrategySettings.Hash(json);
             var batch = new TradingRecommendationBatch(input.BatchId, input.Assignment.AccountLabel, input.Assignment.PromotionId,
                 input.Account?.SnapshotId, prior, input.EvaluatedUtc, hash, result) { LedgerFingerprint = input.CurrentLedgerFingerprint };

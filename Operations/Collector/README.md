@@ -1,4 +1,4 @@
-# Independent collector package — prepared, not installed
+# Independent intraday collector
 
 ADR-0111 separates shared intraday requests from trading. `TraderVI.Collector` references Core but
 constructs no broker, credentials, order adapter, financial journal or execution host. Its explicit
@@ -18,13 +18,30 @@ reads. Missing daily candidates retain holdings and pending orders; an integrity
 attention and leaves the previous complete file intact. Legacy Paper subscription integration remains
 part of the pending ownership cutover.
 
-The collector reads one completed minute at a time; each bounded TMX response includes the current
-session's available history for recovery. No catch-up request burst or automatic network retry exists. XIU,
+The latest-minute implementation requests the exact completed minute. For a bar ending at 15:01
+Toronto, the wire range is 15:00:00 through 15:00:59. Out-of-window rows stay in the raw receipt
+and are excluded from accepted observations. The source and minute keys continue to address
+the existing SQL history. XIU,
 holdings and pending exits precede candidates. A deadline/capacity shortfall is a qualification failure,
 not permission to omit symbols silently or relax freshness. Transport startup waits one minute to
 avoid repeating a prior process's request; durable history and confirmation are not reset by that wait.
 Each SQL request intent is committed before HTTP and consumes the session budget even if the process
 crashes. Receipts retain that intent identity and owner generation. Lease loss fences the write.
+
+Migration 057 adds the queue for specific missing minutes. An eligible minute-entry evaluation
+can record gaps in the stock or benchmark windows it actually uses. A held position can request
+minutes needed for a completed five-minute close after its protection boundary. Unclaimed needs
+expire after two minutes or at session close. On the next admitted poll for the same symbol, SQL
+checks the book again and claims up to 15 consecutive missing minutes with the live request intent.
+An optional GraphQL field asks for just that range. The ordinary field always asks for the latest
+minute. A history-field error leaves a valid fresh field usable. A transport failure affects the
+entire request. Partial or empty history remains missing. A claimed minute gets one recovery attempt
+per source, symbol and session, including across restarts. A later evaluation reads committed SQL
+evidence with its actual receipt times. There is no nightly backfill.
+
+The collector and rule publisher must both support 057 for on-demand history. The existing
+five-/fifteen-minute relay keeps its separate source and cadence contracts. Check
+[project status](../../Docs/project-status.md) for current installation and qualification.
 
 The scheduling repair exposes `NextPollUtc` for pending request eligibility. The host waits up to
 one second, shortening that wait for a rolling 60-second request boundary; already reserved slots
@@ -52,23 +69,22 @@ builds. Startup registration and live use are part of the guarded cutover, not t
 An opt-in native rehearsal is prepared in `TraderVI.Core.Tests/MarketCollectorSqlTests.cs`. With explicit
 authorization only, `TRADERVI_COLLECTOR_SQL_QUALIFICATION=1` enables its single filtered test. It creates
 and retains one uniquely named `TraderVI_CollectorQualification_<random ID>` database on localhost,
-installs only the six synthetic collector tables/five guards, and checks competing owners, request
+rehearses the collector schema and its guards, and checks competing owners, request
 reservations, crash/idempotent recovery, conflicts, immutable records and transactional reader isolation.
 It never connects to TraderDB or constructs market/broker clients. Ordinary test runs skip it. This
 qualifies repository behavior, not the production migration's backup/stop preconditions.
 
 The isolated native rehearsal passed October 28 at 08:50 Toronto under explicit authorization;
-its synthetic database is retained. Migration052 remains unapplied. Native subscription/local-consumer
-verification, production migration preconditions, source qualification and compatible installation
-are still required. Do not launch alongside the
-installed intraday poller. Do not replace the approved runtime until ownership/cutover checks pass.
+its synthetic database was retained. Migration 052 was installed later that morning and 056 was
+installed November 1. Use the current migration record for subsequent cutovers. Start only one
+collector under its reviewed supervisor.
 
 ## Legacy compatibility during cutover
 
 The prepared `collector-routing.json` contract routes intraday bar calls from the desktop and trading
 engine to the same-user local collector pipe. It contains only `Contract` set to
 `IndependentIntradayCollectorRoutingV1` and `SourceContract` set to `TmxMinuteCollectorV1`. Absence keeps
-the existing runtime's behavior; an invalid present file fails startup. This file has not been installed.
+the existing runtime's behavior; an invalid present file fails startup. The independent relay is installed.
 Once configured there is no direct intraday HTTP fallback, including diagnostic entrypoints.
 
 The collector's optional `LegacyIntradayConcurrency` (zero disabled; explicitly selected one through
@@ -100,7 +116,8 @@ Later build-only reviews retain the minute definition. No native adoption has be
 Adoption requires an installed `collector-qualification.json` packet tied to the exact implementation,
 source and sub-minute deadline, reviewer/date, and absolute configuration/evidence paths with SHA256
 hashes. Its evidence attestation must mark native storage, writer ownership, legacy compatibility,
-restart recovery, source freshness and full-universe capacity qualified. Produce that attestation only
+restart recovery, source freshness and full-universe capacity qualified. It must also attest to
+`LatestMinuteAndRuleHistory` under the new request policy. Produce that attestation only
 after reviewing the corresponding saved native/live evidence; the three-symbol study alone is
 insufficient. No qualification packet or positive attestation is shipped by default. The app also
 checks the active collector lease, immutable SQL guards, a current conflict-free XIU minute and

@@ -28,7 +28,7 @@ public sealed class CollectorAdoptionReadiness : SQLBase
         bool ready = await c.QuerySingleAsync<bool>(new CommandDefinition("""
 SELECT CAST(CASE WHEN
  (SELECT COUNT(*) FROM sys.tables WHERE schema_id=SCHEMA_ID(N'dbo') AND name IN
- (N'MarketCollectorLease',N'MarketCollectorAttempt',N'MarketCollectorBook',N'MarketCollectorRequest',N'MarketCollectorObservation',N'MarketCollectorConflict'))=6
+ (N'MarketCollectorLease',N'MarketCollectorAttempt',N'MarketCollectorBook',N'MarketCollectorRequest',N'MarketCollectorObservation',N'MarketCollectorConflict',N'MarketCollectorHistoryNeed'))=7
  AND (SELECT COUNT(*) FROM sys.triggers WHERE is_disabled=0 AND is_instead_of_trigger=1 AND name IN
  (N'TR_MarketCollectorAttempt_Immutable',N'TR_MarketCollectorBook_Immutable',N'TR_MarketCollectorRequest_Immutable',N'TR_MarketCollectorObservation_Immutable',N'TR_MarketCollectorConflict_Immutable'))=5
  THEN 1 ELSE 0 END AS bit);

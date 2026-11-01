@@ -65,6 +65,7 @@ END;
         }
 
         await Run("20261101_056_PackCollectorReceipts.sql");
+        await Run("20261101_057_AddRuleRequestedMinuteHistory.sql");
         const string plain = "SELECT COUNT(*) FROM dbo.MarketCollectorRequest WHERE PlainContentJson IS NOT NULL;";
         const string pack = "Pack-CollectorReceiptBatch.sql";
         await Run(pack);

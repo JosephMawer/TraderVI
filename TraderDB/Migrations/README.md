@@ -1,5 +1,14 @@
 # Manual database migrations
 
+## Rule-requested minute history — 057
+
+[Migration 057](20261101_057_AddRuleRequestedMinuteHistory.sql) adds one initially empty queue
+and an index on the reserving request ID. It requires the installed packed collector receipt
+schema and a fresh checksum-verified full backup. It performs no historical data conversion.
+Install the schema before the new collector. The earlier 056 writer remains compatible for rollback.
+The consumer build is required to publish actual rule gaps.
+[Request and recovery behavior](../../Operations/Collector/README.md)
+
 ## Collector receipt compression — installed November 1
 
 Migration 056 was installed on TraderDB after a fresh verified backup and synchronized copy.

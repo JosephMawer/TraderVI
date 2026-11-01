@@ -40,7 +40,10 @@ public sealed record CollectorLimits(TimeSpan DeadlineOffset, TimeSpan RequestTi
 }
 
 public sealed record CollectorAttempt(Guid RequestId, string SourceContract, string Symbol,
-    DateTime SessionOpenUtc, DateTime SessionCloseUtc, DateTime ExpectedEndUtc, DateTime ReservedUtc);
+    DateTime SessionOpenUtc, DateTime SessionCloseUtc, DateTime ExpectedEndUtc, DateTime ReservedUtc)
+{
+    public CollectorHistoryRange? RequiredHistory { get; init; }
+}
 
 public interface IIntradayCollectorStore
 {
@@ -61,6 +64,8 @@ public interface IIntradayCollectorSource
 
 public sealed record CollectorTickResult(string State, int Attempted, int Saved, int Failed)
 {
+    public int RuleHistoryRequests { get; init; }
+    public int MissingRequestedHistoryBars { get; init; }
     public CollectorFailureDiagnostic? Failure { get; init; }
     public DateTime? NextPollUtc { get; init; }
 
@@ -122,6 +127,7 @@ public sealed class IntradayCollector
             if (end <= subscriptions.SessionOpenUtc || now <= end) return new("WaitingForCompletedMinute", 0, 0, 0);
             if (now >= end.Add(limits.DeadlineOffset)) return new("MinuteDeadlineElapsed", 0, 0, 0);
             int attempted = 0, saved = 0, failed = 0;
+            int historyRequests = 0, missingHistory = 0;
             foreach (string symbol in symbols)
             {
                 ct.ThrowIfCancellationRequested();
@@ -144,7 +150,8 @@ public sealed class IntradayCollector
                     if (receipt.RequestId != attempt.RequestId || receipt.SourceContract != source.SourceContract ||
                         receipt.Symbol != symbol || receipt.SessionOpenUtc != subscriptions.SessionOpenUtc ||
                         receipt.SessionCloseUtc != subscriptions.SessionCloseUtc || receipt.ExpectedEndUtc != end ||
-                        receipt.DeadlineOffset != limits.DeadlineOffset || receipt.FetchStartedUtc < started)
+                        receipt.DeadlineOffset != limits.DeadlineOffset || receipt.FetchStartedUtc < started ||
+                        receipt.RequestedHistory != attempt.RequiredHistory)
                         throw new InvalidOperationException("Source receipt identity changed.");
                     DelphiLiveCollectorBatches.Validate(receipt);
                 }
@@ -154,15 +161,21 @@ public sealed class IntradayCollector
                     var ended = clock();
                     receipt = new(attempt.RequestId, source.SourceContract, symbol, subscriptions.SessionOpenUtc,
                         subscriptions.SessionCloseUtc, end, limits.DeadlineOffset, started, ended, ended, [], "{}", "SourceReadFailed")
-                        { RequestedStartUtc = source.SourceContract == TmxCollectorSource.Contract ? end.AddMinutes(-1) : null };
+                        { RequestedStartUtc = source.SourceContract == TmxCollectorSource.Contract || attempt.RequiredHistory is not null ? end.AddMinutes(-1) : null,
+                            RequestedHistory = attempt.RequiredHistory };
                 }
                 // SQL append fences again. A storage error stops the cycle; never make a second request.
                 await store.SaveAsync(lease, receipt, ct);
                 saved++; if (receipt.FailureCode is not null) failed++;
+                if (attempt.RequiredHistory is { } gap)
+                {
+                    historyRequests++;
+                    missingHistory += (int)(gap.EndUtc-gap.StartUtc).TotalMinutes - receipt.Bars.Count(b => gap.Contains(b.TimestampUtc));
+                }
             }
             return new(failed > 0 ? "SourceAttention" : attempted == 0 ? "NoNewRequestAdmitted" :
                 attempted < symbols.Length ? "PartialCollection" : "Collected", attempted, saved, failed)
-            { NextPollUtc = NextPoll(symbols, end, clock()) };
+            { NextPollUtc = NextPoll(symbols, end, clock()), RuleHistoryRequests = historyRequests, MissingRequestedHistoryBars = missingHistory };
         }
         finally { gate.Release(); }
     }

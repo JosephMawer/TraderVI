@@ -18,6 +18,10 @@ public sealed record DelphiLiveCollectorBatch(Guid RequestId, string SourceContr
     // Absent on original session-wide receipts. Omitting null preserves their original fingerprints.
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public DateTime? RequestedStartUtc { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CollectorHistoryRange? RequestedHistory { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? HistoryFailureCode { get; init; }
 
     public override string ToString() => "Collector batch (private market evidence omitted)";
 }
@@ -28,9 +32,15 @@ public static class DelphiLiveCollectorBatches
     public static void Validate(DelphiLiveCollectorBatch batch)
     {
         ArgumentNullException.ThrowIfNull(batch);
+        if (batch.RequestedHistory is { } history)
+            history.Validate(batch.SessionOpenUtc, batch.RequestedStartUtc ?? throw new ArgumentException("Missing live request bounds."));
+        if (batch.HistoryFailureCode is not null && (batch.RequestedHistory is null || batch.HistoryFailureCode != "HistoryUnavailable"))
+            throw new ArgumentException("Unexpected history failure.");
         if (batch.RequestedStartUtc is { } start && (start.Kind != DateTimeKind.Utc ||
-            start != batch.ExpectedEndUtc.AddMinutes(-1) || batch.Bars.IsDefault || batch.Bars.Any(b => b?.TimestampUtc != start)))
-            throw new ArgumentException("A latest-minute receipt can admit only the requested bar.");
+            start != batch.ExpectedEndUtc.AddMinutes(-1) || batch.Bars.IsDefault ||
+            batch.Bars.Any(b => b is null || b.TimestampUtc != start &&
+                (batch.HistoryFailureCode is not null || batch.RequestedHistory?.Contains(b.TimestampUtc) != true))))
+            throw new ArgumentException("Minute evidence must belong to an explicitly requested window.");
         if (batch.RequestId == Guid.Empty || batch.SourceContract is null || batch.SourceContract.Length > 128 ||
             batch.Symbol is null || batch.Symbol.Length > 20 || batch.Bars.IsDefault || batch.Bars.Length > 1440 ||
             batch.RawResponseJson is null || Encoding.UTF8.GetByteCount(batch.RawResponseJson) > 1048576 ||

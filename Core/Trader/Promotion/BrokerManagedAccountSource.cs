@@ -92,6 +92,8 @@ public sealed class BrokerManagedAccountSource(IBrokerReconciliationWorkflow rec
             input = input with { Quotes = await ReadQuotesAsync(input, ct) };
         return input;
     }
+    public Task<bool> RequestMinuteHistoryAsync(Core.Trader.DelphiLive.CollectorRuleHistory needs, DateTime evaluatedUtc, CancellationToken ct) =>
+        new MarketCollectorRepository().RequestHistoryAsync(needs, evaluatedUtc, ct);
     public async Task<ImmutableArray<TradingQuote>> ReadQuotesAsync(TradingRecommendationInput input, CancellationToken ct) =>
         (await ReadQuoteObservationAsync(input, ct)).Quotes;
     public Task<TradingQuoteReadResult> ReadQuoteObservationAsync(TradingRecommendationInput input, CancellationToken ct) =>

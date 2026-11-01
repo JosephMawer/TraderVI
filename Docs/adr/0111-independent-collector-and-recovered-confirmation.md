@@ -185,6 +185,13 @@ unobserved. Preserve conflicts actually seen, the time recovered evidence became
 the original deadlines. Existing trading decisions and earlier receipts retain their meaning.
 The change requires fresh source qualification before minute-strategy adoption.
 
+Rule evaluations publish only missing SQL minute keys. Pending requests expire in two minutes
+or at the close. SQL rechecks observations and conflicts, then claims one contiguous gap of at
+most 15 minutes in the same transaction as the next live request reservation. This bounds both
+provider work and repeated attempts for unavailable minutes. The collector asks for the gap and
+the live minute as separate fields of one HTTP request. A historical field failure alone cannot
+discard a valid live minute. Preserve the actual query bounds in the losslessly packed receipt.
+
 ## Review questions
 
 1. Which operations remain with the trading engine when intraday collection is extracted?

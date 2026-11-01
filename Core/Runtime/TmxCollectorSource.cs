@@ -2,6 +2,7 @@
 using Core.TMX.Models.Domain;
 using Core.Trader.DelphiLive;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
@@ -28,6 +29,12 @@ query getTimeSeriesData($symbol: String!, $interval: Int, $startDateTime: Int, $
  }
 }
 """;
+    private const string QueryWithHistory = """
+query getTimeSeriesData($symbol: String!, $interval: Int, $startDateTime: Int, $endDateTime: Int, $historyStart: Int!, $historyEnd: Int!) {
+ getTimeSeriesData(symbol: $symbol, interval: $interval, startDateTime: $startDateTime, endDateTime: $endDateTime) { dateTime open high low close volume }
+ ruleHistory: getTimeSeriesData(symbol: $symbol, interval: $interval, startDateTime: $historyStart, endDateTime: $historyEnd) { dateTime open high low close volume }
+}
+""";
     public TmxCollectorSource() : this(new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false, UseDefaultCredentials = false }) { }
     internal TmxCollectorSource(HttpMessageHandler handler, Func<DateTime>? clock = null)
     {
@@ -45,10 +52,17 @@ query getTimeSeriesData($symbol: String!, $interval: Int, $startDateTime: Int, $
         DateTime start = attempt.ExpectedEndUtc.AddMinutes(-1);
         if (start < attempt.SessionOpenUtc || attempt.ExpectedEndUtc > attempt.SessionCloseUtc || started <= attempt.ExpectedEndUtc)
             throw new ArgumentException("The requested minute must have completed before the read starts.");
-        string body = JsonSerializer.Serialize(new { operationName = "getTimeSeriesData", query = Query,
-            variables = new { symbol = attempt.Symbol, interval = 1,
-                startDateTime = new DateTimeOffset(start).ToUnixTimeSeconds(),
-                endDateTime = new DateTimeOffset(attempt.ExpectedEndUtc).ToUnixTimeSeconds() - 1 } });
+        var variables = new Dictionary<string,object> { ["symbol"] = attempt.Symbol, ["interval"] = 1,
+            ["startDateTime"] = new DateTimeOffset(start).ToUnixTimeSeconds(),
+            ["endDateTime"] = new DateTimeOffset(attempt.ExpectedEndUtc).ToUnixTimeSeconds() - 1 };
+        if (attempt.RequiredHistory is { } gap)
+        {
+            gap.Validate(attempt.SessionOpenUtc, start);
+            variables["historyStart"] = new DateTimeOffset(gap.StartUtc).ToUnixTimeSeconds();
+            variables["historyEnd"] = new DateTimeOffset(gap.EndUtc).ToUnixTimeSeconds() - 1;
+        }
+        string body = JsonSerializer.Serialize(new { operationName = "getTimeSeriesData",
+            query = attempt.RequiredHistory is null ? Query : QueryWithHistory, variables });
         using var request = new HttpRequestMessage(HttpMethod.Post, "https://app-money.tmx.com/graphql")
         { Content = new StringContent(body, Encoding.UTF8, "application/json") };
         using var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
@@ -64,28 +78,28 @@ query getTimeSeriesData($symbol: String!, $interval: Int, $startDateTime: Int, $
         string raw = Encoding.UTF8.GetString(bytes.ToArray());
         // Invalid JSON is still saved as explicit failure evidence, never accepted as prices.
         string envelope = raw;
-        ImmutableArray<OhlcvBar> bars = []; string? failure = null;
+        ImmutableArray<OhlcvBar> bars = [], historical = []; string? failure = null, historyFailure = null;
         try
         {
             using var document = JsonDocument.Parse(raw);
             if (!response.IsSuccessStatusCode) failure = "HttpFailure";
-            else if (document.RootElement.TryGetProperty("errors", out var errors) && errors.ValueKind != JsonValueKind.Null && errors.GetArrayLength() > 0)
-                failure = "GraphQlFailure";
             else
             {
-                var rows = document.RootElement.GetProperty("data").GetProperty("getTimeSeriesData");
-                if (rows.ValueKind != JsonValueKind.Array || rows.GetArrayLength() > 1440) throw new InvalidDataException();
-                var builder = ImmutableArray.CreateBuilder<OhlcvBar>();
-                foreach (var row in rows.EnumerateArray())
+                if (document.RootElement.TryGetProperty("errors", out var errors) && errors.ValueKind != JsonValueKind.Null)
+                    foreach (var error in errors.EnumerateArray())
+                        if (attempt.RequiredHistory is not null && error.TryGetProperty("path", out var path) &&
+                            path.ValueKind == JsonValueKind.Array && path.GetArrayLength() > 0 && path[0].ValueEquals("ruleHistory"))
+                            historyFailure = "HistoryUnavailable";
+                        else failure = "GraphQlFailure";
+                if (failure is null)
                 {
-                    string text = row.GetProperty("dateTime").GetString() ?? "";
-                    if (!Regex.IsMatch(text, @"(Z|[+-]\d{2}:\d{2})$", RegexOptions.CultureInvariant)) throw new InvalidDataException();
-                    DateTime timestamp = DateTimeOffset.Parse(text, CultureInfo.InvariantCulture).UtcDateTime;
-                    if (timestamp != start) continue;
-                    builder.Add(new(timestamp, row.GetProperty("open").GetDecimal(), row.GetProperty("high").GetDecimal(),
-                        row.GetProperty("low").GetDecimal(), row.GetProperty("close").GetDecimal(), row.GetProperty("volume").GetInt64()));
+                    var data = document.RootElement.GetProperty("data");
+                    bars = ReadBars(data.GetProperty("getTimeSeriesData"), start, attempt.ExpectedEndUtc);
+                    if (attempt.RequiredHistory is { } h && historyFailure is null)
+                        try { historical = ReadBars(data.GetProperty("ruleHistory"), h.StartUtc, h.EndUtc); }
+                        catch (Exception e) when (e is InvalidOperationException or InvalidDataException or
+                            FormatException or KeyNotFoundException or OverflowException) { historyFailure = "HistoryUnavailable"; }
                 }
-                bars = builder.ToImmutable();
             }
         }
         catch
@@ -98,10 +112,32 @@ query getTimeSeriesData($symbol: String!, $interval: Int, $startDateTime: Int, $
         }
         var batch = new DelphiLiveCollectorBatch(attempt.RequestId, Contract, attempt.Symbol, attempt.SessionOpenUtc,
             attempt.SessionCloseUtc, attempt.ExpectedEndUtc, deadlineOffset, started, received, clock(), bars, envelope, failure)
-            { RequestedStartUtc = start };
+            { RequestedStartUtc = start, RequestedHistory = attempt.RequiredHistory, HistoryFailureCode = historyFailure };
         try { DelphiLiveCollectorBatches.Validate(batch); }
         catch (ArgumentException) { batch = batch with { Bars = [], FailureCode = "InvalidBars" }; DelphiLiveCollectorBatches.Validate(batch); }
+        if (batch.FailureCode is null && !historical.IsEmpty)
+        {
+            var combined = batch with { Bars = bars.AddRange(historical) };
+            try { DelphiLiveCollectorBatches.Validate(combined); return combined; }
+            catch (ArgumentException) { return batch with { HistoryFailureCode = "HistoryUnavailable" }; }
+        }
         return batch;
+    }
+
+    private static ImmutableArray<OhlcvBar> ReadBars(JsonElement rows, DateTime start, DateTime end)
+    {
+        if (rows.ValueKind != JsonValueKind.Array || rows.GetArrayLength() > 1440) throw new InvalidDataException();
+        var result = ImmutableArray.CreateBuilder<OhlcvBar>();
+        foreach (var row in rows.EnumerateArray())
+        {
+            string text = row.GetProperty("dateTime").GetString() ?? "";
+            if (!Regex.IsMatch(text, @"(Z|[+-]\d{2}:\d{2})$", RegexOptions.CultureInvariant)) throw new InvalidDataException();
+            DateTime timestamp = DateTimeOffset.Parse(text, CultureInfo.InvariantCulture).UtcDateTime;
+            if (timestamp < start || timestamp >= end) continue;
+            result.Add(new(timestamp, row.GetProperty("open").GetDecimal(), row.GetProperty("high").GetDecimal(),
+                row.GetProperty("low").GetDecimal(), row.GetProperty("close").GetDecimal(), row.GetProperty("volume").GetInt64()));
+        }
+        return result.ToImmutable();
     }
     public void Dispose() => http.Dispose();
 }

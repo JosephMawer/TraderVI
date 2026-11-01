@@ -50,6 +50,8 @@ BEGIN
 END
 """, new { Id = Guid.NewGuid(), lease.SourceContract, lease.OwnerId, lease.FencingToken, Symbol = symbol,
             subscriptions.SessionOpenUtc, subscriptions.SessionCloseUtc, EndUtc = endUtc, Budget = requestBudget }, tx, cancellationToken: ct));
+        if (result is not null)
+            result = result with { RequiredHistory = await ClaimHistoryAsync(c, tx, result, ct) };
         await tx.CommitAsync(ct);
         return result is null ? null : result with { SessionOpenUtc = Utc(result.SessionOpenUtc), SessionCloseUtc = Utc(result.SessionCloseUtc),
             ExpectedEndUtc = Utc(result.ExpectedEndUtc), ReservedUtc = Utc(result.ReservedUtc) };

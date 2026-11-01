@@ -53,6 +53,7 @@ public sealed partial class MarketCollectorSqlTests(ITestOutputHelper output)
 
         await RehearseReceiptMigrationAsync(control, database);
         var repository = new MarketCollectorRepository(connection);
+        await VerifyRuleHistoryAsync(control, repository);
         const string source = "SyntheticCollectorQualificationV1";
         var owners = await Task.WhenAll(repository.TryAcquireAsync(source, Guid.NewGuid()), repository.TryAcquireAsync(source, Guid.NewGuid()));
         var lease = Assert.Single(owners.Where(x => x is not null))!;

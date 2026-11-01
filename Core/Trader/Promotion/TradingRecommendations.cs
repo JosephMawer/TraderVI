@@ -82,6 +82,8 @@ public sealed record TradingRecommendationInput(Guid BatchId, TradingStrategyAss
     public DateTime? CandidateEffectiveUtc { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ImmutableArray<TradingMinuteObservation>? MinuteInputs { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore]
+    internal CollectorRuleHistory? RequiredMinuteHistory { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ImmutableDictionary<string, string>? BrokerMarketSymbols { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

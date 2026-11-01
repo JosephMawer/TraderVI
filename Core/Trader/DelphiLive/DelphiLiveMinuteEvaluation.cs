@@ -40,25 +40,25 @@ public static class DelphiLiveMinuteEvaluator
 {
     public static DelphiLiveMinutePair EvaluatePair(DelphiLiveMinuteStrategy strategy, DelphiLiveMinuteEvidenceBook stock,
         DelphiLiveMinuteEvidenceBook xiu, DelphiLiveVolatilityRulerMeasurements rulers, decimal? previousStockClose,
-        decimal? previousXiuClose, DateTime latestEndUtc, DateTime nowUtc)
+        decimal? previousXiuClose, DateTime latestEndUtc, DateTime nowUtc, CollectorRuleHistory? history = null)
     {
         strategy.Validate();
         if (latestEndUtc < stock.SessionOpenUtc.AddMinutes(2)) throw new ArgumentException("Two completed endpoints are required.");
-        var previous = Evaluate(strategy, stock, xiu, rulers, previousStockClose, previousXiuClose, latestEndUtc.AddMinutes(-1), nowUtc);
-        var latest = Evaluate(strategy, stock, xiu, rulers, previousStockClose, previousXiuClose, latestEndUtc, nowUtc);
+        var previous = Evaluate(strategy, stock, xiu, rulers, previousStockClose, previousXiuClose, latestEndUtc.AddMinutes(-1), nowUtc, history);
+        var latest = Evaluate(strategy, stock, xiu, rulers, previousStockClose, previousXiuClose, latestEndUtc, nowUtc, history);
         return new(previous, latest, DelphiLiveRecoveredConfirmation.Assess(strategy.Identity, stock, xiu, previous.Judgment, latest.Judgment, nowUtc));
     }
 
     public static DelphiLiveMinuteEvaluation Evaluate(DelphiLiveMinuteStrategy strategy, DelphiLiveMinuteEvidenceBook stock,
         DelphiLiveMinuteEvidenceBook xiu, DelphiLiveVolatilityRulerMeasurements rulers, decimal? previousStockClose,
-        decimal? previousXiuClose, DateTime endUtc, DateTime nowUtc)
+        decimal? previousXiuClose, DateTime endUtc, DateTime nowUtc, CollectorRuleHistory? history = null)
     {
         strategy.Validate();
         if (stock.SourceContract != strategy.SourceContract || xiu.SourceContract != strategy.SourceContract ||
             stock.Observations.Concat(xiu.Observations).Any(o => o.DeadlineUtc - o.EndUtc != strategy.DeadlineOffset))
             throw new ArgumentException("Evidence does not match the exact reviewed source/deadline contract.");
         var rules = strategy.Rules;
-        var facts = DelphiLiveMinuteMeasurements.Calculate(stock, xiu, endUtc, nowUtc, previousStockClose, previousXiuClose, rules);
+        var facts = DelphiLiveMinuteMeasurements.Calculate(stock, xiu, endUtc, nowUtc, previousStockClose, previousXiuClose, rules, history);
         var persistence = DelphiLiveFamilyClassifiers.ClassifyPersistence(facts.Persistence);
         var price = DelphiLiveFamilyClassifiers.ClassifyPriceMovement(facts.Price, rulers.Select(rules), rules);
         var volume = DelphiLiveFamilyClassifiers.ClassifyVolumeSupport(facts.Volume, rules);

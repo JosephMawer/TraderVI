@@ -156,6 +156,7 @@
     <Build Include="dbo/Triggers/MarketCollectorAttempt_Immutable.sql" />
     <Build Include="dbo/Tables/MarketCollectorBook.sql" />
     <Build Include="dbo/Tables/MarketCollectorRequest.sql" />
+    <Build Include="dbo/Tables/MarketCollectorHistoryNeed.sql" />
     <Build Include="dbo/Tables/MarketCollectorObservation.sql" />
     <Build Include="dbo/Tables/MarketCollectorConflict.sql" />
     <Build Include="dbo/Triggers/MarketCollectorBook_Immutable.sql" />
@@ -282,6 +283,7 @@
     <None Include="Migrations/20261030_054_AddCompactTradingCurrentState.sql" />
     <None Include="Migrations/20261031_055_AllowExpiredCompactOrderReceipt.sql" />
     <None Include="Migrations/20261101_056_PackCollectorReceipts.sql" />
+    <None Include="Migrations/20261101_057_AddRuleRequestedMinuteHistory.sql" />
     <None Include="Operations/Pack-CollectorReceiptBatch.sql" />
   </ItemGroup>
   <Target Name="BlockTraderDbDeployment" BeforeTargets="Deploy;SqlDeploy">

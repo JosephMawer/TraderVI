@@ -18,6 +18,22 @@ public sealed class DelphiLiveMinuteEvaluationTests
     private static readonly DelphiLiveVolatilityRulerMeasurements Rulers = new(Ruler(5), Ruler(10), Ruler(14), Ruler(20));
 
     [Fact]
+    public void OnlyMissingMinutesInConsultedRuleWindowsRequestRecovery()
+    {
+        var stock = Book("TEST", 67, .1m); var xiu = Book("XIU", 67, 0m);
+        var needs = new CollectorRuleHistory(Strategy.SourceContract, Open, stock.SessionCloseUtc);
+        var end = Open.AddMinutes(67); var now = end.AddSeconds(15);
+        DelphiLiveMinuteEvaluator.EvaluatePair(Strategy, stock, xiu, Rulers, 10m, 10m, end, now, needs);
+        Assert.Empty(needs.Minutes);
+        // VWAP still consults the opening stock minute. Neither mature benchmark return needs it here.
+        stock = stock with { Observations = stock.Observations.RemoveAt(0) };
+        xiu = xiu with { Observations = xiu.Observations.RemoveAt(0) };
+        for (int i=0; i<2; i++)
+            DelphiLiveMinuteEvaluator.EvaluatePair(Strategy, stock, xiu, Rulers, 10m, 10m, end, now, needs);
+        Assert.Equal(new MissingRuleMinute("TEST", Open, "MinuteEntry"), Assert.Single(needs.Minutes));
+    }
+
+    [Fact]
     public void ActualFourFamilyJudgmentsConfirmRecoveredCurrentPairImmediately()
     {
         var stock = Book("TEST", 67, .1m); var xiu = Book("XIU", 67, 0m);

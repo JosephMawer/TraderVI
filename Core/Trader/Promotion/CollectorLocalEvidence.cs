@@ -48,13 +48,16 @@ public static class CollectorLocalEvidence
         return result.ToImmutable();
     }
 
-    public static ImmutableArray<TradingPriceBar> ProtectionBars(DelphiLiveMinuteEvidenceBook book, DateTime now)
+    public static ImmutableArray<TradingPriceBar> ProtectionBars(DelphiLiveMinuteEvidenceBook book, DateTime now,
+        CollectorRuleHistory? history = null, DateTime? established = null, DateTime? through = null)
     {
         DelphiLiveMinuteEvidence.Validate(book);
         var result = ImmutableArray.CreateBuilder<TradingPriceBar>();
         for (var end = book.SessionOpenUtc.AddMinutes(5); end <= book.SessionCloseUtc && end < now; end = end.AddMinutes(5))
         {
             var window = DelphiLiveMinuteWindows.BuildRecoveredContext(book, end, TimeSpan.FromMinutes(5), now);
+            if (established is { } boundary && window.StartUtc >= boundary && end > (through ?? boundary))
+                history?.ObserveWindow(book, window, now, "HoldingClose");
             if (window.Aggregate is not { } bar) continue;
             var inputs = book.Observations.Where(o => o.EndUtc > end.AddMinutes(-5) && o.EndUtc <= end).ToArray();
             var id = BrokerManagedStrategy.StableId("CollectorFiveMinuteCloseV1:" + string.Join(":", inputs.Select(o => o.ObservationId.ToString("D"))));

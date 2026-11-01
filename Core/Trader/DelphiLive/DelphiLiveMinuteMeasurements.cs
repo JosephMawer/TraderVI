@@ -18,12 +18,12 @@ public static class DelphiLiveMinuteMeasurements
 {
     public static DelphiLiveMinuteMeasurementsResult Calculate(DelphiLiveMinuteEvidenceBook stock,
         DelphiLiveMinuteEvidenceBook xiu, DateTime end, DateTime now, decimal? previousStockClose,
-        decimal? previousXiuClose, DelphiLivePolicyDefinition rules)
+        decimal? previousXiuClose, DelphiLivePolicyDefinition rules, CollectorRuleHistory? history = null)
     {
         rules.Validate(); DelphiLiveMinuteEvidence.Validate(stock); DelphiLiveMinuteEvidence.Validate(xiu);
         if (xiu.Symbol != "XIU" || stock.SourceContract != xiu.SourceContract || stock.SessionOpenUtc != xiu.SessionOpenUtc ||
             stock.SessionCloseUtc != xiu.SessionCloseUtc) throw new ArgumentException("Matched stock/benchmark session required.");
-        var s = new Reader(stock, now); var x = new Reader(xiu, now);
+        var s = new Reader(stock, now, history); var x = new Reader(xiu, now, history);
         var stockLegs = s.Legs(end, rules.PersistenceObservationCount);
         var xiuLegs = x.Legs(end, rules.PersistenceObservationCount);
         var availability = Combine(stockLegs.Status, xiuLegs.Status);
@@ -71,9 +71,14 @@ public static class DelphiLiveMinuteMeasurements
 
     private sealed record Leg(DateTime End, decimal Start, decimal Close, long Volume);
     private sealed record LegsResult(DelphiLiveMeasurementAvailability Status, ImmutableArray<Leg> Values);
-    private sealed class Reader(DelphiLiveMinuteEvidenceBook book, DateTime now)
+    private sealed class Reader(DelphiLiveMinuteEvidenceBook book, DateTime now, CollectorRuleHistory? history)
     {
-        public DelphiLiveMinuteWindow Window(DateTime end, TimeSpan duration) => DelphiLiveMinuteWindows.BuildRecoveredContext(book, end, duration, now);
+        public DelphiLiveMinuteWindow Window(DateTime end, TimeSpan duration)
+        {
+            var window = DelphiLiveMinuteWindows.BuildRecoveredContext(book, end, duration, now);
+            history?.ObserveWindow(book, window, now, "MinuteEntry");
+            return window;
+        }
         public DelphiLiveScalarMeasurement Close(DateTime end)
         {
             if (end == book.SessionOpenUtc)

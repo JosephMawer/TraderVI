@@ -1,5 +1,14 @@
 # TraderVI Project Status
 
+## November 1 — Latest completed minute and rule-requested gaps prepared
+
+The replacement collector requests one completed minute per monitored symbol. The updated minute
+rules read SQL first. An unfilled required window can enqueue the exact missing minutes for the
+collector. Migration 057 and the production request/receipt code passed a new isolated SQL
+rehearsal. The Core suite passed 3,621 tests with 16 opt-in skips. Collector and engine Release
+builds and the SSDT schema build passed. Production installation and market-open source qualification
+are separate. [Acquisition decision](adr/0111-independent-collector-and-recovered-confirmation.md#superseding-decision--latest-completed-minute-and-rule-driven-history)
+
 ## November 1 — Collector receipts compressed in production
 
 The 00:26 pre-migration full backup verified. The scheduled nightly run ended at 00:31 Toronto
