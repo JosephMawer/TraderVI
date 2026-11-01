@@ -1,4 +1,4 @@
-﻿namespace Core
+namespace Core
 {
     public class Constants
     {
@@ -12,7 +12,7 @@
         /// never alters the head. Six months comfortably covers several breakout cycles at the
         /// default 20-session window.
         /// </summary>
-        public const int ObvRetentionMonths = 6;
+        public const int ObvRetentionMonths = Core.Indicators.MarketIndicatorDefaults.ObvRetentionMonths;
 
         /// <summary>
         /// Rolling lookback (sessions) each XIU-60 name's OBV must break above/below to
@@ -22,7 +22,7 @@
         /// (divergence hit-rate vs XIU); larger = fewer, more significant flips.
         /// Default: 20
         /// </summary>
-        public const int ClimaxBreakoutWindow = 20;
+        public const int ClimaxBreakoutWindow = Core.Indicators.MarketIndicatorDefaults.ClimaxBreakoutWindow;
 
         /// <summary>
         /// Graceful-degradation floor: the minimum number of XIU-60 names that must produce
@@ -31,6 +31,6 @@
         /// emit a misleading net tally. Initial default, tunable as coverage stabilises.
         /// Default: 50
         /// </summary>
-        public const int ClimaxMinConstituents = 50;
+        public const int ClimaxMinConstituents = Core.Indicators.MarketIndicatorDefaults.ClimaxMinConstituents;
     }
 }

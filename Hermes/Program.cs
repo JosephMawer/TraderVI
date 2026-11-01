@@ -1,4 +1,4 @@
-﻿using Core.Db;
+using Core.Db;
 using Core.Indicators;
 using Core.Indicators.Granville;
 using Core.Indicators.Models;
@@ -340,7 +340,7 @@ static async Task UpdateObvAsync(
     Console.WriteLine("\n── On-Balance Volume (OBV) Update ──\n");
 
     var obvRepo = new SymbolObvRepository();
-    var retentionCutoff = preparationDate.AddMonths(-Core.Constants.ObvRetentionMonths);
+    var retentionCutoff = preparationDate.AddMonths(-MarketIndicatorDefaults.ObvRetentionMonths);
 
     int updated = 0;
     int pointsAdded = 0;
@@ -412,7 +412,7 @@ static async Task UpdateMarketClimaxAsync(QuoteRepository repository, DateTime p
 
     // CLX reads each XIU-60 leader's stored OBV series (maintained by UpdateObvAsync above)
     // and tallies UP vs DOWN field-trend designations. We only need the OBV retention window.
-    var seriesStart = preparationDate.AddMonths(-Core.Constants.ObvRetentionMonths);
+    var seriesStart = preparationDate.AddMonths(-MarketIndicatorDefaults.ObvRetentionMonths);
 
     var seriesBySymbol = new Dictionary<string, IReadOnlyList<OBV>>(StringComparer.OrdinalIgnoreCase);
     DateTime? clxDate = null;
@@ -429,10 +429,10 @@ static async Task UpdateMarketClimaxAsync(QuoteRepository repository, DateTime p
             clxDate = last;
     }
 
-    if (seriesBySymbol.Count < Core.Constants.ClimaxMinConstituents)
+    if (seriesBySymbol.Count < MarketIndicatorDefaults.ClimaxMinConstituents)
     {
         Console.WriteLine(
-            $"Only {seriesBySymbol.Count} XIU-60 names have OBV series (need >= {Core.Constants.ClimaxMinConstituents}). " +
+            $"Only {seriesBySymbol.Count} XIU-60 names have OBV series (need >= {MarketIndicatorDefaults.ClimaxMinConstituents}). " +
             "Skipping CLX update -- run OBV backfill first.\n");
         return;
     }
@@ -445,7 +445,7 @@ static async Task UpdateMarketClimaxAsync(QuoteRepository repository, DateTime p
     float? xiuClose = xiuBar is null ? null : (float)xiuBar.Close;
 
     var entry = MarketClimaxCalculator.ComputeForDate(
-        seriesBySymbol, asOf, Core.Constants.ClimaxBreakoutWindow, xiuClose);
+        seriesBySymbol, asOf, MarketIndicatorDefaults.ClimaxBreakoutWindow, xiuClose);
 
     await climaxRepo.UpsertAsync([entry]);
 

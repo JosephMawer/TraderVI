@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\TraderVI.MarketStorage\TraderVI.MarketStorage.csproj" />
+    <ProjectReference Include="..\TraderVI.MarketProviders\TraderVI.MarketProviders.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Hermes.Tests" />
+  </ItemGroup>
 </Project>

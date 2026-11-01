@@ -5,6 +5,10 @@
 - **Domains:** architecture, data-pipeline
 - **Related:** [ADR-0113](0113-nightly-data-audit-report.md), [ADR-0078](0078-isolated-latest-source-nightly-builds.md)
 
+**Later ownership update:** [ADR-0120](0120-independent-hermes-build.md) moves SQLBase and the market
+repositories used by Hermes/Core into MarketStorage. Statements below that SQLBase stays in Core
+describe this earlier increment. DataAudit's own SQL implementation and dependency boundary remain.
+
 ## Decision and rationale
 
 DataAudit owns its audit workflow, report models, rules, SQL reader and connection configuration.

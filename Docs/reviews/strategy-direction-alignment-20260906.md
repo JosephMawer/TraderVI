@@ -272,7 +272,7 @@ comparative reports do positively scope one active strategy and do not pool olde
   is SELECT-only; Live selections are blocked from daily Shadow commands. Replay remains a local estimated
   account. Incomplete/superseded marks are not silently replaced with invented valuations.
 - **Operational containment:** the nightly runner checks source/artifact stability and single-instance
-  execution. [TraderDbBackupService.cs:119](../../Core/Db/TraderDbBackupService.cs#L119) uses checksum backup,
+  execution. [TraderDbBackupService.cs:119](../../Hermes/Db/TraderDbBackupService.cs#L119) uses checksum backup,
   verification, no-overwrite copies and matching hashes. SSDT CI builds only; deployment is disabled in
   [TraderDB.sqlproj:165](../../TraderDB/TraderDB.sqlproj#L165). These are source findings, not new operational tests.
 

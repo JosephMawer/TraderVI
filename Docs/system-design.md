@@ -14,7 +14,13 @@ operational status or the governing decisions.
 For daily data-quality checking, DataAudit builds independently of Core under
 [ADR-0119](adr/0119-independent-data-audit-build.md). The audit owns its workflow, reports and SQL
 reader/configuration. Core and DataAudit both reference the package-free TraderVI.MarketData
-project for reused market definitions and quality checks. SQLBase remains in Core.
+project for reused market definitions and quality checks.
+
+Hermes also builds independently under [ADR-0120](adr/0120-independent-hermes-build.md). Its backup
+and ingestion helpers live in Hermes. Shared facts/calculations remain package-free in MarketData;
+market repositories and SQLBase live in TraderVI.MarketStorage, and the shared TMX client lives in
+TraderVI.MarketProviders. Core consumes the same implementations. DataAudit keeps its own SQL reader.
+Precompiled release reuse and retention remain separate work; this source split does not install apps.
 
 ## Paper and Real share rules, not account state
 

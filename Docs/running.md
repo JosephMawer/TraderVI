@@ -886,7 +886,8 @@ Install the Windows task once, or rerun the installer when changing its schedule
 
 The task invokes the repository runner and configuration directly. ADR-0078 captures the latest tracked
 and untracked non-ignored source into a verified private copy at run start. Later edits belong to the next
-run. It restores the reviewed Core/Hermes/DataAudit/Delphi/Athena and shared TraderVI.MarketData lock files with `--locked-mode` into a dedicated
+run. It restores the reviewed Core/Hermes/DataAudit/Delphi/Athena and shared TraderVI.MarketData,
+TraderVI.MarketStorage and TraderVI.MarketProviders lock files with `--locked-mode` into a dedicated
 cache, then builds the four Release projects inside that copy. Neither intermediate nor executable files
 are shared with development builds. Source and runner edits apply without reinstalling the task.
 
@@ -965,7 +966,20 @@ dotnet run --project DataAudit
 
 **Project:** `Hermes`
 **Entry point:** `Hermes/Program.cs`
+**Build dependencies:** MarketStorage and MarketProviders, each using package-free MarketData;
+independent of Core under [ADR-0120](adr/0120-independent-hermes-build.md).
 **Typical schedule:** after market close
+
+Hermes owns backup/retention, Yahoo/SPY ingestion and collection-specific helpers. Its standalone
+offline tests are in `Hermes.Tests`. While live hosts are running, validate with isolated outputs:
+
+```powershell
+dotnet test Hermes.Tests/Hermes.Tests.csproj --artifacts-path artifacts/hermes-validation
+dotnet build Hermes/Hermes.csproj -c Release --artifacts-path artifacts/hermes-validation
+```
+
+These commands build/test only. A normal Hermes invocation still writes SQL and calls providers.
+No precompiled release activation or nightly retention change is installed by this extraction.
 
 Hermes currently:
 

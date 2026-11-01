@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -47,6 +47,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TraderVI.MarketData\TraderVI.MarketData.csproj" />
+    <ProjectReference Include="..\TraderVI.MarketStorage\TraderVI.MarketStorage.csproj" />
+    <ProjectReference Include="..\TraderVI.MarketProviders\TraderVI.MarketProviders.csproj" />
   </ItemGroup>
 
 </Project>

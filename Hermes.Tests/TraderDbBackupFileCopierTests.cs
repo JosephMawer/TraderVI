@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace TraderVI.Core.Tests;
+namespace Hermes.Tests;
 
 public sealed class TraderDbBackupFileCopierTests
 {
@@ -65,7 +65,7 @@ public sealed class TraderDbBackupFileCopierTests
 
     private static string CreateTestRoot()
     {
-        var path = Path.Combine(Path.GetTempPath(), "TraderVI.Core.Tests", Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(Path.GetTempPath(), "Hermes.Tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(path);
         return path;
     }

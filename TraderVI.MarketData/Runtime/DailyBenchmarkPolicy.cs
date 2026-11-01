@@ -1,6 +1,5 @@
 #nullable enable
 using Core.ML;
-using Core.Trader;
 using Core.Trader.DelphiLive;
 using System;
 using System.Collections.Generic;
@@ -13,10 +12,7 @@ public sealed record DailyBenchmarkEvidence(string PolicyVersion, string Calenda
     DateTime MarketSession, string XiuSource, string SpySource, int XiuObservations, int SpyObservations);
 
 public sealed record DailyBenchmarkSnapshot(IReadOnlyList<DailyBar> Xiu, IReadOnlyList<DailyBar> Spy,
-    DailyBenchmarkEvidence Evidence)
-{
-    public MarketRegime ComputeRegime() => TradeDecisionEngine.ComputeRegime(Xiu, Spy);
-}
+    DailyBenchmarkEvidence Evidence);
 
 /// <summary>ADR-0058's explicit daily policy; older strategy decisions retain their prior dispatch.</summary>
 public static class DailyBenchmarkPolicy

@@ -156,7 +156,7 @@ public sealed class DelphiWorkflow
             DailyBenchmarkSnapshot? benchmarkSnapshot = null;
             if (DailyBenchmarkPolicy.IsRequired(activeStrategy?.DecisionRef))
             {
-                earlySpy = await DailyBars(SpyBenchmarkIngestion.Symbol);
+                earlySpy = await DailyBars(Core.TMX.DailyBenchmarkSymbols.Spy);
                 benchmarkSnapshot = DailyBenchmarkPolicy.Prepare(recommendationDate,
                     historicalCalendar ?? DailyBenchmarkPolicy.LoadCalendar(), earlyXiu ?? [], earlySpy);
                 earlyXiu = benchmarkSnapshot.Xiu.ToList();

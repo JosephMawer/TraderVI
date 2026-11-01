@@ -1,9 +1,38 @@
 # TraderVI Project Status
 
+## November 1 — Hermes builds independently of Core
+
+Hermes owns its backup/retention, Yahoo/SPY ingestion, sector classification and leadership acquisition
+helpers. Shared market facts/calculations live in package-free TraderVI.MarketData; repositories and
+SQLBase in TraderVI.MarketStorage; the TMX client and collector transport client/contracts in
+TraderVI.MarketProviders. Core uses the same shared implementations; DataAudit retains its own SQL
+reader and references only MarketData. [ADR-0120](adr/0120-independent-hermes-build.md) records ownership.
+
+Hermes Debug/Release builds passed. Its normal Release output measures **17.71 MiB / 66 files**, with
+no Core.dll, ML.NET, MKL or LightGBM. All 31 standalone Hermes tests and 11 DataAudit tests passed.
+The full Core suite passed 3,583 tests with 16 existing operational checks skipped; after adding
+collector request-guard regressions, all 172 focused shared/transport/benchmark tests passed.
+Delphi, Athena, WPF/engine, collector and Sandbox compatibility builds passed in isolated directories.
+All four nightly stages passed locked restores, and 126 offline nightly assertions passed.
+Existing nullable-annotation/unused-code compiler warnings remain; dependency security auditing was
+disabled. The full SQL-containing solution and operational collection were not run.
+
+Private evidence is under `artifacts/hermes-extraction-20261101/`: `hermes-tests.log`,
+`core-tests.log`, `core-focused-tests.log`, `dataaudit-tests.log`, `build-*.log`, `locked-*.log`,
+`nightly-regressions.log` and the protected-host preflight/verification records. Collector PID 1452,
+engine PID 22452 and WPF PID 6260 retain their original start times, paths, executable/Core hashes
+and file timestamps. No runtime replacement, restart, SQL/broker/market operation or training occurred.
+
+This is a source/build separation, not an installed precompiled release. The nightly runner still
+captures source and builds every night. Reusing releases and bounding retention remain separate work;
+old nightly folders have not been cleaned. Shared code changes still require rebuilding its consumers;
+unrelated Core changes no longer require rebuilding Hermes.
+
 ## November 1 — DataAudit builds independently of Core
 
-DataAudit now owns its audit workflow, reports, rules and SQL reader/configuration. SQLBase remains
-in Core unchanged. The only shared project is package-free TraderVI.MarketData, containing market
+DataAudit now owns its audit workflow, reports, rules and SQL reader/configuration. SQLBase stayed
+in Core at this checkpoint; the later Hermes increment above moves it. The audit's only shared
+project is package-free TraderVI.MarketData, containing market
 definitions, freshness and security-name checks still used by Core. The DataAudit dependency graph
 excludes Core, ML.NET, MKL, LightGBM and market-provider clients.
 [ADR-0119](adr/0119-independent-data-audit-build.md) records the boundary.

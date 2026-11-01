@@ -108,7 +108,7 @@ try {
         @{ Version = 1; Symbols = $symbols; Requests = 0; LastStarts = @{}; FinishedSlots = @{}; First = @{} }
     }
     if ($state.Version -ne 1 -or ($state.Symbols -join ',') -ne ($symbols -join ',') -or $state.Requests -lt 0 -or $state.Requests -gt 270) { throw 'Invalid study checkpoint or changed target' }
-    $source = Get-Content (Join-Path $root 'Core/TMX/TmxClient.cs') -Raw
+    $source = Get-Content (Join-Path $root 'TraderVI.MarketProviders/TmxClient.cs') -Raw
     $query = [regex]::Match($source, 'Query = @"\s*(query getTimeSeriesData\([\s\S]*?)",\s*Variables').Groups[1].Value
     if (!$query -or $query -match '\bmutation\b') { throw 'Read-only TMX query extraction failed' }
     $handler = [Net.Http.HttpClientHandler]::new()

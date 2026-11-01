@@ -108,7 +108,7 @@ rule. The relevant boundary follows responsibilities and dependency direction. A
 library that still references the entire Core assembly retains the original coupling. Shared
 types and required services would need a lower-level home, or the unrelated execution code could
 move out of Core instead. The November 1 mapping below identifies the initial extraction boundaries.
-The DataAudit slice is now implemented below; extraction of the other applications remains proposed.
+The DataAudit and Hermes slices are now implemented below; Delphi and Athena extraction remains proposed.
 Bounded release storage can be implemented independently of it. Any future package-size claim requires
 checking which ML/native dependencies each extracted project actually retains.
 
@@ -126,22 +126,43 @@ full-pipeline Run now idea remains a separate unresolved choice.
 [ADR-0119](../adr/0119-independent-data-audit-build.md) records the first accepted extraction.
 DataAudit owns MarketDataAuditWorkflow, MarketDataAuditor, MarketDataAuditModels and
 MarketDataAuditRepository. The audit has its own SQL client configuration and keeps the existing
-local default and explicit override. SQLBase remains in Core unchanged: the audit does not need
-that class simply to choose a database connection. There is no separate audit library or shared
-SQL project.
+local default and explicit override. The audit does not need SQLBase simply to choose a database
+connection. There is no separate audit library. The later Hermes extraction below shares actual
+market repositories and their SQLBase implementation without adding them to DataAudit's dependencies.
 
 For later extractions, share code when the remaining consumers need one implementation. A default
 connection setting alone does not justify a shared SQL project or a dependency on SQLBase.
 
-The single shared project, TraderVI.MarketData, contains TsxSectorSymbols, DailyBenchmarkSymbols,
+DataAudit's single shared project, TraderVI.MarketData, contains TsxSectorSymbols, DailyBenchmarkSymbols,
 MarketDataFreshness and SecurityNameHeuristics, all consumed by both the audit and existing Core
 code. It has no package dependencies or Core reference. Core and DataAudit reference this one
 implementation. The CLI's restored dependency graph excludes Core, ML.NET, MKL, LightGBM and
 the market-provider clients. DataAudit.Tests now owns the audit tests and checks this boundary.
 
-Only this slice is implemented. The running WPF, collector and trading engine retain their old
+The running WPF, collector and trading engine retain their old
 binaries. Existing nightly folders remain in place. The source-capturing nightly runner can use
 the new project/lock graph on its next capture; no operational audit was run during validation.
+
+### Hermes extraction — implemented November 1
+
+[ADR-0120](../adr/0120-independent-hermes-build.md) records the second accepted extraction.
+Hermes owns its backup/retention, Yahoo source, SPY ingestion, sector classification, new-high/low
+calculation and leadership acquisition code. Shared market repositories (used by Delphi, saved-result
+readers and Athena as well as Hermes) and SQLBase live in TraderVI.MarketStorage. The TMX client shared
+with collector/quote consumers lives in TraderVI.MarketProviders. Both reference package-free
+MarketData, which now also holds shared bars, calendar, validation and deterministic calculations.
+Core consumes these same implementations; none of the three market projects references Core.
+
+DailyBar is separated from the ML prototype, and regime evaluation stays in Core rather than being
+pulled into shared benchmark validation. Hermes.Tests owns the ingestion/backup fixtures and verifies
+the resolved dependency graph excludes Core and ML. The isolated Release output is 17.71 MiB across
+66 files, with no Core.dll, ML.NET, MKL or LightGBM. This is a normal build output, not a single-file
+publish or an installed release. DataAudit still has no provider or shared-storage dependency.
+
+The purpose is fewer dependencies and less unrelated change propagation. Changing a shared component
+Hermes uses still requires rebuilding Hermes. Running a build does not itself change that component.
+The installed nightly runner still captures source and builds each night; release reuse and bounded
+retention are the separate changes that stop accumulating another full output on each run.
 
 ### Dependency findings — November 1, before extraction
 
@@ -218,12 +239,11 @@ as part of that move.
 
 ### Recommended sequence and remaining choices
 
-The implemented **DataAudit** slice above provides the first build with no Core reference or ML
-packages. It shares reused market definitions while owning its SQL code. Next extract Hermes's collection
-support, separate daily result/evidence contracts, and move Delphi's daily analysis and Athena's
+The implemented **DataAudit and Hermes** slices above build with no Core reference or ML
+packages. Next separate daily result/evidence contracts and move Delphi's daily analysis and Athena's
 calibration functionality. Keep responsibilities separate enough that DataAudit does not inherit
 Delphi's ML packages through a single all-purpose nightly library. Project names and the exact number
-of further shared projects remain design choices; only the DataAudit slice is implemented and accepted.
+of further shared projects remain design choices; DataAudit and Hermes are implemented and accepted.
 
 Success means an unrelated broker/UI edit does not rebuild the four nightly applications. A change
 to a shared rule they actually use must still rebuild the affected apps. Precompiled release reuse
@@ -234,7 +254,7 @@ There is also a package-level candidate: `Core/Core.csproj` references Microsoft
 disk inventory. The semantic scan found no direct source dependency on TimeSeries in Core or the
 four CLIs, and a text check also found none in ML.Train. This supports reviewing that package's
 necessity; it does not prove it can be removed without validating saved-model loading and any
-indirect runtime requirements. No package reference was changed.
+indirect runtime requirements. Core's ML package references remain unchanged by these extractions.
 
 ### Evidence and limits of this mapping
 

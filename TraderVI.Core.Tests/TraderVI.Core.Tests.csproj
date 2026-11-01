@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -24,7 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
     <Compile Include="..\TraderVI.WPF\Services\WindowsManualBuyProtector.cs" Link="Windows\WindowsManualBuyProtector.cs" />
-    <Compile Include="..\Hermes\SymbolCollection.cs" Link="Collection\SymbolCollection.cs" />
     <Compile Include="..\Sandbox\Probes\IProbe.cs" Link="Diagnostics\IProbe.cs" />
     <Compile Include="..\Sandbox\Probes\TmxOneMinuteFreshnessProbe.cs" Link="Diagnostics\TmxOneMinuteFreshnessProbe.cs" />
     <Compile Include="..\Sandbox\Probes\TmxLiveCollectionFailureProbe.cs" Link="Diagnostics\TmxLiveCollectionFailureProbe.cs" />

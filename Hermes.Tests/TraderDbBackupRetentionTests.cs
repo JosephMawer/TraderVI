@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace TraderVI.Core.Tests;
+namespace Hermes.Tests;
 
 public sealed class TraderDbBackupRetentionTests : IDisposable
 {
-    private readonly string root = Path.Combine(Path.GetTempPath(), "TraderVI.Core.Tests", Guid.NewGuid().ToString("N"));
+    private readonly string root = Path.Combine(Path.GetTempPath(), "Hermes.Tests", Guid.NewGuid().ToString("N"));
     private string Staging => Path.Combine(root, "staging");
     private string Destination => Path.Combine(root, "destination");
     public TraderDbBackupRetentionTests() { Directory.CreateDirectory(Staging); Directory.CreateDirectory(Destination); }

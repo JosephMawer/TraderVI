@@ -15,6 +15,32 @@ namespace TraderVI.Core.Tests;
 public sealed class CollectorIntradayRelayTests
 {
     [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("xiu")]
+    [InlineData(" XIU")]
+    public void SharedRequestPreservesCanonicalSymbolGuard(string? symbol)
+    {
+        var request = Request() with { Symbol = symbol! };
+        Assert.Equal("symbol", Assert.Throws<ArgumentException>(() => request.Validate(DateTime.UtcNow)).ParamName);
+    }
+
+    [Theory]
+    [InlineData(true, DateTimeKind.Unspecified)]
+    [InlineData(true, DateTimeKind.Local)]
+    [InlineData(false, DateTimeKind.Unspecified)]
+    [InlineData(false, DateTimeKind.Local)]
+    public void SharedRequestPreservesUtcGuards(bool start, DateTimeKind kind)
+    {
+        var request = Request();
+        request = start ? request with { StartUtc = DateTime.SpecifyKind(request.StartUtc, kind) }
+            : request with { EndUtc = DateTime.SpecifyKind(request.EndUtc, kind) };
+        Assert.Equal(start ? "StartUtc" : "EndUtc",
+            Assert.Throws<ArgumentException>(() => request.Validate(DateTime.UtcNow)).ParamName);
+    }
+
+    [Theory]
     [InlineData(5, true)][InlineData(5, false)][InlineData(15, false)]
     public async Task SameUserRelayPreservesExactOriginalReceiptAndHasNoTradingCapability(int interval, bool observation)
     {

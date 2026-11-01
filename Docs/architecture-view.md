@@ -79,7 +79,8 @@ flowchart TB
 
 ## Components
 
-Separate application processes share a Core library. Storage and external providers have explicit ownership boundaries.
+Most application processes still share Core. Hermes and DataAudit build independently; shared market
+facts, SQL repositories and provider clients have separate library boundaries under ADRs0119/0120.
 
 **Boundary:** Core boxes describe library responsibilities, not additional deployed services. This guide does not discover processes or check connectivity.
 
@@ -101,8 +102,9 @@ flowchart TB
         n_oracle["Oracle"]
         n_tools["Console / Practice / DataAudit"]
     end
-    subgraph g3["03 / Shared library"]
+    subgraph g3["03 / Shared libraries"]
         n_core["Core library"]
+        n_market["MarketData / MarketStorage / MarketProviders"]
     end
     subgraph g4["04 / Persistence"]
         n_sql["SQL Server / TraderDB"]
@@ -121,6 +123,8 @@ flowchart TB
     n_wpf -->|"Asynchronous local messages"| n_engine
     n_engine -->|"Execution-owned broker protocol"| n_broker
     n_engine -->|"Compose shared workflows"| n_core
+    n_hermes -->|"Collection dependencies, no Core reference"| n_market
+    n_core -->|"Same market implementations"| n_market
     n_core -->|"Repository reads and durable writes"| n_sql
     n_core -->|"Recovery and scoped history"| n_journals
 ```
@@ -129,7 +133,7 @@ flowchart TB
 |---|---|
 | 01 / External providers | [TMX](#component-tmx), [Wealthsimple](#component-broker), [Language-model provider](#component-llm) |
 | 02 / Application hosts | [TraderVI.Collector](#component-collector), [TraderVI.Engine](#component-engine), [TraderVI.WPF](#component-wpf), [Hermes](#component-hermes), [Hercules](#component-hercules), [Delphi daily publication](#component-delphi), [Athena / Scorecards](#component-athena), [Oracle](#component-oracle), [Console / Practice / DataAudit](#component-tools) |
-| 03 / Shared library | [Core library](#component-core) |
+| 03 / Shared libraries | [Core library](#component-core), [Market libraries and Hermes ownership](#component-hermes) |
 | 04 / Persistence | [SQL Server / TraderDB](#component-sql), [Model artifacts](#component-artifacts), [Private local journals](#component-journals) |
 
 ## Evidence
@@ -442,6 +446,13 @@ Sources: [Docs/adr/0103-real-execution-independent-of-paper-research.md](adr/010
 
 ### Hermes
 
+**November 1 build ownership:** Hermes builds without Core. Backup, Yahoo/SPY ingestion, sector
+classification and leadership acquisition live in Hermes. MarketData contains shared facts, calendars
+and deterministic calculations; MarketStorage contains shared repositories/SQLBase; MarketProviders
+contains the TMX client shared with the collector and other Core callers. DataAudit references only
+MarketData. [ADR-0120](adr/0120-independent-hermes-build.md) records this source boundary; installation
+and precompiled nightly release reuse remain separate.
+
 **Process — Daily market-history collection.** Prepare daily market history and deterministic derived evidence.
 
 **Inputs:** Daily provider responses, benchmark/sector data and collection configuration.
@@ -538,7 +549,7 @@ owns that scheduling/reporting change. The underlying audit remains read-only.
 
 **November 1 build ownership:** DataAudit owns its workflow, report models, checks and SQL reader.
 Its only shared project is the package-free TraderVI.MarketData, also referenced by Core for
-market definitions, freshness and security-name checks. SQLBase remains in Core; DataAudit owns
+market definitions, freshness and security-name checks. DataAudit owns
 its connection configuration. [ADR-0119](adr/0119-independent-data-audit-build.md) records the
 independent build boundary. This source change does not report installation or runtime health.
 
@@ -566,7 +577,9 @@ Sources: [README.md](../README.md), [Docs/running.md](running.md).
 
 **Outputs:** Signals, decisions, publications, protocol calls and persisted evidence.
 
-**Responsibilities:** Core.Runtime, Core.Trader, ML, Indicators, RS, adapters and repositories are logical responsibilities in one assembly.
+**Responsibilities:** Core retains trading/runtime workflows, ML, RS and their repositories. Shared
+market definitions/calculations, market repositories and TMX providers now live in the three market
+libraries; their original Core namespaces remain. Hermes-only ingestion/backup code lives in Hermes.
 
 **Boundaries:** Core is not a collection of separate services or a pure domain-only assembly. Trained ML and deterministic indicators retain their distinct roles.
 

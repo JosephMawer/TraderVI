@@ -459,6 +459,23 @@
       },
       "tradervi.marketdata": {
         "type": "Project"
+      },
+      "tradervi.marketproviders": {
+        "type": "Project",
+        "dependencies": {
+          "GraphQL.Client": "[6.1.0, )",
+          "GraphQL.Client.Serializer.Newtonsoft": "[6.1.0, )",
+          "Newtonsoft.Json": "[13.0.4, )",
+          "TraderVI.MarketData": "[1.0.0, )"
+        }
+      },
+      "tradervi.marketstorage": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "[9.0.4, )",
+          "Microsoft.Data.SqlClient": "[6.1.2, )",
+          "TraderVI.MarketData": "[1.0.0, )"
+        }
       }
     }
   }

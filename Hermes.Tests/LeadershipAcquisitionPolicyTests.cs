@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using Xunit;
 
-namespace TraderVI.Core.Tests;
+namespace Hermes.Tests;
 
 public sealed class LeadershipAcquisitionPolicyTests
 {

@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0120](0120-independent-hermes-build.md) — Hermes owns ingestion/backup code and shares market facts, storage and TMX providers without Core
+
 - [ADR-0119](0119-independent-data-audit-build.md) — DataAudit owns its audit/SQL code and shares only market definitions with Core
 
 - [ADR-0118](0118-delphi-desktop-results-only.md) — Remove both desktop daily Delphi execution paths; preserve saved-result viewing
@@ -136,6 +138,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-pipeline
+
+- [ADR-0120](0120-independent-hermes-build.md) — Hermes owns ingestion/backup code and shares market facts, storage and TMX providers without Core
 
 - [ADR-0119](0119-independent-data-audit-build.md) — Audit builds without Core or ML packages; checks/report contract preserved
 

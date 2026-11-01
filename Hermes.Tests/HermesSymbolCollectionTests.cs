@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Hermes;
 using Xunit;
 
-namespace TraderVI.Core.Tests;
+namespace Hermes.Tests;
 
 public sealed class HermesSymbolCollectionTests
 {
