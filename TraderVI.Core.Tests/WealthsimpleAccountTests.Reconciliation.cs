@@ -10,6 +10,42 @@ namespace TraderVI.Core.Tests;
 
 public partial class WealthsimpleAccountTests
 {
+    [Theory]
+    [InlineData("original", true)]
+    [InlineData("foreign-owner", false)]
+    [InlineData("foreign-account", false)]
+    [InlineData("other-request", false)]
+    [InlineData("other-listing", false)]
+    [InlineData("other-side", false)]
+    [InlineData("other-quantity", false)]
+    public async Task RestartLooksUpOnlyTheOriginalRequestAndValidatesItsTerms(string scenario, bool matches)
+    {
+        using var f = new Fixture(); await f.Login();
+        var account = Assert.Single((await f.Client.ReadTfsaAccountsAsync()).Data);
+        Guid request = Guid.NewGuid();
+        string id = "order-" + request.ToString("D");
+        f.Operations.Clear();
+        f.Override = (operation, variables) =>
+        {
+            Assert.Equal("TraderVITfsaHistoricalOrder", operation);
+            Assert.Equal(id, variables.GetProperty("externalId").GetString());
+            var details = JsonSerializer.SerializeToElement(HistoricalOrder(
+                scenario == "other-request" ? "order-other" : id,
+                scenario == "foreign-account" ? "other" : account.Id,
+                scenario == "foreign-owner" ? "other" : "identity-fixture",
+                scenario == "other-side" ? "SELL" : "BUY")).Deserialize<Dictionary<string, object>>();
+            details["security"] = new { id = "security-fixture", securityType = "EQUITY",
+                stock = new { symbol = scenario == "other-listing" ? "OTHER" : "FIX.TO", primaryMic = "XTSE" } };
+            return Json(new { data = new { orderServiceExtendedOrderByExternalId = details } });
+        };
+        var result = await f.Client.ReadOriginalOrderAsync(account, "identity-fixture", request, "security-fixture",
+            "FIX", "BUY", scenario == "other-quantity" ? 11 : 10, false);
+        Assert.Single(f.Operations);
+        Assert.Equal(matches, result.Status == WealthsimpleReadStatus.Success);
+        if (matches) { Assert.Equal(10, result.Data.FilledQuantity); Assert.Equal(100m, result.Data.NetValue); }
+        else Assert.Null(result.Data);
+    }
+
     [Theory] [InlineData("EQUITY")] [InlineData("EXCHANGE_TRADED_FUND")]
     public async Task HistoryPreservesListingEvidenceBoundToTheOwnedOrderSecurity(string type)
     {

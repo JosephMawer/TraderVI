@@ -59,59 +59,72 @@ public sealed partial class WealthsimpleAuthClient
         var instruments = new Dictionary<string, BrokerInstrumentIdentity>(StringComparer.Ordinal);
         foreach (var reference in references)
         {
-            using var json = await QueryAsync("TraderVITfsaHistoricalOrder", ReconciliationOrderQuery,
-                new { branchId = "TR", externalId = reference.Key }, ct);
-            var data = Required(json.RootElement, "data", "orderServiceExtendedOrderByExternalId");
-            RequireId(data, reference.Key);
-            if (RequiredText(data, "canonicalAccountId") != account.Id || RequiredText(data, "identityId") != identity ||
-                RequiredText(data, "securityId") != reference.Value.Security || RequiredText(data, "side") != reference.Value.Side)
-                throw Invalid("historical order account, identity, security or side mismatch");
-            var security = Required(data, "security"); RequireId(security, reference.Value.Security);
-            var stock = Optional(security, "stock");
-            // Null stock data on old/delisted instruments permits exact-symbol history only.
-            // Never infer a listing or alias from the activity label alone.
-            if (stock.ValueKind == JsonValueKind.Object && StringValue(stock, "symbol") is { Length: > 0 } listedSymbol &&
-                StringValue(stock, "primaryMic") is { Length: > 0 } mic)
+            var (fact, instrument) = await ReadOrderDetailAsync(account, identity, reference.Key,
+                reference.Value.Security, reference.Value.Symbol, reference.Value.Side, activityReportedFills.Contains(reference.Key), ct);
+            orders.Add(fact);
+            if (instrument != null)
             {
-                var instrument = new BrokerInstrumentIdentity(reference.Value.Security, listedSymbol, mic,
-                    RequiredText(data, "securityCurrency"), RequiredText(security, "securityType"));
                 if (instruments.TryGetValue(instrument.SecurityId, out var old) && old != instrument)
                     throw Invalid("historical instrument listing changed during read");
                 instruments[instrument.SecurityId] = instrument;
             }
-            var status = HistoricalOrderStatus(data);
-            decimal? Amount(string name) => NullableNumber(RequiredOrNull(data, name));
-            var quantity = Amount("fillQuantity");
-            var gross = Amount("filledValue"); var net = Amount("filledNetValue");
-            var fees = Amount("filledTotalFee"); var tax = Amount("filledTaxWithholding");
-            var lastFilled = Timestamp(data, "lastFilledAtUtc");
-            bool nullTerminalQuantity = false;
-            if (quantity == null)
-            {
-                var averagePrice = Amount("averageFillPrice");
-                // The operator's live diagnostics identified EXPIRED and CANCELLED with no execution report.
-                // Check every selected fill field, including average price, before accounting for
-                // it as an empty terminal order. Preserve null provenance in the saved observation.
-                nullTerminalQuantity = BrokerOrderFact.AllowsEmptyExecutionReport(status) && !activityReportedFills.Contains(reference.Key) &&
-                    gross == null && net == null && fees == null && tax == null &&
-                    RequiredOrNull(data, "lastFilledAtUtc").ValueKind == JsonValueKind.Null && averagePrice == null;
-                if (!nullTerminalQuantity)
-                    throw new ReadFailure(WealthsimpleReadStatus.Unavailable, MissingFillDiagnostic(status, gross, net, fees, tax, lastFilled,
-                        averagePrice, activityReportedFills.Contains(reference.Key)));
-                quantity = 0;
-            }
-            // Missing details for an actual execution cannot replace confirmed history.
-            if (quantity > 0 && (gross == null || net == null || fees == null || tax == null || lastFilled == null))
-                throw new ReadFailure(WealthsimpleReadStatus.Unavailable, "order fill details");
-            orders.Add(new(reference.Key, reference.Value.Security, reference.Value.Symbol, reference.Value.Side,
-                status, RequiredText(data, "securityCurrency"), RequiredText(security, "securityType"),
-                Number(Required(data, "submittedQuantity")), quantity.Value, gross, net, fees, tax,
-                Timestamp(data, "createdAtUtc") ?? throw Invalid(), lastFilled) { FillQuantityWasNull = nullTerminalQuantity });
         }
         if (session.IdentityId != identity || !OwnsAccount(account)) throw Invalid();
         return new BrokerAccountHistory(identity, account.Id, clock.GetUtcNow(), orders.ToArray(), limitations.Distinct().ToArray())
             { ActivityFingerprint = head, Instruments = instruments.Count == 0 ? null : instruments.Values.OrderBy(i => i.SecurityId, StringComparer.Ordinal).ToArray() };
     }, ct, "order history");
+
+    private async Task<(BrokerOrderFact Fact, BrokerInstrumentIdentity? Instrument)> ReadOrderDetailAsync(
+        WealthsimpleTfsaAccount account, string identity, string externalId, string securityId, string symbol, string side,
+        bool previouslyFilled, CancellationToken ct)
+    {
+        using var json = await QueryAsync("TraderVITfsaHistoricalOrder", ReconciliationOrderQuery,
+            new { branchId = "TR", externalId }, ct);
+        var data = Required(json.RootElement, "data", "orderServiceExtendedOrderByExternalId");
+        RequireId(data, externalId);
+        if (RequiredText(data, "canonicalAccountId") != account.Id || RequiredText(data, "identityId") != identity ||
+            RequiredText(data, "securityId") != securityId || RequiredText(data, "side") != side)
+            throw Invalid("historical order account, identity, security or side mismatch");
+        var security = Required(data, "security"); RequireId(security, securityId);
+        var stock = Optional(security, "stock");
+        // Null stock data on old/delisted instruments permits exact-symbol history only.
+        // Never infer a listing or alias from the activity label alone.
+        BrokerInstrumentIdentity? instrument = null;
+        if (stock.ValueKind == JsonValueKind.Object && StringValue(stock, "symbol") is { Length: > 0 } listedSymbol &&
+            StringValue(stock, "primaryMic") is { Length: > 0 } mic)
+        {
+            instrument = new BrokerInstrumentIdentity(securityId, listedSymbol, mic,
+                RequiredText(data, "securityCurrency"), RequiredText(security, "securityType"));
+        }
+        var status = HistoricalOrderStatus(data);
+        decimal? Amount(string name) => NullableNumber(RequiredOrNull(data, name));
+        var quantity = Amount("fillQuantity");
+        var gross = Amount("filledValue"); var net = Amount("filledNetValue");
+        var fees = Amount("filledTotalFee"); var tax = Amount("filledTaxWithholding");
+        var lastFilled = Timestamp(data, "lastFilledAtUtc");
+        bool nullTerminalQuantity = false;
+        if (quantity == null)
+        {
+            var averagePrice = Amount("averageFillPrice");
+            // The operator's live diagnostics identified EXPIRED and CANCELLED with no execution report.
+            // Check every selected fill field, including average price, before accounting for
+            // it as an empty terminal order. Preserve null provenance in the saved observation.
+            nullTerminalQuantity = BrokerOrderFact.AllowsEmptyExecutionReport(status) && !previouslyFilled &&
+                gross == null && net == null && fees == null && tax == null &&
+                RequiredOrNull(data, "lastFilledAtUtc").ValueKind == JsonValueKind.Null && averagePrice == null;
+            if (!nullTerminalQuantity)
+                throw new ReadFailure(WealthsimpleReadStatus.Unavailable, MissingFillDiagnostic(status, gross, net, fees, tax, lastFilled,
+                    averagePrice, previouslyFilled));
+            quantity = 0;
+        }
+        // Missing details for an actual execution cannot replace confirmed history.
+        if (quantity > 0 && (gross == null || net == null || fees == null || tax == null || lastFilled == null))
+            throw new ReadFailure(WealthsimpleReadStatus.Unavailable, "order fill details");
+        return (new BrokerOrderFact(externalId, securityId, symbol, side,
+            status, RequiredText(data, "securityCurrency"), RequiredText(security, "securityType"),
+            Number(Required(data, "submittedQuantity")), quantity.Value, gross, net, fees, tax,
+            Timestamp(data, "createdAtUtc") ?? throw Invalid(), lastFilled) { FillQuantityWasNull = nullTerminalQuantity }, instrument);
+    }
 
     public Task<WealthsimpleReadResult<BrokerActivityCheckpoint>> ReadTfsaActivityCheckpointAsync(WealthsimpleTfsaAccount account,
         CancellationToken ct = default) => ReadLockedAsync(async () =>

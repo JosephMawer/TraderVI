@@ -16,10 +16,17 @@ public sealed record BuyOpeningTerms(Guid BindingId, Guid PermissionId, Guid Req
 }
 
 /// <summary>Offline reconciliation of an original opening buy from its broker status.</summary>
-public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
-    Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> readOriginalOrder,
-    Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms)
+public sealed class InterruptedBuyRecovery
 {
+    private readonly TradingCurrentStore store;
+    private readonly Func<TradingOrder, CancellationToken, Task<BrokerOrderFact?>> readOriginalOrder;
+    private readonly Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms;
+    internal InterruptedBuyRecovery(TradingCurrentStore store, Func<TradingOrder, CancellationToken, Task<BrokerOrderFact?>> lookup,
+        Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms)
+    { this.store = store; this.readOriginalOrder = lookup; this.openingTerms = openingTerms; }
+    public InterruptedBuyRecovery(TradingCurrentStore store, Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> lookup,
+        Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms)
+        : this(store, (order, ct) => lookup(order.BindingId, "order-" + order.RequestId.ToString("D"), ct), openingTerms) { }
     // A null result means this request has no active work. Both external lookups are read-only.
     public async Task<TradingSaveResult?> RecoverAsync(Guid bindingId, Guid requestId, DateTimeOffset observedAt,
         CancellationToken ct = default)
@@ -42,7 +49,7 @@ public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
         Guid cycle = BrokerManagedStrategy.StableId($"{bindingId:D}:{order.SecurityId}:{externalId}");
         if (order.PositionId.HasValue && order.PositionId != cycle)
             throw new InvalidOperationException("The original request belongs to a different position cycle.");
-        var fact = await readOriginalOrder(bindingId, externalId, ct);
+        var fact = await readOriginalOrder(order, ct);
         var (status, applied) = CompactOrderObservation.Reconcile(order, fact, observedAt);
         var receipt = applied.Order with { Status = status, NeedsWork = !TradingStorageValidation.IsTerminal(status) };
         // Poll the broker every time the request is active. Only persist a changed observation.

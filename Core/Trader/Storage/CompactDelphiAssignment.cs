@@ -2,6 +2,7 @@
 using Core.Trader.DelphiLive;
 using Core.Trader.Promotion;
 using Core.WSTrade.Accounts;
+using Core.WSTrade.Authentication;
 using Core.WSTrade.Orders;
 using System;
 using System.Collections.Immutable;
@@ -101,6 +102,41 @@ internal sealed record CompactDelphiAssignment(BrokerExecutionHostGrant Grant, G
             _ => Task.FromResult<IRestartSellLease>(new Admission(this, grants, journal, build)),
             (settings, order) => Opening.Single(t => t.RequestId == order.RequestId && t.PermissionId == settings.PermissionId),
             time, new RestartOrderJournal(journal, Grant.BindingId, Identity, Account)).RunAsync(Grant.BindingId, ct);
+
+    internal Task<AccountRestartResult> RecoverWithBrokerAsync(TradingCurrentStore store, ManualBuyFileJournal journal,
+        BrokerExecutionHostGrantFileStore grants, string build, WealthsimpleConnection broker, WealthsimpleTfsaAccount account,
+        Func<TradingOrder, CancellationToken, Task> submitReservedSell, TimeProvider time, CancellationToken ct)
+    {
+        long revision = broker.SessionRevision;
+        void RequireConnection(Guid binding)
+        {
+            if (binding != Grant.BindingId || account.Id != Account || !broker.IsConnected || revision != broker.SessionRevision)
+                throw new InvalidOperationException("The connected account changed. Retry the original request on the approved account.");
+        }
+        async Task<BrokerOrderFact?> Original(TradingOrder order, CancellationToken token)
+        {
+            RequireConnection(order.BindingId);
+            var result = await broker.ReadOriginalOrderAsync(account, Identity, order, token);
+            RequireConnection(order.BindingId);
+            return result.Status == WealthsimpleReadStatus.Success ? result.Data : null;
+        }
+        async Task<(Guid, WealthsimpleTfsaSnapshot)> Snapshot(Guid binding, CancellationToken token)
+        {
+            RequireConnection(binding);
+            var result = await broker.ReadTfsaSnapshotAsync(account, token);
+            RequireConnection(binding);
+            if (result.Status != WealthsimpleReadStatus.Success || result.Data is not { } snapshot || snapshot.Account.Id != Account)
+                throw new InvalidOperationException("Current broker holdings and cash could not be confirmed. Retry the account read.");
+            return (binding, snapshot);
+        }
+        return new OfflineAccountRestart(store, Original, Snapshot, (order, token) =>
+        {
+            RequireConnection(order.BindingId);
+            return submitReservedSell(order, token);
+        }, _ => Task.FromResult<IRestartSellLease>(new Admission(this, grants, journal, build)),
+            (settings, order) => Opening.Single(t => t.RequestId == order.RequestId && t.PermissionId == settings.PermissionId),
+            time, new RestartOrderJournal(journal, Grant.BindingId, Identity, Account)).RunAsync(Grant.BindingId, ct);
+    }
 
     private sealed class Admission(CompactDelphiAssignment assignment, BrokerExecutionHostGrantFileStore grants,
         ManualBuyFileJournal journal, string build) : IRestartSellLease

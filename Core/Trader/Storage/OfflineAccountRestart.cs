@@ -14,12 +14,18 @@ internal sealed record AccountRestartResult(TradingCurrentState Current, Immutab
 
 /// <summary>Disconnected account rehearsal. Only test composition supplies the simulated sell transport.</summary>
 internal sealed class OfflineAccountRestart(TradingCurrentStore sourceStore,
-    Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> lookup,
+    Func<TradingOrder, CancellationToken, Task<BrokerOrderFact?>> lookup,
     Func<Guid, CancellationToken, Task<(Guid Binding, WealthsimpleTfsaSnapshot Snapshot)>> readBrokerAccount,
     Func<TradingOrder, CancellationToken, Task> simulateSell, Func<CancellationToken, Task<IRestartSellLease>> acquireSellLease,
     Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> openingTerms, TimeProvider clock,
     RestartOrderJournal? orderJournal = null)
 {
+    internal OfflineAccountRestart(TradingCurrentStore store, Func<Guid, string, CancellationToken, Task<BrokerOrderFact?>> lookup,
+        Func<Guid, CancellationToken, Task<(Guid Binding, WealthsimpleTfsaSnapshot Snapshot)>> snapshot,
+        Func<TradingOrder, CancellationToken, Task> sell, Func<CancellationToken, Task<IRestartSellLease>> lease,
+        Func<TradingApprovedSettings, TradingOrder, BuyOpeningTerms> opening, TimeProvider time, RestartOrderJournal? journal = null)
+        : this(store, (order, ct) => lookup(order.BindingId, "order-" + order.RequestId.ToString("D"), ct),
+            snapshot, sell, lease, opening, time, journal) { }
     internal async Task<AccountRestartResult> RunAsync(Guid bindingId, CancellationToken ct = default)
     {
         var notices = ImmutableArray.CreateBuilder<RestartNotice>();
@@ -188,7 +194,7 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore sourceStore,
             p.ExitDecisionId != order.DecisionId || order.ReservedQuantity != order.Quantity - order.AppliedFilledQuantity ||
             p.ReservedSellQuantity != order.ReservedQuantity || p.Quantity < p.ReservedSellQuantity)
             throw new InvalidOperationException("Protective sell and saved position reservations do not agree.");
-        var fact = await lookup(order.BindingId, "order-" + order.RequestId.ToString("D"), ct);
+        var fact = await lookup(order, ct);
         var now = clock.GetUtcNow();
         var (status, fill) = CompactOrderObservation.Reconcile(order, fact, now);
         if (fact?.LastFilledAt?.UtcDateTime < order.CreatedUtc)
