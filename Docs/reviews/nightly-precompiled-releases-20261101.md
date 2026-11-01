@@ -46,6 +46,9 @@ Delphi action. A single action for the full nightly pipeline would be new.
   the folder. The proposed hook runs after the designated package build and validation, with
   ordinary debug/test builds continuing as development work. New package history also needs a
   bound so frequent development builds cannot recreate the accumulation.
+  Subsequent discussion identified that a trigger for any shared Core change is too broad.
+  The proposed preparation point is completion of a coherent, validated development increment.
+  The exact trigger remains open alongside the assembly separation question below.
 - **Proposed activation.** Publish a fully prepared package to a dedicated release directory,
   then change the selected-release reference in one operation. The next run reads that reference
   once, records the release identity and uses that directory throughout. A new release prepared
@@ -90,6 +93,24 @@ hashing in other shared Core components; reachability through these four applica
 ML/SQL dependency behavior remain unverified. Published sizes have not been measured. Reusing a
 bounded set of releases provides the primary storage saving even with multiple files per package.
 [Microsoft single-file documentation](https://learn.microsoft.com/en-us/dotnet/core/deploying/single-file/overview)
+
+## Shared assembly separation under review
+
+The operator suggested extracting the nightly applications' dependencies from Core so unrelated
+Core edits do not require their compilation/publication. Source inspection confirms meaningful
+shared consumers. The Delphi CLI and WPF use DelphiWorkflow. Athena and WPF scorecards both use
+CalibrationOutcomeRepository. DelphiWorkflow also depends on market data, indicators, model
+loading, strategy logic and repositories. MarketDataAuditWorkflow depends on the SQL audit
+repository through a snapshot-source interface.
+
+Other callers can reference an extracted shared library and keep one implementation of each
+rule. The relevant boundary follows responsibilities and dependency direction. A new nightly
+library that still references the entire Core assembly retains the original coupling. Shared
+types and required services would need a lower-level home, or the unrelated execution code could
+move out of Core instead. The better boundary requires mapping these dependencies first.
+This remains an architectural option, with no class moves or project split authorized. Bounded
+release storage can be implemented independently of it. Any future package-size claim requires
+checking which ML/native dependencies each extracted project actually retains.
 
 ## Candidate acceptance checks and next decisions
 
