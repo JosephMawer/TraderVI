@@ -14,7 +14,10 @@ public sealed partial class WealthsimpleAuthClient
 {
     /// <summary>Discover orders through the captured OWN activity feed, then verify each order against the owned account.</summary>
     public Task<WealthsimpleReadResult<BrokerAccountHistory>> ReadTfsaOrderHistoryAsync(WealthsimpleTfsaAccount account,
-        CancellationToken ct = default) => ReadLockedAsync(async () =>
+        CancellationToken ct = default) => ReadHistoryAsync(account, ct);
+
+    private Task<WealthsimpleReadResult<BrokerAccountHistory>> ReadHistoryAsync(WealthsimpleTfsaAccount account,
+        CancellationToken ct, Func<string[], CancellationToken, Task<JsonDocument>>? readGroup = null) => ReadLockedAsync(async () =>
     {
         if (account == null || !OwnsAccount(account))
             throw new ReadFailure(WealthsimpleReadStatus.AccountUnavailable, "history account");
@@ -57,16 +60,27 @@ public sealed partial class WealthsimpleAuthClient
         } while (cursor != null);
         var orders = new List<BrokerOrderFact>();
         var instruments = new Dictionary<string, BrokerInstrumentIdentity>(StringComparer.Ordinal);
-        foreach (var reference in references)
+        foreach (var group in references.Chunk(readGroup == null ? 1 : 8))
         {
-            var (fact, instrument) = await ReadOrderDetailAsync(account, identity, reference.Key,
-                reference.Value.Security, reference.Value.Symbol, reference.Value.Side, activityReportedFills.Contains(reference.Key), ct);
-            orders.Add(fact);
-            if (instrument != null)
+            bool single = group.Length == 1;
+            using var json = single
+                ? await ReadSingleOrderAsync(group[0].Key, ct)
+                : await readGroup!(group.Select(r => r.Key).ToArray(), ct);
+            if (!single && Required(json.RootElement, "data").EnumerateObject().Count() != group.Length)
+                throw Invalid("incomplete grouped order details");
+            for (int i = 0; i < group.Length; i++)
             {
-                if (instruments.TryGetValue(instrument.SecurityId, out var old) && old != instrument)
-                    throw Invalid("historical instrument listing changed during read");
-                instruments[instrument.SecurityId] = instrument;
+                var reference = group[i];
+                var detail = Required(json.RootElement, "data", single ? "orderServiceExtendedOrderByExternalId" : "order" + i);
+                var (fact, instrument) = ParseOrderDetail(detail, account, identity, reference.Key,
+                    reference.Value.Security, reference.Value.Symbol, reference.Value.Side, activityReportedFills.Contains(reference.Key));
+                orders.Add(fact);
+                if (instrument != null)
+                {
+                    if (instruments.TryGetValue(instrument.SecurityId, out var old) && old != instrument)
+                        throw Invalid("historical instrument listing changed during read");
+                    instruments[instrument.SecurityId] = instrument;
+                }
             }
         }
         if (session.IdentityId != identity || !OwnsAccount(account)) throw Invalid();
@@ -74,13 +88,22 @@ public sealed partial class WealthsimpleAuthClient
             { ActivityFingerprint = head, Instruments = instruments.Count == 0 ? null : instruments.Values.OrderBy(i => i.SecurityId, StringComparer.Ordinal).ToArray() };
     }, ct, "order history");
 
+    private Task<JsonDocument> ReadSingleOrderAsync(string externalId, CancellationToken ct) =>
+        QueryAsync("TraderVITfsaHistoricalOrder", ReconciliationOrderQuery, new { branchId = "TR", externalId }, ct);
+
     private async Task<(BrokerOrderFact Fact, BrokerInstrumentIdentity? Instrument)> ReadOrderDetailAsync(
         WealthsimpleTfsaAccount account, string identity, string externalId, string securityId, string symbol, string side,
         bool previouslyFilled, CancellationToken ct)
     {
-        using var json = await QueryAsync("TraderVITfsaHistoricalOrder", ReconciliationOrderQuery,
-            new { branchId = "TR", externalId }, ct);
+        using var json = await ReadSingleOrderAsync(externalId, ct);
         var data = Required(json.RootElement, "data", "orderServiceExtendedOrderByExternalId");
+        return ParseOrderDetail(data, account, identity, externalId, securityId, symbol, side, previouslyFilled);
+    }
+
+    private static (BrokerOrderFact Fact, BrokerInstrumentIdentity? Instrument) ParseOrderDetail(JsonElement data,
+        WealthsimpleTfsaAccount account, string identity, string externalId, string securityId, string symbol, string side,
+        bool previouslyFilled)
+    {
         RequireId(data, externalId);
         if (RequiredText(data, "canonicalAccountId") != account.Id || RequiredText(data, "identityId") != identity ||
             RequiredText(data, "securityId") != securityId || RequiredText(data, "side") != side)
@@ -183,12 +206,15 @@ public sealed partial class WealthsimpleAuthClient
           }
         }
         """;
-    private const string ReconciliationOrderQuery = """
-        query TraderVITfsaHistoricalOrder($branchId: String!, $externalId: String!) {
-          orderServiceExtendedOrderByExternalId(branchId: $branchId, externalId: $externalId) {
+    private const string OrderDetailFields = """
             id canonicalAccountId identityId securityId side status securityCurrency submittedQuantity fillQuantity
             averageFillPrice filledValue filledNetValue filledTotalFee filledTaxWithholding createdAtUtc lastFilledAtUtc
             security { id securityType stock { symbol primaryMic } }
+        """;
+    private const string ReconciliationOrderQuery = $$"""
+        query TraderVITfsaHistoricalOrder($branchId: String!, $externalId: String!) {
+          orderServiceExtendedOrderByExternalId(branchId: $branchId, externalId: $externalId) {
+        {{OrderDetailFields}}
           }
         }
         """;

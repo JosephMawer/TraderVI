@@ -317,7 +317,7 @@ public class WealthsimpleReconciliationTests
         public Task<WealthsimpleReadResult<WealthsimpleTfsaSnapshot>> ReadTfsaSnapshotAsync(WealthsimpleTfsaAccount account, CancellationToken ct) => Task.FromResult(Result("snapshot", Snapshot()));
         public Task<WealthsimpleReadResult<WealthsimplePendingOrders>> ReadTfsaPendingOrdersAsync(WealthsimpleTfsaAccount account, CancellationToken ct) => Task.FromResult(Result<WealthsimplePendingOrders>("pending", new(Account, Now, [])));
     }
-    private sealed class Store : IManualBuyJournal, IBrokerReconciliationJournal
+    internal sealed class Store : IManualBuyJournal, IBrokerReconciliationJournal
     {
         private BrokerAccountReconciliation saved;
         public int Saves;

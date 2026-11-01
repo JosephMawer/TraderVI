@@ -14,7 +14,7 @@ using Xunit;
 
 namespace TraderVI.Core.Tests;
 
-public partial class WealthsimpleAccountTests
+public partial class WealthsimpleAccountTests(Xunit.Abstractions.ITestOutputHelper output)
 {
     [Theory]
     [InlineData(false)]
@@ -407,6 +407,7 @@ public partial class WealthsimpleAccountTests
         internal List<string> Operations { get; } = new();
         internal bool Pages;
         internal Func<string, JsonElement, HttpResponseMessage> Override;
+        internal Action<string, string, JsonElement> InspectQuery;
         internal Fixture() => Client = new("fixture-client", this, Clock);
         internal Task<WealthsimpleAuthResult> Login() => Client.BeginLoginAsync("fixture@example.invalid", "fixture-password");
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
@@ -420,6 +421,7 @@ public partial class WealthsimpleAccountTests
             var op = json.RootElement.GetProperty("operationName").GetString(); Operations.Add(op);
             Assert.StartsWith("query ", json.RootElement.GetProperty("query").GetString());
             var vars = json.RootElement.GetProperty("variables");
+            InspectQuery?.Invoke(op, json.RootElement.GetProperty("query").GetString(), vars);
             if (op == "TraderVITfsaPositions") {
                 Assert.Equal("tfsa-fixture-id", Assert.Single(vars.GetProperty("accountIds").EnumerateArray()).GetString());
                 Assert.Equal("CAD", vars.GetProperty("currency").GetString());

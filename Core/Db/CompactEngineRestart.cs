@@ -81,7 +81,7 @@ internal sealed class CompactEngineRestart(TradingCurrentStore store, ManualBuyF
         if (!observed.HasReviewedCompactRestart) throw new InvalidOperationException("Review this build's restart terms first.");
         IBrokerRiskEvidenceSource risk = new BrokerOngoingRiskEvidenceSource(observed.OngoingManagement!, calendar,
             new BrokerOngoingBoundaryRepository().ReadAsync);
-        var workflow = BrokerManagedSessionComposition.Create(broker, broker, broker, journal, journal, orderGate, account,
+        var workflow = BrokerManagedSessionComposition.Create(broker.RegularTradingReads, broker, broker, journal, journal, orderGate, account,
             calendar, risk, clock, true, sessions);
         await using (var lease = await sessions.AcquireAsync(observed.BindingId, ct))
         {

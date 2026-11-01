@@ -327,6 +327,18 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   the current permission again before the handoff. The test admitted the same fake order
   with one account acquisition and rejected a different binding before dispatch. Focused
   tests passed 680 with six opt-in skips. This change is separate from the installed release.
+- [x] Offline regular broker history reader groups up to eight discovered order IDs per
+  Wealthsimple request and validates each returned order against its own expected identity.
+  In a synthetic two-page, 46-order book, each reconciliation took 13 HTTP reads versus
+  53 previously (six order-detail requests versus 46). Both paths read all 46 records,
+  fresh balances, holdings, pending orders and the final activity checkpoint. The same
+  broker projections produced identical Delphi Live buy, protective sell and hold
+  recommendations on repeat polls. A corrected old fee with unchanged feed metadata still
+  required review. [Offline replay](../TraderVI.Core.Tests/WealthsimpleAccountTests.RegularTradingHistory.cs).
+- [ ] Verify broker support for the grouped read through a separately authorized read-only
+  check before activation. The installed engine still uses individual history requests.
+  Removing historical records from ordinary reads altogether requires evidence that would
+  detect financial corrections missing from the activity feed. Database write reduction remains open.
 - Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to
   [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.
   Preserve existing exceptional-state handling and separate #12/#14 backup/restore qualification;

@@ -279,6 +279,15 @@ The initial transfer requires a settled account and the exact enabled permission
 cannot overwrite the first. The production schema was installed November 1. A successful migration
 does not mark the account transfer or engine activation complete.
 
+The first regular-trading broker read change keeps fresh verification of historical order
+details. The activity fingerprint includes status and quantity but cannot establish that an
+older fee or net fill value is unchanged. The offline candidate groups discovered order IDs
+in one read and checks each result against the original ID, account, owner, security and side.
+An incomplete or conflicting group cannot produce a successful history. Manual reconciliation,
+original-order recovery and the installed read-only helper retain their individual reads.
+Broker support for the grouped request remains unverified. See the
+[execution checklist](../strategy-alignment-implementation-checklist.md) for offline measurements.
+
 Retrofitting the cumulative session blobs would retain history-dependent reads and obscure field
 ownership. Reusing two full snapshots would still copy the active book on every change. Separate scalar
 rows and two markers make growth and changed-row costs measurable, at the cost of an explicit future
