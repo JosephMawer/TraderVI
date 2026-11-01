@@ -36,13 +36,22 @@ public sealed class EngineBrokerService
         IWealthsimpleSessionProtector protector, IBrokerExecutionHostGrantStore grants,
         ITsxSessionCalendar calendar, Func<BrokerManagedSession, CancellationToken, Task> verifyInputs,
         Func<Guid, CancellationToken, Task<bool>>? mayReuseBrokerState = null, bool verificationOnly = false)
+        : this(connection, journal, protector, grants, calendar, verifyInputs,
+            new BrokerManagedSessionRepository(calendar, sharedStorage: true, mayReuse: mayReuseBrokerState),
+            BrokerManagedSessionComposition.ImplementationIdentity, verificationOnly) { }
+
+    internal EngineBrokerService(IWealthsimpleConnection connection, IBrokerOrderJournal journal,
+        IWealthsimpleSessionProtector protector, IBrokerExecutionHostGrantStore grants,
+        ITsxSessionCalendar calendar, Func<BrokerManagedSession, CancellationToken, Task> verifyInputs,
+        IBrokerManagedSessionStore sessions, string implementation, bool verificationOnly,
+        Func<BrokerManagedSession, WealthsimpleTfsaAccount, SemaphoreSlim, CancellationToken, Task<BrokerManagedSession>>? cycle = null,
+        TimeProvider? time = null)
     {
         this.connection = connection; this.journal = journal; this.protector = protector;
         this.verificationOnly = verificationOnly;
         buys = new(connection, journal, new ManualBuySafetyRepository(requireIndependentIntegrity: true), orderGate: orderGate);
         sells = new(connection, journal, orderGate: orderGate);
         reconciliation = new(connection, journal, journal, orderGate);
-        var sessions = new BrokerManagedSessionRepository(calendar, sharedStorage: true, mayReuse: mayReuseBrokerState);
         host = new(grants, new BrokerManagedSessionControls(sessions),
             async (saved, ct) =>
             {
@@ -53,6 +62,7 @@ public sealed class EngineBrokerService
                     accounts.Status != WealthsimpleReadStatus.Success || accounts.Data is null)
                     throw new InvalidOperationException("The connected account could not be verified.");
                 var account = BrokerManagedSessionComposition.MatchAccount(saved, accounts.Data);
+                if (cycle != null) return await cycle(saved, account, orderGate, ct).ConfigureAwait(false);
                 IBrokerRiskEvidenceSource risk = saved.OngoingManagement is { } ongoing
                     ? new BrokerOngoingRiskEvidenceSource(ongoing, calendar, new BrokerOngoingBoundaryRepository().ReadAsync)
                     : saved.EffectiveReview.NoTransferScope is { } scope
@@ -60,7 +70,7 @@ public sealed class EngineBrokerService
                 var workflow = BrokerManagedSessionComposition.Create(connection, connection, connection, journal,
                     journal, orderGate, account, calendar, risk, independentInputs: true, sessionStore: sessions);
                 return await workflow.TickAsync(saved.BindingId, ct).ConfigureAwait(false);
-            }, calendar, BrokerManagedSessionComposition.ImplementationIdentity);
+            }, calendar, implementation, time);
     }
 
     public Task StartAsync() => verificationOnly ? host.DisableAsync() : connection.StartAsync();

@@ -92,13 +92,7 @@ internal static class Program
                 new("Shadow protection", TimeSpan.FromSeconds(10), auxiliary.ShadowProtectionAsync),
                 new("AI research", TimeSpan.FromSeconds(30), auxiliary.CheckAiAsync),
                 new("Historical audits", TimeSpan.FromSeconds(1), audits.TickAsync)
-            ], async () =>
-            {
-                if (verificationOnly) await broker.StartAsync().ConfigureAwait(false); // Persist disabled grant before any worker starts.
-                await continuity.StartAsync().ConfigureAwait(false);
-                if (!verificationOnly) await broker.StartAsync().ConfigureAwait(false);
-                if (!recoveryMaintenance) await auxiliary.StartAsync().ConfigureAwait(false);
-            }, async () =>
+            ], () => IndependentEngine.InitializeHostAsync(continuity, broker, auxiliary.StartAsync, verificationOnly, recoveryMaintenance), async () =>
             {
                 try
                 {

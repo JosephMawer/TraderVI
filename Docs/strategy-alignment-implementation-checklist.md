@@ -262,6 +262,19 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   even on this smaller fixture. No broker call or order dispatch occurred. The candidate build
   differs from the approved build. See the [release and rollback boundary](adr/0117-compact-trading-current-storage.md#release-rehearsal-and-rollback-boundary).
   The default Core suite passed 3,548 with 11 opt-in skips, including the separately run native rehearsal.
+- [x] October 31 exercised the normal trading-host startup and first scheduled broker poll with
+  the compact recovery cycle injected in the test. On the same synthetic scenario the legacy
+  workflow returned `OrderRecoveryBlocked` before evaluating the sale. The candidate recovered
+  the original $100 buy reservation and admitted a ten-share protective sale on another security.
+  The next process looked up both original requests, preserved the reservations and admitted
+  zero additional sales. No broker submission transport was connected.
+  The initial run took 1.329 s from host setup through the decision and the repeat took 1.031 s.
+  A second fixture run alongside the Core suite took 2.486 s and 2.025 s respectively.
+  The runs used a clean continuity checkpoint, SQL LocalDB, a protected grant and order journal,
+  and fixed market-session time. They exclude process/test-runner launch, live broker latency,
+  production integrity-store checks, and unrelated background workers. The installed workflow
+  still follows the legacy gate. [Rehearsal](../TraderVI.Core.Tests/TradingCompactStorageTests.NormalStartup.cs).
+  Local receipts are under `artifacts/restart-release/normal-*.trx`.
 - [ ] Finish writer/consumer mapping and the replacement's failure/latency contract, record exact
   supersession of installed behavior and update #19 before integrating or activating that replacement.
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,

@@ -60,6 +60,15 @@ public sealed class IndependentEngine
         lock (sync) return new(InstanceId, state, time.GetUtcNow(), work.Select(w => status[w.Name]).ToImmutableArray());
     }
     public Task Completion => stopped.Task;
+
+    public static async Task InitializeHostAsync(EngineContinuity continuity, EngineBrokerService broker,
+        Func<Task> startAuxiliary, bool verificationOnly, bool recoveryMaintenance)
+    {
+        if (verificationOnly) await broker.StartAsync().ConfigureAwait(false);
+        await continuity.StartAsync().ConfigureAwait(false);
+        if (!verificationOnly) await broker.StartAsync().ConfigureAwait(false);
+        if (!recoveryMaintenance) await startAuxiliary().ConfigureAwait(false);
+    }
     public Task StartAsync()
     {
         lock (sync)
