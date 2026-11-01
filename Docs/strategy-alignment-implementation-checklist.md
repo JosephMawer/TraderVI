@@ -258,9 +258,17 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   Isolated tests checked a pending sale while flat, a fill before or at the new entry, and recovery
   after a rolled-back save or lost commit reply. [Lifecycle tests](../TraderVI.Core.Tests/TradingCompactStorageTests.HoldingLifecycle.cs).
   Native receipt: `artifacts/restart-release/lifecycle-native.trx`.
-- [ ] Qualify exclusive writer ownership at cutover. Reprepare coverage before reuse if an older writer has owned the journal. Qualify
-  manual-fill attribution, native grant/journal fencing and broker coverage. Map strategy-specific
-  opening terms and remaining writers before connecting the compact restart path.
+- Defer automatic matching and clearance of manual fills. Delphi Live is the intended trader.
+  Keep the candidate's existing check for a conflicting manual sale. An unexplained sale on
+  the same shares needs reconciliation before another sale of those shares. Preserve visibility
+  of the affected holding and original request.
+- [ ] Next release milestone: connect the default engine's Delphi Live startup to compact recovery
+  in an isolated, send-disabled build. Map the remaining strategy opening terms, per-symbol
+  progress and writers. Distinguish an interrupted process with matching checkpoints from a
+  missing or mismatched checkpoint before choosing the ordinary restart path. The existing
+  continuity tests still require recovery for both cases (`artifacts/restart-release/ordinary-interruption-baseline.trx`).
+- [ ] Qualify broker coverage, native grant/journal fencing and exclusive writer ownership at
+  cutover. Reprepare coverage before reuse if an older writer has owned the journal.
 - [x] October 31 ran migrations 054/055 against checksummed backups on disposable SQL Server
   LocalDB 17. The native fixture kept 154 rows, two markers and 232 KiB of used table/index pages
   through 10,000 saves (p95 4.82 ms). Concurrent retries committed once. An injected SQL failure
