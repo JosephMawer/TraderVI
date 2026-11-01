@@ -14,8 +14,8 @@ each check exists, its database/JSON contracts and cost, and a simpler replaceme
 recovery. Challenge full replay after an unclean stop; evaluate durable trusted checkpoints, bounded
 tail replay, current-state/broker reconciliation and separate historical auditing. These are options,
 not an accepted replacement design or authority to bypass existing guards. Preserve trading settings,
-collector operation and the LSPD hold. The already-authorized recovery/conditional-clearance monitor
-continues independently unless the operator changes that instruction. This reassessment takes priority
+collector operation and the LSPD hold. The [October 30 recovery record](project-status.md#october-30--real-execution-resumed-after-recovery-1446-toronto)
+documents the completed pass and Real hold clearance. This reassessment takes priority
 over the previously queued engineering work; coordinate existing GitHub issue #19 rather than duplicate it.
 The [October 30 investigation and draft replacement](reviews/restart-recovery-design-20261030.md)
 now supplies the check/schema inventory, synthetic measurements, bounded recovery proposal and

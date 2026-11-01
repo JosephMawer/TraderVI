@@ -1,5 +1,27 @@
 # TraderVI Project Status
 
+## October 30 — Real execution resumed after recovery, 14:46 Toronto
+
+Run `e8ae09ac-8da8-4bec-ab00-662485ac9f44` completes at 14:33:13 with
+`Progress.Complete=true` and 162,146 verified units, approximately 67 minutes after its start.
+At 14:41:08 the supported `ClearIntegrityHolds` command returns `true` for Real scope and only
+the authorized original global and broker-pending incidents. Its transaction rechecks current
+heads, immutable guards, database identity, saved receipts and the current Real subscription.
+The original incidents are resolved; the inherited `PaperRecoveryRequired` restriction remains.
+No additional recovery pass, restart, installation, trading-setting change or explicit order action
+was performed. LSPD investigation remains on hold.
+
+Engine 43628 and collector 38312 retain their original start times and remain responsive. The broker
+is connected with an authenticated session. At 14:46:02 the automatic retry reports Running. It
+evaluated fresh shared market inputs and found no confirmed entry signal. Hash-verified read-only
+SQL at 14:44 confirms the engine published the 14:40 market cycle at 14:42:37 and the collector
+saved data for the 14:43 minute at 14:44:14.
+
+Private clearance request/receipt: `artifacts/recovery-20261030/clear-real-1836-request.json` and
+`clear-real-1836-result.json` (the filename is a request label; the actual clearance time is 14:41).
+Status evidence: `artifacts/market-watch-20261029/20261030T184604292Z-42e5507b81ed406d9528310667b1ed59/`.
+Database evidence: `artifacts/read-only-db/result-20261030T184433588Z-d425854efdd643d393eb6395128e4340.json`.
+
 ## October 30 — Real recovery running, 13:29 Toronto
 
 The operator authorizes recovery verification and clearing the hold only if it passes, preserving
@@ -9,7 +31,7 @@ it remains Running, with 520 verified units in the broker-history stage (through
 shared inputs/content follow. The plan's total upper bound is 162,157 units, not a time estimate.
 No clearance has occurred. Collector 38312 remains running and LSPD remains on hold.
 
-Chat heartbeat `complete-authorized-real-recovery` checks this existing pass every five minutes
+At this checkpoint, chat heartbeat `complete-authorized-real-recovery` checks this existing pass every five minutes
 and carries the conditional clearance authority for its exact original/pending incidents, using
 the supported Real-scope command and unchanged proof guards. It must retain Paper restrictions,
 report failures or stale proof without bypass, and pause after completion or a blocker requiring
