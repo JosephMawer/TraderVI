@@ -130,6 +130,6 @@ public sealed record DelphiSettingsChange(Guid EventId, DelphiStrategySettings E
         $"Override: breakout ≥ {Gates.StrongBreakoutOverride:G} and edge ≥ {Gates.StrongEdgeOverride:G}\n\n" +
         $"Reason: {ReviewNote}\n\n" +
         (CreatesVersion ? "Saves this complete strategy as a new version. No assignment or recommendation changes until a separate Assign action." :
-        "Assigns the saved version to daily Delphi while dependent systems remain paused and starts an official reevaluation using local SQL data. " +
-        "The reevaluation publishes new recommendations and preserves the previous evidence. Independent portfolio strategies retain their own assignments.");
+        "Assigns the saved version to daily Delphi while dependent systems remain paused. The next nightly Delphi run will publish new recommendations; previous evidence is preserved. " +
+        "Independent portfolio strategies retain their own assignments.");
 }
