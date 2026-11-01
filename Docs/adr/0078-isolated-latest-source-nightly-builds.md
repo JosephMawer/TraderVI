@@ -3,6 +3,11 @@
 [ADR-0113](0113-nightly-data-audit-report.md) extends this same build/lock boundary to DataAudit as
 the fourth configured program; the isolation and retry rules below are unchanged.
 
+**November 1 design follow-up.** The operator chose the direction of precompiled nightly releases.
+The [draft](../reviews/nightly-precompiled-releases-20261101.md) retains the pending release,
+scheduling and retention decisions. This ADR still describes the installed runner while that
+replacement is designed.
+
 - **Status:** Accepted; implemented and operationally verified
 - **Date:** 2026-09-14
 - **Domains:** architecture, data-pipeline

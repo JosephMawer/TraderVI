@@ -1499,7 +1499,11 @@ See [the connected workspace draft](../concepts/trading-workspace-redesign-draft
 
 ## Nightly build retention (ADR-0078, 2026-09-14)
 
-Choose retention limits for ignored captured-source/build directories and the dedicated NuGet cache. Cleanup is manual until this policy is reviewed; operational logs and source identities must remain attributable.
+On November 1 the operator accepted the direction of precompiled nightly releases. The
+[design draft](nightly-precompiled-releases-20261101.md) owns the open release activation,
+scheduling, dashboard action and retention choices. The installed runner still compiles each run.
+Choose historical cleanup and future release/cache retention after those boundaries are settled.
+Operational logs and source identities must remain attributable.
 
 The September 23 user-authorized [one-time cleanup](../project-status.md#latest-operational-evidence)
 removed reviewed old compiled outputs while retaining source/evidence, models, the latest two nightly
