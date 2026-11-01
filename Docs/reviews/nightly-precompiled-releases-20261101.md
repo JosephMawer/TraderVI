@@ -108,8 +108,8 @@ rule. The relevant boundary follows responsibilities and dependency direction. A
 library that still references the entire Core assembly retains the original coupling. Shared
 types and required services would need a lower-level home, or the unrelated execution code could
 move out of Core instead. The November 1 mapping below identifies the initial extraction boundaries.
-This remains an architectural option, with no class moves or project split authorized. Bounded
-release storage can be implemented independently of it. Any future package-size claim requires
+The DataAudit slice is now implemented below; extraction of the other applications remains proposed.
+Bounded release storage can be implemented independently of it. Any future package-size claim requires
 checking which ML/native dependencies each extracted project actually retains.
 
 The operator subsequently authorized removing both desktop daily Delphi execution paths.
@@ -121,9 +121,31 @@ and explains that new results await the next nightly Delphi run. This change has
 installed, and it does not yet separate the remaining shared Core dependencies. The earlier
 full-pipeline Run now idea remains a separate unresolved choice.
 
-### Dependency findings — November 1
+### DataAudit extraction — implemented November 1
 
-All four CLI projects still reference Core.csproj. Moving only DelphiWorkflow to another project
+[ADR-0119](../adr/0119-independent-data-audit-build.md) records the first accepted extraction.
+DataAudit owns MarketDataAuditWorkflow, MarketDataAuditor, MarketDataAuditModels and
+MarketDataAuditRepository. The audit has its own SQL client configuration and keeps the existing
+local default and explicit override. SQLBase remains in Core unchanged: the audit does not need
+that class simply to choose a database connection. There is no separate audit library or shared
+SQL project.
+
+For later extractions, share code when the remaining consumers need one implementation. A default
+connection setting alone does not justify a shared SQL project or a dependency on SQLBase.
+
+The single shared project, TraderVI.MarketData, contains TsxSectorSymbols, DailyBenchmarkSymbols,
+MarketDataFreshness and SecurityNameHeuristics, all consumed by both the audit and existing Core
+code. It has no package dependencies or Core reference. Core and DataAudit reference this one
+implementation. The CLI's restored dependency graph excludes Core, ML.NET, MKL, LightGBM and
+the market-provider clients. DataAudit.Tests now owns the audit tests and checks this boundary.
+
+Only this slice is implemented. The running WPF, collector and trading engine retain their old
+binaries. Existing nightly folders remain in place. The source-capturing nightly runner can use
+the new project/lock graph on its next capture; no operational audit was run during validation.
+
+### Dependency findings — November 1, before extraction
+
+At mapping time all four CLI projects referenced Core.csproj. Moving only DelphiWorkflow to another project
 that references Core would leave every nightly build coupled to Core. The proposed dependency
 direction is: each CLI uses its own application functionality plus small shared libraries;
 the remaining Core, desktop, collector and trading engine can also use those shared libraries.
@@ -196,12 +218,12 @@ as part of that move.
 
 ### Recommended sequence and remaining choices
 
-Start with the small market/SQL foundations and **DataAudit**. It provides the clearest first proof
-that a nightly app builds with no Core reference and no ML packages. Then extract Hermes's collection
+The implemented **DataAudit** slice above provides the first build with no Core reference or ML
+packages. It shares reused market definitions while owning its SQL code. Next extract Hermes's collection
 support, separate daily result/evidence contracts, and move Delphi's daily analysis and Athena's
 calibration functionality. Keep responsibilities separate enough that DataAudit does not inherit
 Delphi's ML packages through a single all-purpose nightly library. Project names and the exact number
-of shared projects remain design choices; no split is implemented or approved by this investigation.
+of further shared projects remain design choices; only the DataAudit slice is implemented and accepted.
 
 Success means an unrelated broker/UI edit does not rebuild the four nightly applications. A change
 to a shared rule they actually use must still rebuild the affected apps. Precompiled release reuse

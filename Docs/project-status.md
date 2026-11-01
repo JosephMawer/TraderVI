@@ -1,5 +1,26 @@
 # TraderVI Project Status
 
+## November 1 — DataAudit builds independently of Core
+
+DataAudit now owns its audit workflow, reports, rules and SQL reader/configuration. SQLBase remains
+in Core unchanged. The only shared project is package-free TraderVI.MarketData, containing market
+definitions, freshness and security-name checks still used by Core. The DataAudit dependency graph
+excludes Core, ML.NET, MKL, LightGBM and market-provider clients.
+[ADR-0119](adr/0119-independent-data-audit-build.md) records the boundary.
+
+The final layout passed 11 audit tests and 38 focused Core tests; 126 offline nightly assertions
+passed. DataAudit Debug/Release and the affected Hermes, Delphi, Athena, WPF/engine and collector
+project builds passed in isolated directories. All four nightly stages passed locked restores with
+their updated dependency graphs. Existing compiler warnings remain in Core/WPF/tests; dependency
+security auditing was disabled. The full SQL-containing solution and an operational audit were not run.
+Evidence is under `artifacts/dataaudit-extraction-20261101/`; the final layout uses `verified/`
+build outputs and the `audit-verified-tests.log` / `core-verified-tests.log` results.
+
+Collector PID 1452, engine PID 22452 and WPF PID 6260 retain their original start times, executable
+hashes and Core hashes from preflight. No runtime was replaced or restarted. The running WPF still
+has its previously installed Delphi control; the source removal requires a later desktop installation.
+No SQL, broker, model-training or market-service operation was performed. Old nightly folders remain.
+
 ## November 1 — Desktop daily Delphi execution removed from source
 
 The official-run button and automatic run after daily strategy assignment are removed. Saved-result

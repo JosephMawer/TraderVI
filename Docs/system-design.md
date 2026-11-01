@@ -11,6 +11,11 @@ these responsibilities in GitHub-readable Markdown and Mermaid. When ownership, 
 change, review its maps and component descriptions in the same checkpoint; the guide does not replace
 operational status or the governing decisions.
 
+For daily data-quality checking, DataAudit builds independently of Core under
+[ADR-0119](adr/0119-independent-data-audit-build.md). The audit owns its workflow, reports and SQL
+reader/configuration. Core and DataAudit both reference the package-free TraderVI.MarketData
+project for reused market definitions and quality checks. SQLBase remains in Core.
+
 ## Paper and Real share rules, not account state
 
 A **strategy** is the identified rulebook: selection, entry, exit, sizing, risk and data

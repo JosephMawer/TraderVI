@@ -10,7 +10,7 @@ namespace Core.Runtime;
 
 public static class SpyBenchmarkIngestion
 {
-    public const string Symbol = "SPY";
+    public const string Symbol = Core.TMX.DailyBenchmarkSymbols.Spy;
 
     public static IReadOnlyList<DailyBar> SelectMissingBars(IReadOnlyList<DailyBar> existing,
         IReadOnlyList<UsIndexBar> response, DateTime from, DateTime through)

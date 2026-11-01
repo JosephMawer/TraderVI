@@ -5,6 +5,23 @@
 [ADR-0113](adr/0113-nightly-data-audit-report.md) schedules it after Hermes in the nightly pipeline and
 removes the desktop menu. The command-line tool remains available for explicit troubleshooting.
 
+## Code ownership and offline validation
+
+[ADR-0119](adr/0119-independent-data-audit-build.md) makes DataAudit independent of Core.
+The workflow, report/rule code and SQL reader live in `DataAudit/`. SQL configuration is owned by
+the audit, with its existing local default and explicit environment override. `SQLBase` remains
+in Core. The package-free `TraderVI.MarketData/` project holds market definitions, freshness and
+security-name checks also used by Core. `DataAudit.Tests/` exercises the audit without running SQL.
+
+```powershell
+dotnet build DataAudit/DataAudit.csproj --artifacts-path artifacts/data-audit-validation
+dotnet test DataAudit.Tests/DataAudit.Tests.csproj --artifacts-path artifacts/data-audit-validation
+```
+
+These commands build/test isolated outputs; they do not run the operational audit. DataAudit's
+package graph excludes Core, ML.NET, MKL and market-provider clients. Existing nightly copies are
+not removed by this source extraction.
+
 ## Safety boundary
 
 The default audit:

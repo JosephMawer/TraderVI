@@ -19,11 +19,22 @@ public sealed class MarketDataAuditRepository : IMarketDataAuditSnapshotSource
 
     public MarketDataAuditRepository(string? connectionString = null)
     {
-        var builder = new SqlConnectionStringBuilder(connectionString ?? SQLBase.Database)
-        {
-            ApplicationIntent = ApplicationIntent.ReadOnly
-        };
-        _connectionString = builder.ConnectionString;
+        _connectionString = BuildConnectionOptions(connectionString).ConnectionString;
+    }
+
+    internal static SqlConnectionStringBuilder BuildConnectionOptions(string? connectionString)
+    {
+        var builder = connectionString is null
+            ? new SqlConnectionStringBuilder
+            {
+                DataSource = "localhost",
+                InitialCatalog = "TraderDB",
+                IntegratedSecurity = true,
+                TrustServerCertificate = true
+            }
+            : new SqlConnectionStringBuilder(connectionString);
+        builder.ApplicationIntent = ApplicationIntent.ReadOnly;
+        return builder;
     }
 
     public async Task<MarketDataAuditSnapshot> LoadAsync(CancellationToken cancellationToken = default)

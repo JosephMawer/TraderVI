@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0119](0119-independent-data-audit-build.md) — DataAudit owns its audit/SQL code and shares only market definitions with Core
+
 - [ADR-0118](0118-delphi-desktop-results-only.md) — Remove both desktop daily Delphi execution paths; preserve saved-result viewing
 
 - [ADR-0117](0117-compact-trading-current-storage.md) — Scalar current rows and two reusable commit markers; disconnected storage increment
@@ -134,6 +136,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-pipeline
+
+- [ADR-0119](0119-independent-data-audit-build.md) — Audit builds without Core or ML packages; checks/report contract preserved
 
 - [ADR-0117](0117-compact-trading-current-storage.md) — Active-row reads, changed-row commits and bounded payload verification; native qualification pending
 - [ADR-0116](0116-temporary-paper-continuation-during-reboot-recovery.md) — Preserve unresolved incidents and historical proof during temporary simulation continuation

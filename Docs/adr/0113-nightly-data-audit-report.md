@@ -6,6 +6,10 @@
 - **Supersedes:** the stage list/authorization in [ADR-0046](0046-guarded-nightly-operations-runner.md) and the Data Audit desktop surface in [ADR-0033](0033-tabbed-desktop-shell-and-shared-workflows.md)
 - **Related:** [ADR-0078](0078-isolated-latest-source-nightly-builds.md), [ADR-0110](0110-nightly-isolated-symbol-warnings.md)
 
+**Code ownership update (2026-11-01):** [ADR-0119](0119-independent-data-audit-build.md) moves
+the audit implementation from Core into DataAudit and shares only reused market definitions.
+The scheduling, findings, read-only SQL behavior and report contract below remain applicable.
+
 ## Decision and rationale
 
 The immediate problem is that useful daily-data checks require a manual dashboard action. The parent

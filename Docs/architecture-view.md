@@ -536,6 +536,12 @@ Sources: [Docs/oracle-rules.md](oracle-rules.md), [Docs/architecture.md](archite
 menu is retired and the troubleshooting CLI remains. [ADR-0113](adr/0113-nightly-data-audit-report.md)
 owns that scheduling/reporting change. The underlying audit remains read-only.
 
+**November 1 build ownership:** DataAudit owns its workflow, report models, checks and SQL reader.
+Its only shared project is the package-free TraderVI.MarketData, also referenced by Core for
+market definitions, freshness and security-name checks. SQLBase remains in Core; DataAudit owns
+its connection configuration. [ADR-0119](adr/0119-independent-data-audit-build.md) records the
+independent build boundary. This source change does not report installation or runtime health.
+
 **Tools — Advisory, replay and quality inspection.** Offer explicit offline/research and operational entry points.
 
 **Inputs:** Saved evidence and explicit workflow arguments.

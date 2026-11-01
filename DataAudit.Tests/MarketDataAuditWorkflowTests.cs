@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace TraderVI.Core.Tests;
+namespace DataAudit.Tests;
 
 public sealed class MarketDataAuditWorkflowTests
 {

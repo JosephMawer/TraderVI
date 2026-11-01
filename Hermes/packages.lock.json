@@ -459,8 +459,12 @@
           "Microsoft.ML.LightGbm": "[5.0.0, )",
           "Microsoft.ML.TimeSeries": "[5.0.0, )",
           "Newtonsoft.Json": "[13.0.4, )",
-          "RestSharp": "[112.1.0, )"
+          "RestSharp": "[112.1.0, )",
+          "TraderVI.MarketData": "[1.0.0, )"
         }
+      },
+      "tradervi.marketdata": {
+        "type": "Project"
       }
     }
   }

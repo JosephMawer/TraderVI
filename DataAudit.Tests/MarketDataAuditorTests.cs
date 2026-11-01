@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace TraderVI.Core.Tests;
+namespace DataAudit.Tests;
 
 public sealed class MarketDataAuditorTests
 {

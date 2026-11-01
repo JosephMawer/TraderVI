@@ -45,4 +45,8 @@
     <InternalsVisibleTo Include="TraderVI.Engine" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TraderVI.MarketData\TraderVI.MarketData.csproj" />
+  </ItemGroup>
+
 </Project>

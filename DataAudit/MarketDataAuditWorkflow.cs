@@ -20,7 +20,7 @@ public sealed record MarketDataAuditRunResult(
     MarketDataAuditReport Report);
 
 /// <summary>
-/// Host-neutral, read-only Data Audit workflow shared by console and GUI hosts.
+/// Host-neutral, read-only Data Audit workflow used by the nightly CLI.
 /// Presentation, exit codes, and user interaction remain host responsibilities.
 /// </summary>
 public sealed class MarketDataAuditWorkflow

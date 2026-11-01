@@ -886,7 +886,7 @@ Install the Windows task once, or rerun the installer when changing its schedule
 
 The task invokes the repository runner and configuration directly. ADR-0078 captures the latest tracked
 and untracked non-ignored source into a verified private copy at run start. Later edits belong to the next
-run. It restores the reviewed Core/Hermes/DataAudit/Delphi/Athena lock files with `--locked-mode` into a dedicated
+run. It restores the reviewed Core/Hermes/DataAudit/Delphi/Athena and shared TraderVI.MarketData lock files with `--locked-mode` into a dedicated
 cache, then builds the four Release projects inside that copy. Neither intermediate nor executable files
 are shared with development builds. Source and runner edits apply without reinstalling the task.
 
@@ -906,7 +906,7 @@ Run offline regression checks or actual build-only validation without starting o
 Build-only status is separate from operational status and records `Prepared`. Run copies and their full
 source manifests live under ignored `artifacts/nightly/<run-id>/`; the dedicated package cache is
 `artifacts/nightly/packages`. Cleanup is currently manual. When dependency declarations change, generate
-and review the affected Core/Hermes/DataAudit/Delphi/Athena `packages.lock.json` files with `dotnet restore
+and review the affected Core/Hermes/DataAudit/Delphi/Athena and shared-project `packages.lock.json` files with `dotnet restore
 --use-lock-file` before the next night. Restore uses `Operations/nightly-nuget.config`; package-security
 audits are separate from the unattended build and must be reported independently.
 
@@ -950,6 +950,7 @@ service, or repair data.
 ## DataAudit — read-only local data-quality scan
 
 **Project:** `DataAudit`
+**Build dependencies:** `TraderVI.MarketData` and SQL client packages; independent of Core under [ADR-0119](adr/0119-independent-data-audit-build.md)
 **Schedule:** nightly after Hermes and its backup, before Delphi; also available by CLI for explicit troubleshooting
 
 DataAudit scans every local symbol and the core `DailyBars` / `StockSectorMap` / `SectorIndices` relationships. It detects stale active symbols using completed XIU sessions, missing mappings, likely stock/fund misclassifications, malformed or duplicate bars, and orphaned data.

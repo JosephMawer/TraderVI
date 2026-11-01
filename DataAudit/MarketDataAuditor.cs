@@ -1,7 +1,6 @@
 #nullable enable
 
 using Core.TMX;
-using Core.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -246,7 +245,7 @@ public static class MarketDataAuditor
         {
             // ADR-0058 stores the SPY benchmark separately from the TSX trading universe.
             // Only its missing Symbols parent is intentional; other integrity checks still apply.
-            if (string.Equals(orphan.Symbol, SpyBenchmarkIngestion.Symbol, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(orphan.Symbol, DailyBenchmarkSymbols.Spy, StringComparison.OrdinalIgnoreCase))
                 continue;
             findings.Add(new AuditFinding(
                 AuditSeverity.Error,
