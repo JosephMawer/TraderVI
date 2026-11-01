@@ -9,8 +9,10 @@ register their existing paths/hashes, with no manual selection step. Preserve th
 directories during cleanup; the runner fixes its selection once per run.
 
 The release-preparation/activation machinery proposed below is not the current implementation plan.
-Further Delphi extraction is not required for the accepted runner change. Historical cleanup/retention,
-single-file packaging and a dashboard action remain separate discussions. The rest of this document
+Further Delphi extraction is not required for the accepted runner change. The subsequent authorized
+[nightly cleanup](../project-status.md#november-1--retired-nightly-copies-removed) removed the retired
+58-run source/build tree and its package cache. Other cleanup/retention, single-file packaging and a
+dashboard action remain separate discussions. The rest of this document
 preserves the earlier proposals and dependency findings; it does not authorize those deferred changes.
 
 ## Problem and intended outcome
@@ -27,7 +29,8 @@ alone would not establish that a complete nightly package passed its checks.
 The November 1 inventory measured 46.67 GiB allocated under `artifacts/nightly`. The October 31
 run folder contained 1.334 GiB of file contents, including 1.321 GiB in build directories. The
 reviewed older-library subset contained 10,684 files in 34 run directories, totaling 31.834 GiB
-allocated. All selected files remained present during this discussion. The private inventory is
+allocated. These were pre-cleanup measurements; that entire retired nightly tree was subsequently removed.
+The original private inventory is
 `artifacts/nightly-library-cleanup-20261101/storage-inventory.txt`.
 
 ## Previous behavior — before ADR-0122

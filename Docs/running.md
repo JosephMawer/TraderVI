@@ -919,13 +919,18 @@ The 06:30 trigger uses local wall-clock time across daylight-saving changes, wit
 the future when installed. Existing stage/task time limits are unchanged; the start time is not a promise
 of completion before market open. Per-run logs/status/audit reports remain under local application data.
 Old `artifacts/nightly/<run-id>` source/build folders and `artifacts/nightly/packages` are no longer
-created or populated by the runner; historical cleanup and retention remain separate work.
+created or populated by the runner. The operator-authorized November 1 cleanup removed all 58 old run
+folders and their dedicated package cache; `artifacts/nightly` is now empty. This included old source
+snapshots as well as build outputs. Preserve the separate currently selected directories and registration
+receipts. [Project status](project-status.md#november-1--retired-nightly-copies-removed) records the exact
+scope and verification. Other artifact directories and operational logs were outside that cleanup.
 
 The authorized September 23 one-time storage cleanup removed compiled binaries from older artifact
 builds while preserving their source snapshots, manifests and evidence. Directories with
 `COMPILED-BINARIES-REMOVED-20260923.md` require rebuilding before reuse; historical executable hashes
 remain evidence of the original run, not proof that its binaries are still present. The latest two
-nightly builds and package cache were retained. No automatic retention policy was installed.
+nightly builds and package cache were retained at that September checkpoint; the November 1 cleanup
+subsequently removed the retired nightly tree. No automatic retention policy was installed.
 
 The task uses the current user's interactive token, stores no Windows password, wakes the computer, and
 starts when available; the user must remain signed in.

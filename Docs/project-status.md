@@ -1,5 +1,27 @@
 # TraderVI Project Status
 
+## November 1 — Retired nightly copies removed
+
+The operator-authorized cleanup completed at **12:42:56 Toronto**. It removed **58 old run directories
+and the dedicated package cache** from `C:\src\TraderVI\artifacts\nightly`: **92,265 files**, including
+the obsolete source snapshots and complete build outputs. The directory is now empty. File contents
+totaled 46.501 GiB; observed C: free space increased by **46.669 GiB**, to **440.20 GiB**. This replaces
+the earlier, narrower proposal to remove only 31.834 GiB of libraries from 34 runs.
+
+Preflight found no process or scheduled-task action referencing the retired root. Cleanup held the
+nightly single-instance lock and checked canonical paths, file inventory and absence of reparse points.
+The four currently selected November 1 outputs remain outside that root and passed fingerprint
+verification after deletion. Collector PID 1452, engine PID 22452 and WPF PID 6260 retain their start
+times, executable paths, executable/Core hashes and timestamps. All 68 operational status/log/audit
+files under local application data were hash-verified unchanged. SQL/backups, models, user NuGet cache
+and other artifact directories were outside this cleanup. No application build, restart, operational
+pipeline, database or external-service action ran; the 06:30 schedule is unchanged.
+
+The exact inventory, folder list, deletion receipt and safety checks are private local records under
+`artifacts/nightly-retirement-20261101/`. Historical references to the deleted nightly source/build paths
+are evidence of earlier runs, not reusable outputs. Other artifact and operational-log retention remain
+separate work; the current runner no longer creates these per-run source/build copies.
+
 ## November 1 — Nightly reuses existing outputs at 06:30
 
 At 12:07 Toronto the existing **TraderVI Nightly** Windows task was changed to **06:30 local time,
@@ -41,7 +63,8 @@ executable/Core hashes and file timestamps. Private before/after task XML, insta
 test/preflight logs and protected-host records are under `artifacts/nightly-existing-outputs-20261101/`.
 Automatic-selection validation and unchanged-host checks are under `artifacts/nightly-auto-selection-20261101/`.
 The earlier extraction entries below retain their checkpoint scope; this entry supersedes their
-description of a still-source-capturing nightly runner. Historical artifact and log/cache cleanup remain open.
+description of a still-source-capturing nightly runner. The subsequent retired-nightly cleanup is recorded
+above; other artifact and log/cache cleanup remain open.
 
 ## November 1 — Athena builds independently of Core
 
