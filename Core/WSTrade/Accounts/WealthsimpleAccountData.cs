@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 
 namespace Core.WSTrade.Accounts;
@@ -37,6 +38,9 @@ public sealed record WealthsimpleHolding(string Symbol, string Name, string Secu
 public sealed record WealthsimplePendingOrder(string Symbol, string Side, string Status,
     string ExecutionType, decimal Quantity, WealthsimpleMoney? LimitPrice, DateTimeOffset CreatedAt)
 {
+    // Exact pending-status set used by the captured order-feed query.
+    internal static readonly ImmutableArray<string> FeedStatuses = ["CANCEL_PENDING", "CONTINGENT", "NEW",
+        "PARTIALLY_FILLED", "PENDING_FUND_TRANSFER", "PENDING_REVIEW", "PENDING_SUBMISSION", "PLACED", "SUBMITTED"];
     internal string OrderId { get; init; } = "";
     internal string SecurityId { get; init; } = "";
     public override string ToString() => "Wealthsimple pending order (financial data omitted)";

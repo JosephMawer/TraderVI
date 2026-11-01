@@ -38,14 +38,17 @@ public sealed class InterruptedBuyRecovery(TradingCurrentStore store,
             throw new InvalidOperationException("Missing or conflicting broker facts for the original buy.");
         // The common broker validator above checks whole quantities, fill time and net cost.
         bool partial = fact.FilledQuantity > 0 && fact.FilledQuantity < order.Quantity && fact.NetValue > 0;
+        bool unfilled = fact.FilledQuantity == 0;
         string status = fact.Status switch
         {
-            "PENDING" when fact.FilledQuantity == 0 => "Submitted",
-            "REJECTED" when fact.FilledQuantity == 0 => "Rejected",
-            "EXPIRED" when fact.FilledQuantity == 0 => "Expired",
+            "PENDING" when unfilled => "Submitted",
+            "REJECTED" when unfilled => "Rejected",
+            "EXPIRED" when unfilled || partial => "Expired",
             "PARTIALLY_FILLED" when partial => "Submitted",
-            "CANCELLED" or "CANCELED" when partial => "Cancelled",
+            "CANCEL_PENDING" when partial => "Submitted",
+            "CANCELLED" or "CANCELED" when unfilled || partial => "Cancelled",
             "FILLED" or "POSTED" when fact.FilledQuantity == order.Quantity && fact.NetValue > 0 => "Filled",
+            _ when unfilled && fact.Status != "PARTIALLY_FILLED" && WealthsimplePendingOrder.FeedStatuses.Contains(fact.Status) => "Submitted",
             _ => throw new InvalidOperationException("Unsupported opening-buy status or inconsistent cumulative fill.")
         };
         decimal netCost = fact.NetValue ?? 0m;

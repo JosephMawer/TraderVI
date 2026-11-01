@@ -8,11 +8,6 @@ namespace Core.WSTrade.Authentication;
 
 public sealed partial class WealthsimpleAuthClient
 {
-    // Exact pending-status set observed in the operator's browser capture. This feed is
-    // identity-wide: paginate every page, then retain only the selected owned TFSA.
-    private static readonly string[] PendingOrderStatuses = ["CANCEL_PENDING", "CONTINGENT", "NEW",
-        "PARTIALLY_FILLED", "PENDING_FUND_TRANSFER", "PENDING_REVIEW", "PENDING_SUBMISSION", "PLACED", "SUBMITTED"];
-
     public Task<WealthsimpleReadResult<WealthsimplePendingOrders>> ReadTfsaPendingOrdersAsync(
         WealthsimpleTfsaAccount account, CancellationToken ct = default) => ReadLockedAsync(async () =>
     {
@@ -23,7 +18,7 @@ public sealed partial class WealthsimpleAuthClient
         do
         {
             using var json = await QueryAsync("TraderVITfsaPendingOrders", PendingOrdersQuery,
-                new { identityId = session.IdentityId, statuses = PendingOrderStatuses, cursor }, ct);
+                new { identityId = session.IdentityId, statuses = WealthsimplePendingOrder.FeedStatuses, cursor }, ct);
             var identity = Required(json.RootElement, "data", "identity"); RequireId(identity, session.IdentityId);
             var page = Required(identity, "orderServiceExtendedOrderFeed");
             foreach (var edge in RequiredArray(page, "edges"))

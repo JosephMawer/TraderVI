@@ -204,10 +204,19 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   Migration 055 is prepared for review and requires empty compact order storage following 054.
   [Zero-fill tests](../TraderVI.Core.Tests/TradingCompactStorageTests.UnfilledBuy.cs).
   Local run record: `artifacts/compact-storage-20261030/results/unfilled-buy.trx`.
-- [ ] Extend original-request recovery to remaining cases. The offline
-  scenarios use a simulated broker lookup and fixture-supplied opening terms for the approved request.
-  Production broker coverage, strategy-specific protection mapping, additional order outcomes and
-  engine startup integration still need separate review.
+- [x] October 31 batched offline regression. Recovery recognizes the broker reader's pending status
+  list, retains the outstanding reservation during a pending cancellation, releases it on cancellation
+  before a fill, and books the actual cost on expiry after a partial fill. Twelve status cases first
+  reproduced gaps in the previous implementation. A thirteenth case exercised a read timeout, a
+  concurrent pause and a successful retry of the original ID while another reservation remained intact.
+  All 80 focused cases passed in the full Core run (3,518 passed, zero failed, 10 opt-in native tests
+  skipped). The SQL project built and both prepared migrations parsed offline using the SQL 150 parser.
+  [Additional cases](../TraderVI.Core.Tests/TradingCompactStorageTests.BuyRecoveryMatrix.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/offline-core.trx`.
+- [ ] Map the remaining current instructions and protection inputs and exercise an account-level restart
+  across multiple unfinished requests, including an independently valid protective sale during buy
+  uncertainty. Opening-buy tests use a simulated broker lookup and fixture-supplied opening terms.
+  Production broker coverage, sell recovery and engine startup integration remain open.
 - [ ] Near the end, measure SQL read/write latency and physical space and qualify round trips, locking,
   crash/rollback and active query plans. October 31 operator deferred this work. Review the test
   environment before execution.
