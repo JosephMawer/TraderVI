@@ -49,10 +49,20 @@ After both markers rotate, the original expected version rejects stale replay. T
 contract, not proof of broker submission idempotency or recovery from an old backup.
 
 Approved settings and original order intent cannot be rewritten. Unique account/request, decision and
-broker-order identities prevent alternative rows for the same recorded action. Cumulative fill
-observations can be converted to unapplied deltas; their account/position/order effects must be
-submitted together by the future integration layer. This storage layer does not derive or certify
-those financial effects. Terminal orders leave the work set only after their recorded fill totals
+broker-order identities prevent alternative rows for the same recorded action. The October 31 writer
+change gives the compact store ownership of purchase allowance totals. Callers supply the account's
+last saved totals (zero on first creation). For each changed buy the writer looks up the original
+receipt and applies the difference between its old and new contributions. It commits the account,
+receipt, caller-supplied position changes and checkpoint together. Sales contribute zero.
+
+An open buy counts its original quantity × reference price against the ceiling. A terminal buy counts
+its latest cumulative net cost. Within that charge, the applied portion counts as committed and the
+balance as reserved. The receipt retains the full applied fill cost even if an open buy exceeds its
+estimate. Reconciliation then charges the full terminal cost. For a $100 buy with $38 applied, the
+account carries $38 committed and $62 reserved. Cancelling the balance clears the $62 reservation.
+An identical cancellation arriving with a new check time preserves the completed receipt and totals.
+The future integration layer still supplies position accounting and maps broker observations to compact
+order states. Terminal orders leave the work set only after their recorded fill totals
 agree and reservations are cleared. Contradictory/regressing facts are rejected for explicit
 reconciliation, not silently resubmitted. These are local invariants, not a new broker retry policy.
 

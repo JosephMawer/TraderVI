@@ -71,6 +71,10 @@ public sealed class TradingCurrentStore
         }
         if ((current?.Version ?? -1) != write.ExpectedVersion)
             throw new InvalidOperationException("Current state changed. Reload before preparing another change.");
+        decimal committed = current?.CommittedPurchaseCost ?? 0m;
+        decimal reserved = current?.ReservedPurchaseCost ?? 0m;
+        if (write.Account.CommittedPurchaseCost != committed || write.Account.ReservedPurchaseCost != reserved)
+            throw new InvalidOperationException("Purchase allowance totals are maintained from original order receipts.");
         var permission = write.Settings.SingleOrDefault(s => s.PermissionId == write.Account.PermissionId)
             ?? await tx.FindAsync<TradingApprovedSettings>(write.Account.PermissionId, ct);
         if (permission is null || permission.BindingId != write.Account.BindingId || permission.StrategyId != write.Account.StrategyId ||
@@ -79,24 +83,37 @@ public sealed class TradingCurrentStore
 
         long nextVersion = checked(write.ExpectedVersion + 1);
         var pending = new List<(TradingStorageRow Row, bool Insert)>();
-        foreach (var row in rows)
+        foreach (var requested in rows)
         {
+            if (requested is TradingAccountCurrent) continue;
+            var row = requested;
             var prior = await Find(tx, row, ct);
+            // Reading an already completed receipt again need not change its last check time.
+            if (prior is TradingOrder { NeedsWork: false } completed && row is TradingOrder observed)
+                row = observed with { LastCheckedUtc = completed.LastCheckedUtc };
             if (prior is not null)
             {
                 TradingStorageValidation.ValidateTransition(prior, row);
                 if (TradingStorageValidation.Same(prior, row)) continue;
             }
+            if (row is TradingOrder order)
+            {
+                var before = PurchaseAllowance.For((TradingOrder?)prior);
+                var after = PurchaseAllowance.For(order);
+                committed += after.Committed - before.Committed;
+                reserved += after.Reserved - before.Reserved;
+            }
             pending.Add((row with { Version = nextVersion }, prior is null));
         }
-        if (pending.Count == 0)
+        var account = write.Account with { Version = nextVersion, CommittedPurchaseCost = committed, ReservedPurchaseCost = reserved };
+        TradingStorageValidation.Validate(account);
+        if (pending.Count == 0 && current is not null && TradingStorageValidation.Same(current, account))
         {
             await tx.CommitAsync(ct);
-            return new(current!.Version, false, 0);
+            return new(current.Version, false, 0);
         }
         // Even when only one position changes, the account identifies the coherent new state version.
-        if (!pending.Any(p => p.Row is TradingAccountCurrent))
-            pending.Add((write.Account with { Version = nextVersion }, false));
+        pending.Add((account, current is null));
         // Settings precede the account FK; the account precedes its child rows.
         foreach (var item in pending.OrderBy(p => p.Row is TradingApprovedSettings ? 0 : p.Row is TradingAccountCurrent ? 1 : 2))
             await tx.PutAsync(item.Row, item.Insert, ct);
@@ -115,12 +132,12 @@ public sealed class TradingCurrentStore
         foreach (var r in write.Settings) yield return r;
         foreach (var r in write.Positions) yield return r;
         foreach (var r in write.Symbols) yield return r;
-        foreach (var r in write.Orders) yield return r;
+        foreach (var order in write.Orders)
+            yield return order.Side == "BUY" ? order with { ReservedCash = PurchaseAllowance.For(order).Reserved } : order;
         foreach (var r in write.Restrictions) yield return r;
     }
     private static Task<TradingStorageRow?> Find(ITradingStorageTransaction tx, TradingStorageRow row, CancellationToken ct) => row switch
     {
-        TradingAccountCurrent => Box(tx.FindAsync<TradingAccountCurrent>(null, ct)),
         TradingApprovedSettings r => Box(tx.FindAsync<TradingApprovedSettings>(r.PermissionId, ct)),
         TradingPositionCurrent r => Box(tx.FindAsync<TradingPositionCurrent>(r.PositionId, ct)),
         TradingSymbolCurrent r => Box(tx.FindAsync<TradingSymbolCurrent>(r.Symbol, ct)),
@@ -129,6 +146,20 @@ public sealed class TradingCurrentStore
         _ => throw new InvalidOperationException("Unsupported current row.")
     };
     private static async Task<TradingStorageRow?> Box<T>(Task<T?> task) where T : TradingStorageRow => await task;
+
+    private readonly record struct PurchaseAllowance(decimal Committed, decimal Reserved)
+    {
+        internal static PurchaseAllowance For(TradingOrder? order)
+        {
+            if (order is null || order.Side != "BUY") return default;
+            // The existing allowance uses the original estimate until reconciliation. Actual
+            // fill costs (including costs above that estimate) remain intact on the receipt.
+            decimal charge = TradingStorageValidation.IsTerminal(order.Status)
+                ? order.LatestNetValue : order.Quantity * order.ReferencePrice;
+            decimal booked = decimal.Min(charge, order.AppliedNetValue);
+            return new(booked, charge - booked);
+        }
+    }
 
     internal static void ValidateCurrent(TradingCurrentState state, Guid bindingId)
     {

@@ -170,7 +170,6 @@ public sealed partial class TradingCompactStorageTests(ITestOutputHelper output)
             held += application.QuantityDelta; spent += application.NetValueDelta;
             await db.Store.SaveAsync(Change(state, "FillAccounting") with
             {
-                Account = state.Account with { CommittedPurchaseCost = spent },
                 Positions = [Position() with { Quantity = held, CostBasis = spent }], Orders = [application.Order]
             });
         }

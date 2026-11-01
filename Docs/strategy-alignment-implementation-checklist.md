@@ -163,10 +163,14 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   a separate sale and the next trading day preserve the reservation. On October 31,
   eight new allowance cases, one existing simulated restart/date-change case and 30 compact-storage
   cases passed (39 passed, zero failed/skipped). [Test cases](../TraderVI.Core.Tests/BrokerManagedSessionTests.PurchaseAllowance.cs).
-- [ ] Review the proposed writer change to adjust the saved allowance using the prior and new
-  contribution of one original order in the same commit as its receipt. Verify that booked partial fills
-  and outstanding reservations together reproduce the amounts above, including repeated observations,
-  lost save replies and a terminal cost different from the estimate.
+- [x] October 31 compact writer now saves the allowance difference for each changed original buy
+  together with its receipt and checkpoint. On a synthetic $2,000 ceiling, a $100 order with $38
+  applied left $1,900 available. An interrupted cancellation preserved that balance. A committed
+  cancellation raised it to $1,962. Replaying the save after a lost reply and observing the cancellation
+  again each wrote zero rows and left $1,962 available. The four purchased shares remained accounted for.
+  Seven new writer cases and all 39 prior focused cases passed offline (46 passed, zero failures/skips).
+  [Writer tests](../TraderVI.Core.Tests/TradingCompactStorageTests.Allowance.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/allowance-writer.trx`.
 - [ ] Near the end, measure SQL read/write latency and physical space and qualify round trips, locking,
   crash/rollback and active query plans. October 31 operator deferred this work. Review the test
   environment before execution.
