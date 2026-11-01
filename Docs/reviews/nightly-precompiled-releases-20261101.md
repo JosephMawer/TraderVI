@@ -12,6 +12,11 @@ The immediate decision is how a completed application change reaches the next ni
 parent problem is repeated compilation and retained output consuming disk space. The root outcome
 is dependable daily preparation with bounded storage and little routine operator work.
 
+Here, a release means a completed, tested set of the four applications and their dependencies,
+saved locally for repeated nightly use. Publishing creates that runnable set. An ordinary build
+produces development output. The Release build configuration is a compiler setting; selecting it
+alone would not establish that a complete nightly package passed its checks.
+
 The November 1 inventory measured 46.67 GiB allocated under `artifacts/nightly`. The October 31
 run folder contained 1.334 GiB of file contents, including 1.321 GiB in build directories. The
 reviewed older-library subset contained 10,684 files in 34 run directories, totaling 31.834 GiB
@@ -37,6 +42,10 @@ Delphi action. A single action for the full nightly pipeline would be new.
   testing a consistent package containing all four applications and their dependencies. Shared
   Core changes also count. Package completion must be explicit so ordinary in-progress build
   output cannot be mistaken for a finished release. This can be part of the development workflow.
+  The operator supports that overall approach and asked whether a post-build step should prepare
+  the folder. The proposed hook runs after the designated package build and validation, with
+  ordinary debug/test builds continuing as development work. New package history also needs a
+  bound so frequent development builds cannot recreate the accumulation.
 - **Proposed activation.** Publish a fully prepared package to a dedicated release directory,
   then change the selected-release reference in one operation. The next run reads that reference
   once, records the release identity and uses that directory throughout. A new release prepared
@@ -58,6 +67,29 @@ Delphi action. A single action for the full nightly pipeline would be new.
   the button presents the preparation date, progress, completed warnings and a reviewed retry.
 - **Deferred.** A SQL table for nightly logs was a thought explicitly held for later. Other
   artifact directories and the separately active SQL cleanup remain separate review items.
+
+## Single-file packaging under review
+
+The operator proposed one executable per application. .NET supports this through publishing.
+A candidate package would contain Hermes.exe, DataAudit.exe, Delphi.exe and Athena.exe, plus
+release identity metadata and any required external configuration. Model files retain their
+assigned locations. Final package contents and runtime compatibility require validation.
+
+The recommendation is Windows x64 publishing that uses the installed .NET 10 runtime. Platform
+selection includes matching native dependencies, reducing the extra Linux, macOS and Windows x86
+payloads seen in the portable build outputs. Framework-dependent publishing avoids bundling another
+.NET runtime in each application. The local runtime inventory on November 1 includes .NET 10.0.12.
+[Microsoft publishing documentation](https://learn.microsoft.com/en-us/dotnet/core/deploying/)
+
+Single-file publishing can bundle native dependencies with IncludeNativeLibrariesForSelfExtract.
+Those libraries are extracted to disk for execution, by default under the user's Temp/.net
+directory on Windows. Extraction files must be included in the storage/retention design.
+Single-file packaging changes assembly file-path APIs, so the four applications and their
+dependencies need checks against their actual entry paths. Source inspection found assembly-file
+hashing in other shared Core components; reachability through these four applications and bundled
+ML/SQL dependency behavior remain unverified. Published sizes have not been measured. Reusing a
+bounded set of releases provides the primary storage saving even with multiple files per package.
+[Microsoft single-file documentation](https://learn.microsoft.com/en-us/dotnet/core/deploying/single-file/overview)
 
 ## Candidate acceptance checks and next decisions
 
