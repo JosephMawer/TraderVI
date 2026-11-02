@@ -1,5 +1,26 @@
 # TraderVI Project Status
 
+## November 1 — Athena prediction scorecards and the ten-session window
+
+Athena completed its October 31 nightly stage and wrote 627 ten-session prediction outcomes and 212
+twenty-session price paths. All 55 advanced prediction reports found in the retained September 3 through
+October 31 nightly logs showed performance blocked. The WPF Scorecards tab reads the same definition,
+strategy scope and calculator. It refreshes on first load and through **Refresh from SQL**.
+
+A November 1 read-only SQL check found 56 official runs across 39 market dates for the active
+`v3.4-observed-benchmarks` strategy. With XIU bars through October 30, observations through October 16
+had ten later market sessions. Of 9,284 candidates old enough to score, 9,281 had usable labels,
+three were invalid and zero were pending. All 2,506 candidates on the newest ten dates were still
+inside their observation window. The [accepted scorecard rule](adr/0038-cohort-weighted-official-prediction-scorecards.md)
+includes them in the denominator, giving 78.7% usable coverage across all 11,790 candidates, below the
+95% reporting floor. Among candidates already due it was 99.97%. These figures describe evidence
+availability. Prediction accuracy and lens performance require their own calculations.
+
+The read-only receipt is `artifacts/read-only-db/result-20261102T044354709Z-866d834ed5ec47eba60956d636139eea.json`.
+The October 31 log also reported just four usable delayed-intraday outcomes out of 2,036 expected.
+That separate replay depends on intraday evidence. The ten-session analysis above covers the desktop
+prediction scorecard only.
+
 ## November 1 — Two intermediate restart builds removed
 
 At 23:23 Toronto the operator-authorized cleanup removed `ui-build` and `trading-build` from
