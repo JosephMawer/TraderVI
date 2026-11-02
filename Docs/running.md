@@ -338,7 +338,7 @@ broker acknowledgement and confirmed fill are distinct. Read trace timestamps an
 Fixed BrokerAdmission/SourceRead/AccountRead/InputRead/LivePrepare/QuoteRead/Evaluate/StateSave/
 SecurityRead/Preflight/Submit stages share the existing bounded local timing log. Missing telemetry
 does not permit an assumption that checks passed. If a validation build would write to the running
-app's Release directory, use a separate output for that build. Close the app normally before replacing
+app's Release directory, use the [shared build folder](#build-output-folders). Close the app normally before replacing
 its installed Release files. October22 review/permission is a
 separate unresolved preparation question; never extend an October21 grant by changing a date or file.
 
@@ -572,11 +572,8 @@ Starting from a verified current-account baseline with optional older history is
 design, not a currently available mode. It would still need ongoing synchronization and explicitly
 preserved holdings, costs and account/position protection; it is not a database reset.
 
-Routine development builds and tests use the project's normal `bin` and `obj` folders. Use a separate
-directory when a build would overwrite a running host, when concurrent builds need different outputs,
-or when preparing a reviewed installation package. Successful nightly CLI Release builds register
-their actual output directory, which must stay available until a newer build replaces the selection.
-The operator allows coordinated
+Routine builds use the project's normal output. When a running host or a staged installation needs
+isolation, use the [shared build folder](#build-output-folders). The operator allows coordinated
 restarts when useful, but Delphi Live records interruptions as coverage gaps and requires fresh entry
 confirmation; prefer grouped changes outside collection when practical.
 
@@ -812,6 +809,22 @@ account-state report, and Trading buys are not paused. Delphi Live has no initia
 These are remaining operator prerequisites, not evidence-performance thresholds. The reviewed calendar
 loads; actual approved evaluation and live source capacity still require operational observation.
 
+## Build output folders
+
+Routine builds and tests use each project's normal `bin` and `obj` folders. When a build would write
+into a running app's directory, or needs to be staged for review, use **one reusable folder**. Run
+from the repository root and pass `--artifacts-path artifacts/build` consistently to restore, build
+and test commands for that job. On this machine the folder is `C:\src\TraderVI\artifacts\build`.
+Let one job finish before starting another in this folder.
+
+The SDK separates projects and configurations within the folder. Successive builds of the same
+project and configuration reuse those paths. Files from a renamed project, an old configuration or
+a previous dependency can remain. When cleaning up, remove only obsolete outputs after checking for
+live processes, a pending installation or a nightly selection. A successful nightly CLI Release build
+registers its actual directory, including one here. Keep that directory available while selected,
+and let an active nightly run finish before rebuilding it. Keep logs and receipts for a specific run
+separate from these reusable compiler outputs.
+
 ## Safe validation commands
 
 Core tests:
@@ -839,7 +852,7 @@ The SQL identity needs database-creation, session-inspection and connection-term
 ```powershell
 $env:TRADERVI_RUN_BROKER_SQL_REHEARSAL = '1'
 try {
-    dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --configuration Release --artifacts-path artifacts/sql-recovery-tests --filter FullyQualifiedName~BrokerManagedSessionSqlTests --logger 'console;verbosity=detailed'
+    dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --configuration Release --artifacts-path artifacts/build --filter FullyQualifiedName~BrokerManagedSessionSqlTests --logger 'console;verbosity=detailed'
 } finally {
     Remove-Item Env:TRADERVI_RUN_BROKER_SQL_REHEARSAL
 }

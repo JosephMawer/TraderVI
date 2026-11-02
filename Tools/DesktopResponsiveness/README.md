@@ -8,7 +8,7 @@ SQL connection, provider or broker workflow. Do not add native reads or private 
 From the repository root:
 
 ```powershell
-dotnet run --project Tools/DesktopResponsiveness/DesktopResponsiveness.csproj --artifacts-path artifacts/desktop-responsiveness-20261020/synthetic -p:NuGetAudit=false
+dotnet run --project Tools/DesktopResponsiveness/DesktopResponsiveness.csproj --artifacts-path artifacts/build -p:NuGetAudit=false
 ```
 
 Each JSON line reports elapsed time, maximum dispatcher pulse gap, pulse count, context presence

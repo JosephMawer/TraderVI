@@ -14,13 +14,13 @@ in Core. The package-free `TraderVI.MarketData/` project holds market definition
 security-name checks also used by Core. `DataAudit.Tests/` exercises the audit without running SQL.
 
 ```powershell
-dotnet build DataAudit/DataAudit.csproj --artifacts-path artifacts/data-audit-validation
-dotnet test DataAudit.Tests/DataAudit.Tests.csproj --artifacts-path artifacts/data-audit-validation
+dotnet build DataAudit/DataAudit.csproj
+dotnet test DataAudit.Tests/DataAudit.Tests.csproj
 ```
 
-These commands build/test isolated outputs; they do not run the operational audit. DataAudit's
-package graph excludes Core, ML.NET, MKL and market-provider clients. Existing nightly copies are
-not removed by this source extraction.
+These commands build and test DataAudit in its normal project folders. For an isolated build, use
+the [shared build folder](running.md#build-output-folders). DataAudit's package graph excludes Core,
+ML.NET, MKL and market-provider clients.
 
 ## Safety boundary
 

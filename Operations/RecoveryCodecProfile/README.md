@@ -9,7 +9,7 @@ complete financial sessions, broker transitions or the proposed restart protocol
 Run from the repository root with .NET 10 and an existing reviewed Core assembly:
 
 ```powershell
-dotnet run --project Operations/RecoveryCodecProfile/RecoveryCodecProfile.csproj --configuration Release --artifacts-path artifacts/recovery-design-20261030/codec-build -p:CoreAssemblyPath=C:/src/TraderVI/Core/bin/Release/net10.0/Core.dll -p:NuGetAudit=false
+dotnet run --project Operations/RecoveryCodecProfile/RecoveryCodecProfile.csproj --configuration Release --artifacts-path artifacts/build -p:CoreAssemblyPath=C:/src/TraderVI/Core/bin/Release/net10.0/Core.dll -p:NuGetAudit=false
 ```
 
 This builds only the diagnostic executable, not Core or an operational host. Package restore has no

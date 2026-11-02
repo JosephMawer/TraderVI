@@ -6,16 +6,16 @@ Migrations 037/038, lossless conversion, verification of all 4,472 historical/cu
 post-conversion backup/retention and native WPF restart acceptance completed September 17.
 Operational evidence is in `artifacts/live-storage-20260917/`. Do not replay the installed migrations.
 
-Build in an isolated location while WPF is running:
+For an isolated build while WPF is running, use the [shared build folder](../../Docs/running.md#build-output-folders) from the repository root.
 
 ```powershell
-dotnet build Operations/StorageMaintenance/StorageMaintenance.csproj --artifacts-path artifacts/storage-maintenance-build -p:NuGetAudit=false
+dotnet build Operations/StorageMaintenance/StorageMaintenance.csproj --artifacts-path artifacts/build -p:NuGetAudit=false
 ```
 
 Read-only preview (first/last historical revision per day plus current; `--all` reads all history):
 
 ```powershell
-dotnet artifacts/storage-maintenance-build/bin/StorageMaintenance/debug/StorageMaintenance.dll preview
+dotnet artifacts/build/bin/StorageMaintenance/debug/StorageMaintenance.dll preview
 ```
 
 The preview round-trips raw JSON and domain readers, reports fingerprints and payload sizes, and never
@@ -45,7 +45,7 @@ Unregistered/failed legacy files are not treated as completed backups and need s
    lifetime, binary hash collation, report sharing and revision isolation. Then perform conversion:
 
    ```powershell
-   dotnet artifacts/storage-maintenance-build/bin/StorageMaintenance/debug/StorageMaintenance.dll convert --verified-backup '<absolute staging .bak path>'
+   dotnet artifacts/build/bin/StorageMaintenance/debug/StorageMaintenance.dll convert --verified-backup '<absolute staging .bak path>'
    ```
 
    The converter refuses active hosts, acquires an exclusive storage lock, commits one verified row
