@@ -8,13 +8,12 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 
 ## Operating state and immediate risks
 
-- **Real trading:** On November 2 at 15:12 Toronto the engine was Running and Connected. Execution
-  remained Blocked. Managed protection publication tried to reopen a position the compact account had
-  closed on a verified sell. The closed-position guard rejected the write on two observed retries.
-  The local journal still has only the original acknowledgement, which blocks linked-account refresh
-  and strategy display. The managed assignment remains saved. The fault is reproduced offline.
-  The [repair passed offline retry tests](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#offline-implementation-and-retry-results).
-  Release, recovery of the live assignment and operational verification of automatic protection are pending.
+- **Real trading:** On November 2 at 17:50 Toronto the original completed sell reconciled into managed
+  revision 6844 and compact checkpoint 29. SQL readback verified identical financial, holding and
+  order fingerprints and the same buying mode. At 17:52 the repaired package was installed in the
+  standard runtime and Connected in build-review mode. Exact-build approval, separate host enable
+  and normal startup verification were pending at this checkpoint. The collector stayed running.
+  [Cutover evidence](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#live-reconciliation-and-build-review).
   [Current diagnosis and evidence](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#follow-up-through-1512-toronto--closed-position-guard-confirmed),
   [November 1 installation](project-status-history-20261101.md#november-1--compact-restart-active-for-delphi-live).
 - **Protection gap:** On October 30, a managed holding's broker bid reads failed repeatedly, so its

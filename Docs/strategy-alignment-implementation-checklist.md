@@ -327,8 +327,10 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [x] Prepare single-owner original-sell maintenance and the dashboard-approved immutable settings
   successor. Verify rollback after sealing, new settings insertion, preserved original settings and
   separate grant enable in the synthetic SQL Server LocalDB rehearsal.
-- [ ] Verify recovery of the installed original request, package switch, operator's exact-build approval
-  and separate enable, normal restart, remaining protection and linked strategy display.
+- [x] Verify recovery of the installed original request and the package switch to connected
+  build-review mode. [November 2 cutover](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#live-reconciliation-and-build-review).
+- [ ] Verify the operator's exact-build approval and separate enable, normal restart, remaining
+  protection and linked strategy display.
 - Separate proposal: reducing the regular strategy's cumulative writes and repeated broker history reads.
   The operator approved the restart switch and the grouped read comparison. A bounded sample of 100 Friday
   revisions over 22 minutes stored 489,240 bytes of manifests, used 34 distinct account

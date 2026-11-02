@@ -273,3 +273,35 @@ single-owner reconciliation procedure must establish the original sale's settled
 submission authority. The current engine and collector continued running throughout implementation.
 No live database or broker request, deployment, hold clearance or permission change was performed
 for these tests. [Build review guard](../../Core/Trader/Promotion/BrokerImplementationReviewWorkflow.cs).
+
+## Live reconciliation and build review
+
+On November 2 the operator requested installation and selected a new immutable settings record
+created only on dashboard approval. Release commit `79e66dd5` contains the single-request maintenance
+entry point and the successor writer. The exact Release test package passed 3,578 with 16 opt-in
+skips and zero failures. The matching dashboard/engine package built with 257 compiler warnings.
+There was no fresh dependency-security audit or SSDT/full-solution build. In a separately marked
+SQL Server LocalDB, rollback after sealing kept the original settings and selected checkpoint.
+Commit inserted the successor, retained the old row and protection eligibility, and a subsequent
+ordinary publication retained the successor pointer. The old and disabled grants were rejected.
+
+At 15:58 Toronto the read-only SQL helper still showed revision 6843 and one unreconciled original.
+The broker v2 helper found zero pending orders and agreement between history and holdings. A fresh
+checksummed full backup passed SQL Server verification. Both copies matched by SHA-256 and Windows
+reported the approved OneDrive copy in sync before cutover.
+
+After close, the old dashboard closed and the original engine drained. Protected order, grant,
+continuity and compact records were copied and hash-checked. The maintenance process verified the
+old approved binary and assignment under exclusive ownership. It could read the original sale
+and remaining inventory but had no submission transport. It returned `OriginalSellReconciled`.
+At 17:50:21 the independent SQL readback verified managed revision 6844, `CompactSaleReconciled`,
+compact checkpoint 29 and the original managed request marked reconciled. Pre/post financial,
+position and order fingerprints and buying mode matched. One original settings row remained.
+
+At 17:52:41 the standard runtime contained the verified 141-file release package, Core SHA-256
+`9D2432B2ECE88DECA8B56E6F4E609B115E8C00DBCF78B4F847725128C54C5590`. The release retained
+collector routing and individual history reads for ordinary trading. Engine PID 12964 reported
+**Build review only**, Connected. Matching dashboard PID 7048 opened for operator approval. Collector
+PID 1452 continued throughout. The prior standard runtime and private cutover receipts are preserved
+under ignored `artifacts/issue19-release-20261102`. This checkpoint verifies live sell recovery and
+installation. Activation and market-hours protection require their own evidence.
