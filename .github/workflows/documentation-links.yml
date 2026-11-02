@@ -1,0 +1,21 @@
+name: Documentation links
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tracking-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Test link checker
+        run: python3 -m unittest discover -s Operations/DocumentationChecks -p 'test_*.py' -v
+      - name: Check status and roadmap links
+        run: python3 Operations/DocumentationChecks/check_links.py
