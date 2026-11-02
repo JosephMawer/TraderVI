@@ -38,6 +38,7 @@ After the common startup above, use the route matching the work; follow addition
 - Run core tests with:
   `dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --verbosity minimal`
 - For focused validation, build the affected `.csproj` directly with `dotnet build <project> --no-restore` after dependencies are restored.
+- Use each project's ordinary `bin` and `obj` folders for routine builds and tests. Choose a separate output directory only for a specific need, such as a build that would overwrite a running host, concurrent builds using the same outputs, or a reviewed installation package. Check the nightly selection before retiring any custom Release output.
 - The complete solution contains the original-style `TraderDB/TraderDB.sqlproj`. Build `TraderVI.sln` with Visual Studio MSBuild plus SSDT/Data Build Tools; the `dotnet` CLI alone may not load its SQL targets.
 - Report dependency-security warnings separately from compiler warnings, build failures, and test failures.
 - Do not claim the complete solution is healthy if `TraderDB.sqlproj` was skipped or failed to load.

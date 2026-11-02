@@ -337,8 +337,9 @@ check names; per-symbol details remain in private SQL. A returned quote, recomme
 broker acknowledgement and confirmed fill are distinct. Read trace timestamps and pending states.
 Fixed BrokerAdmission/SourceRead/AccountRead/InputRead/LivePrepare/QuoteRead/Evaluate/StateSave/
 SecurityRead/Preflight/Submit stages share the existing bounded local timing log. Missing telemetry
-does not permit an assumption that checks passed. Build with isolated outputs while the app is open;
-normal stop/closure must precede standard Release replacement. October22 review/permission is a
+does not permit an assumption that checks passed. If a validation build would write to the running
+app's Release directory, use a separate output for that build. Close the app normally before replacing
+its installed Release files. October22 review/permission is a
 separate unresolved preparation question; never extend an October21 grant by changing a date or file.
 
 For the subsequent performance build, [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md)
@@ -571,7 +572,11 @@ Starting from a verified current-account baseline with optional older history is
 design, not a currently available mode. It would still need ongoing synchronization and explicitly
 preserved holdings, costs and account/position protection; it is not a database reset.
 
-Background development uses isolated artifact build directories. The operator allows coordinated
+Routine development builds and tests use the project's normal `bin` and `obj` folders. Use a separate
+directory when a build would overwrite a running host, when concurrent builds need different outputs,
+or when preparing a reviewed installation package. Successful nightly CLI Release builds register
+their actual output directory, which must stay available until a newer build replaces the selection.
+The operator allows coordinated
 restarts when useful, but Delphi Live records interruptions as coverage gaps and requires fresh entry
 confirmation; prefer grouped changes outside collection when practical.
 
@@ -986,11 +991,11 @@ independent of Core under [ADR-0120](adr/0120-independent-hermes-build.md).
 **Typical schedule:** after market close
 
 Hermes owns backup/retention, Yahoo/SPY ingestion and collection-specific helpers. Its standalone
-offline tests are in `Hermes.Tests`. While live hosts are running, validate with isolated outputs:
+offline tests are in `Hermes.Tests`. Run the focused test and Release build in their normal project folders.
 
 ```powershell
-dotnet test Hermes.Tests/Hermes.Tests.csproj --artifacts-path artifacts/hermes-validation
-dotnet build Hermes/Hermes.csproj -c Release --artifacts-path artifacts/hermes-validation
+dotnet test Hermes.Tests/Hermes.Tests.csproj
+dotnet build Hermes/Hermes.csproj -c Release
 ```
 
 These commands build/test only; a successful Windows Release build also registers its existing output
@@ -1433,14 +1438,14 @@ ML.NET or market-provider packages under [ADR-0121](adr/0121-independent-athena-
 
 Athena owns outcome evaluation, CSV exports and maturation storage. Calibration shares the same label
 catalog with Core training, the official scorecard reader/calculator with WPF, and replay policies with
-Core paper monitoring. Validate without running database evaluation or touching installed outputs:
+Core paper monitoring. Run the focused test and Release build in their normal project folders.
 
 ```powershell
-dotnet test Athena.Tests/Athena.Tests.csproj --artifacts-path artifacts/athena-validation
-dotnet build Athena/Athena.csproj -c Release --artifacts-path artifacts/athena-validation
+dotnet test Athena.Tests/Athena.Tests.csproj
+dotnet build Athena/Athena.csproj -c Release
 ```
 
-These are build/test commands. Precompiled release reuse and nightly retention remain separate work.
+A successful Windows Release build registers Athena's output for the next nightly run under ADR-0122.
 
 Athena reads immutable official calibration candidates and local `DailyBars`, reproduces the enabled production labelers, and idempotently writes matured 10-session labels, 20-session price paths, three-session marks/excursions, and delayed-intraday outcomes. It prints the identified active strategy scope and excludes/counts earlier strategy identities before reporting comparative coverage: distinct completed-market-session cohorts, official run and candidate counts, valid/degraded/invalid/pending outcomes, completion coverage, usable coverage, and whether the 95% reporting floor permits a primary descriptive score. ADR-0038 adds official-only probability calibration, eligible-lens rank quality, and descriptive technical/market slices. All metrics use nested candidate/run/market-session weighting so a deliberate Delphi rerun cannot inflate independent evidence. The report never changes a model, weight, gate, lens, or trading policy.
 

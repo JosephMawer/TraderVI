@@ -1,5 +1,13 @@
 # TraderVI Project Status
 
+## November 1 — Two intermediate restart builds removed
+
+At 23:23 Toronto the operator-authorized cleanup removed `ui-build` and `trading-build` from
+`artifacts/restart-release/`, recovering **1.02 GiB** across 504 files. The other 1,409 files retained
+their paths, sizes and modification times (2.20 GiB). All seven staged and installed release files
+matched the installation plan. The running collector, engine and UI passed their process and binary
+checks, and all four selected nightly outputs passed `-ValidateOnly` after cleanup.
+
 ## November 1 — October 18 Delphi Live build cleanup
 
 At 22:55 Toronto the cleanup removed **3.13 GiB** from `artifacts/delphi-live-tfsa-20261018/`.
