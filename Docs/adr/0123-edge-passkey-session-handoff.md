@@ -1,6 +1,6 @@
 # ADR-0123: Existing Edge passkeys through a local session handoff
 
-- **Status:** Implemented and offline tested; helper registered, extension operator-confirmed and updated desktop opened November 2, 2026. Real sign-in and live refresh verification pending.
+- **Status:** Implemented, offline tested and installed November 2, 2026. Operator-confirmed initial passkey handoff and native Connected status; subsequent live refresh verification pending.
 - **Date:** 2026-11-02 (Toronto)
 - **Domains:** architecture
 - **Extends:** [ADR-0071](0071-native-wealthsimple-login.md)'s direct and embedded-browser sign-in.
@@ -45,8 +45,10 @@ Detach and close the dedicated browser tab before native handoff. Reject wrong p
 method/status, credential metadata, unsupported grants and DPoP tokens (bound to the browser's signing
 key). Existing native token-info verification must succeed before Connected or optional protected
 persistence. Authentication does not enable trading, alter permissions or restart the engine. Close
-other Wealthsimple Edge tabs before starting to reduce concurrent renewal. Provider background renewal,
-first native passkey handoff and live refresh compatibility still need operational verification.
+other Wealthsimple Edge tabs before starting to reduce concurrent renewal. Provider background renewal
+and live refresh compatibility still need operational verification. Initial handoff was operator-confirmed
+November 2 and corroborated by the engine's native Connected status; this does not qualify execution.
+[Auth summary and separate engine diagnosis](../reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
 
 ## Alternatives and rollout
 

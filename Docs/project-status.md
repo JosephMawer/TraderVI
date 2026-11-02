@@ -8,18 +8,22 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 
 ## Operating state and immediate risks
 
-- **Real trading:** The operator-approved compact restart was installed and resumed November 1 at
-  01:11 Toronto. The host reported Running, connected, and waiting for a regular TSX session; saved
-  buy and sell permissions were enabled, buying unpaused, with no unfinished orders or active compact
-  restrictions at that read. Opening risk and fresh market checks still apply. This closed-session
-  checkpoint does not prove the next market open or subsequent trading behavior.
-  [Installation and recovery evidence](project-status-history-20261101.md#november-1--compact-restart-active-for-delphi-live).
+- **Real trading:** On November 2 at 14:47 Toronto, the original engine remains Running and broker
+  Connected, but execution checks are Blocked after retry. Read-only broker/SQL evidence shows a filled
+  sell settled in the compact account while the managed-strategy record remains at transmission observed;
+  the precise failing reconciliation guard is hidden by the installed generic exception handler.
+  Saved permission remains enabled; checkpoint/build identities match, but healthy ongoing automatic
+  protection is not established. No engine/collector restart, recovery or repair was performed during diagnosis.
+  [Current diagnosis and evidence](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md),
+  [November 1 installation](project-status-history-20261101.md#november-1--compact-restart-active-for-delphi-live).
 - **Protection gap:** On October 30, a managed holding's broker bid reads failed repeatedly, so its
   bid-dependent protection could not be verified even though the host reported Running. The operator
   placed the investigation on hold; reliable automatic selling must not be inferred from saved stops
   or a Running status. [Evidence and limits](project-status-history-20261101.md#october-30--held-position-bid-protection-gap-verified-1003-toronto).
-- **Paper recovery and inputs:** A Paper recovery restriction remained after the October 30 Real
-  recovery. A separate Paper-input failure was traced to missing verified holding correspondence in
+- **Paper recovery and inputs:** The Paper recovery restriction retained after the October 30 Real
+  recovery remains at November 2, 14:47 Toronto, with seven Paper/dependent-Research workers blocked.
+  [Current read-only diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
+  A separate Paper-input failure was traced to missing verified holding correspondence in
   the service wiring; repair is planned in issue #24, not established by that diagnosis. The Real
   recovery does not clear Paper restrictions. [Diagnosis](project-status-history-20261101.md#october-30--paper-inputs-cause-confirmed-without-restart-10181020-toronto),
   [roadmap](roadmap.md).
@@ -52,15 +56,17 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   Release desktop was open and responsive as PID 26768 from `artifacts/edge-passkey-20261102/desktop-runtime`;
   selected application hashes and the copied collector-routing file matched their source. The old desktop
   closed gracefully; engine PID 22452 and collector PID 1452 remained running without replacement or restart.
-  Real passkey handoff and subsequent live refresh remain unverified; process continuity does not prove
-  trading or account connectivity. The original installed output remains available.
+  The original installed output remains available. Process continuity alone does not prove trading
+  or account connectivity.
   A follow-on usability correction opens the extension's connection page before Wealthsimple, removing
   the toolbar timing step and dependence on the provider preserving a URL pairing fragment. Extension
   protocol/event/connection-page checks and the Release build passed, with existing compiler warnings.
   At 14:36 Toronto, the refined desktop was open/responding as PID 9432 from
   `artifacts/edge-passkey-20261102/desktop-runtime-v2`, with copied collector routing and unchanged engine
-  PID 22452 / collector PID 1452. Extension source is version 1.0.1; the operator must reload the existing
-  unpacked extension before retrying. This refinement has not yet completed a real handoff.
+  PID 22452 / collector PID 1452. The operator subsequently confirmed successful login through this
+  refined flow; engine connection status independently reported Connected at 14:47 Toronto.
+  This verifies initial passkey handoff/native authentication; subsequent live refresh remains unverified.
+  [Auth summary and separate engine diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
   [ADR-0123](adr/0123-edge-passkey-session-handoff.md),
   [setup and limits](../Tools/Wealthsimple.EdgeBridge/README.md).
 

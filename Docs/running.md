@@ -628,7 +628,10 @@ the enabled extension November 2. The updated Release desktop was opened from
 `artifacts/edge-passkey-20261102/desktop-runtime` under explicit approval, preserving collector routing
 and the running engine/collector. The refined source opens an extension connection page first: select
 **Continue to Wealthsimple**, then choose the saved account under **On this device** in the passkey prompt.
-Reload the extension after updating its local source. A real handoff and subsequent live refresh remain unverified.
+Reload the extension after updating its local source. The operator confirmed this initial handoff November 2,
+corroborated by native engine connection status; subsequent live refresh remains unverified. Connected does
+not establish healthy execution: [the separate engine diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md)
+records the current reconciliation block and retained Paper recovery hold.
 
 On **Trading → Main account**, the **TFSA** page loads the self-directed broker account after sign-in.
 Use **Refresh Wealthsimple** for a new snapshot. Multiple eligible self-directed TFSAs require a choice;

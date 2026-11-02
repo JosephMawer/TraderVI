@@ -104,6 +104,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Operations\nightly-outputs-20261101.json = Operations\nightly-outputs-20261101.json
 		Docs\adr\0122-existing-output-nightly-execution.md = Docs\adr\0122-existing-output-nightly-execution.md
 		Docs\adr\0123-edge-passkey-session-handoff.md = Docs\adr\0123-edge-passkey-session-handoff.md
+		Docs\reviews\wealthsimple-auth-and-engine-diagnosis-20261102.md = Docs\reviews\wealthsimple-auth-and-engine-diagnosis-20261102.md
 		Tools\Wealthsimple.EdgeBridge\README.md = Tools\Wealthsimple.EdgeBridge\README.md
 		readme.md = readme.md
 		TraderVI.txt = TraderVI.txt

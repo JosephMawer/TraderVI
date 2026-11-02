@@ -38,7 +38,9 @@ there is no automatic password/challenge/refresh/order replay.
 If nothing reaches TraderVI, check the extension is installed in the Edge profile selected by the new
 window, registration points to existing adjacent runtime files, the connection page was used, and
 the debugging indicator wasn't dismissed. Unsupported DPoP tokens fail. Never share session captures
-or private signing keys. Other tabs/background renewal may interfere; native login/refresh remain to be qualified.
+or private signing keys. Other tabs/background renewal may interfere. Initial native login was operator-confirmed
+November 2; subsequent live refresh remains to be qualified. See the
+[auth summary and separate engine diagnosis](../../Docs/reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
 
 ## Offline validation and rollback
 

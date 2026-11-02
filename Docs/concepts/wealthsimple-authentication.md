@@ -25,7 +25,9 @@ The operator confirmed native sign-in September 9 under ADR-0071. Authentication
    **Sign in with Edge passkey** with an optional companion extension. It requires separate setup and
    native verification after local handoff. See [setup and limits](../../Tools/Wealthsimple.EdgeBridge/README.md)
    and [ADR-0123](../adr/0123-edge-passkey-session-handoff.md). The helper, operator-loaded extension and
-   updated desktop were installed/opened November 2; real handoff and live refresh remain unverified.
+   updated desktop were installed/opened November 2. The operator confirmed the initial handoff and native
+   connection status corroborated Connected; subsequent live refresh remains unverified. See the
+   [auth summary and separate engine diagnosis](../reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
 
 Saved sessions live in `%LOCALAPPDATA%\TraderVI\Wealthsimple\session.dat`, encrypted by Windows for
 the current user. Do not put credentials in appsettings, SQL, source files or the repository. Browser
