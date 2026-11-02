@@ -15,10 +15,17 @@ connectivity under independent verification and execution controls. The phone wo
 available passkeys; its storage/provider cause is unverified.
 
 The operator selected an Edge companion instead of manual session import. TraderVI opens a dedicated
-regular-Edge window with a random 256-bit pairing value in the URL fragment. The operator clicks the
-extension's **Connect this tab** before logging in. It removes the fragment, observes the normal login,
+regular-Edge window at the extension's own connection page with a random 256-bit pairing value in its
+fragment. **Continue to Wealthsimple** attaches observation before opening the provider's page. Only
+that exact extension page and its paired tab can start this route. It observes the normal login,
 then transfers only a supported successful bearer session. The passkey (a private signing credential)
 stays in its password manager. Its private key and login assertions never cross into TraderVI.
+
+The initial November 2 installation opened the provider page first and required the operator to find
+the toolbar extension before signing in. The operator encountered the passkey chooser first; the
+screenshot's locale URL also lacked the expected pairing fragment. The connection-page refinement
+removes this ordering/redirect dependency without changing extension permissions or broker policy.
+The earlier toolbar route is retained for an explicitly paired legacy tab, not required in the new flow.
 
 Edge's `debugger` permission is powerful and can observe more than login traffic. The implementation
 restricts attachment to the explicitly paired tab and observation to POST/200 user grants at the exact

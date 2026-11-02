@@ -626,8 +626,9 @@ host; [setup, usage and rollback](../Tools/Wealthsimple.EdgeBridge/README.md),
 [ADR-0123](adr/0123-edge-passkey-session-handoff.md). The helper was registered and the operator confirmed
 the enabled extension November 2. The updated Release desktop was opened from
 `artifacts/edge-passkey-20261102/desktop-runtime` under explicit approval, preserving collector routing
-and the running engine/collector. In the new Edge tab, select the extension's **Connect this tab** before
-signing in. A real handoff and subsequent live refresh remain unverified.
+and the running engine/collector. The refined source opens an extension connection page first: select
+**Continue to Wealthsimple**, then choose the saved account under **On this device** in the passkey prompt.
+Reload the extension after updating its local source. A real handoff and subsequent live refresh remain unverified.
 
 On **Trading → Main account**, the **TFSA** page loads the self-directed broker account after sign-in.
 Use **Refresh Wealthsimple** for a new snapshot. Multiple eligible self-directed TFSAs require a choice;

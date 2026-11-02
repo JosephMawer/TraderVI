@@ -1,13 +1,14 @@
 import assert from "assert";
 import { readFileSync } from "fs";
-import { pairingFromUrl, requestMetadata, tokenFields, tokenUrl } from "./protocol.mjs";
+import { pairingFromUrl, pairingFromStartUrl, requestMetadata, tokenFields, tokenUrl } from "./protocol.mjs";
 
 const pairing = "a".repeat(64);
 const events = {};
 const calls = [];
+const startUrl = "chrome-extension://synthetic-extension/start.html";
 const event = key => ({ addListener: callback => { events[key] = callback; } });
 const chrome = {
-  runtime: { id: "synthetic-extension", onMessage: event("message"),
+  runtime: { id: "synthetic-extension", getURL: path => `chrome-extension://synthetic-extension/${path}`, onMessage: event("message"),
     sendNativeMessage: async (host, payload) => { calls.push(["native", host, payload]); return { connected: true }; } },
   debugger: { onDetach: event("detach"), onEvent: event("debug"),
     attach: async source => calls.push(["attach", source.tabId]),
@@ -17,14 +18,14 @@ const chrome = {
       if (command === "Network.getResponseBody") return { body: JSON.stringify({ token_type: "Bearer", access_token: "synthetic-token", account: "private-account" }) };
     } },
   tabs: { onRemoved: event("removed"), onUpdated: event("updated"),
-    get: async id => ({ id, url: `https://my.wealthsimple.com/app/login#tradervi-login=${pairing}` }),
+    get: async id => ({ id, url: id >= 6 ? `${startUrl}#tradervi-login=${pairing}` : `https://my.wealthsimple.com/app/login#tradervi-login=${pairing}` }),
     update: async (id, update) => calls.push(["update", id, update]), remove: async id => calls.push(["close", id]) },
   alarms: { onAlarm: event("alarm"), create: async () => {}, clear: async () => {} },
   action: { setBadgeText: async () => {}, setTitle: async () => {} }
 };
 const code = readFileSync(new URL("./background.mjs", import.meta.url), "utf8").replace(/^import .*;\r?\n/, "");
-new Function("chrome", "pairingFromUrl", "requestMetadata", "tokenFields", "tokenUrl", code)(
-  chrome, pairingFromUrl, requestMetadata, tokenFields, tokenUrl);
+new Function("chrome", "pairingFromUrl", "pairingFromStartUrl", "requestMetadata", "tokenFields", "tokenUrl", code)(
+  chrome, pairingFromUrl, pairingFromStartUrl, requestMetadata, tokenFields, tokenUrl);
 const tick = () => new Promise(resolve => setImmediate(resolve));
 const connect = id => new Promise(resolve => events.message({ action: "connect", tabId: id }, { id: chrome.runtime.id }, resolve));
 const request = (id, tabId = 1, overrides = {}) => events.debug({ tabId }, "Network.requestWillBeSent", {
@@ -64,4 +65,15 @@ await connect(5);
 events.detach({ tabId: 5 });
 request("dismissed", 5); response("dismissed", 200, 5); finished("dismissed", 5); await tick();
 assert.equal(calls.filter(c => c[0] === "native").length, 1);
+const startReply = await new Promise(resolve => events.message({ action: "start", tabId: 6 },
+  { id: chrome.runtime.id, url: `${startUrl}#tradervi-login=${pairing}` }, resolve));
+assert.deepEqual(startReply, { ok: true });
+const indexFor = command => calls.findIndex(c => c[0] === command && c[1] === 6);
+assert.ok(indexFor("attach") < indexFor("Network.enable"));
+assert.ok(indexFor("Network.enable") < indexFor("update"));
+assert.ok(indexFor("Page.enable") < indexFor("update"));
+const rejected = await new Promise(resolve => events.message({ action: "start", tabId: 7 },
+  { id: chrome.runtime.id, url: "https://attacker.invalid/" }, resolve));
+assert.deepEqual(rejected, { ok: false });
+assert.equal(calls.some(c => c[0] === "attach" && c[1] === 7), false);
 console.log("Edge extension event checks passed");

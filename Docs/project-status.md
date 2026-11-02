@@ -54,6 +54,13 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   closed gracefully; engine PID 22452 and collector PID 1452 remained running without replacement or restart.
   Real passkey handoff and subsequent live refresh remain unverified; process continuity does not prove
   trading or account connectivity. The original installed output remains available.
+  A follow-on usability correction opens the extension's connection page before Wealthsimple, removing
+  the toolbar timing step and dependence on the provider preserving a URL pairing fragment. Extension
+  protocol/event/connection-page checks and the Release build passed, with existing compiler warnings.
+  At 14:36 Toronto, the refined desktop was open/responding as PID 9432 from
+  `artifacts/edge-passkey-20261102/desktop-runtime-v2`, with copied collector routing and unchanged engine
+  PID 22452 / collector PID 1452. Extension source is version 1.0.1; the operator must reload the existing
+  unpacked extension before retrying. This refinement has not yet completed a real handoff.
   [ADR-0123](adr/0123-edge-passkey-session-handoff.md),
   [setup and limits](../Tools/Wealthsimple.EdgeBridge/README.md).
 

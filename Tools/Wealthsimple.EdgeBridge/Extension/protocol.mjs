@@ -1,4 +1,8 @@
 export const tokenUrl = "https://api.production.wealthsimple.com/v1/oauth/v2/token";
+export function pairingFromStartUrl(value, startUrl) {
+  if (typeof value !== "string" || !value.startsWith(startUrl + "#")) return null;
+  return /^#tradervi-login=([a-f0-9]{64})$/.exec(value.slice(startUrl.length))?.[1] ?? null;
+}
 export function pairingFromUrl(value) {
   const url = new URL(value);
   if (url.origin !== "https://my.wealthsimple.com" || url.pathname !== "/app/login" || url.search) return null;

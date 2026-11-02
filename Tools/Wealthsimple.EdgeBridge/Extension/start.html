@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connect TraderVI to Wealthsimple</title>
+<style>
+body { margin:0; background:#11151b; color:#f4f7fb; font:18px/1.6 system-ui,sans-serif; }
+main { max-width:640px; margin:10vh auto; padding:32px; }
+h1 { font-size:32px; line-height:1.25; }
+p { color:#ccd7e5; }
+button { font:600 18px system-ui; padding:16px 24px; border:0; border-radius:8px; background:#f4f7fb; color:#11151b; cursor:pointer; }
+button:disabled { opacity:.55; cursor:wait; }
+#status { min-height:2em; }
+</style></head>
+<body><main>
+<h1>Connect TraderVI to Wealthsimple</h1>
+<p>Continue below, then choose your saved passkey under <strong>On this device</strong> in the Wealthsimple sign-in prompt.</p>
+<p>This tab will close after sign-in. Return to TraderVI to check that it shows <strong>Connected</strong>.</p>
+<button id="continue">Continue to Wealthsimple</button>
+<p id="status" role="status">Ready to connect this sign-in to TraderVI.</p>
+<p>Keep Edge’s debugging banner open during sign-in. Your passkey stays in Microsoft Password Manager.</p>
+</main><script src="start.mjs" type="module"></script></body></html>

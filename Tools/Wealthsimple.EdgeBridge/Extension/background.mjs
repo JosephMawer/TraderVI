@@ -1,4 +1,4 @@
-import { pairingFromUrl, requestMetadata, tokenFields, tokenUrl } from "./protocol.mjs";
+import { pairingFromUrl, pairingFromStartUrl, requestMetadata, tokenFields, tokenUrl } from "./protocol.mjs";
 const host = "com.tradervi.wealthsimple_login";
 const logins = new Map(); // In memory only. No cookies, passwords, passkeys or persistent session storage.
 async function stop(tabId, failed = false) {
@@ -11,10 +11,13 @@ async function stop(tabId, failed = false) {
   } catch { }
 }
 chrome.runtime.onMessage.addListener((message, sender, reply) => {
-  if (sender.id !== chrome.runtime.id || message.action !== "connect") return;
+  if (sender.id !== chrome.runtime.id || !["connect", "start"].includes(message.action)) return;
   (async () => {
     const tab = await chrome.tabs.get(message.tabId);
-    const pairing = pairingFromUrl(tab.url);
+    const startUrl = chrome.runtime.getURL("start.html");
+    const pairing = message.action === "start"
+      ? (sender.url === tab.url ? pairingFromStartUrl(tab.url, startUrl) : null)
+      : pairingFromUrl(tab.url);
     if (!pairing || logins.has(tab.id)) throw new Error("Unpaired tab");
     await chrome.debugger.attach({ tabId: tab.id }, "1.3");
     logins.set(tab.id, { pairing, requests: new Map(), finishing: false });
@@ -22,7 +25,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     await chrome.debugger.sendCommand({ tabId: tab.id }, "Network.enable");
     await chrome.debugger.sendCommand({ tabId: tab.id }, "Page.enable");
     await chrome.action.setBadgeText({ tabId: tab.id, text: "ON" });
-    // Remove the pairing fragment before the operator submits the provider's login form.
+    // Observation is ready BEFORE the provider page (and any automatic passkey prompt) opens.
     await chrome.tabs.update(tab.id, { url: "https://my.wealthsimple.com/app/login" });
     return { ok: true };
   })().then(reply).catch(async () => { await stop(message.tabId, true); reply({ ok: false }); });

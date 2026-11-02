@@ -1,9 +1,14 @@
 import assert from "assert";
-import { pairingFromUrl, requestMetadata, tokenFields, tokenUrl } from "./protocol.mjs";
+import { pairingFromUrl, pairingFromStartUrl, requestMetadata, tokenFields, tokenUrl } from "./protocol.mjs";
 import { createHash } from "crypto";
 import { readFileSync } from "fs";
 
 const pairing = "a".repeat(64);
+const startUrl = "chrome-extension://ikocfanmafmhmmidhampgihpjnjpiffd/start.html";
+assert.equal(pairingFromStartUrl(`${startUrl}#tradervi-login=${pairing}`, startUrl), pairing);
+for (const url of [`${startUrl}?extra=1#tradervi-login=${pairing}`, `${startUrl}.evil#tradervi-login=${pairing}`,
+  `https://attacker.invalid/start.html#tradervi-login=${pairing}`, `${startUrl}#tradervi-login=../pipe`])
+  assert.equal(pairingFromStartUrl(url, startUrl), null);
 assert.equal(pairingFromUrl(`https://my.wealthsimple.com/app/login#tradervi-login=${pairing}`), pairing);
 for (const url of ["https://attacker.invalid/app/login", "https://my.wealthsimple.com.evil.invalid/app/login",
   `https://my.wealthsimple.com/app/login?extra=1#tradervi-login=${pairing}`, "https://my.wealthsimple.com/app/login#tradervi-login=../pipe"])

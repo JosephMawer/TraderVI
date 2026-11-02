@@ -103,10 +103,11 @@ public partial class WealthsimpleConnectionWindow : Window
             var edgePath = FindEdge();
             var start = new ProcessStartInfo(edgePath) { UseShellExecute = false };
             start.ArgumentList.Add("--new-window");
-            start.ArgumentList.Add("https://my.wealthsimple.com/app/login#tradervi-login=" + handoff.PairingId);
+            start.ArgumentList.Add("chrome-extension://" + WealthsimpleEdgeBridgeProtocol.ExtensionId +
+                "/start.html#tradervi-login=" + handoff.PairingId);
             using var launched = Process.Start(start);
-            LocalMessage.Text = "In the new Edge tab, click the TraderVI extension, then Connect this tab BEFORE signing in. " +
-                "Use your saved passkey. The tab closes after handoff; TraderVI then verifies the connection. Waiting up to five minutes…";
+            LocalMessage.Text = "In the new Edge window, select Continue to Wealthsimple, then choose your saved passkey under On this device. " +
+                "Keep Edge’s debugging banner open. This tab closes after handoff; TraderVI then verifies the connection. Waiting up to five minutes…";
             var connected = await handoff.ReceiveAsync(async candidate =>
             {
                 await connection.ConnectAsync(candidate, Remember.IsChecked == true, edgeLogin.Token);

@@ -15,16 +15,19 @@ TraderVI for verification. No passkeys are copied, security checks bypassed, ord
 3. In `edge://extensions`, enable **Developer mode**, choose **Load unpacked**, select this tool's
    `Extension` directory, and verify ID `ikocfanmafmhmmidhampgihpjnjpiffd`. Pin its toolbar button.
    Review Edge's debugger permission warning: this is powerful browser access, restricted in this
-   implementation to the dedicated login tab after you explicitly select **Connect this tab**.
+   implementation to the dedicated login tab after you explicitly select **Continue to Wealthsimple**.
+   After updating an already-loaded unpacked extension, select **Reload** on its extension card.
 4. Launch the approved updated desktop only when desktop replacement/restart is authorized. Extension
    installation does not update an already-running desktop. Do not restart the trading engine.
 
 ## Sign in
 
 Close other Wealthsimple Edge tabs first. In TraderVI's connection window choose **Sign in with Edge
-passkey**. In the new Edge window click the TraderVI extension and **Connect this tab** before submitting
-login. Check its **ON** badge, then complete normal saved-passkey login. Keep Edge's debugging indicator
-active. The login tab closes after a supported response; TraderVI verifies the session before Connected.
+passkey**. Edge first opens **Connect TraderVI to Wealthsimple**, a local extension page. Select
+**Continue to Wealthsimple**. The extension connects before opening the provider page, including any
+automatic passkey prompt. In that prompt, select your saved account under **On this device** and complete
+the normal verification. Keep Edge's debugging indicator active. The login tab closes after a supported
+response; TraderVI verifies the session before Connected. You do not need to find the toolbar extension.
 Remembered sessions use existing Windows encryption.
 
 Cancel in TraderVI or wait five minutes to expire an attempt. Closing the connection window also cancels
@@ -33,14 +36,15 @@ does not close Edge: close the dedicated tab when abandoning login. Failures req
 there is no automatic password/challenge/refresh/order replay.
 
 If nothing reaches TraderVI, check the extension is installed in the Edge profile selected by the new
-window, registration points to existing adjacent runtime files, its badge was ON before login, and
+window, registration points to existing adjacent runtime files, the connection page was used, and
 the debugging indicator wasn't dismissed. Unsupported DPoP tokens fail. Never share session captures
 or private signing keys. Other tabs/background renewal may interfere; native login/refresh remain to be qualified.
 
 ## Offline validation and rollback
 
-Run `node Tools/Wealthsimple.EdgeBridge/Extension/protocol.test.mjs` and
-`node Tools/Wealthsimple.EdgeBridge/Extension/background.test.mjs` (synthetic data/mocked browser APIs),
+Run `node Tools/Wealthsimple.EdgeBridge/Extension/protocol.test.mjs`,
+`node Tools/Wealthsimple.EdgeBridge/Extension/background.test.mjs` and
+`node Tools/Wealthsimple.EdgeBridge/Extension/start.test.mjs` (synthetic data/mocked browser APIs),
 focused Core tests including `WealthsimpleEdgeHandoffTests`, and a WPF build. Do not launch trading hosts.
 `Test-NativeHost.ps1 -HostExecutable <built-helper-exe>` also exercises the real helper process using
 synthetic messages, a private local pipe and a verification receipt; it checks clean protocol stdout.
