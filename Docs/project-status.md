@@ -47,9 +47,13 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   pipe/framing/receipt check and a WPF build passed.
   The build retained existing compiler warnings; NuGet security auditing was disabled. The full SQL-containing
   solution was not built. The per-user native helper was registered November 2 against a hash-checked
-  copy in `artifacts/edge-passkey-20261102/native-host`. Browser-extension loading and the updated-desktop
-  launch await confirmation; real passkey handoff and subsequent live refresh remain unverified;
-  the running desktop, engine and collector were not replaced or restarted.
+  copy in `artifacts/edge-passkey-20261102/native-host`. The operator confirmed the enabled extension
+  with the expected ID, then authorized the desktop switch. At 14:29 Toronto on November 2, the updated
+  Release desktop was open and responsive as PID 26768 from `artifacts/edge-passkey-20261102/desktop-runtime`;
+  selected application hashes and the copied collector-routing file matched their source. The old desktop
+  closed gracefully; engine PID 22452 and collector PID 1452 remained running without replacement or restart.
+  Real passkey handoff and subsequent live refresh remain unverified; process continuity does not prove
+  trading or account connectivity. The original installed output remains available.
   [ADR-0123](adr/0123-edge-passkey-session-handoff.md),
   [setup and limits](../Tools/Wealthsimple.EdgeBridge/README.md).
 

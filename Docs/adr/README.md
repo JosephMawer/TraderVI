@@ -41,7 +41,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 
 | # | Title | Status | Domains |
 |---|---|---|---|
-| [0123](0123-edge-passkey-session-handoff.md) | Existing Edge passkeys through a paired session handoff | Accepted; installation and real sign-in pending | architecture |
+| [0123](0123-edge-passkey-session-handoff.md) | Existing Edge passkeys through a paired session handoff | Installed/opened November 2; real sign-in and live refresh pending | architecture |
 | [0122](0122-existing-output-nightly-execution.md) | Reuse existing nightly outputs at 06:30 | Installed; first scheduled execution pending | architecture, data-pipeline |
 | [0121](0121-independent-athena-build.md) | Athena builds independently of Core | Accepted; source/build validated, not installed | architecture, data-pipeline |
 | [0120](0120-independent-hermes-build.md) | Hermes builds independently of Core | Accepted; source/build validated, not installed | architecture, data-pipeline |

@@ -1,6 +1,6 @@
 # ADR-0123: Existing Edge passkeys through a local session handoff
 
-- **Status:** Accepted implementation scope November 2, 2026; installation and real sign-in verification pending.
+- **Status:** Implemented and offline tested; helper registered, extension operator-confirmed and updated desktop opened November 2, 2026. Real sign-in and live refresh verification pending.
 - **Date:** 2026-11-02 (Toronto)
 - **Domains:** architecture
 - **Extends:** [ADR-0071](0071-native-wealthsimple-login.md)'s direct and embedded-browser sign-in.

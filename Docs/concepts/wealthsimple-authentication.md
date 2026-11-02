@@ -24,7 +24,8 @@ The operator confirmed native sign-in September 9 under ADR-0071. Authentication
 6. For existing Microsoft Password Manager passkeys offered only in regular Edge, the source also provides
    **Sign in with Edge passkey** with an optional companion extension. It requires separate setup and
    native verification after local handoff. See [setup and limits](../../Tools/Wealthsimple.EdgeBridge/README.md)
-   and [ADR-0123](../adr/0123-edge-passkey-session-handoff.md). Installation and real sign-in remain unverified.
+   and [ADR-0123](../adr/0123-edge-passkey-session-handoff.md). The helper, operator-loaded extension and
+   updated desktop were installed/opened November 2; real handoff and live refresh remain unverified.
 
 Saved sessions live in `%LOCALAPPDATA%\TraderVI\Wealthsimple\session.dat`, encrypted by Windows for
 the current user. Do not put credentials in appsettings, SQL, source files or the repository. Browser
