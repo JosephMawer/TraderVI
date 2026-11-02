@@ -623,7 +623,8 @@ still needs verification. Green denotes authentication only, not trading readine
 An optional **Sign in with Edge passkey** route is implemented in source for passkeys available in
 regular Edge but absent from WebView2. It requires the reviewed companion extension and per-user native
 host; [setup, usage and rollback](../Tools/Wealthsimple.EdgeBridge/README.md),
-[ADR-0123](adr/0123-edge-passkey-session-handoff.md). Installation and a real sign-in are not yet verified.
+[ADR-0123](adr/0123-edge-passkey-session-handoff.md). The per-user native helper was registered November 2;
+extension loading, the updated-desktop launch and a real sign-in remain pending.
 
 On **Trading → Main account**, the **TFSA** page loads the self-directed broker account after sign-in.
 Use **Refresh Wealthsimple** for a new snapshot. Multiple eligible self-directed TFSAs require a choice;

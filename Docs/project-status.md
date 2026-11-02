@@ -46,7 +46,9 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   Seventy focused authentication/handoff tests, extension protocol/event checks, the real helper's offline
   pipe/framing/receipt check and a WPF build passed.
   The build retained existing compiler warnings; NuGet security auditing was disabled. The full SQL-containing
-  solution was not built. Installation, real passkey handoff and subsequent live refresh remain unverified;
+  solution was not built. The per-user native helper was registered November 2 against a hash-checked
+  copy in `artifacts/edge-passkey-20261102/native-host`. Browser-extension loading and the updated-desktop
+  launch await confirmation; real passkey handoff and subsequent live refresh remain unverified;
   the running desktop, engine and collector were not replaced or restarted.
   [ADR-0123](adr/0123-edge-passkey-session-handoff.md),
   [setup and limits](../Tools/Wealthsimple.EdgeBridge/README.md).
