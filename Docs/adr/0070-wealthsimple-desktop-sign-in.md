@@ -10,6 +10,8 @@ cssclasses: [executive-brief]
 The browser-first interface below is superseded by [ADR-0071](0071-native-wealthsimple-login.md).
 Native email/password and 2FA are now the default; browser verification is conditional. Storage and
 connection-status decisions in this ADR remain applicable.
+The embedded-only fallback is extended by [ADR-0123](0123-edge-passkey-session-handoff.md)
+for an explicit regular-Edge passkey handoff; installation and live verification remain separate.
 
 > [!summary] Decision and consequence
 > The WPF sidebar opens a Wealthsimple connection window. The operator signs in on the provider's own page. TraderVI optionally remembers an encrypted session, never an email/password pair.

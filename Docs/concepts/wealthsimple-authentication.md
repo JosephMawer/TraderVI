@@ -5,7 +5,7 @@
 
 The isolated .NET client verified a user-completed browser session directly with Wealthsimple
 (HTTP 200). WPF now defaults to native email/password sign-in and a verification-code prompt.
-The first direct native login still needs operator verification. Authentication establishes no order authority.
+The operator confirmed native sign-in September 9 under ADR-0071. Authentication establishes no order authority.
 
 ## Desktop sign-in
 
@@ -21,6 +21,10 @@ The first direct native login still needs operator verification. Authentication 
 5. Only an explicit provider browser-security challenge reveals **Continue with browser verification**.
    If required, complete that check normally. The temporary browser closes after session handoff.
    Account data and future orders use the native HTTP client, not an open browser dashboard.
+6. For existing Microsoft Password Manager passkeys offered only in regular Edge, the source also provides
+   **Sign in with Edge passkey** with an optional companion extension. It requires separate setup and
+   native verification after local handoff. See [setup and limits](../../Tools/Wealthsimple.EdgeBridge/README.md)
+   and [ADR-0123](../adr/0123-edge-passkey-session-handoff.md). Installation and real sign-in remain unverified.
 
 Saved sessions live in `%LOCALAPPDATA%\TraderVI\Wealthsimple\session.dat`, encrypted by Windows for
 the current user. Do not put credentials in appsettings, SQL, source files or the repository. Browser
@@ -33,7 +37,8 @@ timestamp explains the evidence behind green; connectivity cannot be inferred co
 checks. A ten-second UI timer retires stale state after workstation sleep. Only one desktop process
 owns saved-session renewal. Network/rotation uncertainty ends local connectivity and asks for a new
 sign-in, without repeated refresh attempts. Password/passkey challenges and DPoP handoff compatibility
-still need live checks. No trade or account API is wired to this screen.
+still need live checks. Authentication alone grants no order authority; account display and execution
+have separate contracts and controls.
 
 The operator's first browser login exposed a handoff bug: WebView2's COM stream throws on stream
 operations assumed by the JSON parser and on nonzero byte-array read offsets. A bounded adapter now

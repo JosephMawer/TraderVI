@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-Last reconciled **November 1, 2026**. This page records the latest dated evidence and its limits;
+Last reconciled **November 2, 2026**. This page records the latest dated evidence and its limits;
 it is not a live health check or authority to trade. [Roadmap](roadmap.md) owns priority;
 [execution checklist](strategy-alignment-implementation-checklist.md) and
 [Live checklist](delphi-live-implementation-checklist.md) own remaining acceptance work.
@@ -38,6 +38,18 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   [configuration and evidence](project-status-history-20261101.md#november-1--nightly-reuses-existing-outputs-at-0630).
 
 ## Evidence and development
+
+- **Edge passkey sign-in:** On November 2, the operator's desktop Edge offered its Microsoft Password
+  Manager passkey while TraderVI's embedded browser did not; the attempted phone route also reported
+  no available passkeys. An operator-selected companion-extension route is implemented in source,
+  handing a completed regular-Edge session to existing native verification through a paired local pipe.
+  Seventy focused authentication/handoff tests, extension protocol/event checks, the real helper's offline
+  pipe/framing/receipt check and a WPF build passed.
+  The build retained existing compiler warnings; NuGet security auditing was disabled. The full SQL-containing
+  solution was not built. Installation, real passkey handoff and subsequent live refresh remain unverified;
+  the running desktop, engine and collector were not replaced or restarted.
+  [ADR-0123](adr/0123-edge-passkey-session-handoff.md),
+  [setup and limits](../Tools/Wealthsimple.EdgeBridge/README.md).
 
 - **Prediction scorecards:** On November 1, 9,281 of 9,284 candidates already due had usable ten-session
   labels; 2,506 candidates on the newest ten dates were still pending. The accepted calculation includes

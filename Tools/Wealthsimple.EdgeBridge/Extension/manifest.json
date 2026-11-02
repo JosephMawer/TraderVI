@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "TraderVI Wealthsimple sign-in",
+  "version": "1.0.0",
+  "description": "Hand an explicitly started Wealthsimple login back to TraderVI.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8/1ejZHDKDYHUuWmF6fDfu26t5tG0+C1F/krUCm8Wkm+E0SBqkVrmTL2vEj4Od2wXvpKGzrSLS6OIiZlktlcV378Qr4I/8balIQ6TrLEa4fn8Wl1NkGUBJa8QBtftziDC8H2G4roQZIzqcin8iYeH7PAbmsCwDm3TNDjRptgFvSTU3JpiWjBRDLwjW0Lij2SAyv5TNMcE4eKMRihuAiwDkOwe+eXt1F/a0m404fGct+s21sPbpaUv2FSloLa5BYvBu6r9O0yNGwoJVeeU0caiv9AtT87LpqBos/xJhtdfzFTlwdxkGTc8utsLWcQH1teyGyY37CWzbQJScTB+DKC0QIDAQAB",
+  "permissions": ["activeTab", "debugger", "nativeMessaging", "alarms"],
+  "action": { "default_title": "Connect this Wealthsimple login to TraderVI", "default_popup": "popup.html" },
+  "background": { "service_worker": "background.mjs", "type": "module" }
+}

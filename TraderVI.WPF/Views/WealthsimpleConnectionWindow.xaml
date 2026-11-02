@@ -64,6 +64,8 @@
             </CheckBox.Template>
         </CheckBox>
         <WrapPanel>
+            <Button x:Name="EdgeButton" Content="Sign in with Edge passkey" Style="{StaticResource WorkspaceButton}" Click="Edge_Click" Margin="0,0,8,8"/>
+            <Button x:Name="CancelEdgeButton" Content="Cancel Edge sign-in" Visibility="Collapsed" Style="{StaticResource WorkspaceButton}" Click="CancelEdge_Click" Margin="0,0,8,8"/>
             <Button x:Name="SignInButton" Content="Sign in" IsDefault="True" Style="{StaticResource WorkspaceButton}" Click="SignIn_Click" Margin="0,0,8,8"/>
             <Button x:Name="SubmitOtpButton" Content="Verify code" Visibility="Collapsed" Style="{StaticResource WorkspaceButton}" Click="SubmitOtp_Click" Margin="0,0,8,8"/>
             <Button x:Name="BrowserButton" Content="Continue with browser verification" Visibility="Collapsed" Style="{StaticResource WorkspaceButton}" Click="Browser_Click" Margin="0,0,8,8"/>

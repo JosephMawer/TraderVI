@@ -2,6 +2,8 @@ using Core.WSTrade.Authentication;
 #nullable enable
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using TraderVI.WPF.Viewmodels;
@@ -13,6 +15,7 @@ public partial class WealthsimpleConnectionWindow : Window
     private readonly IWealthsimpleConnection connection;
     private readonly CancellationTokenSource closed = new();
     private bool signingIn;
+    private CancellationTokenSource? edgeLogin;
     public WealthsimpleConnectionWindow(IWealthsimpleConnection connection)
     {
         InitializeComponent(); this.connection = connection; DataContext = connection;
@@ -32,6 +35,9 @@ public partial class WealthsimpleConnectionWindow : Window
     private void UpdateControls()
     {
         var enabled = !connection.IsBusy && !signingIn;
+        EdgeButton.IsEnabled = enabled;
+        EdgeButton.Visibility = !connection.IsConnected && edgeLogin == null ? Visibility.Visible : Visibility.Collapsed;
+        CancelEdgeButton.Visibility = edgeLogin != null ? Visibility.Visible : Visibility.Collapsed;
         SignInButton.IsEnabled = SubmitOtpButton.IsEnabled = BrowserButton.IsEnabled = CheckButton.IsEnabled = DisconnectButton.IsEnabled = Remember.IsEnabled = enabled;
         CredentialsPanel.IsEnabled = OtpPanel.IsEnabled = enabled;
         CredentialsPanel.Visibility = SignInButton.Visibility = !connection.IsConnected && !connection.AwaitingOtp ? Visibility.Visible : Visibility.Collapsed;
@@ -85,6 +91,44 @@ public partial class WealthsimpleConnectionWindow : Window
         catch (OperationCanceledException) { }
         catch { LocalMessage.Text = "Sign-in could not finish. Please try again."; }
         finally { signingIn = false; UpdateControls(); }
+    }
+    private async void Edge_Click(object sender, RoutedEventArgs e)
+    {
+        edgeLogin = CancellationTokenSource.CreateLinkedTokenSource(closed.Token);
+        signingIn = true; Password.Clear(); Otp.Clear(); UpdateControls();
+        try
+        {
+            await connection.CancelSignInAsync();
+            using var handoff = new WealthsimpleEdgeHandoff();
+            var edgePath = FindEdge();
+            var start = new ProcessStartInfo(edgePath) { UseShellExecute = false };
+            start.ArgumentList.Add("--new-window");
+            start.ArgumentList.Add("https://my.wealthsimple.com/app/login#tradervi-login=" + handoff.PairingId);
+            using var launched = Process.Start(start);
+            LocalMessage.Text = "In the new Edge tab, click the TraderVI extension, then Connect this tab BEFORE signing in. " +
+                "Use your saved passkey. The tab closes after handoff; TraderVI then verifies the connection. Waiting up to five minutes…";
+            var connected = await handoff.ReceiveAsync(async candidate =>
+            {
+                await connection.ConnectAsync(candidate, Remember.IsChecked == true, edgeLogin.Token);
+                return connection.IsConnected;
+            }, edgeLogin.Token);
+            LocalMessage.Text = connected ? "" : "Edge sign-in was received, but the connection could not be verified. See the connection status above.";
+            if (connected) Email.Clear();
+        }
+        catch (OperationCanceledException) { LocalMessage.Text = "Edge sign-in cancelled or timed out. You can start again."; }
+        catch (FileNotFoundException) { LocalMessage.Text = "Microsoft Edge could not be found. Install Edge, then try again."; }
+        catch { LocalMessage.Text = "Edge sign-in could not finish. Check the TraderVI extension and native host setup, then start again."; }
+        finally { edgeLogin.Dispose(); edgeLogin = null; signingIn = false; UpdateControls(); }
+    }
+    private void CancelEdge_Click(object sender, RoutedEventArgs e) => edgeLogin?.Cancel();
+    private static string FindEdge()
+    {
+        foreach (var folder in new[] { Environment.SpecialFolder.ProgramFilesX86, Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.LocalApplicationData })
+        {
+            var path = Path.Combine(Environment.GetFolderPath(folder), "Microsoft", "Edge", "Application", "msedge.exe");
+            if (File.Exists(path)) return path;
+        }
+        throw new FileNotFoundException();
     }
     private async void Check_Click(object sender, RoutedEventArgs e)
     { try { await connection.CheckAsync(true, closed.Token); } catch (OperationCanceledException) { } catch { ShowCommandFailure(); } }

@@ -8,6 +8,9 @@ cssclasses: [executive-brief]
 - **Domains:** architecture
 - **Supersedes:** ADR-0070's browser-first sign-in interface; protected storage and verified status remain.
 
+[ADR-0123](0123-edge-passkey-session-handoff.md) adds a regular-Edge companion for existing
+Microsoft Password Manager passkeys, preserving the direct and embedded-browser routes.
+
 > [!summary] Decision and consequence
 > TraderVI submits email/password directly and prompts for a verification code when required. The provider's browser login is a conditional fallback for an explicit browser security challenge, not the default interface or a background data transport.
 

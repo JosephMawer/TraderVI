@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0123](0123-edge-passkey-session-handoff.md) — Explicit Edge passkey login with paired local session handoff
+
 - [ADR-0122](0122-existing-output-nightly-execution.md) — Reuse pinned existing outputs at 06:30; no nightly build or copy
 
 - [ADR-0121](0121-independent-athena-build.md) — Athena owns evaluation/writes; shares labels, reports and policies with actual Core/WPF consumers
