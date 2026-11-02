@@ -13,7 +13,8 @@ internal static class CompactManagedPublication
 {
     // The existing strategy, dashboard and risk record still consume the managed session during
     // the swap. Publish changes in its transaction. Never reapply an older snapshot over a fill.
-    internal static TradingStateWrite Prepare(BrokerManagedSession prior, BrokerManagedSession next, TradingCurrentState book)
+    internal static TradingStateWrite Prepare(BrokerManagedSession prior, BrokerManagedSession next, TradingCurrentState book,
+        TradingOrder? settledSale = null)
     {
         if (next.PreviousRevisionId != prior.RevisionId || next.BindingId != book.Account.BindingId ||
             next.SessionId != book.Account.AssignmentId || next.EffectiveReview.RequestId != book.Account.PermissionId ||
@@ -27,7 +28,7 @@ internal static class CompactManagedPublication
         var previousOrders = prior.Orders.ToDictionary(o => o.RequestId);
         foreach (var order in next.Orders.Where(o => !previousOrders.TryGetValue(o.RequestId, out var old) || old != o))
         {
-            var existing = book.Orders.SingleOrDefault(o => o.RequestId == order.RequestId);
+            var existing = settledSale?.RequestId == order.RequestId ? settledSale : book.Orders.SingleOrDefault(o => o.RequestId == order.RequestId);
             if (existing == null && previousOrders.TryGetValue(order.RequestId, out var old) && old.Reconciled)
                 continue; // Already settled before this transfer, including FILLED to POSTED.
             var receipt = existing ?? new TradingOrder { BindingId = next.BindingId, RequestId = order.RequestId,
@@ -66,6 +67,15 @@ internal static class CompactManagedPublication
                 throw new InvalidDataException("A newer broker fill must be reconciled before changing these shares.");
             if (updated != null) positions.Add(updated with { ReservedSellQuantity = reservation?.ReservedQuantity ?? actual?.ReservedSellQuantity ?? 0 });
             else if (actual != null) positions.Add(actual with { Quantity = 0, CostBasis = 0, IsOpen = false, ReservedSellQuantity = 0 });
+        }
+        if (settledSale != null)
+        {
+            // Recovery already committed the order, position, allowance and original symbol exit memory.
+            // This revision can advance their common checkpoint only if publication agrees exactly.
+            if (positions.Count != 0 || orders.Count != 1 || !TradingStorageValidation.Same(settledSale, orders[0]))
+                throw new InvalidDataException("The managed sale would change an already applied compact fill.");
+            return new(next.RevisionId, "PublishManagedRevision", next.SavedAt.UtcDateTime, book.Account.Version, book.Account)
+                { AdvanceCheckpoint = true };
         }
         var previousSymbols = CompactDelphiAssignment.CurrentSymbols(prior).ToDictionary(s => s.Symbol);
         var symbols = CompactDelphiAssignment.CurrentSymbols(next).ToDictionary(s => s.Symbol);

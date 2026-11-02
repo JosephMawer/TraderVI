@@ -60,7 +60,11 @@ public sealed partial class WealthsimpleAuthClient
                 throw new ReadFailure(WealthsimpleReadStatus.AccountUnavailable, "sell identity");
             var quantity = snapshot.Data.Holdings.SingleOrDefault(h => h.SecurityId == intent.SecurityId)?.Quantity ?? 0;
             if (quantity < 0) throw Invalid();
-            return Task.FromResult(new ManualSellInventory(quantity, pending.Data.Orders.Count != 0, snapshot.Data.RetrievedAt));
+            return Task.FromResult(new ManualSellInventory(quantity, pending.Data.Orders.Count != 0, snapshot.Data.RetrievedAt)
+            {
+                HasPendingOnSecurity = pending.Data.Orders.Any(o => string.IsNullOrWhiteSpace(o.SecurityId) ||
+                    o.SecurityId == intent.SecurityId)
+            });
         }, ct);
     }
 }

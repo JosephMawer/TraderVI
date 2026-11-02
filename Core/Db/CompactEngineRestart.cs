@@ -135,8 +135,27 @@ internal sealed class CompactEngineRestart(TradingCurrentStore store, ManualBuyF
             bool OwnsSale(TradingOrder sale) => lease.Current!.Orders.Any(o => o.RequestId == sale.RequestId && o.Side == "SELL" &&
                 o.DecisionId == sale.DecisionId && o.PositionId == sale.PositionId && o.Quantity == sale.Quantity &&
                 o.SecurityId == sale.SecurityId && o.Symbol == sale.Symbol);
-            Task<AccountRestartResult> Recover() => initial.Assignment.RecoverWithBrokerAsync(committing, journal, grants,
-                build, broker, account, sender, RecordIntent, OwnsSale, Open, clock, ct);
+            var sellChecks = new ManualMarketSellWorkflow(broker, journal, clock, orderGate);
+            async Task<AccountRestartResult> Recover()
+            {
+                var login = broker.SessionRevision;
+                var recovered = await initial.Assignment.RecoverWithBrokerAsync(committing, journal, grants,
+                    build, broker, account, sender, RecordIntent, OwnsSale, Open, clock, ct);
+                void RequireCurrentAssignment()
+                {
+                    if (!broker.IsConnected || broker.SessionRevision != login)
+                        throw new InvalidOperationException("The connection changed during original sell reconciliation.");
+                    initial.Assignment.RequireAssignment(recovered.Current, grants.Read(), build, clock.GetUtcNow(), allowReadRecovery: true);
+                }
+                async Task<BrokerOrderFact?> ReadOriginal(TradingOrder order, CancellationToken token)
+                {
+                    var read = await broker.ReadOriginalOrderAsync(account, initial.Assignment.Identity, order, token);
+                    return read.Status == WealthsimpleReadStatus.Success ? read.Data : null;
+                }
+                await CompactManagedSaleHandoff.ReconcileAsync(lease, recovered, committing, journal.FindSell, ReadOriginal, sellChecks,
+                    initial.Assignment.Identity, account.Id, RequireCurrentAssignment, clock, ct);
+                return recovered;
+            }
             var result = await Recover();
             if (!result.Current.Orders.IsEmpty || !result.Notices.IsEmpty || !result.Current.Restrictions.IsEmpty)
             {

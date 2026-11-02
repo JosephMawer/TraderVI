@@ -78,13 +78,30 @@ public sealed class ManualMarketSellWorkflow(IManualSellBroker broker, IManualSe
         finally { gate.Release(); }
     }
 
-    public async Task<ManualSellResult> CheckOrderAsync(Guid requestId, CancellationToken ct = default)
+    public Task<ManualSellResult> CheckOrderAsync(Guid requestId, CancellationToken ct = default) =>
+        CheckOrderAsync(requestId, null, null, ct);
+
+    internal Task<ManualSellResult> CheckClosedSaleAsync(ManualSellIntent intent, BrokerOrderFact fact, CancellationToken ct) =>
+        CheckOrderAsync(intent.RequestId, intent, fact, ct);
+
+    private async Task<ManualSellResult> CheckOrderAsync(Guid requestId, ManualSellIntent? closedSale, BrokerOrderFact? fact,
+        CancellationToken ct)
     {
         await gate.WaitAsync(ct);
         try
         {
-            var saved = journal.ReadSells().Single(o => o.Intent.RequestId == requestId);
+            var saved = closedSale == null ? journal.ReadSells().Single(o => o.Intent.RequestId == requestId)
+                : journal.FindSell(requestId) ?? throw new InvalidOperationException("Missing original sell journal.");
+            if (closedSale != null && (saved.Intent != closedSale || saved.ConflictingObservation))
+                throw new InvalidOperationException("The original sell journal conflicts with compact recovery.");
             var read = await broker.ReadManualSellOrderAsync(saved.Intent, ct);
+            if (fact != null && (read.Status != WealthsimpleReadStatus.Success || read.Data is not { IsFilled: true } fill ||
+                fill.SubmittedQuantity != saved.Intent.Quantity || fill.FilledQuantity != fact.FilledQuantity ||
+                fill.CreatedAt != fact.CreatedAt || fill.LastFilledAt != fact.LastFilledAt ||
+                fill.FilledValue?.Amount != fact.GrossValue || fill.FilledNetValue?.Amount != fact.NetValue ||
+                fill.Fees?.Amount != fact.Fees || fill.TaxWithholding?.Amount != fact.Tax ||
+                !(fill.Status == fact.Status || fact.Status == "FILLED" && fill.Status == "POSTED")))
+                throw new InvalidOperationException("The original broker sell does not confirm the applied compact fill.");
             if (read.Status != WealthsimpleReadStatus.Success || read.Data == null)
                 return new(saved, "The sell result could not be verified. Keep the saved order and check again; do not send a replacement.");
             var observation = read.Data; var previous = saved.Latest;
@@ -104,13 +121,16 @@ public sealed class ManualMarketSellWorkflow(IManualSellBroker broker, IManualSe
             saved = saved with { Observations = observations, LastCheckedAt = clock.GetUtcNow(),
                 ConflictingObservation = saved.ConflictingObservation || conflict };
             journal.SaveSell(saved); // Preserve broker fill facts even if the following inventory read fails.
-            if (!saved.ConflictingObservation && saved.HasTerminalBrokerResult && saved.InventoryVerifiedAt == null)
+            if (!saved.ConflictingObservation && saved.HasTerminalBrokerResult && (saved.InventoryVerifiedAt == null || closedSale != null))
             {
                 var inventory = await broker.ReadManualSellInventoryAsync(saved.Intent, ct);
-                if (inventory.Status == WealthsimpleReadStatus.Success && inventory.Data is { } state && !state.HasPendingOrders &&
+                if (inventory.Status == WealthsimpleReadStatus.Success && inventory.Data is { } state &&
+                    (!state.HasPendingOrders || closedSale != null && state.HasPendingOnSecurity == false) &&
                     state.Quantity == saved.Intent.Quantity - observation.FilledQuantity && state.RetrievedAt >= observation.RetrievedAt &&
                     state.RetrievedAt <= clock.GetUtcNow() && clock.GetUtcNow() - state.RetrievedAt <= ManualBuyChecks.ReviewLifetime)
                     saved = saved with { InventoryVerifiedAt = state.RetrievedAt };
+                else if (closedSale != null)
+                    throw new InvalidOperationException("The original sell's remaining broker inventory is unverified.");
             }
             journal.SaveSell(saved);
             return new(saved, saved.ConflictingObservation ? "Broker results conflict. Review this sell at Wealthsimple before another order."

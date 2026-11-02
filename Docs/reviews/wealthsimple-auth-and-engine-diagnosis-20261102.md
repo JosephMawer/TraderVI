@@ -187,7 +187,7 @@ original order against the fixture's reconciled account advances the checkpoint 
 position change. Replay preserves the terminal receipt, other holding's protection, risk references
 and purchase allowance. A separate UI test shows the blocked refresh and restoration of the same
 assignment after a successful linked refresh. The aligned input in the first test is supplied by the
-fixture. A production catch-up path still needs implementation.
+fixture. The implementation and retry tests for the handoff are recorded below.
 [Sell handoff test](../../TraderVI.Core.Tests/BrokerManagedSessionTests.SettledSaleHandoff.cs),
 [dashboard test](../../TraderVI.Core.Tests/WealthsimpleAccountTests.Polling.cs).
 
@@ -221,3 +221,55 @@ journal join, retry stages and exit-owner comparison were matched to their submi
 values (`1085128F…`, `4489BE61…`, `DD3AC6E9…`, `58C80DB9…`). The protected-file comparison
 checked the selected slot version, managed revision and installed Core build as well as the original
 journal envelope. These cross-store observations have distinct capture times.
+
+## Offline implementation and retry results
+
+The #19 change now runs after each compact recovery pass, including a repeated pass following a new
+protective decision. Before managed protection or ordinary evaluation, it finds any original managed
+sell whose holding is still present in the managed account and already closed in compact storage.
+It checks the durable position and terminal receipt, the original broker order, the local sell
+envelope and remaining inventory. A different security's pending order can retain its reservation.
+Unknown pending scope or pending work on the sold security prevents verification.
+[Engine handoff](../../Core/Db/CompactEngineRestart.cs),
+[original sell reconciliation](../../Core/Trader/Storage/CompactManagedSaleHandoff.cs).
+
+The journal saves the verified fill and then its inventory check. The managed account lease stays
+held through the managed append, with the login and original assignment rechecked before commit.
+The new revision replaces that request's cumulative fill, removes the sold position from protection
+inputs and retains the previous whole-account import and risk evidence. The compact writer looks up
+the completed receipt even though it has left the active orders. It advances the shared checkpoint
+only if the proposed revision leaves the compact financial rows intact. The first subsequent full
+import must agree with the direct fill. A different activity listing requires verified instrument
+correspondence and identical financial facts. [Writer](../../Core/Db/CompactManagedWriter.cs),
+[publication checks](../../Core/Trader/Storage/CompactManagedPublication.cs).
+
+| Offline interruption or retry | Observed result |
+|---|---|
+| Before saving the journal fill | The acknowledged intent survived. Retry verified the same original request. |
+| After saving the fill, before inventory verification | Reopening the encrypted test journal recovered one observation. Retry completed inventory verification. |
+| After journal verification, during the managed transaction | Compact and managed state kept their prior committed revisions. Retry completed the handoff. |
+| After sealing the alternate checkpoint, before database commit | The committed version still selected the previous matching seal. Retry safely replaced the unused seal. |
+| After commit with the reply lost | Reload found the reconciled managed revision and its matching compact seal. Two more polls performed no further handoff writes. |
+| Wrong original ID or decision, missing broker response, disagreeing proceeds or fee, same-security or unknown pending orders, nonzero inventory, or revocation before managed commit | Managed settlement stayed pending. Once the fixture restored matching evidence and permission, the original request reconciled. |
+
+Each retry fixture included another holding with its own protection and an unrelated pending buy.
+The tests observed a single cumulative sale fill on the original cycle, the same terminal compact
+receipt, preserved allowance and risk references, and zero broker submissions. Managed protection
+completed against the remaining holding. A subsequent ordinary import in a paused fixture accepted
+the posted sell and retained a single fill. Tests used the file journal and protected alternating
+checkpoint files with synthetic keys, fake broker reads and an in-memory transactional database.
+[Regression cases](../../TraderVI.Core.Tests/BrokerManagedSessionTests.SettledSaleHandoff.cs).
+
+The 18 focused checks passed. These included 15 original-sale handoff cases, the earlier guard
+reproduction and two broker-context cases. The full Core suite passed 3,578 with 16 skipped and
+zero failures. The isolated Release engine build succeeded with
+255 existing compiler warnings (CS0162, CS0168 and CS8632). Validation reused restored dependencies
+and did not refresh dependency-security advisories or build the full solution with SSDT.
+
+**Release dependency.** The engine checks the exact approved build on each trading cycle. The
+ordinary ongoing build review requires existing managed orders to have reconciled full fills. At the
+last observed live head that prerequisite failed. Before installation, a separately reviewed
+single-owner reconciliation procedure must establish the original sale's settled state without
+submission authority. The current engine and collector continued running throughout implementation.
+No live database or broker request, deployment, hold clearance or permission change was performed
+for these tests. [Build review guard](../../Core/Trader/Promotion/BrokerImplementationReviewWorkflow.cs).

@@ -45,7 +45,16 @@ internal static class CompactManagedWriter
         var sealedBook = CompactDelphiCheckpoint.Read(CompactAccountPreparation.Slot(directory, current.Account.Version), protector);
         if (sealedBook.ManagedRevision != prior.RevisionId || !sealedBook.Matches(next.BindingId, database, current))
             throw new InvalidDataException("The strategy and compact account do not share their last committed revision.");
-        var write = CompactManagedPublication.Prepare(prior, next, current);
+        TradingOrder? settledSale = null;
+        if (next.Event == CompactManagedSaleHandoff.Event)
+        {
+            var original = prior.Orders.Zip(next.Orders).Single(pair => !pair.First.Reconciled && pair.Second.Reconciled).First;
+            settledSale = await store.ReadOrderAsync(next.BindingId, original.RequestId, ct);
+            if (settledSale is not { Side: "SELL", Status: "Filled", NeedsWork: false } ||
+                settledSale.PermissionId != current.Settings.PermissionId || current.Positions.Any(p => p.PositionId == original.PositionId))
+                throw new InvalidDataException("The terminal sell and closed position must precede the managed handoff.");
+        }
+        var write = CompactManagedPublication.Prepare(prior, next, current, settledSale);
         var committing = store.WithCheckpointWriter(updated =>
         {
             if (next.Orders.All(o => o.Reconciled) &&

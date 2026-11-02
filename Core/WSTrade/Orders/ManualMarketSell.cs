@@ -81,11 +81,14 @@ public sealed record ManualSellRecord(ManualSellIntent Intent, WealthsimpleSubmi
 
 public sealed record ManualSellInventory(decimal Quantity, bool HasPendingOrders, DateTimeOffset RetrievedAt)
 {
+    // Only the native inventory reader can distinguish unrelated pending orders from unknown scope.
+    public bool? HasPendingOnSecurity { get; init; }
     public override string ToString() => "Manual-sell inventory (financial data omitted)";
 }
 public interface IManualSellJournal : IManualBuyJournal
 {
     IReadOnlyList<ManualSellRecord> ReadSells();
+    ManualSellRecord? FindSell(Guid requestId) => ReadSells().SingleOrDefault(o => o.Intent.RequestId == requestId);
     void SaveSell(ManualSellRecord record);
     bool IManualBuyJournal.HasUnresolvedOrders() => ReadAll().Any(o => !o.IsResolved) || ReadSells().Any(o => !o.IsResolved);
 }

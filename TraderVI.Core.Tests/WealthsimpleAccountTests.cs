@@ -47,6 +47,14 @@ public partial class WealthsimpleAccountTests(Xunit.Abstractions.ITestOutputHelp
             var inventory = await connection.ReadManualSellInventoryAsync(intent,default);
             Assert.Equal(WealthsimpleReadStatus.Success,inventory.Status); Assert.Equal(1.234567m,inventory.Data.Quantity);
             Assert.False(inventory.Data.HasPendingOrders);
+            Assert.False(inventory.Data.HasPendingOnSecurity);
+            f.Override = (op, _) => op == "TraderVITfsaPendingOrders" ? Json(OrderPage([OrderNode("pending")])) : null;
+            var same = await connection.ReadManualSellInventoryAsync(intent, default);
+            Assert.True(same.Data.HasPendingOrders);
+            Assert.True(same.Data.HasPendingOnSecurity);
+            var other = await connection.ReadManualSellInventoryAsync(intent with { SecurityId = "other-security" }, default);
+            Assert.True(other.Data.HasPendingOrders);
+            Assert.False(other.Data.HasPendingOnSecurity);
             Assert.Equal(WealthsimpleReadStatus.AccountUnavailable,(await connection.ReadManualSellInventoryAsync(intent with { IdentityId="wrong" },default)).Status);
         }
         else

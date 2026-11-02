@@ -11,7 +11,7 @@ namespace Core.WSTrade.Orders;
 public sealed partial class ManualBuyFileJournal
 {
     internal ManualBuyRecord? FindBuy(Guid request) => FindReceipt(request, ".order", Read);
-    internal ManualSellRecord? FindSell(Guid request) => FindReceipt(request, ".sell", ReadSell);
+    public ManualSellRecord? FindSell(Guid request) => FindReceipt(request, ".sell", ReadSell);
 
     private T? FindReceipt<T>(Guid request, string extension, Func<string, T> read) where T : class
     {

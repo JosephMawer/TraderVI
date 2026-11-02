@@ -134,7 +134,9 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             var fact = account.Import.Plan.Observation.Orders.SingleOrDefault(o => o.ExternalId == old.ExternalId);
             if (fact is null || fact.SecurityId != old.SecurityId || fact.Side != old.Side || fact.SubmittedQuantity != old.Quantity ||
                 fact.FilledQuantity < 0 || fact.FilledQuantity > old.Quantity ||
-                old.Latest is { } prior && (fact.FilledQuantity < prior.FilledQuantity || prior.IsTerminal && !fact.IsSameOrPostedSuccessor(prior)))
+                old.Latest is { } prior && (fact.FilledQuantity < prior.FilledQuantity || prior.IsTerminal &&
+                    !fact.IsSameOrPostedSuccessor(prior) && !Storage.CompactManagedSaleHandoff.MatchesFirstImport(
+                        state, old, fact, account.Import.Plan.Observation)))
                 return await Save(lease, state with { TrialOrderReviewRequired = state.TrialOrderReviewRequired || fullFillTrial,
                     Phase = paused ? BrokerManagedPhase.Paused : BrokerManagedPhase.NeedsAttention,
                     Blocks = ["An original order is missing or conflicts with saved facts. No replacement order is permitted."] }, "OrderRecoveryBlocked", ct);

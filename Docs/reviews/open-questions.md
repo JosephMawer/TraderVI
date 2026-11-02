@@ -7,6 +7,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### Bounded ordinary engine recovery — October 30, 2026
 
+**November 2 release dependency.** How should an operator reconcile an already compact-settled sale
+when the installed build cannot advance the managed revision and the replacement build requires that
+revision to be settled before approval? Review a single-owner, original-request-only maintenance
+procedure with broker submission unavailable, exact prior permission and checkpoint verification,
+and an interruption rehearsal. The normal exact-build and settled-order checks remain in force.
+[Issue #19 repair and evidence](wealthsimple-auth-and-engine-diagnosis-20261102.md#offline-implementation-and-retry-results).
+
 The [investigation and proposed contract](restart-recovery-design-20261030.md) recommends compact
 transaction-maintained Real state, a bounded local/SQL operation witness, original-order broker
 reconciliation and scoped capabilities, with historical auditing separate. Accept or revise this

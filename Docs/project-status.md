@@ -13,7 +13,8 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   closed on a verified sell. The closed-position guard rejected the write on two observed retries.
   The local journal still has only the original acknowledgement, which blocks linked-account refresh
   and strategy display. The managed assignment remains saved. The fault is reproduced offline.
-  Repair and verification of automatic protection are pending.
+  The [repair passed offline retry tests](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#offline-implementation-and-retry-results).
+  Release, recovery of the live assignment and operational verification of automatic protection are pending.
   [Current diagnosis and evidence](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#follow-up-through-1512-toronto--closed-position-guard-confirmed),
   [November 1 installation](project-status-history-20261101.md#november-1--compact-restart-active-for-delphi-live).
 - **Protection gap:** On October 30, a managed holding's broker bid reads failed repeatedly, so its

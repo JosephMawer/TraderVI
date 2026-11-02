@@ -53,6 +53,18 @@ public sealed class TradingCurrentStore
         return row;
     }
 
+    internal async Task<TradingPositionCurrent> ReadClosedPositionAsync(Guid bindingId, Guid positionId, CancellationToken ct)
+    {
+        await using var tx = await database.BeginAsync(bindingId, false, ct);
+        var position = await tx.FindAsync<TradingPositionCurrent>(positionId, ct);
+        if (position is not { IsOpen: false, Quantity: 0, CostBasis: 0, ReservedSellQuantity: 0 } ||
+            position.BindingId != bindingId || position.PositionId != positionId)
+            throw new InvalidOperationException("The original compact position has no verified closure.");
+        TradingStorageValidation.Validate(position);
+        await tx.CommitAsync(ct);
+        return position;
+    }
+
     // Keep the account read lock until its journal projection is published, so a slower pass
     // cannot replace the newer writer's position set with an older one.
     public async Task<TradingCurrentState?> ReadAsync(Guid bindingId, CancellationToken ct = default)

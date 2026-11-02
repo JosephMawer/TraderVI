@@ -290,6 +290,23 @@ The November 1 read-only comparison verified broker support and agreement for th
 account. The trading engine still uses individual reads. See the
 [execution checklist](../strategy-alignment-implementation-checklist.md) for the offline and live measurements.
 
+### November 2 implementation — managed protection after a closed sell
+
+When compact recovery has closed a position still present in the managed account, verify the
+original sell and its remaining broker inventory under the existing account lease before running
+managed protection. A pending order on a different, identified security can coexist with this
+inventory check. A pending order on the sold security, unknown scope or conflicting fill keeps the
+handoff incomplete. Ordinary manual sell checks retain their account-wide pending-order rules.
+
+The managed revision records the confirmed cumulative fill once and removes the sold cycle from
+its protection inputs. The last complete import and risk evidence keep their original identities.
+The scoped report can use recent compact cash for valuation when the remaining position books agree.
+Purchase cash, NAV and account-wide pending count require the next ordinary complete synchronization.
+The compact writer compares the terminal receipt inside the managed transaction and advances the
+checkpoint with its existing financial rows. This preserves the original symbol exit memory and
+prevents a second application of the fill. The [offline evidence and release dependency](../reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#offline-implementation-and-retry-results)
+are separate from the November 1 installation.
+
 Retrofitting the cumulative session blobs would retain history-dependent reads and obscure field
 ownership. Reusing two full snapshots would still copy the active book on every change. Separate scalar
 rows and two markers make growth and changed-row costs measurable, at the cost of an explicit future

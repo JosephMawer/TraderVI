@@ -470,6 +470,7 @@ public sealed partial class BrokerManagedSessionTests
         internal BrokerManagedSession? State;
         internal string? LoseResponseAtEvent;
         internal Action<BrokerManagedSession>? BeforeAppend;
+        internal Func<BrokerManagedSession, BrokerManagedSession, CancellationToken, Task>? Publish;
         internal Action<string>? AfterAppend;
         internal int Acquisitions;
         private readonly SemaphoreSlim gate = new(1);
@@ -479,13 +480,14 @@ public sealed partial class BrokerManagedSessionTests
         private sealed class Lease(Store store) : IBrokerManagedSessionLease
         {
             public BrokerManagedSession? Current => store.State;
-            public Task AppendAsync(BrokerManagedSession next, CancellationToken ct)
+            public async Task AppendAsync(BrokerManagedSession next, CancellationToken ct)
             {
                 BrokerManagedSessionRepository.ValidateNext(store.State, next, store.Calendar);
-                store.BeforeAppend?.Invoke(next); store.State = next;
+                store.BeforeAppend?.Invoke(next);
+                if (store.Publish != null) await store.Publish(store.State!, next, ct);
+                store.State = next;
                 store.AfterAppend?.Invoke(next.Event);
                 if (store.LoseResponseAtEvent == next.Event) { store.LoseResponseAtEvent = null; throw new IOExceptionForTest(); }
-                return Task.CompletedTask;
             }
             public ValueTask DisposeAsync() { store.gate.Release(); return ValueTask.CompletedTask; }
         }

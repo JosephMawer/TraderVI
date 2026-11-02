@@ -319,10 +319,14 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [x] Identify the installed closed-position publication guard, trace the original sell and reproduce the
   stale protection write and blocked strategy display offline.
   [November 2 diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#follow-up-through-1512-toronto--closed-position-guard-confirmed).
-- [ ] Qualify reconciliation of the local sell journal and managed strategy before evaluating stale
-  protection under #19. Verify retries with unrelated notices and preserve purchase allowance,
-  risk references and protection. Installation, live recovery and linked strategy display require
-  separate operational verification.
+- [x] Under #19, reconcile a compact-closed sell into the original journal and managed account before
+  evaluating protection. Exercise interrupted journal and checkpoint saves, uncertain commit replies,
+  repeat polls, conflicting evidence and an unrelated pending buy offline. Preserve the purchase
+  allowance, risk references and other holding's protection.
+  [Implementation and retry evidence](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#offline-implementation-and-retry-results).
+- [ ] Review a reconciliation-only path for the installed outstanding order before exact-build approval.
+  Separately authorize and verify recovery of the original request, installation, remaining protection
+  and linked strategy display. The ordinary build-review guard requires settled managed orders.
 - Separate proposal: reducing the regular strategy's cumulative writes and repeated broker history reads.
   The operator approved the restart switch and the grouped read comparison. A bounded sample of 100 Friday
   revisions over 22 minutes stored 489,240 bytes of manifests, used 34 distinct account
