@@ -1,5 +1,29 @@
 # Wealthsimple authentication and engine diagnosis — November 2, 2026
 
+## Workstream continuity and next-session handoff
+
+Continue this engine investigation as a fault encountered on the installed compact restart/current-state
+path under [issue #19](https://github.com/JosephMawer/TraderVI/issues/19), not as a new competing restart design.
+The parent Codex chat is **Redesign engine restart recovery**, host `local`, thread
+`01a18def-9f8a-7c10-b18e-a05986e17746`. Its latest available discussion was reviewed for this handoff.
+Read it alongside the [restart design/decision record](restart-recovery-design-20261030.md),
+[ADR-0117](../adr/0117-compact-trading-current-storage.md), current status and the execution checklist.
+Older design-stage installation labels do not override later dated installation evidence.
+
+The parent chat's latest clarification says the restart is installed; removing routine full-history
+broker reads remained a separate design question. Its proposed ordinary check starts at the last agreed
+checkpoint, checks original unfinished orders and new activity, then compares cash and holdings. That
+proposal is not permission to replace reconciliation policy. The grouped-history comparison was read-only
+and not deployed to the engine. Do not describe performance cleanup as an agreed mandatory second phase.
+
+The immediate task is to identify the precise guard/exception behind the observed completed-fill versus
+managed-strategy divergence and the UI restore failure. Preserve the distinction between observed mismatch
+and proven cause. Safe cause diagnostics belong to existing issue #23; the separate symbol-wiring work is
+#24. Expanded exceptional/damaged-state recovery remains deferred to #25; the prior held-position bid
+investigation remains on hold. Any repair proposal must preserve original order identities, applied fills,
+current permissions, protection and remaining purchase allowance. This handoff grants no live restart,
+deployment, SQL repair, recovery/hold clearance, financial reapproval or permission to resend the filled order.
+
 ## Authentication outcome
 
 The operator confirmed successful sign-in through the revised Edge flow. At 14:47 Toronto the engine's

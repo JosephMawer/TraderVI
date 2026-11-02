@@ -2,6 +2,10 @@
 
 October 30, 2026. **Draft recommendation, not an accepted replacement ADR.**
 Owner: [GitHub #19](https://github.com/JosephMawer/TraderVI/issues/19).
+The [November 2 engine investigation](wealthsimple-auth-and-engine-diagnosis-20261102.md#workstream-continuity-and-next-session-handoff)
+is a follow-up to the installed compact path and the **Redesign engine restart recovery** chat. Its
+handoff preserves the separate diagnostics ownership and deferred design boundaries; this older draft
+does not override current installation evidence or authorize a live repair.
 This review develops the earlier [independence design](../concepts/independent-real-processing-design.md);
 it does not supersede installed behavior or authorize implementation, migration, deployment or trading.
 
