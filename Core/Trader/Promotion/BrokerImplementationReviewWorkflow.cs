@@ -137,7 +137,6 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
         if (prior.OngoingManagement is { } ongoing)
         {
             var current = account.Import.Plan.Observation;
-            var original = prior.Account.Import.Plan.Observation;
             var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
             if (account.Import.BindingId != prior.BindingId || account.Risk.BindingId != prior.BindingId ||
                 current.SnapshotAt > now || now - current.SnapshotAt > TimeSpan.FromSeconds(30) ||
@@ -146,8 +145,7 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
                 account.Account.TradingDate != date || account.Risk.TradingDate > date || account.Risk.Through > current.SnapshotAt ||
                 account.NewRiskBlocks.Any(b => b != BrokerAccountProjector.RiskSessionContinuationRequired) ||
                 account.Risk.DailyLossHold || account.Risk.CapitalReviewRequired || account.Account.DailyLossHold || account.Account.CapitalReviewRequired ||
-                current.Cash != original.Cash || current.Orders.Count != original.Orders.Count ||
-                original.Orders.Any(o => !current.Orders.Any(n => n.ExternalId == o.ExternalId && n.IsSameOrPostedSuccessor(o))) ||
+                !Storage.CompactManagedSaleHandoff.MatchesReviewedAccount(prior, current) ||
                 !account.Positions.OrderBy(p => p.PositionId).SequenceEqual(prior.Account.Positions.OrderBy(p => p.PositionId)))
                 throw new InvalidOperationException("Refresh the unchanged invested account and resolve orders or risk blockers before build review.");
             _ = BrokerOngoingRiskEvidenceSource.Reconcile(ongoing, current, prior.Orders);

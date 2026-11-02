@@ -354,6 +354,14 @@ public sealed partial class BrokerManagedSessionTests
                 Observation = a.Import.Plan.Observation with { Instruments = [new(sale.SecurityId, posted.Symbol, "XTSE", "CAD", "EQUITY")] } } } };
             var listing = f.TransformAccount(f.Project()).Import.Plan.Observation;
             var reconciledSale = synced.Orders.Single(o => o.RequestId == sale.RequestId);
+            var reviewable = synced with { Orders = [reconciledSale] };
+            var preSale = synced.Account.Import.Plan.Observation;
+            var complete = listing with { Orders = preSale.Orders.Append(posted).ToArray(), Cash = preSale.Cash + posted.NetValue };
+            Assert.True(CompactManagedSaleHandoff.MatchesReviewedAccount(reviewable, complete));
+            Assert.False(CompactManagedSaleHandoff.MatchesReviewedAccount(reviewable, preSale));
+            Assert.False(CompactManagedSaleHandoff.MatchesReviewedAccount(reviewable, complete with { Cash = complete.Cash + 1 }));
+            Assert.False(CompactManagedSaleHandoff.MatchesReviewedAccount(reviewable, complete with { Orders = complete.Orders.Append(
+                posted with { ExternalId = "outside-order" }).ToArray() }));
             Assert.False(CompactManagedSaleHandoff.MatchesFirstImport(synced, reconciledSale, posted, listing with { Instruments = null }));
             Assert.False(CompactManagedSaleHandoff.MatchesFirstImport(synced, reconciledSale, posted with { Fees = 1 }, listing));
             var imported = await f.Workflow().TickAsync(binding);

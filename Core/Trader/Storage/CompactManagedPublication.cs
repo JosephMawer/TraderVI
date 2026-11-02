@@ -17,7 +17,7 @@ internal static class CompactManagedPublication
         TradingOrder? settledSale = null)
     {
         if (next.PreviousRevisionId != prior.RevisionId || next.BindingId != book.Account.BindingId ||
-            next.SessionId != book.Account.AssignmentId || next.EffectiveReview.RequestId != book.Account.PermissionId ||
+            next.SessionId != book.Account.AssignmentId || next.EffectiveReview.RequestId != book.Settings.FinancialPermissionId ||
             next.Strategy.VersionId != book.Account.StrategyId || next.Strategy.Strategy.ImplementationIdentity != book.Settings.ImplementationIdentity)
             throw new InvalidDataException("The strategy revision does not own this compact assignment.");
         var before = RestartAccountRehearsal.Positions(prior, true).ToDictionary(p => p.PositionId);
@@ -81,7 +81,7 @@ internal static class CompactManagedPublication
         var symbols = CompactDelphiAssignment.CurrentSymbols(next).ToDictionary(s => s.Symbol);
         var changed = symbols.Values.Where(s => !previousSymbols.TryGetValue(s.Symbol, out var old) || old != s)
             .Concat(book.Symbols.Where(s => previousSymbols.ContainsKey(s.Symbol) && !symbols.ContainsKey(s.Symbol)).Select(s => s with { IsRelevant = false }));
-        var account = RestartAccountRehearsal.Account(next, book.Account.ExecutionEnabled) with {
+        var account = RestartAccountRehearsal.Account(next, book.Account.ExecutionEnabled) with { PermissionId = book.Settings.PermissionId,
             CommittedPurchaseCost = book.Account.CommittedPurchaseCost, ReservedPurchaseCost = book.Account.ReservedPurchaseCost,
             BrokerCursor = book.Account.BrokerCursor, LastAppliedBrokerFactId = book.Account.LastAppliedBrokerFactId };
         if (account.BrokerObservedUtc < book.Account.BrokerObservedUtc)

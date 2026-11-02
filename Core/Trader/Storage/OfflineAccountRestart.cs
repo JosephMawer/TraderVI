@@ -162,7 +162,7 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore sourceStore,
         if (!CanSell(state, now)) return "Current execution controls or sell permission prevent a new sale.";
         if (state.Positions.Count(other => other.SecurityId == p.SecurityId) != 1)
             return "Resolve the overlapping current position cycles before selling these shares.";
-        if (p.ProtectionOwner != state.Settings.StrategyId.ToString("D") || p.ProtectionFloor is <= 0 ||
+        if (!state.Settings.OwnsProtection(p) || p.ProtectionFloor is <= 0 ||
             p.ExitTriggeredUtc < p.FirstEntryUtc || p.ExitTriggeredUtc > now.UtcDateTime)
             return "Check the saved protection owner and trigger time for this holding.";
         if (p.ReservedSellQuantity != 0 || state.Orders.Any(o => o.Side == "SELL" &&

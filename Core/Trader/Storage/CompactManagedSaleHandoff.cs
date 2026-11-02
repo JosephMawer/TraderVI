@@ -17,6 +17,25 @@ internal static class CompactManagedSaleHandoff
     internal const string Event = "CompactSaleReconciled";
     private const string ReportSource = "Compact original sell reconciliation";
 
+    // A scoped report retains the previous complete import. A build review can consume the next
+    // complete import only when all differences are the exact sales already reconciled in that report.
+    internal static bool MatchesReviewedAccount(BrokerManagedSession saved, BrokerAccountReconciliation current)
+    {
+        var prior = saved.Account.Import.Plan.Observation;
+        if (prior.Orders.Any(o => !current.Orders.Any(n => n.ExternalId == o.ExternalId && n.IsSameOrPostedSuccessor(o)))) return false;
+        if (saved.Account.Account.ReportedBy != ReportSource)
+            return current.Orders.Count == prior.Orders.Count && current.Cash == prior.Cash;
+        if (!saved.HasReviewedCompactRestart || current.IdentityId != prior.IdentityId ||
+            current.AccountId != prior.AccountId || !prior.Cash.HasValue) return false;
+        var ids = prior.Orders.Select(o => o.ExternalId).ToHashSet(StringComparer.Ordinal);
+        var additions = current.Orders.Where(o => !ids.Contains(o.ExternalId)).ToArray();
+        var owned = saved.Orders.Where(o => !ids.Contains(o.ExternalId)).ToDictionary(o => o.ExternalId);
+        return additions.Length != 0 && additions.Length == owned.Count && additions.All(f =>
+            owned.TryGetValue(f.ExternalId, out var o) && o is { Side: "SELL", Reconciled: true, Latest: { } previous } &&
+            (f.IsSameOrPostedSuccessor(previous) || MatchesFirstImport(saved, o, f, current))) &&
+            current.Cash == prior.Cash + additions.Sum(o => o.NetValue!.Value);
+    }
+
     internal static bool MatchesFirstImport(BrokerManagedSession saved, BrokerStrategyOrder sale, BrokerOrderFact fact,
         BrokerAccountReconciliation imported)
     {
@@ -45,7 +64,7 @@ internal static class CompactManagedSaleHandoff
             var original = await store.ReadOrderAsync(saved.BindingId, sale.RequestId, ct);
             var closed = await store.ReadClosedPositionAsync(saved.BindingId, holding.PositionId, ct);
             if (original is not { Status: "Filled", NeedsWork: false, Side: "SELL" } ||
-                original.PermissionId != saved.EffectiveReview.RequestId || original.PermissionId != book.Settings.PermissionId ||
+                book.Settings.FinancialPermissionId != saved.EffectiveReview.RequestId || original.PermissionId != book.Settings.PermissionId ||
                 original.DecisionId != sale.DecisionId || original.PositionId != sale.PositionId ||
                 original.SecurityId != sale.SecurityId || original.Symbol != sale.Symbol || original.Quantity != sale.Quantity ||
                 original.CreatedUtc != sale.CreatedAt.UtcDateTime || original.ReferencePrice != sale.ReferencePrice ||

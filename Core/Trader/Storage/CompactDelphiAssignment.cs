@@ -88,10 +88,11 @@ internal sealed record CompactDelphiAssignment(BrokerExecutionHostGrant Grant, G
         // Resuming the exact same stopped assignment produces a fresh operator/time receipt.
         // A new binding, continuation, strategy or implementation still requires a new approval.
         if (grant is not { Enabled: true, RestoreAfterRestart: true } || grant.ReviewedAt < Grant.ReviewedAt ||
-            grant != (Grant with { ReviewedAt = grant.ReviewedAt, ReviewedBy = grant.ReviewedBy }) || grant.ReviewedAt > at ||
+            !Grant.Enabled && state.Settings.PermissionId == Permission ||
+            grant != (Grant with { Enabled = true, ReviewedAt = grant.ReviewedAt, ReviewedBy = grant.ReviewedBy }) || grant.ReviewedAt > at ||
             grant.BindingId != state.Account.BindingId || grant.SessionId != state.Account.AssignmentId ||
             grant.ImplementationIdentity != build || state.Settings.ImplementationIdentity != build ||
-            state.Settings.PermissionId != Permission || state.Settings.SourceId != Source || state.Settings.StrategyId != Strategy ||
+            state.Settings.FinancialPermissionId != Permission || state.Settings.SourceId != Source || state.Settings.StrategyId != Strategy ||
             state.Settings.BaselineId != Baseline || !state.Account.ExecutionEnabled ||
             !(state.Account.Phase == "Active" || allowReadRecovery && state.Account.Phase == "NeedsAttention") ||
             state.Settings.ApprovedUtc > at.UtcDateTime || state.Settings.ExpiresUtc <= at.UtcDateTime)
@@ -159,7 +160,7 @@ internal sealed record CompactDelphiAssignment(BrokerExecutionHostGrant Grant, G
             if (final) fence = grants.AcquireFence();
             assignment.RequireAssignment(state, grants.Read(), build, now);
             if (!state.Settings.SellAllowed || p.ExitDecisionId is not Guid decision ||
-                BrokerManagedStrategy.StableId(decision.ToString("D")) != request || p.ProtectionOwner != assignment.Strategy.ToString("D"))
+                BrokerManagedStrategy.StableId(decision.ToString("D")) != request || !state.Settings.OwnsProtection(p))
                 throw new InvalidOperationException("Exit decision does not belong to the approved position.");
             journal.RequireClearForRestartSell(assignment.Identity, assignment.Account, p.SecurityId, p.PositionId, p.FirstEntryUtc, request);
         }

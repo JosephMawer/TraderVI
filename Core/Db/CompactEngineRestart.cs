@@ -81,7 +81,7 @@ internal sealed class CompactEngineRestart(TradingCurrentStore store, ManualBuyF
         if (!observed.HasReviewedCompactRestart) throw new InvalidOperationException("Review this build's restart terms first.");
         IBrokerRiskEvidenceSource risk = new BrokerOngoingRiskEvidenceSource(observed.OngoingManagement!, calendar,
             new BrokerOngoingBoundaryRepository().ReadAsync);
-        var workflow = BrokerManagedSessionComposition.Create(broker.RegularTradingReads, broker, broker, journal, journal, orderGate, account,
+        var workflow = BrokerManagedSessionComposition.Create(broker, broker, broker, journal, journal, orderGate, account,
             calendar, risk, clock, true, sessions);
         await using (var lease = await sessions.AcquireAsync(observed.BindingId, ct))
         {
@@ -111,7 +111,7 @@ internal sealed class CompactEngineRestart(TradingCurrentStore store, ManualBuyF
                 }
                 var protection = current.Protection.Single(p => p.PositionId == sale.PositionId);
                 if (sale.Side != "SELL" || protection.FirstExit?.DecisionId != sale.DecisionId ||
-                    protection.FirstExit.PermissionId != sale.PermissionId)
+                    protection.FirstExit.PermissionId != initial.Assignment.Permission || sale.PermissionId != state.Settings.PermissionId)
                     throw new InvalidDataException("The saved sale does not belong to the original protective decision.");
                 var original = new BrokerStrategyOrder(sale.RequestId, sale.DecisionId, sale.PositionId, sale.SecurityId,
                     sale.Symbol, "SELL", sale.Quantity, sale.ReferencePrice, "RiskExit", null, sale.CreatedUtc);

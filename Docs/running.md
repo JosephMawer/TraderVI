@@ -67,6 +67,19 @@ the engine/collector running with the broker signed in. The resumed host waits f
 fresh account/orders, exact daily risk boundaries, strategy inputs and quote checks can delay buying
 after09:30. Approval does not substitute stale data, queue a purchase or reset a pause/hold.
 
+**Upgrade of an existing compact account.** Preserve the prior runtime, routing and protected
+journal/checkpoints. Take and verify the pre-release backup and synchronized copy. Where the only
+unfinished managed request is a fully applied compact sell, the staged engine's explicit
+`--reconcile-closed-sale <private-target-json>` command runs under exclusive engine ownership after
+a clean stop. Pin the old installed directory, managed revision and original request from verified
+read-only evidence. The command verifies the old build and grant, compact seal, broker integrity,
+account, holdings, pending orders and original sell. It has no order submission transport. Verify
+the resulting managed revision, closed position, terminal compact receipt and journal before review.
+Open the matching package in build-review mode. The operator stops execution permission, reviews
+and approves the exact updated build, and separately resumes it. The new settings row and checkpoint
+commit with that approval. Start the normal owner after closing the review service. The initial
+transfer command is inapplicable to an existing compact account.
+
 ## Independent engine — normal mode with trading disabled, October 22
 
 The dated-permission instructions below remain historical/legacy scope; the new explicit ongoing

@@ -26,6 +26,25 @@ public sealed record TradingApprovedSettings : TradingStorageRow
     public bool BuyAllowed { get; init; }
     public bool SellAllowed { get; init; }
     public string ConfigurationJson { get; init; } = "{}";
+
+    // The initial compact settings used the financial permission as their own key. Later
+    // immutable settings use the operator's build-review ID and retain the financial ID.
+    internal Guid FinancialPermissionId
+    {
+        get
+        {
+            using var json = System.Text.Json.JsonDocument.Parse(ConfigurationJson);
+            return json.RootElement.TryGetProperty("FinancialPermissionId", out var id) ? id.GetGuid() : PermissionId;
+        }
+    }
+
+    internal bool OwnsProtection(TradingPositionCurrent position)
+    {
+        if (position.ProtectionOwner == StrategyId.ToString("D")) return true;
+        using var json = System.Text.Json.JsonDocument.Parse(ConfigurationJson);
+        return json.RootElement.TryGetProperty("Held_" + position.PositionId.ToString("N"), out var owner) &&
+            owner.GetString() == position.ProtectionOwner;
+    }
 }
 
 public sealed record TradingAccountCurrent : TradingStorageRow

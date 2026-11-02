@@ -307,6 +307,16 @@ checkpoint with its existing financial rows. This preserves the original symbol 
 prevents a second application of the fill. The [offline evidence and release dependency](../reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#offline-implementation-and-retry-results)
 are separate from the November 1 installation.
 
+For the first upgrade of an already compact account, Joseph selected an immutable settings
+successor. Only a validated dashboard `ImplementationReviewed` revision can create it. The build
+review ID keys the new row. The original financial permission remains bound to the same assignment,
+baseline, ceiling and source. Each new compact order references its actual settings row. Earlier
+orders keep their original references. The approval transaction advances the account pointer and
+checkpoint together. Existing position records retain their owners, floors and latched exits.
+An eligible carried owner is recorded by exact position and owner. The writer rejects any change
+to the eligibility of a remaining holding. The checkpoint describes the expected successor in its
+disabled state until the operator separately enables an exact matching host grant.
+
 Retrofitting the cumulative session blobs would retain history-dependent reads and obscure field
 ownership. Reusing two full snapshots would still copy the active book on every change. Separate scalar
 rows and two markers make growth and changed-row costs measurable, at the cost of an explicit future

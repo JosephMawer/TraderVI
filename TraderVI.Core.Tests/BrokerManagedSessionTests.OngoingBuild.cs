@@ -1,9 +1,11 @@
 #nullable enable
 using Core.Db;
 using Core.Runtime;
+using Core.Trader.Storage;
 using Core.Trader.Promotion;
 using Core.WSTrade.Accounts;
 using Core.WSTrade.Orders;
+using Dapper;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
@@ -56,6 +58,7 @@ public sealed partial class BrokerManagedSessionTests
         var proposal = Prepare();
         var workflow = new BrokerImplementationReviewWorkflow(x.F.Store, x.F, x.Existing.Grants, SelectedSessionCalendar(), new HostClock(x.F));
         var saved = await workflow.ApproveAsync(proposal);
+        if (scenario == "scoped") await CheckImmutableBuildSuccessorAsync(prior, saved, x.F.Now);
         Assert.Equal(scenario == "scoped", saved.HasReviewedCompactRestart);
         var changed = saved with { ImplementationReview = saved.ImplementationReview! with
             { RestartPolicy = scenario == "scoped" ? null : BrokerImplementationReview.ScopedRestart } };
@@ -78,5 +81,81 @@ public sealed partial class BrokerManagedSessionTests
         var altered = saved with { ImplementationReview = saved.ImplementationReview! with { PermissionRequestId = Guid.NewGuid() } };
         Assert.Equal(prior.Strategy.Strategy.ImplementationIdentity, altered.Strategy.Strategy.ImplementationIdentity);
         Assert.ThrowsAny<Exception>(() => BrokerManagedSessionRepository.ValidateNext(prior, altered, SelectedSessionCalendar()));
+    }
+
+    private static async Task CheckImmutableBuildSuccessorAsync(BrokerManagedSession prior, BrokerManagedSession next, DateTimeOffset now)
+    {
+        var grant = new BrokerExecutionHostGrant(prior.BindingId, prior.SessionId, prior.Strategy.Fingerprint,
+            prior.Strategy.Strategy.ImplementationIdentity, now, "fixture", true)
+            { RestoreAfterRestart = true, ContinuationId = prior.OngoingManagement!.RequestId };
+        var original = RestartAccountRehearsal.ProjectSettled(prior, grant, grant.ImplementationIdentity, Fixture.Hash, now, true);
+        original = original with { Settings = original.Settings with { BuyAllowed = true, SellAllowed = true } };
+        var memory = new TradingCompactStorageTests.Database();
+        RestartRehearsalDatabase? native = Guid.TryParseExact(Environment.GetEnvironmentVariable("TRADERVI_COMPACT_SUCCESSOR_TEST"),
+            "N", out var token) ? new(token) : null;
+        ITradingStorageDatabase db = native == null ? memory : new SqlTradingStorageDatabase(native.OpenAsync);
+        var store = new TradingCurrentStore(db);
+        if (native != null)
+        {
+            await using var c = await native.OpenAsync();
+            await c.ExecuteAsync("INSERT dbo.BrokerAccountImportBinding VALUES (@BindingId,N'TFSA',REPLICATE('A',64),REPLICATE('B',64),SYSUTCDATETIME(),N'Synthetic');",
+                new { prior.BindingId });
+        }
+        await using (var tx = await db.BeginAsync(prior.BindingId, true, default))
+        {
+            await RestartAccountRehearsal.InsertInitialAsync(tx, original, default);
+            await tx.CommitAsync(default);
+        }
+        using var dir = new ManualMarketSellWorkflowTests.TempDirectory();
+        System.IO.Directory.CreateDirectory(dir.Path);
+        var protector = new HostProtector();
+        var id = new EngineDatabaseIdentity(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        original = (await store.ReadAsync(prior.BindingId))!;
+        var assignment = CompactDelphiAssignment.Capture(prior, grant, original, grant.ImplementationIdentity, now);
+        var initial = CompactDelphiCheckpoint.From(prior.BindingId, id, assignment, original) with { ManagedRevision = prior.RevisionId };
+        initial.Write(CompactAccountPreparation.Slot(dir.Path, 0), protector);
+        async Task Publish(bool commit)
+        {
+            if (native == null)
+            {
+                if (!commit) memory.BeforeNextWriteCommit = () => throw new System.IO.IOException("Interrupt after sealing.");
+                await CompactManagedWriter.PublishAsync(store, prior, next, id, dir.Path, protector, default);
+                return;
+            }
+            await using var c = await native.OpenAsync();
+            using var tx = c.BeginTransaction();
+            await CompactManagedWriter.PublishAsync(SqlTradingStorageDatabase.InTransaction(c, tx), prior, next, id, dir.Path, protector, default);
+            if (commit) tx.Commit();
+            else { tx.Rollback(); throw new System.IO.IOException("Rollback after sealing."); }
+        }
+        await Assert.ThrowsAsync<System.IO.IOException>(() => Publish(false));
+        var unchanged = (await store.ReadAsync(prior.BindingId))!;
+        Assert.Equal(original.Settings, unchanged.Settings);
+        Assert.True(initial.Matches(prior.BindingId, id, unchanged));
+        await Publish(true);
+        var current = (await store.ReadAsync(prior.BindingId))!;
+        var seal = CompactDelphiCheckpoint.Read(CompactAccountPreparation.Slot(dir.Path, current.Account.Version), protector);
+        Assert.Equal(next.RevisionId, seal.ManagedRevision);
+        Assert.True(seal.Matches(prior.BindingId, id, current));
+        await using (var tx = await db.BeginAsync(prior.BindingId, false, default))
+        {
+            Assert.Equal(original.Settings, await tx.FindAsync<TradingApprovedSettings>(original.Settings.PermissionId, default));
+            await tx.CommitAsync(default);
+        }
+        Assert.Equal(next.RevisionId, current.Settings.PermissionId);
+        Assert.Equal(original.Settings.PermissionId, current.Settings.FinancialPermissionId);
+        Assert.Equal(original.Account with { Version = 1, PermissionId = next.RevisionId, StrategyId = next.Strategy.VersionId }, current.Account);
+        Assert.Equal(original.Positions, current.Positions.ToArray());
+        Assert.All(current.Positions, p => Assert.Equal(original.Settings.OwnsProtection(p), current.Settings.OwnsProtection(p)));
+        Assert.False(seal.Assignment.Grant.Enabled);
+        var build = next.Strategy.Strategy.ImplementationIdentity;
+        Assert.Throws<InvalidOperationException>(() => seal.Assignment.RequireAssignment(current, grant, build, now));
+        Assert.Throws<InvalidOperationException>(() => seal.Assignment.RequireAssignment(current, seal.Assignment.Grant, build, now));
+        var enabled = grant with { StrategyFingerprint = next.Strategy.Fingerprint, ImplementationIdentity = build };
+        seal.Assignment.RequireAssignment(current, enabled, build, now);
+        var later = next with { PreviousRevisionId = next.RevisionId, RevisionId = Guid.NewGuid(), Revision = next.Revision + 1 };
+        later = later with { Event = "AccountSynchronized" };
+        await CompactManagedWriter.PublishAsync(store, next, later, id, dir.Path, protector, default);
+        Assert.Equal(current.Settings.PermissionId, (await store.ReadAsync(prior.BindingId))!.Account.PermissionId);
     }
 }

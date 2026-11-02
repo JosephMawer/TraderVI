@@ -54,20 +54,22 @@ internal static class CompactManagedWriter
                 settledSale.PermissionId != current.Settings.PermissionId || current.Positions.Any(p => p.PositionId == original.PositionId))
                 throw new InvalidDataException("The terminal sell and closed position must precede the managed handoff.");
         }
-        var write = CompactManagedPublication.Prepare(prior, next, current, settledSale);
+        var (write, approved) = next.Event == "ImplementationReviewed"
+            ? CompactBuildSuccessor.Prepare(prior, next, current, sealedBook)
+            : (CompactManagedPublication.Prepare(prior, next, current, settledSale), sealedBook.Assignment);
         var committing = store.WithCheckpointWriter(updated =>
         {
             if (next.Orders.All(o => o.Reconciled) &&
                 updated.Account.ReservedPurchaseCost + updated.Account.CommittedPurchaseCost != next.CommittedPurchaseCost)
                 throw new InvalidDataException("The original-order reservations and remaining purchase allowance disagree.");
             var active = updated.Orders.Where(o => o.Side == "BUY").Select(o => o.RequestId).ToHashSet();
-            var terms = sealedBook.Assignment.Opening.Where(t => active.Contains(t.RequestId)).ToDictionary(t => t.RequestId);
+            var terms = approved.Opening.Where(t => active.Contains(t.RequestId)).ToDictionary(t => t.RequestId);
             foreach (var buy in next.Orders.Where(o => active.Contains(o.RequestId) && !terms.ContainsKey(o.RequestId) &&
                 o.Kind is "Initial" or "Reentry" && !o.PositionId.HasValue))
                 terms.Add(buy.RequestId, new(next.BindingId, updated.Settings.PermissionId, buy.RequestId,
                     next.Strategy.VersionId.ToString("D"), "None", null, buy.PositionTarget)
                     { Progressive = next.Strategy.Strategy.ReadLivePolicy().UseProgressiveProfitProtection });
-            var assignment = sealedBook.Assignment with { Opening = [.. terms.Values.OrderBy(t => t.RequestId)] };
+            var assignment = approved with { Opening = [.. terms.Values.OrderBy(t => t.RequestId)] };
             var seal = CompactDelphiCheckpoint.From(next.BindingId, database, assignment, updated) with { ManagedRevision = next.RevisionId };
             seal.Write(CompactAccountPreparation.Slot(directory, updated.Account.Version), protector);
         });
