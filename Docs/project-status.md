@@ -1,5 +1,16 @@
 # TraderVI Project Status
 
+## November 1 — October 18 Delphi Live build cleanup
+
+At 22:55 Toronto the cleanup removed **3.13 GiB** from `artifacts/delphi-live-tfsa-20261018/`.
+The 2,454 files came from five test outputs, three WPF builds, and generated `bin`/`obj` directories
+in the historical NativeRead helper and UI preview projects. The remaining 1,823 files matched their
+inventoried paths and sizes (4.32 GiB). They include twelve historical working copies, the
+`first-review-wpf` preview dependency, and the original receipts, source, screenshots and checkpoint.
+The [October working-copy record](reviews/delphi-live-morning-decisions-20261019.md#normal-checkout-launch-preference-and-duplicate-output-inventory--october-20)
+documents the move to normal Release launches. The live collector, engine and dashboard retained their
+process identities and executable/Core hashes. All four nightly outputs passed `-ValidateOnly` after cleanup.
+
 ## November 1 — Retired nightly copies removed
 
 The operator-authorized cleanup completed at **12:42:56 Toronto**. It removed **58 old run directories
