@@ -8,20 +8,20 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 
 ## Operating state and immediate risks
 
-- **Real trading:** On November 2 at 14:47 Toronto, the original engine remains Running and broker
-  Connected, but execution checks are Blocked after retry. Read-only broker/SQL evidence shows a filled
-  sell settled in the compact account while the managed-strategy record remains at transmission observed;
-  the precise failing reconciliation guard is hidden by the installed generic exception handler.
-  Saved permission remains enabled; checkpoint/build identities match, but healthy ongoing automatic
-  protection is not established. No engine/collector restart, recovery or repair was performed during diagnosis.
-  [Current diagnosis and evidence](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md),
+- **Real trading:** On November 2 at 15:12 Toronto the engine was Running and Connected. Execution
+  remained Blocked. Managed protection publication tried to reopen a position the compact account had
+  closed on a verified sell. The closed-position guard rejected the write on two observed retries.
+  The local journal still has only the original acknowledgement, which blocks linked-account refresh
+  and strategy display. The managed assignment remains saved. The fault is reproduced offline.
+  Repair and verification of automatic protection are pending.
+  [Current diagnosis and evidence](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#follow-up-through-1512-toronto--closed-position-guard-confirmed),
   [November 1 installation](project-status-history-20261101.md#november-1--compact-restart-active-for-delphi-live).
 - **Protection gap:** On October 30, a managed holding's broker bid reads failed repeatedly, so its
   bid-dependent protection could not be verified even though the host reported Running. The operator
   placed the investigation on hold; reliable automatic selling must not be inferred from saved stops
   or a Running status. [Evidence and limits](project-status-history-20261101.md#october-30--held-position-bid-protection-gap-verified-1003-toronto).
 - **Paper recovery and inputs:** The Paper recovery restriction retained after the October 30 Real
-  recovery remains at November 2, 14:47 Toronto, with seven Paper/dependent-Research workers blocked.
+  recovery remains at November 2, 15:12 Toronto, with seven Paper/dependent-Research workers blocked.
   [Current read-only diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
   A separate Paper-input failure was traced to missing verified holding correspondence in
   the service wiring; repair is planned in issue #24, not established by that diagnosis. The Real

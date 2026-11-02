@@ -99,7 +99,7 @@ and [setup/rollback](../../Tools/Wealthsimple.EdgeBridge/README.md) own the prot
    managed record. Whether the UI's failed restore was caused by lease contention or another read error
    remains unproven. Do not approve a replacement strategy to cure that placeholder.
 
-The exact exception behind Real execution remains unavailable: the installed `BrokerExecutionHost`
+At 14:47 the exact exception behind Real execution was unavailable: the installed `BrokerExecutionHost`
 catch discards its cause, and the RPC boundary also returns a generic failed command. Safe cause logging
 is already planned as issue #23. The narrowed reconciliation divergence warrants a focused reproduction
 and safe stage/error-code diagnostics, preserving original orders, guards and retries. This investigation
@@ -131,4 +131,93 @@ No diagnostic command sent orders, refreshed tokens, changed strategy/settings/g
 started recovery, wrote SQL or restarted a host. The existing engine continued its own approved work.
 These are non-atomic observations; broker and compact data were captured at different instants. Stable
 strategy head/checkpoint identities and the later failed retry support the divergence, but identifying
-the precise failing guard still requires further evidence. Private payloads remain in ignored local artifacts.
+the precise failing guard required the follow-up below. Private payloads remain in ignored local artifacts.
+
+## Follow-up through 15:12 Toronto — closed-position guard confirmed
+
+**Live execution.** At 15:07:34 and 15:12:36 the engine threw the fixed closed-position error in
+`TradingStorageValidation.ValidateTransition`. The attempted write changed an already closed position
+cycle back to open. At 15:12, bounded .NET runtime observation showed compact recovery, a successful
+account observation, strategy input/evaluation, managed append, compact publication and the failed
+compact save. The final throw preceded the host's Blocked timestamp by about two milliseconds.
+The source guard rejected the write. The retry kept managed revision 6843, `OrderTransmissionObserved`.
+The trace identified the stage and guard. It did not capture the uncommitted managed event name.
+[Recovery branch](../../Core/Db/CompactEngineRestart.cs),
+[managed publication](../../Core/Trader/Storage/CompactManagedPublication.cs),
+[transition guard](../../Core/Trader/Storage/TradingStorageValidation.cs).
+
+**Original sell.** The SQL join matched the managed request to exactly one compact receipt, including
+decision, position, security, side, symbol, quantity, reference price and permission. The compact
+receipt was terminal with all cumulative quantity and value applied, zero reservation and a closed
+position. The same request's protected local journal contained a quoted managed sale for the sealed
+account and identity, with matching security and quantity. Both the journal and managed record had
+acknowledgement. The journal had zero order observations, no status-check time, no inventory
+verification and no conflict. The guarded broker read independently found no pending orders and
+history agreed with holdings. It does not verify the local journal. Compact recovery reads the broker
+by original ID and applies the sell delta to its own tables. The ordinary managed synchronization
+is the path that checks that original sell through the journal and verifies remaining inventory.
+[Compact fill application](../../Core/Trader/Storage/OfflineAccountRestart.cs),
+[managed account sync](../../Core/Trader/Promotion/BrokerManagedAccountSource.cs),
+[local sell verification](../../Core/WSTrade/Orders/ManualMarketSellWorkflow.cs).
+
+**Why it repeats.** Compact checkpoints 17 and 18 were both `ObserveBrokerAccount`, with zero
+unfinished compact orders and zero active compact restrictions. The two remaining open positions
+had saved exit decisions and a protection owner different from the current strategy. That comparison
+produces a scoped sale notice even when the compact unfinished-order list is empty. During market
+hours the installed branch with notices evaluates protection using the pre-sale managed account.
+The publisher can therefore see a changed protection row for a holding that exists only in the stale
+managed view. Its active-position lookup omits the closed row. It proposes an open position and the
+durable store rejects it. The exception interrupts the cycle before ordinary account synchronization
+can advance the journal and managed record. The owner comparison establishes the notice condition;
+it does not establish new authority to sell those remaining holdings.
+
+**Dashboard.** The displayed account status identified the unresolved-local-order block and failed
+history import. In this branch the synchronization result contains no saved import receipt.
+`WealthsimpleAccountViewModel` calls `Invalidate(true)` and skips `RestoreAsync`, which explains the
+placeholder despite the verified assignment. This observed refresh never requested the strategy
+lease. Keep controls disabled while the linked-account check is incomplete.
+[Account display](../../TraderVI.WPF/Viewmodels/WealthsimpleAccountViewModel.cs),
+[import boundary](../../Core/WSTrade/Accounts/BrokerAccountSynchronizationWorkflow.cs).
+
+**Offline reproduction.** A synthetic acknowledged sale is already reserved when compact recovery
+reads its fill. A different holding retains an exit under its previous owner. Recovery closes the sold
+cycle and returns the other holding's notice. Publishing a protection-time change against the
+pre-sale managed account reproduces the installed exception and rolls back. Publishing the same
+original order against the fixture's reconciled account advances the checkpoint without another
+position change. Replay preserves the terminal receipt, other holding's protection, risk references
+and purchase allowance. A separate UI test shows the blocked refresh and restoration of the same
+assignment after a successful linked refresh. The aligned input in the first test is supplied by the
+fixture. A production catch-up path still needs implementation.
+[Sell handoff test](../../TraderVI.Core.Tests/BrokerManagedSessionTests.SettledSaleHandoff.cs),
+[dashboard test](../../TraderVI.Core.Tests/WealthsimpleAccountTests.Polling.cs).
+
+**Proposed repair under #19.** Before protection evaluation consumes a managed holding that compact
+recovery has already closed, look up the outstanding managed request in the terminal receipt store
+by binding and original request. Verify decision, position, permission, terms and cumulative fill.
+Use the existing original-order and inventory checks to finish the local journal and publish the
+reconciled managed account. Separate that step from ordinary evaluation and dispatch. Keep the
+closed-position guard and the other holdings' scoped notices. The existing whole-account import can
+refuse an unrelated unresolved order. Use original-ID reconciliation for this handoff and keep
+independently verified exits eligible under their existing controls. If evidence conflicts, preserve
+the hold on the affected action. Test interruption on either side of journal verification and managed
+commit, repeat polls, conflicting evidence and unrelated unresolved orders before release. For the
+dashboard, distinguish a blocked linked-account check from a verified empty assignment in its label.
+For #23, surface a fixed stage and code such as `CompactManagedPublish / ClosedPositionReopen`;
+the existing backoff and permission checks still apply.
+
+**Evidence boundary.** Engine PID 22452 and collector PID 1452 continued running. The engine on disk
+reports source `e507729c`; its settled handoff releases the lease and uses individual history reads.
+The checkout's lease-reuse and grouped-reader work are outside this finding. At 15:12:52 the status
+capture showed Running, Connected, execution Blocked, seven blocked workers and the same managed head.
+The only open SQL integrity incident in the refreshed query was Paper-scoped. No repair was installed
+or exercised live. The focused offline suite passed 65 cases. Compiler warnings were present and
+dependency security was not reassessed. The full solution and native SQL rehearsal were outside this run.
+
+Local evidence under ignored artifacts includes the broker v2 receipt `55985a3c-329b-4350-a005-3d903a58555f`,
+status captures beginning `20261102T195600843Z` and `20261102T201250176Z`, and the allowlisted
+`classified-codes.txt` and `stage-codes.txt` in `artifacts/engine-ui-20261102`. Diagnostics emitted
+fixed source/error codes and method labels only. The SQL helper receipts for the original terms,
+journal join, retry stages and exit-owner comparison were matched to their submitted query SHA-256
+values (`1085128F…`, `4489BE61…`, `DD3AC6E9…`, `58C80DB9…`). The protected-file comparison
+checked the selected slot version, managed revision and installed Core build as well as the original
+journal envelope. These cross-store observations have distinct capture times.

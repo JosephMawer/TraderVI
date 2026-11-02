@@ -31,6 +31,35 @@ public partial class WealthsimpleAccountTests
     }
 
     [Fact]
+    public async Task UnresolvedJournalOrderBlocksRestoreOfExistingLinkedStrategyUntilNextSuccessfulSync()
+    {
+        var source = new Source();
+        var clock = new Clock();
+        var f = new BrokerManagedSessionTests.Fixture();
+        var approved = await f.Workflow().ApproveAsync(f.Approval(ongoing: true));
+        var controls = new BrokerManagedStrategyViewModel(new BrokerManagedSessionControls(f.Store), clock);
+        bool unresolved = true;
+        const string block = "A saved local order still needs status recovery.";
+        using var vm = new WealthsimpleAccountViewModel(source, clock, (account, _, _) =>
+        {
+            var read = SynchronizedRead(account, clock.Now);
+            return Task.FromResult(unresolved ? read with { Blocks = [block] }
+                : read with { Saved = f.Project().Import, Blocks = [] });
+        }, managedStrategy: controls);
+
+        await vm.RefreshAsync();
+        Assert.Contains(block, vm.TradeSyncStatus);
+        Assert.Null(controls.VerifiedSession);
+        Assert.False(controls.CanResumeBuying || controls.CanStopBuying);
+        Assert.Equal(approved.RevisionId, f.Store.State!.RevisionId);
+
+        unresolved = false;
+        await vm.RefreshAsync();
+        Assert.Equal(approved.RevisionId, controls.VerifiedSession?.RevisionId);
+        Assert.Equal(0, f.Transport.Sent);
+    }
+
+    [Fact]
     public async Task UnlinkedOrFailedAccountRefreshCannotRestoreStrategyControls()
     {
         var source = new Source(); var clock = new Clock();

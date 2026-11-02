@@ -1,6 +1,6 @@
 # TraderVI Roadmap
 
-Last reconciled **November 1, 2026**. This page owns priority order; [project status](project-status.md)
+Last reconciled **November 2, 2026**. This page owns priority order; [project status](project-status.md)
 records dated evidence, the relevant checklists own acceptance and dependencies, and
 [design rules](design-rules.md) and accepted ADRs govern behavior. A roadmap item does not authorize
 live operations, trading, training, market access or deployment.
@@ -15,13 +15,12 @@ intentional handover without losing existing protection or financial history.
 
 ## Now — protect and qualify the operating system
 
-1. **Reduce regular trade-evaluation history work** ([issue #19](https://github.com/JosephMawer/TraderVI/issues/19)).
-   The November 1 instruction places this ahead of previously queued engineering: start with the current
-   account and original unfinished orders, measure SQL and broker calls against existing checks, and
-   preserve risk and protection decisions. Keep the approved running release available through Monday's
-   open, the collector operating, trading settings unchanged and the held-position bid investigation on
-   hold. [ADR-0117](adr/0117-compact-trading-current-storage.md) and the
-   [restart review](reviews/restart-recovery-design-20261030.md) own the boundary and proposals.
+1. **Resolve the Real execution block on the installed compact restart path**
+   ([issue #19](https://github.com/JosephMawer/TraderVI/issues/19)). Follow the original sell through
+   broker settlement, the local journal and the managed strategy. Qualify the correction offline
+   while the approved engine and collector keep running. Reducing ordinary history reads and writes
+   remains a separate proposal. [November 2 investigation](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md)
+   and [restart contract](adr/0117-compact-trading-current-storage.md).
 2. **Resolve known reliability work in its existing scope.** The identified Paper-input symbol-resolution
    gap is planned under [issue #24](https://github.com/JosephMawer/TraderVI/issues/24), including real
    service wiring and verified identity, without arbitrary suffix stripping. Prospective native new-holding

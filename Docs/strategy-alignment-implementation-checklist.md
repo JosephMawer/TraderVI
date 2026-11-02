@@ -316,8 +316,15 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [x] November 1 activated the reviewed compact restart for Delphi Live. The exact package
   completed its live account check in 2.88 seconds and waited for regular trading hours.
   No market-hours order was exercised. See [operational status](project-status.md).
-- [ ] Replace the regular strategy's cumulative writes and repeated broker history reads.
-  This follow-up starts immediately after the restart switch. A bounded sample of 100 Friday
+- [x] Identify the installed closed-position publication guard, trace the original sell and reproduce the
+  stale protection write and blocked strategy display offline.
+  [November 2 diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#follow-up-through-1512-toronto--closed-position-guard-confirmed).
+- [ ] Qualify reconciliation of the local sell journal and managed strategy before evaluating stale
+  protection under #19. Verify retries with unrelated notices and preserve purchase allowance,
+  risk references and protection. Installation, live recovery and linked strategy display require
+  separate operational verification.
+- Separate proposal: reducing the regular strategy's cumulative writes and repeated broker history reads.
+  The operator approved the restart switch and the grouped read comparison. A bounded sample of 100 Friday
   revisions over 22 minutes stored 489,240 bytes of manifests, used 34 distinct account
   references and shared a single order-list reference. This excludes referenced data, indexes
   and logs. Measure those costs separately. Preserve risk continuation and audit readers
@@ -341,7 +348,7 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   pass used 48 requests and the grouped pass used eight. The final activity fingerprint
   matched both passes. No order was sent. The trading engine continued running its
   existing reader. Local receipt under `artifacts/read-only-broker/grouped-history-f089a7d0fb4e4a9ba3af07b27e5c4d97.json`.
-- [ ] Activation of the grouped reader remains pending. Removing historical records
+- The grouped reader remains an undeployed option. Removing historical records
   from ordinary reads altogether requires evidence that would
   detect financial corrections missing from the activity feed. Database write reduction remains open.
 - Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to

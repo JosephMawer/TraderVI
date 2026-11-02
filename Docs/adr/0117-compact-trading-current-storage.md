@@ -260,8 +260,9 @@ The old managed-session archive is absent throughout these launches.
 
 Joseph selected the compact restart for the first release. Delphi Live remains the trader.
 Its ordinary strategy evaluation temporarily continues the original account journal and broker
-history checks. Reducing those regular reads and cumulative writes is the next piece of the
-same overhaul. Keep production data and fix forward if the new version needs repair.
+history checks. The operator subsequently clarified that reducing those regular reads and
+cumulative writes remained a separate proposal. Keep production data and fix forward if the
+installed restart encounters a fault. See the [November 2 investigation](../reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
 
 For this build the operator reviews the scoped restart permission in the desktop application.
 The receipt binds the terms, original permission, previous strategy revision and implementation.
