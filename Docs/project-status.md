@@ -4,9 +4,11 @@
 
 At 22:55 Toronto the cleanup removed **3.13 GiB** from `artifacts/delphi-live-tfsa-20261018/`.
 The 2,454 files came from five test outputs, three WPF builds, and generated `bin`/`obj` directories
-in the historical NativeRead helper and UI preview projects. The remaining 1,823 files matched their
-inventoried paths and sizes (4.32 GiB). They include twelve historical working copies, the
-`first-review-wpf` preview dependency, and the original receipts, source, screenshots and checkpoint.
+in the historical NativeRead helper and UI preview projects. At 23:03 Toronto the operator's follow-up
+cleanup retired twelve working copies and the `first-review-wpf` preview dependency, recovering another
+**4.30 GiB** across 1,635 files. The folder now holds **188 files (13.70 MiB)**. All retained files,
+including the receipts, source, screenshots and checkpoint, passed a before-and-after content hash check.
+The archived switch scripts and preview projects that name a retired build now serve as historical records.
 The [October working-copy record](reviews/delphi-live-morning-decisions-20261019.md#normal-checkout-launch-preference-and-duplicate-output-inventory--october-20)
 documents the move to normal Release launches. The live collector, engine and dashboard retained their
 process identities and executable/Core hashes. All four nightly outputs passed `-ValidateOnly` after cleanup.
