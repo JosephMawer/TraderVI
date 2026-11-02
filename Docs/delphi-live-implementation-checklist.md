@@ -80,7 +80,7 @@ October 18: ADR-0090 progressive protection is installed and enabled for all thr
 accounts (and all 12 Shadow accounts). Post-start checks preserve five Live holdings' floors/state,
 cash/history, comparison profiles and pending sells. The installed Core hash/host responsiveness are
 verified. This weekend check does not observe a regular-session bid-trigger sale; quote investigation
-remains deferred. [Operational receipt and limits](project-status.md#reference-map-and-maintenance).
+remains deferred. [Operational receipt and limits](project-status-history-20261101.md#reference-map-and-maintenance).
 
 The October 14 full-session comparison qualifies the stable-context/supplementary-record correction
 in [ADR-0089](adr/0089-tmx-session-context-and-supplementary-records.md). The opening native trace

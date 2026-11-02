@@ -41,7 +41,7 @@ cssclasses:
 > portfolios, and 37 open holdings have preserved/initialized saved protection. Five installed desktop
 > binaries and the responsive running host/Core hash are verified; post-start state and off-session
 > checks pass. Original entry controls are restored. A regular-session touch/sale is not observed by
-> this weekend verification. Quote investigation stays deferred. [Dated evidence](../project-status.md#reference-map-and-maintenance).
+> this weekend verification. Quote investigation stays deferred. [Dated evidence](../project-status-history-20261101.md#reference-map-and-maintenance).
 
 ## Prospective adoption and preserved contracts
 

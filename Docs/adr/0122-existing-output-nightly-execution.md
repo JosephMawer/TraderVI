@@ -107,5 +107,5 @@ Installation evidence and protected-host checks are in [project status](../proje
 private records under `artifacts/nightly-existing-outputs-20261101/`. The first scheduled run is not
 claimed successful until observed. This runner change performed no cleanup. The subsequent separately
 authorized removal of retired nightly copies is recorded in
-[project status](../project-status.md#november-1--retired-nightly-copies-removed). Other artifact cleanup,
+[project status](../project-status-history-20261101.md#november-1--retired-nightly-copies-removed). Other artifact cleanup,
 log/cache retention, single-file packaging and a dashboard Run now action remain separate decisions.

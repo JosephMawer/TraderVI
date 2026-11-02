@@ -892,26 +892,26 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Complete October 21 pre-open read-only checks through 09:06 Toronto: nightly stages succeeded,
   daily OfficialPaper input Valid for today/prior October 20 data, immutable storage verified, and
   broker check succeeds after operator sign-in with zero holdings/pending orders and matching history.
-  One responding normal-Release owner is observed after operator startup/rebuild. [Evidence/limits](project-status.md#october-21-pre-open-readiness).
+  One responding normal-Release owner is observed after operator startup/rebuild. [Evidence/limits](project-status-history-20261101.md#october-21-pre-open-readiness).
   This does not qualify the fresh Normal/account/risk review, save permission or activate execution.
 - [x] Accept/implement October 21-only pre-open review/approval and separate host arming, preserving
   current account/risk/storage/definition checks and requiring fresh matching source/account at open.
   No pre-open tick/order; exact date/build/ceiling/history/holds and 16:00 cutoff remain. [ADR-0096](adr/0096-pre-open-october21-approval-and-armed-host.md).
 - [x] Validate 284 focused/2,738 full serial offline passes (nine native skips) and standard Release
-  build after operator normal Stop/closure and independently verified zero owners. [Evidence](project-status.md#october-21-pre-open-approval-implementation).
+  build after operator normal Stop/closure and independently verified zero owners. [Evidence](project-status-history-20261101.md#october-21-pre-open-approval-implementation).
 - [x] Observe operator normal updated-output startup and all five native pre-open review checks,
   explicit continuation approval and Armed host UI. Hash-verified 09:22 SQL read confirms revision 50,
   pre-open flag/today's scope/exact 16:00 expiry/no automatic orders or positions; one responding
-  owner matches both tested output hashes. [Native evidence](project-status.md#october-21-pre-open-approval-implementation).
+  owner matches both tested output hashes. [Native evidence](project-status-history-20261101.md#october-21-pre-open-approval-implementation).
 - [x] Verify actual post-open execution with the hash-matched 09:37 read: StrategyEvaluated at
   09:31:41/09:32:50, revision 56/Active/today's permission/no saved blocks or automatic orders/positions.
 - [x] Create the operator-requested same-chat five-minute read-only execution/blocker/order watch,
-  bounded through today's close/final report/self-removal. [Scope and first evidence](project-status.md#october-21-post-open-execution-watch).
+  bounded through today's close/final report/self-removal. [Scope and first evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 - [ ] Observe sustained current execution, automatic order/fill behavior when eligible, and exact cutoff. Earlier all-nine-check/
   verification-restart implementation/validation above remain historical under ADR-0095.
 - [x] Detect/report the new 10:51 over-ten-minute real-evaluation/source stall with safe observation
   deadline error52232 at 10:43; distinguish it from SQL-2 and keep guards/expiry unchanged.
-  [Evidence](project-status.md#october-21-post-open-execution-watch). Recovery remains unverified at that read.
+  [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch). Recovery remains unverified at that read.
 - [x] Verify recovery at the 10:56 read: source10:51:52 and real evaluation10:52:16/revision110,
   twenty evaluations/no saved execution blocks/orders/fills/positions; roughly12½-minute gap.
   Preserve history/controls/16:00 expiry; sustained reliability remains unverified.
@@ -928,16 +928,16 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Establish the upstream no-buy reason with11:43–11:46 read-only evidence:zero of35published
   stocks admitted to Normal; all50lens entries first fail Breadth. Monitored momentum confirmation
   cannot substitute for daily admission. Correct earlier confirmation-only explanations; gates stay.
-  [Evidence](project-status.md#october-21-post-open-execution-watch).
+  [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 - [x] Record operator deferral of the partial SQL reliability fix until tonight and create the
   21:00 Toronto one-time reminder. Source remains uninstalled/incomplete; preserve today's running
-  build/gates/risk/16:00 expiry. [Progress and limits](project-status.md#october-21-post-open-execution-watch).
+  build/gates/risk/16:00 expiry. [Progress and limits](project-status-history-20261101.md#october-21-post-open-execution-watch).
 - [x] Verify continued operation at 10:10:31: twelve real evaluations/latest 10:09:39, no saved
   execution blocks or orders; two candidates start strong confirmation, all 37 remain unconfirmed.
   Sustained operation/fills/cutoff remain unchecked above; historical coverage gap is preserved.
 - [x] Trace the two original confirming candidates through 10:15 using a hash-verified 10:18 read:
   both lose confirmation on the 10:10 bar and return to Watching; neither confirms. Fifteen real
-  evaluations/latest 10:16, no saved execution blocks/orders/fills/positions. [Evidence](project-status.md#october-21-post-open-execution-watch).
+  evaluations/latest 10:16, no saved execution blocks/orders/fills/positions. [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 - [ ] Optional follow-up, not an October 21 prerequisite: review the broad paper/import settings-lock
   coupling and agree a narrower coordination scope before code. [Rationale/open proposal](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026).
 - [x] Inspect the real execution-status/buying-permission UI paths in the dedicated October 20
@@ -994,7 +994,7 @@ returns are negative and no automatic-execution qualification follows. [Current 
   native partial/uncertain/power-loss qualification remain outside this first-day contract.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
-operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)
+operationally verified are different states; the [status tables](project-status-history-20261101.md#implemented-versus-operational)
 record them. A prepared migration or passing test never proves broker readiness.
 
 ### Done
@@ -1036,7 +1036,7 @@ record them. A prepared migration or passing test never proves broker readiness.
   not completion of operational item 1 below.
 - [x] Agree and implement percentage-preserving cash-flow adjustments using matched account books,
   preserving holds and preventing duplicate application/restart resets (ADR-0083).
-  [Validation and source limits](project-status.md#verified-development-baseline).
+  [Validation and source limits](project-status-history-20261101.md#verified-development-baseline).
 - [x] Implement/test exact comparison-profile review, actual broker position/cash projection and
   shared synchronization/continuation orchestration; native risk source remains unqualified.
 - [x] Implement/test protection transfer/replay, immutable supervised approval, exit-before-buy,
@@ -1174,18 +1174,18 @@ runtime/display development can proceed while native input qualification remains
    - [x] Connect complete paper-account readers and broker evidence adapters to shared risk checks; keep candidate balances separate.
    - [x] Verify saved cash, holdings and calculated values across all 15 installed paper portfolios.
    - [x] Repair symbol resolution/source adoption and verify current cash-only Shadow observations without changing history.
-   - [x] Check saved and faster prices: delays and uneven minute coverage are measured; sampled gaps are consistent with quiet trading. [Dated evidence](project-status.md#latest-operational-evidence).
+   - [x] Check saved and faster prices: delays and uneven minute coverage are measured; sampled gaps are consistent with quiet trading. [Dated evidence](project-status-history-20261101.md#latest-operational-evidence).
    - [x] Build/test the one-minute price adapter with separate price/check times and rejection of stale, missing or failed reads.
    - [x] Build/test combined paper values from faster prices, verified cash and every holding; retain evidence and reject changed accounts or mixed price times.
    - [x] Save combined values through the risk journal; test history preservation, explicit source handover, repeat prices, lasting conflict blocks and restart recovery.
    - [x] Verify after-hours rejection for all 15 real paper accounts and reopen isolated diagnostic journals; no prices or risk transitions accepted.
-   - [x] Run the connected market-hours check; verify cash-only values save/reopen correctly and blocked reads grant no buying allowance. [Dated results and limits](project-status.md#latest-operational-evidence).
+   - [x] Run the connected market-hours check; verify cash-only values save/reopen correctly and blocked reads grant no buying allowance. [Dated results and limits](project-status-history-20261101.md#latest-operational-evidence).
    - [x] Diagnose missing/old or differently timed held-stock bars and post-price trades; preserve their valuation blocks.
    - [x] Fix the SQL/app receipt-clock discrepancy and verify locked account-read timestamps without loosening freshness.
-   - [x] Check TMX quotes as an alternative: sampled last sales can be old, and bid/ask has no verified quote timestamp. [Dated evidence](project-status.md#latest-operational-evidence).
+   - [x] Check TMX quotes as an alternative: sampled last sales can be old, and bid/ask has no verified quote timestamp. [Dated evidence](project-status-history-20261101.md#latest-operational-evidence).
    - [x] Inspect existing connections: Wealthsimple's manual quote reader includes bid/ask and a source-time field; portfolio-price suitability is unverified.
    - [x] Obtain approval, prepare/test the bounded broker quote diagnostic and verify its saved login; pre-open checks request no quotes.
-   - [x] Run both market-hours broker samples; record complete held-stock quote coverage, declared ages and changed times/prices. [Results and limits](project-status.md#latest-operational-evidence).
+   - [x] Run both market-hours broker samples; record complete held-stock quote coverage, declared ages and changed times/prices. [Results and limits](project-status-history-20261101.md#latest-operational-evidence).
    - [x] Check public timestamp documentation: real-time snapshots are described, but the exact API field meaning remains undocumented in the reviewed sources.
    - [x] Clarify scope: TMX stays normal; accepted timestamp uncertainty applies only to possible limited AI fallback exploration.
    - [ ] **Deferred / lower priority:** consider Wealthsimple only for AI review of a held stock when its TMX input is delayed/unavailable; agree fallback behavior when resumed.
@@ -1356,7 +1356,7 @@ The prerequisites below cover the broader real-account execution work and remain
   and repeat refresh preserves trade counts. Working partial orders, corrections and unsupported financial
   representations remain blocked; incremental-fill/correction handling and broader cash/order reservation
   integration remain. Preserve pinned legacy-ledger checks.
-  [Evidence](project-status.md#verified-development-baseline).
+  [Evidence](project-status-history-20261101.md#verified-development-baseline).
 - [ ] **5. Complete protection handover.** Retain the existing owner through transition; at activation
   transfer overlaps without losing established levels. Initialize missing protection only from real cost
   and fresh evidence; no invented historical highs or reset of known holds.
@@ -1459,7 +1459,7 @@ Optional older-history import remains a proposal; no historical reset is approve
   portfolios October 18. Verify saved protection for 37 holdings, stronger stops, pending sells,
   financial history and comparison profiles; restore original entry controls.
 - [x] Verify the responsive installed host/Core hash, post-start state and off-session quote-only wake
-  (zero signals, unchanged orders/quote observations). [Evidence](project-status.md#reference-map-and-maintenance).
+  (zero signals, unchanged orders/quote observations). [Evidence](project-status-history-20261101.md#reference-map-and-maintenance).
 - [ ] Observe normal regular-session polling/touch execution when available; weekend checks do not
   prove continuous market coverage or bid-trigger returns. Quote investigation remains deferred.
 - [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete
@@ -1486,10 +1486,10 @@ Optional older-history import remains a proposal; no historical reset is approve
   fifteen-minute, 56 are equal; add-on ARE is unchanged. [Method/results](reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates).
   This completes the bounded comparison, not selection/implementation of operating cadence or low/bid inputs.
 - [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun
-  ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
+  ([dated success evidence and remaining limits](project-status-history-20261101.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,
   active lease renewal and the first completed collection; record its failures rather than qualifying coverage
-  ([runtime evidence](project-status.md#latest-operational-evidence)).
+  ([runtime evidence](project-status-history-20261101.md#latest-operational-evidence)).
 - [x] Verify saved adoption by all four original Shadow portfolios and a same-day price for the remaining
   open holding (October 8 records, checked October 9); this does not qualify complete ongoing coverage.
 - [x] Verify October 8 intraday records despite reported laptop downtime: 78 scheduled cycles and 1,753
@@ -1511,18 +1511,18 @@ Optional older-history import remains a proposal; no historical reset is approve
 - [ ] Review Athena's older missing-session outcomes separately from successful daily collection;
   preserve invalid evidence and do not infer intraday or strategy-performance qualification from nightly completion.
 - [x] Measure database allocation, staging backups and repository storage without changing production
-  data (September 23; [evidence](project-status.md#latest-operational-evidence)).
+  data (September 23; [evidence](project-status-history-20261101.md#latest-operational-evidence)).
 - [x] Complete the user-authorized one-time cleanup of obsolete artifact binaries; verify retained
-  evidence and model/source hashes (September 23; [evidence](project-status.md#latest-operational-evidence)).
+  evidence and model/source hashes (September 23; [evidence](project-status-history-20261101.md#latest-operational-evidence)).
 - [ ] Review recurring build/artifact retention; the one-time cleanup did not install a policy.
 - [x] Complete the separately user-authorized one-time SQL shrink after a fresh verified backup and
   integrity check; retain growth headroom and verify every table count afterward (September 23, 23:55;
-  [evidence](project-status.md#latest-operational-evidence)). No automatic shrink enabled.
+  [evidence](project-status-history-20261101.md#latest-operational-evidence)). No automatic shrink enabled.
 - [ ] Perform a documented restore into a separate test database. The pre-shrink backup is checksum/hash
   verified and OneDrive reports IN_SYNC; neither an independent download nor restore drill has run.
 - [ ] Resolve the current held Live opening-value gap and tracked 15-minute conflict; verify subsequent
   complete monitoring sessions without rewriting first-received evidence or clearing historical gaps.
-  [Last health evidence](project-status.md#latest-operational-evidence).
+  [Last health evidence](project-status-history-20261101.md#latest-operational-evidence).
 - [ ] Finish native opening-value qualification and the actual setup/continuation caller before treating
   offline valuation tests as operational account references.
 - [ ] Extract shared Core into a standalone host and arrange pre-session Windows Task Scheduler startup
@@ -1631,9 +1631,9 @@ browser security blocked local-file preview, so layout/interaction verification 
 - [x] Retain Paper trade history, existing performance periods/reference scope, exact-source TFSA
   review eligibility and the separately labelled recommendation review. Missing facts remain unavailable.
 - [x] Verify the WPF build, focused account-evidence tests and offline XAML renders/navigation with
-  synthetic data and no binding errors. Detailed validation state is in [project status](project-status.md#portfolios-strategy-workspace--october-23-source-checkpoint).
+  synthetic data and no binding errors. Detailed validation state is in [project status](project-status-history-20261101.md#portfolios-strategy-workspace--october-23-source-checkpoint).
 - [x] Install this increment through the operator-requested normal Release rebuild/restart on October 24;
-  dashboard responsive, engine Running and execution Off. See [installation evidence](project-status.md#portfolios-strategy-workspace--october-24-installation).
+  dashboard responsive, engine Running and execution Off. See [installation evidence](project-status-history-20261101.md#portfolios-strategy-workspace--october-24-installation).
 - [ ] Review Portfolios in the running desktop at the operator's actual dimensions. Screen capture
   timed out during the install check; subsequent user input ended UI automation. Installation and
   offline rendering do not establish broker-execution qualification.

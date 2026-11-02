@@ -38,7 +38,7 @@ held-position bid-quote investigation. This is distinct from the weekend mapping
 **October 30 unresolved finding, now on operator hold:** the persistent broker bid-read failure
 for a managed Real holding still requires restored bid-based protection before claiming automatic
 selling readiness. The operator has deferred this investigation; current observations and limitations are in
-[project status](project-status.md#october-30--held-position-bid-protection-gap-verified-1003-toronto).
+[project status](project-status-history-20261101.md#october-30--held-position-bid-protection-gap-verified-1003-toronto).
 This is an operational protection gap, separate from the deferred generic-error logging improvement.
 Keep hosts running and leave this investigation on hold; no repair or restored protection is claimed.
 
@@ -213,7 +213,7 @@ Current wait includes20m uninterrupted measurement history plus two consecutive 
 observed paper/host processing still adds minutes. Timing estimates depend on continuity, not an
 order target or authorization to bypass confirmation.
 Preserve original financial history/risk, intraday/data/order controls and 16:00 expiry.
-[Facts](project-status.md#october-21-post-open-execution-watch),
+[Facts](project-status-history-20261101.md#october-21-post-open-execution-watch),
 [operational dependencies](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
 No current approval silently expands to another complete strategy.
 
@@ -228,13 +228,13 @@ refresh and host enable only, and corrects historical setup instructions; 274 fo
 and standard Release build pass. Review/approval/execution waits and all timing/financial controls remain.
 An [open follow-up](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026)
 questions the broad paper/import lock coupling; it is not an added October 21 prerequisite or agreed code scope.
-October 21 [pre-open checks](project-status.md#october-21-pre-open-readiness) confirm successful nightly
+October 21 [pre-open checks](project-status-history-20261101.md#october-21-pre-open-readiness) confirm successful nightly
 stages, Valid daily input, immutable storage and a signed-in cash-only/order-free broker snapshot;
 one responding normal desktop was observed before the subsequent coordinated build closure.
 The operator then accepts [pre-open approval/arming](adr/0096-pre-open-october21-approval-and-armed-host.md):
 implemented with 284 focused/2,738 full offline passes (nine native skips) and normal Release build.
 Native operator pre-open review/approval/arming is now observed; SQL revision 50 confirms today's
-flag/16:00 expiry, and one responding owner matches the tested output. The [first post-open check](project-status.md#october-21-post-open-execution-watch)
+flag/16:00 expiry, and one responding owner matches the tested output. The [first post-open check](project-status-history-20261101.md#october-21-post-open-execution-watch)
 verifies initial operation; a subsequent SQL evaluation-save timeout causes a roughly 13-minute gap
 before real evaluation resumes at 09:45:45; candidates at that read are Watching/immature, with no
 confirmed eligibility or orders. Track the [open timeout cause](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026)
@@ -253,7 +253,7 @@ roughly12-minute gap,27real evaluations/no orders; sustained reliability remains
 The 11:46 no-buy analysis establishes a separate primary gate: Normal admits zero of today's35
 published stocks; all50 lens entries first fail Breadth. Intraday momentum confirmation alone cannot
 authorize a purchase. Earlier confirmation-only explanations are incomplete; preserve the approved
-Normal profile and daily gate. [Evidence](project-status.md#october-21-post-open-execution-watch).
+Normal profile and daily gate. [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 Continue the requested five-minute read-only progress/blocker/order watch through today's cutoff. Sustained progress,
 automatic fills and cutoff evidence remain separate; no routine setup clicks are needed. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
@@ -614,7 +614,7 @@ or completed replacement of the execution work below. See the
    Retain the existing Market sell all row action and distinct full execution pause. See the
    [current checklist](strategy-alignment-implementation-checklist.md#left-to-do--development-order).
    A dedicated setup screen is not a prerequisite for developing the continuation logic.
-   The September 24 [external-trade rollout](project-status.md#latest-operational-evidence) installed
+   The September 24 [external-trade rollout](project-status-history-20261101.md#latest-operational-evidence) installed
    migration 040 and verified resolved-order synchronization, the reported exit and repeat-refresh
    duplicate prevention under ADR-0084. Cash/risk input qualification and working partial-order handling
    remain under checklist items 1–4.
@@ -625,7 +625,7 @@ or completed replacement of the execution work below. See the
    Verify current input adoption, overnight completion and uninterrupted regular-session Live/Shadow
    operation, including full-watchlist/provider capacity and SQL durability. Dated engineering
    activations are not full-session qualification or reusable exceptions.
-   The [latest nightly check](project-status.md#latest-operational-evidence) confirms on-time success
+   The [latest nightly check](project-status-history-20261101.md#latest-operational-evidence) confirms on-time success
    for October 10–13 with no new Athena invalid outcomes and all active endpoints through the prior
    TSX session. October 13 source adoption and partial runtime progress are verified, but recurring
    monitor/cycle failures, incomplete held-account valuation and Blocked coverage remain. Capture the
@@ -655,7 +655,7 @@ or completed replacement of the execution work below. See the
   display/history payloads and avoid unchanged-revision reconstruction under explicit freshness rules,
   preserving immutable history and fingerprint validation. Repeated reads and lifetime engine
   collections remain.
-  Evidence: [project status](project-status.md#latest-operational-evidence).
+  Evidence: [project status](project-status-history-20261101.md#latest-operational-evidence).
 - Perform a documented restore into a separate test database and continue checking backup synchronization.
   OneDrive reports the September 23 pre-shrink backup IN_SYNC; no restore drill has run. Routine latest-two
   retention is installed; the additional manual recovery checkpoint and all existing backups were preserved.
@@ -706,7 +706,7 @@ or completed replacement of the execution work below. See the
   open holdings' protection, financial facts and comparison profiles; original entry controls are restored.
   Next observe normal regular-session polling/touch behavior when available. Quote investigation stays
   deferred and gap repairs secondary; weekend state checks and synthetic studies do not establish
-  bid-trigger returns or continuous coverage. [Dated installation evidence](project-status.md#reference-map-and-maintenance).
+  bid-trigger returns or continuous coverage. [Dated installation evidence](project-status-history-20261101.md#reference-map-and-maintenance).
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules
   only after validated backfill.
@@ -738,7 +738,7 @@ or completed replacement of the execution work below. See the
 - New ML features, thresholds or models: design-rule review and an ADR for behavioral changes.
 - Nightly captured-source/build/cache retention: reviewed policy remains open in
   [open questions](reviews/open-questions.md#nightly-build-retention-adr-0078-2026-09-14); the
-  [September 23 one-time compiled-output cleanup](project-status.md#latest-operational-evidence) is
+  [September 23 one-time compiled-output cleanup](project-status-history-20261101.md#latest-operational-evidence) is
   complete. The separately authorized one-time SQL shrink is also complete with preservation checks;
   recurring build retention remains undecided, and automatic SQL shrinking remains off.
   Installed database-backup retention does not cover build artifacts.

@@ -213,7 +213,7 @@ tolerance choice, not the underlying source-latency investigation.
   stage, no initial durable five-minute evaluations and a stale Normal source. Real evaluations gap
   from 09:32:50 to 09:45:45. Shared evaluations subsequently persist; actions add 115.53 s before
   source/real execution recovery. Current Watching/immature/unconfirmed signals also explain no
-  orders after recovery. [Current evidence](../project-status.md#october-21-post-open-execution-watch).
+  orders after recovery. [Current evidence](../project-status-history-20261101.md#october-21-post-open-execution-watch).
 - **Unresolved:** exact database wait/blocking/plan cause and repeatability. Timeout location is
   established; lock contention versus slow execution is not. Do not conflate this with the older
   import-lock diagnosis below or loosen freshness/gates/timeouts to manufacture progress.
@@ -228,7 +228,7 @@ tolerance choice, not the underlying source-latency investigation.
   updated-build review work is incomplete/uncompiled/untested. That original draft remains uncommitted
   and uninstalled, byte-for-byte parked outside compiled source under
   `artifacts/deferred-sql-20261021/saved-source/` for the independent source-switch build. Expected indexes are enabled; available helper permissions do not expose the historical
-  wait/plan cause. [Resume notes/current evidence](../project-status.md#october-21-post-open-execution-watch).
+  wait/plan cause. [Resume notes/current evidence](../project-status-history-20261101.md#october-21-post-open-execution-watch).
 - **Next:** observe native recovery/stage delivery and capacity under tomorrow's separately
   reviewed current-build approval/host after the21:31SQL correction installation.
   Historical SQL wait/plan remains unresolved. Today's dated approval stays expired and the
@@ -243,7 +243,7 @@ tolerance choice, not the underlying source-latency investigation.
   the cycle. Investigate source-context/history/snapshot reconstruction and repeated loads, then
   the narrower import coordination boundary. Exact SQL-versus-CPU cost/root cause remains unknown.
   The wait drains normally; no bypass or implementation change is accepted merely by this report.
-  [Dated evidence](../project-status.md#october-21-post-open-execution-watch).
+  [Dated evidence](../project-status-history-20261101.md#october-21-post-open-execution-watch).
 
 - **Recovered rationale:** the [October 19 SQL 51413 diagnosis](delphi-live-morning-decisions-20261019.md#sql-51413-and-desktop-scheduling-coordination--october-19)
   records a real contention failure: paper cycles hold a shared `TraderVI.EngineSettings` lock
@@ -921,7 +921,7 @@ evidence; this follow-up grants no additional provider requests or database repa
   535 MB; every historical/current snapshot reconstructed and WPF resumed compact writes.
 - Resolved September 23, 23:55: the user separately authorized reclaiming unused SQL capacity while
   preserving all stock/application data. The one-time shrink is complete with a verified backup,
-  growth headroom and preservation checks; see [current evidence](../project-status.md#latest-operational-evidence).
+  growth headroom and preservation checks; see [current evidence](../project-status-history-20261101.md#latest-operational-evidence).
   No automatic shrink is approved, and no existing backups were deleted. An independent backup
   download and documented restore drill remain outstanding; no application performance benchmark ran.
 
@@ -1506,7 +1506,7 @@ Historical cleanup, log/cache retention and a dashboard action remain open in th
 [design history](nightly-precompiled-releases-20261101.md). Preserve the four active output directories
 named by `Operations/nightly-outputs-20261101.json`, attributable logs and compiled-code identities.
 
-The September 23 user-authorized [one-time cleanup](../project-status.md#latest-operational-evidence)
+The September 23 user-authorized [one-time cleanup](../project-status-history-20261101.md#latest-operational-evidence)
 removed reviewed old compiled outputs while retaining source/evidence, models, the latest two nightly
 builds, package cache, recent work and the separate worktree. This was not a recurring-retention decision
 or installation. Future policy must preserve attributable evidence and active work, and distinguish

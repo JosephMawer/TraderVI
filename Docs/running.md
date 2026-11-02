@@ -940,7 +940,7 @@ Old `artifacts/nightly/<run-id>` source/build folders and `artifacts/nightly/pac
 created or populated by the runner. The operator-authorized November 1 cleanup removed all 58 old run
 folders and their dedicated package cache; `artifacts/nightly` is now empty. This included old source
 snapshots as well as build outputs. Preserve the separate currently selected directories and registration
-receipts. [Project status](project-status.md#november-1--retired-nightly-copies-removed) records the exact
+receipts. [Project status](project-status-history-20261101.md#november-1--retired-nightly-copies-removed) records the exact
 scope and verification. Other artifact directories and operational logs were outside that cleanup.
 
 The authorized September 23 one-time storage cleanup removed compiled binaries from older artifact
@@ -1464,7 +1464,7 @@ Athena reads immutable official calibration candidates and local `DailyBars`, re
 
 For `DelayedIntradaySwing`, Athena replays only a continuous first-received 15-minute path. A later bar that proves a missing bar/session, a receipt-order conflict, or a later five-minute bar that proves the exact symbol/XIU fill bar is missing produces an audited invalid outcome. If no later evidence yet proves a gap, the candidate stays pending. An alert during the session uses the exact next five-minute boundary; an after-close alert waits for the next observed regular-session open. Athena never substitutes a later convenient price.
 
-The September 1 run recorded 112 valid three-session marks and 112 valid excursions before longer horizons matured. The WPF **Scorecards** tab loads `PredictionLabels10` for the active strategy on first open. Use **Refresh from SQL** to reload it. The 95% coverage calculation includes recent candidates still waiting for ten later market sessions. See the [November 1 check of due and pending predictions](project-status.md#november-1--athena-prediction-scorecards-and-the-ten-session-window).
+The September 1 run recorded 112 valid three-session marks and 112 valid excursions before longer horizons matured. The WPF **Scorecards** tab loads `PredictionLabels10` for the active strategy on first open. Use **Refresh from SQL** to reload it. The 95% coverage calculation includes recent candidates still waiting for ten later market sessions. See the [November 1 check of due and pending predictions](project-status-history-20261101.md#november-1--athena-prediction-scorecards-and-the-ten-session-window).
 
 Athena reads local market data and writes missing definitions and matured outcomes to SQL. Apply the reviewed calibration migrations manually first and obtain explicit authorization before running it. Migration 016 is applied. The report counts official runs for the active strategy and separately shows how many earlier runs were excluded. The optional CSV switch writes five export-schema-v2 artifacts stamped with strategy ID/name, initial code commit, and decision reference, and refuses to overwrite an existing filename.
 

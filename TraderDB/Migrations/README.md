@@ -12,7 +12,7 @@ The consumer build is required to publish actual rule gaps.
 057 committed in production at 08:38 EST after verified backup and synchronization. The new table
 was empty, the foreign key and window constraint trusted, and the primary and request-ID indexes
 enabled. The latest-minute collector was installed. The five-minute trading engine was retained.
-Do not replay this migration. [Installation evidence](../../Docs/project-status.md#november-1--latest-minute-collector-running-trading-engine-retained)
+Do not replay this migration. [Installation evidence](../../Docs/project-status-history-20261101.md#november-1--latest-minute-collector-running-trading-engine-retained)
 
 ## Collector receipt compression — installed November 1
 

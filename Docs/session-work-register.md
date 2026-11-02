@@ -139,7 +139,7 @@ no app launch, financial approval, host enable or trading action was performed b
 profile1 consumes37symbols13:10bar,0mature/confirmed/orders/positions/holds/blocks,same16:00.
 13:21metadata verifies epoch10/continuity13:10 stock/benchmark,31valid ontime/37. Source/lease/
 responsiveowner/hashesagree; no newer failure than13:07:41 observed. Recovery notified once,
-earlierETAretired; sustainedcontinuity/confirmation remains pending. [Evidence](project-status.md#october-21-post-open-execution-watch).
+earlierETAretired; sustainedcontinuity/confirmation remains pending. [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 Source review point advances through heartbeat/hash-verified recovery and boundary read. No
 code/control/restart/order action; keep deferred reliability work separate.
 
@@ -147,7 +147,7 @@ code/control/restart/order action; keep deferred reliability work separate.
 revision162/profile1/noorders/positions/holds/blocks/same16:00. App52232recurs13:07:41/213.72scycle;
 input count still74through12:55bar andactual37symbols stillimmature/unconfirmed. Recoveryclears
 context; earlierconditional13:10/13:15estimate invalidated,newcontinuitynotverified. Sourceledger/
-lease/desktop advance/respond,hashesmatch,notproofnewinputs. [Evidence](project-status.md#october-21-post-open-execution-watch).
+lease/desktop advance/respond,hashesmatch,notproofnewinputs. [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 Newfailure/forecastinvalidationnotifiedonce. Source review point advances through heartbeat;
 no control/restart/fix/tradingaction; preserve9PMdeferral and monitorrecovery.
 
@@ -156,7 +156,7 @@ slows execution. Verify existing20m interval history/two consecutive5m Strong re
 epoch9 continuity12:50: earliestmature13:10/possibleconfirmation13:15, conditional on validdata/
 continuity/strength and later processing.13:05read real13:03:44/revision159 consumes12:55bar with
 0mature/confirmed/orders/holds/savedblocks,same16:00. Completed papercycle353.67s/Actions163.61s;
-actualbar lag8m44s. [Owning evidence](project-status.md#october-21-post-open-execution-watch).
+actualbar lag8m44s. [Owning evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 Source review point advances through this question/source inspection/hash-verified metadata read.
 No new policy/design/implementation authority or code/control/trading action.
 
@@ -164,7 +164,7 @@ No new policy/design/implementation authority or code/control/trading action.
 12:57:33/revision156/profile1 has consumed37symbols'12:50bar after approval; all immature/
 unconfirmed.74target inputs through12:55bar now saved, newerbatchafterlatestrealcheck. Noorders/
 positions/holds/savedblocks,same16:00;source13:02:33/sessionMonitoring/onelease,expectedowner/hashes.
-[Owning evidence](project-status.md#october-21-post-open-execution-watch). Recovery notified once;
+[Owning evidence](project-status-history-20261101.md#october-21-post-open-execution-watch). Recovery notified once;
 continue warmup/confirmation/sustained-progress watch, preserve historicalfailures/coverage and
 eveningdeferral. Source review point advances through this heartbeat/bounded consumption proof.
 No code/control/order/restart action; preferred monitor query nowBoundedRecoveryWatch.sql.
@@ -173,7 +173,7 @@ No code/control/order/restart action; preferred monitor query nowBoundedRecovery
 profile1/zeroorders/positions/holds/savedblocks/same16:00; one responding owner/newhashes match.
 App52232 observation deadline recurs12:47:13.12:51bounded target read verifieszero post-approval
 bar inputs. Broader monitoring reads time outSQL-2 withoutresults; narrower SELECTs succeed, with
-hashes verified. [Owning evidence](project-status.md#october-21-post-open-execution-watch).
+hashes verified. [Owning evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 New source failure/input blocker notified once; fresh-input recovery remains pending. No over10m
 realstall yet, no control/restart/fix operation; evening deferral retained. Source review point
 advances through this heartbeat and bounded diagnostics.
@@ -183,7 +183,7 @@ enabled-host screen. Hash-verified12:44read proves PortfolioRulesOnly approval12
 realStrategyEvaluated12:43:34/revision147,originalaccount/session/approval/continuation/baseline/risk
 references/ceiling preserved,currentbuildmatches,same16:00expiry,zeroorders/fills/positions/no saved
 blocks. Shared marketinputs stillpre-approval; sustainedfreshness/confirmation/orderproofpending.
-[Owning evidence](project-status.md#october-21-post-open-execution-watch),
+[Owning evidence](project-status-history-20261101.md#october-21-post-open-execution-watch),
 [dependencies](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
 Source review point advances through operator confirmation/screenshot and saved verification.
 First switched execution notified; continue read-only watch without repeating it or forcing trades.
@@ -200,7 +200,7 @@ Source review point advances through complaint, safe timing inspection and verif
 New normalRelease ownerPID39964 responds12:34:11, expected hashes match; hash-verified12:34:42 read
 finds target refreshed12:34:29, samepair/policysettings,sessionMonitoring/onelease. No source approval,
 orders/positions or cutoff change. Advise new review/approval within two minutes then separateenable;
-freshness remains unchanged. [Owning evidence](project-status.md#october-21-post-open-execution-watch).
+freshness remains unchanged. [Owning evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 Source review point advances through screenshot and bounded diagnostic. No code/financial action.
 
 **October 21 source-switch implementation (R04):** user explicitly requests implementation now
@@ -211,7 +211,7 @@ successful standardRelease build. Operator startup/sign-in/source approval/separ
 pending;12:28hash-verified read stillNormal/noSourceSwitch,noorders/positions,same16:00expiry.
 Watch now reads effective source and new expected hashes, without inferring financial approval.
 [Decision](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md),
-[owning evidence](project-status.md#october-21-post-open-execution-watch),
+[owning evidence](project-status-history-20261101.md#october-21-post-open-execution-watch),
 [remaining steps](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
 Source review point advances through this implementation request. No live source/host/order action
 was performed. Preserve unrelated Obsidian edits. Deferred SQL source is byte-for-byte parked in
@@ -223,14 +223,14 @@ does not extend tonight; source switch is independent of that deferral.
 Recover October 18 recommendation from limited paper results, Normal-only setup, October 20 initial
 approval and today's retained continuation. Do not infer informed preference for gates from approval
 of that preset. Requested target: existing Delphi Live/Portfolio rules only. The 11:56 read confirms
-both profiles exist, TFSA remains Normal/no orders. [Facts](project-status.md#october-21-post-open-execution-watch),
+both profiles exist, TFSA remains Normal/no orders. [Facts](project-status-history-20261101.md#october-21-post-open-execution-watch),
 [subsequent decision](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md).
 Source review point advances through this request/question and provenance inspection. No code,
 switch or financial mutation; SQL-fix evening deferral is not an inferred deferral of this request.
 
 **October21 third deadline recovery (R04):**11:49 hash-verified read confirms real recovery11:46:51/
 revision131/27evaluations after12m8s gap;safe diagnostic52232 at11:37:51. No orders/saved execution
-blocks,unchanged16:00expiry;desktop/hashes match. [Evidence](project-status.md#october-21-post-open-execution-watch).
+blocks,unchanged16:00expiry;desktop/hashes match. [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 Source review point advances through this heartbeat; recurrence/recovery reported once, no controls
 or deferred code changed. Daily Breadth remains a separate established admission issue.
 
@@ -239,7 +239,7 @@ or deferred code changed. Daily Breadth remains a separate established admission
 first fail Breadth. All saved Normal inputs lack DailySetup; momentum confirmations in the monitored
 universe do not establish purchase eligibility. Earlier confirmation-only explanations are incomplete.
 Repeated recovery/warmup resets are an additional operational impairment, not proof that otherwise
-eligible buys were missed. [Owning evidence](project-status.md#october-21-post-open-execution-watch).
+eligible buys were missed. [Owning evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 Source review point advances through this question and hash-verified daily admission/history reads.
 No policy/gate/control/source change; deferred evening reliability work and watch continue.
 
@@ -247,7 +247,7 @@ No policy/gate/control/source change; deferred evening reliability work and watc
 real-evaluation gap, but source has just advanced. Safe diagnostics identify SQL52232 at11:07:47;
 LiveActions finishes11:16:29 after138.85s. Bounded hash-verified follow-up11:16:51 confirms real
 evaluation11:16:46/revision119/Active/23evaluations, no saved execution blocks/orders/fills/positions,
-same16:00expiry. [Evidence](project-status.md#october-21-post-open-execution-watch). Recurrence/recovery
+same16:00expiry. [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch). Recurrence/recovery
 reported together; watch baseline advanced. Preserve the evening deferral and investigate this
 distinct failure as well as SQL-2; incomplete retry source is not its qualification. Source review
 point advances through this heartbeat and safe diagnostics; no operational/source/control mutation.
@@ -255,7 +255,7 @@ point advances through this heartbeat and safe diagnostics; no operational/sourc
 **October 21 second recovery (R04):** hash-verified 10:56:24 read confirms Normal source10:51:52
 and real StrategyEvaluated10:52:16/revision110/Active/twenty evaluations after the deadline-related
 roughly12½-minute gap. No saved execution blocks/orders/fills/positions;16:00expiry unchanged.
-[Evidence](project-status.md#october-21-post-open-execution-watch). Recovery reported; watch baseline
+[Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch). Recovery reported; watch baseline
 clears the current stall without erasing its history. Source review point advances through this
 bounded heartbeat. No restart/control/source mutation; sustained reliability is unproven.
 
@@ -263,7 +263,7 @@ bounded heartbeat. No restart/control/source mutation; sustained reliability is 
 threshold; source also stalls, while shared evaluations resume and desktop responds. A new safe
 10:43:05 SQL52232 diagnostic identifies observation membership arriving after the existing collection
 deadline, distinct from the original SQL-2 save timeout. Root timing cause is unestablished. No
-orders/fills/positions or saved execution blocks; expiry unchanged. [Evidence](project-status.md#october-21-post-open-execution-watch).
+orders/fills/positions or saved execution blocks; expiry unchanged. [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 Source review point advances through this read-only heartbeat/diagnostic. Notify new blocker once,
 then recovery/changes only. Fix remains deferred; no operational/control/source mutation.
 
@@ -271,7 +271,7 @@ then recovery/changes only. Fix remains deferred; no operational/control/source 
 candidates confirmed or placed orders. Hash-verified 10:18:09 read traces the exact original pair:
 both lose confirmation at 10:10 and are Watching at 10:15; neither becomes confirmed eligible.
 Latest real evaluation 10:16/revision 95/Active, fifteen evaluations/no saved execution blocks or
-automatic orders/fills/positions. [Evidence](project-status.md#october-21-post-open-execution-watch).
+automatic orders/fills/positions. [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
 Source review point advances through this question and direct cohort-history read. Watch continues;
 evening fix deferral, trading controls and cutoff are unchanged.
 
@@ -289,7 +289,7 @@ No Release replacement/restart/schema or financial operation. The 10:10:31 hash-
 revision 86/Active, twelve real evaluations/latest 10:09:39, no saved execution blocks/orders/positions,
 and two StrongConfirmationStarted candidates, all 37 still unconfirmed. Normal source advances;
 one responding owner. Continue today's read-only watch and preserve historical coverage gap.
-[Owning evidence](project-status.md#october-21-post-open-execution-watch),
+[Owning evidence](project-status-history-20261101.md#october-21-post-open-execution-watch),
 [open work](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026).
 Source review point advances through the explicit fix request, operator deferral/reminder request,
 partial offline work and 10:10 live-state check; no accepted same-day deployment requirement remains.
@@ -299,7 +299,7 @@ finds both in sequence: SQL evaluation-save timeout 09:37:46 with stale source/n
 then recovery at 09:42:32 (paper inputs), 09:44:19 (Normal source), 09:45:45 (real revision 59).
 Current 37 Normal candidates are Watching/immature/unconfirmed; no account blocks or automatic
 orders/positions. The approximately 13-minute real-evaluation gap and new host-coverage gap remain
-recorded. [Evidence](project-status.md#october-21-post-open-execution-watch), [unresolved exact timeout cause](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026).
+recorded. [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch), [unresolved exact timeout cause](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026).
 Watch baseline records the reported blocker/recovery; no source/control/order/restart change.
 Source review point advances through the user's no-order question and bounded diagnosis/recovery
 reads at 09:45:51. Continue watching new stalls, maturity/order activity and cutoff.
@@ -310,7 +310,7 @@ today's final cutoff report/self-removal. Initial hash-verified 09:37 read confi
 at 09:31:41/09:32:50, revision 56/Active/today's scope/no saved blocks or automatic orders/positions.
 Normal source remains at 09:31:23 at that read; distinguish initial success from continued freshness.
 First-execution notification delivered. Next watch continued progress, actionable blocks/orders and
-16:00 expiry; no controls/gates/trades changed. [Evidence/scope](project-status.md#october-21-post-open-execution-watch).
+16:00 expiry; no controls/gates/trades changed. [Evidence/scope](project-status-history-20261101.md#october-21-post-open-execution-watch).
 Source review point: Prepare Delphi Live strategy through the explicit watch request, heartbeat
 creation/verification and first post-open saved-state check. Automatic orders are an operator hope,
 not a requirement to force a trade or relax strategy/risk controls.
@@ -325,7 +325,7 @@ reports approval and supplies Armed UI confirmation. Hash-verified 09:22 read co
 pre-open flag/today's scope/exact 16:00 expiry/no automatic orders or positions. One responding
 normal-output owner PID 37148 matches both validated output hashes. Next observe post-open evaluation/
 cutoff; no more setup clicks needed in the same running/signed-in app. No agent financial action/launch/native rehearsal.
-[Evidence](project-status.md#october-21-pre-open-approval-implementation). Source review point advances
+[Evidence](project-status-history-20261101.md#october-21-pre-open-approval-implementation). Source review point advances
 in Prepare Delphi Live strategy through explicit implementation request, operator closure confirmation,
 offline validation/build, operator native review/approval/Armed screenshots and independent saved-state/
 owner/hash verification; no recurring startup or October 22 permission follows.
@@ -335,7 +335,7 @@ pass bounded checks. Broker authentication initially fails; operator starts/sign
 desktop, then the installed broker-v2 read succeeds (cash-only/no pending orders/history matches).
 One responding normal-Release owner and rebuilt source d828b41 are observed at 09:06 Toronto.
 No October 21 permission exists; stop old host and perform regular-session current Normal/account/
-risk review, explicit approval and separate enable. [Evidence and remaining limits](project-status.md#october-21-pre-open-readiness).
+risk review, explicit approval and separate enable. [Evidence and remaining limits](project-status-history-20261101.md#october-21-pre-open-readiness).
 Source review point: [Prepare Delphi Live strategy](codex://threads/01a15e86-45f0-7cb3-8a4b-624a0d2ee60d)
 through operator sign-in confirmation and pre-open read-only handoff. [Prepare Delphi Live session](codex://threads/01a15c0f-fe16-7953-bced-e424487cbb96)
 was read through its saved-risk-reference explanation; further understanding discussion remains open.
@@ -386,9 +386,9 @@ extension reads saved paper SQL records only, without a producer, broker or mark
 
 | ID / work | Reconciled state and next step | Owning record / source chats |
 |---|---|---|
-| **R01 — Preserve intraday gains; revisit soon** | **Installed/enabled October 18; important continuing research goal.** All 15 active paper portfolios (12 Shadow/three Delphi Live, including the ten comparison accounts) use prospective progressive versions. All 37 holdings have saved protection; native post-start checks preserve stronger stops, earned state, pending sells, financial facts and profiles, with original entry controls restored. Migrations 043–045 are installed after verified backup/copy; desktop hashes, responsive host and off-session wake are checked. Validation: 59 rollout tests, full Core 2,423 pass/eight skips, WPF/SSDT and 12 native guard checks pass; earlier 166 focused checks retain their scope. Next observe normal regular-session polling/touches when available. Quote investigation remains deferred; receipt age does not qualify upstream age. Keep morning/noon alternatives and whole-portfolio protection as background research. | [Accepted contract](adr/0090-progressive-individual-profit-trailing.md), [rollout evidence](project-status.md#reference-map-and-maintenance), [research](reviews/open-questions.md#intraday-gain-retention-revisit-soon); [S31](#s31), [S34](#s34); October 16–18 continuation in this chat. |
+| **R01 — Preserve intraday gains; revisit soon** | **Installed/enabled October 18; important continuing research goal.** All 15 active paper portfolios (12 Shadow/three Delphi Live, including the ten comparison accounts) use prospective progressive versions. All 37 holdings have saved protection; native post-start checks preserve stronger stops, earned state, pending sells, financial facts and profiles, with original entry controls restored. Migrations 043–045 are installed after verified backup/copy; desktop hashes, responsive host and off-session wake are checked. Validation: 59 rollout tests, full Core 2,423 pass/eight skips, WPF/SSDT and 12 native guard checks pass; earlier 166 focused checks retain their scope. Next observe normal regular-session polling/touches when available. Quote investigation remains deferred; receipt age does not qualify upstream age. Keep morning/noon alternatives and whole-portfolio protection as background research. | [Accepted contract](adr/0090-progressive-individual-profit-trailing.md), [rollout evidence](project-status-history-20261101.md#reference-map-and-maintenance), [research](reviews/open-questions.md#intraday-gain-retention-revisit-soon); [S31](#s31), [S34](#s34); October 16–18 continuation in this chat. |
 | **R02 — Visible AI reviewer, then paper/live AI** | Milestone 1 remains pending. Client, scheduling, risk core, SQL records and bounded desktop tests exist. October 9 v3 input omissions/counting passed; fresh v3 interpretation, qualified desktop installation, recurring successful reviews and basic display remain. Restore qualified inputs before the retained bounded-review step. Protection/actions, switching, evaluated learning and live qualification remain later milestones. | [AI ten steps](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence), ADR-0087; [S40](#s40), [S42](#s42), [S46](#s46). |
-| **R03 — Dependable collection and valuation** | October 14 source-context, sparse-record and receipt-clock fixes are tested/installed, with bounded scheduled-cycle and current-mark recovery verified. The AI chat's October 9 “inspect provider contract next” is superseded by that work. Missing exact bars, canonical conflicts, historical gaps and continuous held-value/full-watchlist capacity remain open. Recovery of a Live mark does not qualify the separate AI risk reader. Latest nightly watcher reports success October 16; that is a recovered chat result, not an independent audit here. | [Latest evidence](project-status.md#latest-operational-evidence), [Live prerequisites](delphi-live-implementation-checklist.md#operational-prerequisites), [coverage question](reviews/open-questions.md#continuing-tmx-coverage-after-the-delphi-live-correction--october-14-2026); [S05](#s05), [S25](#s25), [S46](#s46). |
+| **R03 — Dependable collection and valuation** | October 14 source-context, sparse-record and receipt-clock fixes are tested/installed, with bounded scheduled-cycle and current-mark recovery verified. The AI chat's October 9 “inspect provider contract next” is superseded by that work. Missing exact bars, canonical conflicts, historical gaps and continuous held-value/full-watchlist capacity remain open. Recovery of a Live mark does not qualify the separate AI risk reader. Latest nightly watcher reports success October 16; that is a recovered chat result, not an independent audit here. | [Latest evidence](project-status-history-20261101.md#latest-operational-evidence), [Live prerequisites](delphi-live-implementation-checklist.md#operational-prerequisites), [coverage question](reviews/open-questions.md#continuing-tmx-coverage-after-the-delphi-live-correction--october-14-2026); [S05](#s05), [S25](#s25), [S46](#s46). |
 | **R04 — Real TFSA strategy management** | Latest: fresh real evaluation reaches a confirmed11:45 entry; revision823 fails preflight SQL51501 from a nested account lock, without an intent or fill. Joseph authorizes tested same-transaction correction and normal restart installation;524 focused/3,105 full Core and Release pass (nine native SQL skips). ba3ece6a installs12:09:37 with128 candidate/122 retained hashes;12:14 fresh publication/Connected-Off verified. Approval898/separate enable and fresh real evaluation pass12:18; native lock/risk-read progression passes13:27 but AskAboveDecisionReference blocks before reservation. Subsequent diagnostic43424435 is installed and operator-approved/enabled; final16:05 watch completes without a fill or new price pair and its heartbeat is deleted. Complete preflight/order/protection qualification remains open. [Owning evidence](reviews/independent-engine-implementation-20261022.md). Earlier ADRs0103–0105/account RPC and d8364eff installation evidence follows. Fresh post-restart Real260/260 and explicitly authorized clearance pass; zero Broker/Global holds, eight Paper restrictions. October 23 nightly/daily/exact-model and fresh broker checks pass; Joseph's attempted continuation save hits the risk-event size guard. ADR-0106 correction passes saved-history size/hash, 82 focused/3,087 full Core and Release checks; a090757f is installed and verified at 03:11, Connected/Off; later operator retry saves risk sequence3 but fails permission archive SQL547; the archive correction d8364eff is installed03:51; Joseph's later approval recovers original risk3 into revision260 at08:45:49 and separately enables the host.08:46–47 Connected/Waiting for09:30, hashes/daily/models/broker/no Broker-Global holds pass. S54 completes/removes the morning heartbeat, then schedules Joseph's requested new09:30–16:05 five-minute first-fill/blocker watch. Fresh regular-session input consumption is now verified in S54; actual order/protection qualification remains. Paper recovery is independent. The overnight target was missed. October21 Portfolio rules only was operator-approved/enabled under ADRs0097/0098. Final16:06watch/report completed and heartbeat deleted: real15:59:21/revision259/23new-build evaluations, zeroorders/fills/positions/post-cutoff intents, original16:00permission expired. HistoricalIncomplete/Blockedcoverage remains. Earlier user request: remaining lag and exact confirmed-signal/order diagnostics for tomorrow preparation. ADR0099 optimization8a81ed39 and ADR0100 private decision/quote/preflight evidence are implemented;2,852Core pass/nine native skips with test concurrency disabled, isolated WPF Release/SQL parse pass. ADR0100 is committed1eb7285a. ADR0101 implements the accepted October22 review-only path;386 related checks and isolated Release pass. Standard Release from97ad0a11 installed21:10Toronto after normal stop/closure/zero-owner verification, Core source/copies match and125output/34source-output hashes saved. Native latency/publication remain; final2,885Core pass/nine skips with concurrency disabled. Default-parallel AI timing failure is recorded. Latest SQL-only request implements ADR0102,71focused/2,919Core pass/nine skips and isolated Release/SQL guard checks pass; standard Release fromc4d094fd installs21:31Toronto after normal closure/zero-owner/hash checks. Native SQL cause/recovery acceptance remains. That earlier workload deferral is superseded by the current ADR-0103 implementation request. October22 ended without new authority; October23 operator approval/enable is now verified above. Original financial/signal history and risk controls remain preserved. | [Current evidence](project-status.md), [current cutover](reviews/independent-engine-implementation-20261022.md), [operator flow](running.md), [earlier lag work](reviews/delphi-live-lag-and-decisions-20261021.md), [ADR-0100](adr/0100-live-entry-and-order-decision-traces.md); [Prepare Delphi Live strategy](codex://threads/01a15e86-45f0-7cb3-8a4b-624a0d2ee60d), [S51](#s51), [S32](#s32), [S33](#s33), [S35](#s35), [S38](#s38). |
 | **R05 — Trustworthy account-value paths and daily closes** | October 17 saved-record extension reconciles all 15 cash books and 192 available Shadow closes. Exact 09:35/noon/close values support 74 of 177 invested/traded account-days; recorded Live marks and reconstructed Shadow values retain separate meanings. Receipt/execution chronology and complete peak paths remain limited. No persistence repair or new capture implemented; keep those follow-ups distinct from the happy-path research discussion. Original 446-checkpoint replay remains documented. | [Operational follow-through](strategy-alignment-implementation-checklist.md#operational-follow-through), [expanded review](reviews/paper-gain-patterns-20261017.md), [initial review](reviews/intraday-gain-evidence-20261017.md); [S31](#s31), [S34](#s34), [S25](#s25). |
 | **R06 — Strategy evidence and opportunity research** | Continue clean matched Shadow/Live observations, gate comparisons, mature Athena outcomes and leadership coverage. Preserve the proposed **TSX gainers versus Delphi** study, including missed winners/losses avoided; it is analysis, not gate-retuning authority. September 4 shakedown and September 8 engineering overrides are not clean performance evidence. Older invalid outcomes remain separate from successful daily collection; retain source/identity/coverage boundaries. | [Calibration checklist](calibration-implementation-checklist.md), [fixed pairs](reviews/open-questions.md#fixed-gate-paper-comparison-follow-up), [Live research](reviews/open-questions.md#delphi-live--future-research-after-adr-0053); [S09](#s09), [S12](#s12), [S23](#s23), [S28](#s28). |

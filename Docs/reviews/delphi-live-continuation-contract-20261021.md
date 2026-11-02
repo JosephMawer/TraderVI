@@ -2,7 +2,7 @@
 
 **Status: explicitly accepted October 20; source implemented and offline validated.
 Development work saves no financial permission or host enable; subsequent operator pre-open approval
-and Armed UI confirmation are observed October 21 in [current status](../project-status.md#october-21-pre-open-approval-implementation).**
+and Armed UI confirmation are observed October 21 in [current status](../project-status-history-20261101.md#october-21-pre-open-approval-implementation).**
 
 **October 21 accepted pre-open amendment:** [ADR-0096](../adr/0096-pre-open-october21-approval-and-armed-host.md)
 replaces the regular-session-only review/enable timing in the original flow below. The operator may

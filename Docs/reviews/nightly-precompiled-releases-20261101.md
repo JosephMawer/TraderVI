@@ -10,7 +10,7 @@ directories during cleanup; the runner fixes its selection once per run.
 
 The release-preparation/activation machinery proposed below is not the current implementation plan.
 Further Delphi extraction is not required for the accepted runner change. The subsequent authorized
-[nightly cleanup](../project-status.md#november-1--retired-nightly-copies-removed) removed the retired
+[nightly cleanup](../project-status-history-20261101.md#november-1--retired-nightly-copies-removed) removed the retired
 58-run source/build tree and its package cache. Other cleanup/retention, single-file packaging and a
 dashboard action remain separate discussions. The rest of this document
 preserves the earlier proposals and dependency findings; it does not authorize those deferred changes.
