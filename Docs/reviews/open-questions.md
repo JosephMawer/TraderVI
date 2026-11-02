@@ -405,132 +405,15 @@ tolerance choice, not the underlying source-latency investigation.
   research includes morning/noon gap alternatives and observed outcomes following adoption. Normal
   regular-session polling/touch behavior remains to observe; weekend checks verify saved state/host,
   not bid-trigger returns. No additional setting decision is needed for the enabled behavior.
-- **Goal:** investigate retaining gains that appear earlier in a session and fade later. The operator
-  raised this September 11 in [Assess TraderVI priorities](codex://threads/01a0908e-613a-7713-9de1-dd3851a8a71c).
-  The September 18 [account-history investigation](../../artifacts/portfolio-history-20260918/report.md)
-  provides related observations, with incomplete valuation/closing evidence and reconstruction limits.
-- **Confirmed October 16:** preserve this as an **especially important open research goal**, revisit
-  soon and integrate it into future work. Keep both whole-portfolio gain protection and protection of
-  individual winning positions undecided; do not resolve the experiment during session recovery.
-- **Original questions:** experiment scope, whether time of day matters, activation/giveback levels, resulting
-  actions, re-entry and how to compare gains retained with later recoveries/opportunities sacrificed.
-  The earlier example thresholds were illustrative, not accepted settings. Existing stock/account
-  loss controls do not answer this profit-retention question. Later design choices and remaining
-  questions are recorded below.
-- **Status:** research only; no new trading rule or implementation chosen. Preserve complete/fresh
-  value paths and missingness when assessing the observation. Resume from R01 in the
-  [session-work register](../session-work-register.md), with priority in the roadmap.
-- **Offline evidence review, October 17:** the frozen September 18 export supports six full dates for
-  one rules-only Breakout Top-3 paper account. All six reconstructed closes trail their supported
-  morning best, but three full-day highs occur after noon; both held-position declines and later
-  purchases contribute. Sixty of 468 checkpoints and three stored closes are missing; receipt times
-  prevent treating reconstructed peaks as actionable prices. [Findings and limits](intraday-gain-evidence-20261017.md).
-- **Expanded evidence, October 17:** [all 15 paper accounts through October 16](paper-gain-patterns-20261017.md)
-  yield 74 usable invested/traded account-days at 09:35/noon/close. Fifteen rise by noon: eight fade,
-  six improve and one stays flat; for newer dates those counts are three/five/one. Continuation's
-  rules-only accounts show more giveback, while Breakout and Live are mixed. The peak-based observation
-  and fixed-time comparison answer different questions; neither selects a rule. Both approaches stay open.
-  These are whole-account results, retained as background after the scope correction below.
-- **Operator's scope correction, October 17:** investigate **individual stocks within each portfolio**.
-  The whole-account counts do not answer the intended question. Next follow each holding's morning
-  rise, giveback and later upside; include stocks purchased later from their actual purchase time.
-  **Accepted:** show the day's move and profit since purchase separately. For same-day purchases,
-  start ownership-based measurement at the actual purchase, not the earlier morning.
-- **Stock-level evidence, October 17:** the [corrected review](stock-gain-paths-20261017.md) supplies
-  235 covered position-days: 87 rise by noon, then 40 fade and 47 improve. Twenty-one rising carried
-  mornings remain below purchase cost. Of 79 noon winners since purchase, ten end below cost at their
-  actual sale/close. Later purchases and higher afternoon highs remain relevant. This is descriptive
-  saved-price accounting, not proof of an executable high or an accepted protection rule. Next discuss
-  ordinary individual-winner protection and later upside/new purchases; keep exception repairs secondary.
-- **Confirmed direction, October 17:** use an individual trailing stop whose **percentage gap below
-  the high shrinks as profit since purchase grows**. The operator explicitly prioritizes protecting
-  profit over capturing further gains after a sale; a subsequent rally alone does not invalidate a
-  profitable protective exit. DSV/ARE illustrate that accepted tradeoff. [Proposed ADR-0090](../adr/0090-progressive-individual-profit-trailing.md)
-  and its concept note preserve the direction. Activation, gap schedule, observation timing and
-  implementation/version scope remain open; no numeric policy or rule change is accepted.
-- **Initial numeric recommendation, before later design retention:** extra tightening at +1.5% highest purchase
-  profit with a 1% gap; at +3% use 0.75%, at +5% use a 0.50% minimum. Existing protection stays active
-  below activation and no stop is lowered. [Rationale/DSV illustration](../adr/0090-progressive-individual-profit-trailing.md#recommended-first-paper-study-schedule--not-accepted)
-  uses ordered saved closes, not a full trade or fill replay. DSV first crosses the illustrative
-  threshold in the 10:25 close, received about 10:27. The operator authorized offline testing only;
-  this recommendation is not an accepted operating policy or implemented rule.
-- **First broader comparison, October 17:** [complete saved single-purchase Shadow paths](progressive-trailing-trade-study-20261017.md)
-  yield 53 distinct non-DSV trades after duplicate removal. Seven receive earlier modeled exits,
-  six with profit and two recorded losses changed to modeled profits; 46 are unchanged. Median return
-  for those seven is +0.53% modeled versus +0.14% recorded. The first band has supporting examples;
-  only one activated path reaches 0.75% gap and none reach 0.50%. Keep bands unchanged pending review,
-  with upper-band efficacy, exact operating timing/version scope and adoption still open. Missing paths
-  are omitted; they do not expand this into an exception-repair project.
-- **Larger-winner extension, October 17:** [entry-based ARE/AGI examples](progressive-trailing-trade-study-20261017.md#larger-winner-extension-3-and-5-bands)
-  exercise +3%, with modeled purchase profits retained of +2.64% and +3.06%/+2.10%. Conditional
-  already-held day windows exercise +5% in ARE/CAS (+12.35%/+4.55% modeled), without proving those
-  positions survive the lower bands from entry. FVI sells under the first band before its later +5%
-  high. Tighter gaps sometimes retain less than wider comparisons, so no exact setting is adopted.
-  Twenty-four scenario crossing/fill checks pass offline. Review gaps, observation timing, policy/version
-  scope and prior add-ons' cost/high references; conditional windows do not decide a daily reset or
-  add-on policy. Keep profit protection primary and exception repairs secondary.
-- **Time-of-day idea and offline test, October 17:** the operator clarified **10 a.m. Toronto time**,
-  followed by **noon**, and authorized the proposed gaps plus nearby alternatives. The [five-schedule
-  comparison](progressive-trailing-trade-study-20261017.md#time-of-day-gap-comparison) finds three higher,
-  one lower and 51 equal modeled returns among 55 distinct closed trades for the agreed time version.
-  The gentler version has three higher/52 equal there, but both reduce retained profit in the separate
-  larger ARE entry. Conditional already-held ARE improves with morning room. Recommendation is to
-  keep original bands as baseline and preserve the time idea; no operating adjustment is accepted.
-  All 415 scenario outcomes independently verify. Decide whether clock-based tightening belongs in
-  the policy, including observation timing and carried stop behavior; no stop moves down next morning.
-- **Latest design choices / stop-add-on walkthrough, October 17:** retain the original +1.5%/+3%/+5%
-  bands and 1%/0.75%/0.50% gaps, without implementation; morning/noon alternatives are deferred research.
-  The operator accepted one combined holding for additional purchases, updated average cost and
-  preservation of the existing stop and tightest earned gap. The [worked contract](../adr/0090-progressive-individual-profit-trailing.md#existing-stops-and-additional-purchases--design-walkthrough)
-  retains actual price-high history, reports blended purchase profit without crediting new shares with
-  earlier gains, and keeps one protective exit. New shares may lose individually while the combined
-  position is profitable. Source/arithmetic checks were followed by the saved-path test below.
-- **Saved add-on test, October 17:** [seven supported records](progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
-  cover six distinct cost histories across ARE/MATR/CAS. Three ARE records retain +1.58%/+1.93% after
-  an add-on, while the added shares individually lose 1.48%. The delayed-add ARE account sells before
-  its add-on order (+2.64%); MATR/CAS keep original exits below activation. Recorded ARE returns are
-  larger profits; the overlay protects a smaller profit earlier. Four first crossings/fills, seven
-  recorded returns and six included cost/stop/band transitions independently verify. The +5%/0.50%
-  band is not reached in these modeled paths. Observation/high timing, policy/version scope and
-  adoption remain open. Existing rules are unchanged; missing-data repair remains secondary.
-- **Five/fifteen-minute update comparison, October 17:** the operator confirmed five-minute breach
-  checks in both variants to isolate stop raises. The [controlled same-source comparison](progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
-  finds 56 equal, four higher five-minute and one higher fifteen-minute modeled returns across 61
-  distinct closed trade/cost histories. DSV retains +1.29%/+2.03%; the earlier ARE +1.25%/+0.82%;
-  add-on ARE returns are equal. All 85 prior five-minute baselines reproduce and 170 scenario outcomes
-  verify independently. The comparison itself does not select an operating interval. Native bar-low
-  execution semantics are not adopted by this close-based
-  study. No trading rule, data collection, SQL record or running application changed.
-- **Subsequent agreed design, October 17:** completed five-minute prices raise the stop; the first
-  fresh observed price at or below the established stop triggers a sale, without waiting for a close.
-  A new/raised stop applies only to later observations. The operator accepts exiting a temporary dip
-  to prioritize profit protection. [Contract and limits](../adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
-  Settings are confirmed below; version integration remains work and extra source investigation is deferred.
-  Previous close-based results do not establish touch returns or continuous detection; no implementation.
-- **Scope and price input confirmed, October 17:** the operator wants all portfolios covered,
-  including and especially Delphi Live, still without implementation. Fresh valid bid at or below
-  the established stop is accepted after explanation. Live already has a fresh-bid floor check;
-  this does not qualify other families' quote inputs or apply the progressive bands. Remaining work:
-  prospective version integration and fresh-bid tests. Additional source research is deferred below.
-  [Scope, explanation and source check](../adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
-- **High and existing-holding rollout confirmed, October 17:** use the highest completed five-minute
-  close since purchase; include existing holdings as soon as the strategy is enabled, preserving
-  stronger protection. The operator suggests fewer bid checks while safely above the stop and faster
-  checks nearby. After the requested example, the operator accepted five-minute checks
-  above 0.25% over the stop, one-minute checks nearer, a new quote per check and no more than 60 seconds
-  since receipt. A breached stop triggers on observation without waiting for another interval.
-  Receipt age does not establish market quote age; the Live receipt lacks a bid-event timestamp.
-  [Example/remaining work](../adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation).
-- **Quote freshness review, October 17:** the current Live query/model/receipt has local receipt time
-  but no bid-update/as-of time. Independent reread of the September 29 saved probe confirms 22 current
-  quotes without positive bid-ask pairs; the separate delayed endpoint has pairs but no bid timestamp.
-  The pair flag does not establish whether a bid alone was absent. This does not qualify present
-  one-minute protection or establish today's bid lag. The operator subsequently declined the proposed
-  additional market-hours/source-guarantee investigation as a coding prerequisite: defer it, keeping
-  the limitation explicit and gap repair secondary. The design is ready to implement/test once requested;
-  no further trading-rule decision is required. State/version handover and integration are engineering
-  work, not reasons to demand another research round. No new market/broker/SQL access or source
-  changes. [Finding and evidence scope](../adr/0090-progressive-individual-profit-trailing.md#quote-source-freshness-check--october-17-2026).
+- **Continuing research:** The operator asks to revisit individual-stock gain retention soon, separating
+  the day's move from profit since purchase and including later purchases and later upside. Whole-account
+  work remains background. Observe normal-session polling and touches, and retain morning/noon gap
+  alternatives as deferred research; no additional setting decision follows from that research. The
+  accepted policy and limits are in [ADR-0090](../adr/0090-progressive-individual-profit-trailing.md).
+  The [stock-level study](stock-gain-paths-20261017.md) and
+  [saved-trade comparisons](progressive-trailing-trade-study-20261017.md) retain evidence and limitations.
+  The [original research and decision sequence](open-questions-history-20261102.md#intraday-gain-retention-revisit-soon)
+  preserves earlier proposals, scope changes and quote-freshness findings.
 
 ### Liquidity and execution-realism research
 
@@ -1205,6 +1088,20 @@ evidence; this follow-up grants no additional provider requests or database repa
   `60 + 20 = 80`; retaining 80–120 sector sessions is still useful operating/backfill headroom. The
   source, owner, cadence, and historical-backfill questions remain open.
 
+### Deferred Continuations Z-score ranking
+
+- **Switch Continuations lens ranking from raw `RScomp` to Z-scored `CompZ`**
+  — logged 2026-05-24. The user has agreed this should happen "soon" (ADR-0014
+  deferred it as option (d)). Before switching: confirm `CompZ` distribution is
+  healthy post-backfill (min/max sector bars ≥ 80 so Z-window is valid); measure
+  whether `CompZ` produces meaningfully different rank-orderings than raw `RScomp`
+  over a 2–3 week paper-trade window; if yes, cut ADR updating ADR-0014.
+  - **Prerequisite:** full `RelativeStrengthFeatures.CompositeScoreZ` backfill
+    (Hermes historical RS rows need to be re-computed with Z columns populated).
+  - **Tags:** decision-engine, technical-indicators, math-statistics
+  - **Status:** deferred — needs RS backfill + outcome measurement first.
+
+
 ### Relative Strength composite scale — raw return diffs vs Z-score normalization
 - **Q:** The 2026-05-23 Delphi run showed `RScomp = +0.000` (3-decimal display) for the entire top-14 passing list. Investigation in [`RelativeStrengthCalculator.cs`](../../Core/RelativeStrength/RelativeStrengthCalculator.cs) confirmed the values are **real, not a bug**: the composite is a weighted blend of raw 10-day return differences (`0.5×svm10 + 0.3×svs10 + 0.2×secvm10`), which for typical TSX stocks lives in `±0.005` (±0.5%) on a 10-day window. The leaderboard now displays 4 decimals + `RS10d` (raw stock-vs-XIU 10d) for visibility, but this is a *cosmetic* fix.
 - The underlying issue is **scale**: as a tiebreaker, RS composite has almost no resolving power when the top candidates cluster within ±0.05% of XIU. The `RelativeStrengthRow` already carries `RS_Z_StockVsMarket` / `RS_Z_StockVsSector` / `RS_Z_SectorVsMarket` (Z-score normalization — today's RS expressed in std-devs of its own 20-day history), which would map the same data into a `~±2` range with real separation.
@@ -1380,7 +1277,9 @@ evidence; this follow-up grants no additional provider requests or database repa
 
 See [the connected workspace draft](../concepts/trading-workspace-redesign-draft.md).
 
-## Resolved
+<a id="resolved"></a>
+
+## Resolved historical decisions
 
 - **Missing Friday data and SPY confirmation (S8/S9)** — resolved under ADR-0058 on 2026-09-06.
   Weekday-only midnight scheduling omitted Saturday's collection of Friday's close; execution and
@@ -1395,18 +1294,10 @@ See [the connected workspace draft](../concepts/trading-workspace-redesign-draft
 
 - **Intraday evidence resolution and durable ledger** — resolved 2026-08-26. Persist completed five-minute bars in version 1, consume and retain direct completed fifteen-minute bars for policy decisions, and use exact three-component aggregation as a consistency check when available. One-minute bars remain a possible research source rather than a storage requirement. Poll attempts and first-received bars are separate immutable records, and conflicts never overwrite first evidence. Recorded in ADR-0028 through ADR-0030.
 
-- **Switch Continuations lens ranking from raw `RScomp` to Z-scored `CompZ`**
-  — logged 2026-05-24. The user has agreed this should happen "soon" (ADR-0014
-  deferred it as option (d)). Before switching: confirm `CompZ` distribution is
-  healthy post-backfill (min/max sector bars ≥ 80 so Z-window is valid); measure
-  whether `CompZ` produces meaningfully different rank-orderings than raw `RScomp`
-  over a 2–3 week paper-trade window; if yes, cut ADR updating ADR-0014.
-  - **Prerequisite:** full `RelativeStrengthFeatures.CompositeScoreZ` backfill
-    (Hermes historical RS rows need to be re-computed with Z columns populated).
-  - **Tags:** decision-engine, technical-indicators, math-statistics
-  - **Status:** deferred — needs RS backfill + outcome measurement first.
 
-## Resolved
+<a id="resolved-1"></a>
+
+## Resolved earlier decisions
 
 - **ScoreB/ScoreC threshold defaults (`ScoreB ≥ 0.50`, `ScoreC ≥ 0.60`,
   `K = 3`)** — closed by **ADR-0003**. Empirically calibrated from

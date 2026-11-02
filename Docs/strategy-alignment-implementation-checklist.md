@@ -999,109 +999,16 @@ record them. A prepared migration or passing test never proves broker readiness.
 
 ### Done
 
-- [x] Install and qualify the reusable read-only broker diagnostic helper (October 18, ADR-0093):
-  frozen standalone code, exact-request guard, encrypted observations and narrow saved launcher rule.
-  Fifty-four offline cases, four policy checks and the installed seven-request read pass; no orders,
-  refresh or saved-login change. Existing chats must reload/use the helper. This closes diagnostic
-  access setup only; market/risk/source qualification, reconciliation and activation remain separate.
+Completed foundation milestones, their dated validation and limits are retained in the
+[November 2 checklist snapshot](strategy-alignment-implementation-checklist-history-20261102.md#done).
+The following acceptance items remain open; completed source or installation work does not close them.
 
-- [x] Install and verify the reusable local read-only SQL diagnostic path (October 18, ADR-0091):
-  restricted loginless principal, syntax-limited helper outside sandbox-writable roots and narrow
-  saved invocation rule. See [status](project-status.md) for 33 offline/12 native checks, backup and
-  installed-read evidence. Existing chats must reload rules; broker reads and live activation remain separate.
-
-- [x] Implement/test the AI Momentum API/proposal foundation (September 26, ADR-0087): explicit
-  disabled factory, bounded Astra Responses client, shared durable spending reservations and strict
-  portfolio proposals with explained discretionary exceptions. Forty synthetic cases are included
-  in the Core suite; [status](project-status.md) records validation. This does not run a portfolio.
-
-- [x] Implement/test the shared learning journal, supervisor consultation and execution-preparation recheck
-  (September 26, ADR-0087). Version-2 decisions assess every consulted lesson; consumer intervals and
-  review state persist across restart; 23 synthetic cases pass in the full Core suite. This source
-  has no order transport or installed scheduler.
-
-- [x] Build independent paper portfolios and manual complete-strategy selection for recommendations
-  (ADR-0062); this does not submit orders.
-- [x] Connect TFSA reads, link the permanent account and verify native saved-history refresh (ADR-0080).
-- [x] Implement/test resolved external-order projection, atomic real-ledger receipts and signed-in
-  desktop synchronization (ADR-0084).
-- [x] Install migration 040 after verified backup and the corrected desktop; verify the reported
-  broker-confirmed exit, historical completion, repeat-refresh duplicate prevention and current holdings.
-- [x] Build manual market buy/sell clients and controls; native mutation/lifecycle verification remains.
-- [x] Agree regular-session whole-share market handover: preserve overlaps and reconcile required exits
-  before new buys (ADR-0079); preserve known references/holds, real costs and protection ownership (ADR-0081).
-- [x] Implement/test initial risk-reference preparation, reviewed saving and uncertain-save recovery.
-- [x] Implement/test dated value reading, actual boundary-book valuation and durable daily references/holds
-  for positively verified intervals without deposits/withdrawals (ADR-0083). This is source completion,
-  not completion of operational item 1 below.
-- [x] Agree and implement percentage-preserving cash-flow adjustments using matched account books,
-  preserving holds and preventing duplicate application/restart resets (ADR-0083).
-  [Validation and source limits](project-status-history-20261101.md#verified-development-baseline).
-- [x] Implement/test exact comparison-profile review, actual broker position/cash projection and
-  shared synchronization/continuation orchestration; native risk source remains unqualified.
-- [x] Implement/test protection transfer/replay, immutable supervised approval, exit-before-buy,
-  original-order recovery and concurrency/duplicate prevention; prepare migration 040.
-- [x] Add an account setup review screen and production composition reusing existing broker clients,
-  journal and gates. Source integrated into the normal checkout; native setup review and activation remain.
-- [x] Install migrations 035/039/040 under operator authority after a verified backup/copy; verify empty
-  storage, trusted constraints, immutable triggers and preserved account records (Sep 22, 23:34 Toronto).
-- [x] Agree portfolio-wide promotion and ongoing assignment until pause/switch (ADR-0085); design only.
-- [x] Agree manual buys remain outside the active strategy by default, with optional purchase-dialog
-  handover and a later holding action, including explicitly adopted extra positions managed under
-  existing sell rules without consuming automatic strategy slots (Sep 23, ADR-0085). Controls and role
-  separation are not implemented; capital and transfer checks remain. Same-stock manual additions and
-  split ownership are deferred at the operator's request; continue the agreed common path.
-- [x] Implement/test shared account/history synchronization, five-minute background scheduling,
-  manual/post-trade refresh coalescing, cancellation and failure backoff (Sep 23). Existing link only;
-  native refresh/persistence is observed September 25; automatic order recovery remains separate.
-- [x] Agree stopping new automatic purchases while ordinary exits continue, retaining Market sell all
-  on real holding rows (Sep 23, ADR-0085). Full execution pause remains distinct.
-- [x] Agree restoring the same approved strategy and saved buying mode after fresh account/order checks
-  on app restart; stopped buying stays stopped (Sep 23, ADR-0085).
-- [x] Implement/test Core purchase-mode persistence and same-session recovery: 16 added cases cover
-  stopped buys with active exits, failed checks, partial fills, lost saves, concurrent stop and original-ID
-  recovery. Existing JSON storage needs no migration; the following increments extend this milestone.
-- [x] Implement/test explicitly scoped ongoing Daily Shadow assignment, checked daily continuation,
-  preserved cumulative ceiling, prior-day protection/closing-exit recovery, build-identity checks and
-  rejection of unsupported families before execution approval (Sep 23). Existing one-day approvals expire.
-- [x] Implement/test/install the ADR-0109 bounded Delphi Live ongoing no-transfer agreement, automatic
-  daily risk continuation, checked grant restoration, combined initial approval/start and saved pause
-  controls, preserving legacy authority and financial references/ceiling/orders/protection (October27).
-- [x] Implement/test/install the explicitly approved fixed broker-ask 0.25% movement / 0.50% spread
-  policy; durable episode reference, bounded sizing and restart/rejection preservation. Old rejected
-  events lack price/timestamp values, so the cause remains unproven.
-- [x] Complete post-laptop-restart Real integrity verification/qualified scoped resolution and bounded
-  broker history/holdings/pending checks (October27 09:52); preserve Paper restrictions and trading Off.
-- [x] Save Joseph's explicit initial ongoing app approval (October27, confirmed09:58).
-- [x] Verify corrected nightly publication and prospective adoption by the approved Real source
-  (October27, effective10:20); unchanged model/configuration/policy match.
-- [x] Observe the approved engine evaluating fresh recovered inputs (October27 10:27:40, no confirmed
-  entry signal); missing/stale candidate data is rejected individually.
 - [ ] Verify native multi-day/first-fill/protection operation; current account/source checks remain mandatory.
-- [x] Inspect current confirmation/collection contracts and perform bounded native minute-source checks
-  (October27 10:42–10:47): fresh advancing bars exist, but candidate gaps remain. Schedule the requested
-  same-day signal/source watch. [Evidence](reviews/independent-engine-implementation-20261022.md#october-27-minute-source-qualification--live-samples-and-follow-up).
 - [ ] Qualify sustained minute freshness, coverage/no-trade/correction semantics and candidate-scale
   capacity; decide the source contract. Neither an old delayed sample nor one fresh sample settles it.
-- [x] Prepare/test source-independent minute evidence handling: original arrival/deadline, exact completed
-  timestamp selection, no reread advancement or late backfill promotion, persistent conflict across
-  serialization/reload. This pure component is not installed or connected to a collector/publication.
-- [x] Prepare/test explicit-duration minute window aggregates and four five-minute measurement legs;
-  preserve20/60/120/180-minute horizons, opening warm-up and causal missing/late/conflict rejection.
-  These offline components do not replace V1 bars or qualify a production indicator/source contract.
 - [ ] Implement and validate consistent minute collection/storage/publication/evaluation with immutable
   timestamp identities, no repeated/unfinished-bar confirmation and unchanged longer indicator horizons.
 - [ ] Explicitly review the updated strategy before activation. Installed five-minute behavior remains.
-- [x] Connect saved strategy/mode display and stop/resume to the TFSA panel; restore after linked-account
-  refresh at startup and during polling. Verify stale/login/assignment changes and uncertain saves offline.
-  This control path has no approval/order transport and starts no execution loop. The native panel's
-  empty-assignment state is observed September 25; populated assignment recovery remains unverified.
-- [x] Rehearse the actual managed-session SQL repository in a separate synthetic database: precise
-  snapshot readback, exclusive ownership, stopped-buy restoration, interrupted append rollback and
-  original-ID recovery after uncertain saves/submissions, and partial-exit reconciliation before buys.
-  Parent tables are ID-only fixtures; this
-  does not qualify baseline/continuation storage or actual broker fills.
-
 ### AI Momentum delivery sequence
 
 Keep this same ten-step list and its plain-language subpoints current at each milestone.

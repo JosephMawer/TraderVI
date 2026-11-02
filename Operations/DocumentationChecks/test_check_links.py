@@ -19,8 +19,8 @@ class LinkChecks(unittest.TestCase):
         return path
 
     def test_heading_anchors_ignore_code_and_number_duplicates(self):
-        text = "# Topic — Detail\n# Topic — Detail\n```md\n# Hidden\n```\n"
-        self.assertEqual({"topic--detail", "topic--detail-1"}, check_links.anchors(text))
+        text = "# Topic — Detail\n# Topic — Detail\n<a id=\"legacy\"></a>\n```md\n# Hidden\n```\n"
+        self.assertEqual({"topic--detail", "topic--detail-1", "legacy"}, check_links.anchors(text))
 
     def test_checks_incoming_and_outgoing_links_and_reports_failures(self):
         status = self.write("Docs/project-status.md", "# Status\n[Road](roadmap.md#current)\n[Missing](missing.md)\n")
@@ -32,6 +32,16 @@ class LinkChecks(unittest.TestCase):
         self.assertEqual(2, len(errors))
         self.assertTrue(any("missing file" in error for error in errors))
         self.assertTrue(any("missing anchor" in error for error in errors))
+
+    def test_other_maintained_documents_and_review_archive_are_checked(self):
+        source = self.write("Docs/reviews/open-questions.md", "[Broken](../running.md#missing)\n")
+        running = self.write("Docs/running.md", "# Running\n")
+        other = self.write("other.md", "[Archive](Docs/reviews/open-questions-history-20261102.md#old)\n")
+        archive = self.write("Docs/reviews/open-questions-history-20261102.md", "# Old\n")
+        count, errors = check_links.check(self.root, [source, running, other, archive])
+        self.assertEqual(2, count)
+        self.assertEqual(1, len(errors))
+        self.assertIn("missing anchor", errors[0])
 
     def test_missing_history_target_is_reported(self):
         source = self.write("other.md", "[Moved](Docs/project-status-history-20261201.md#old)\n")

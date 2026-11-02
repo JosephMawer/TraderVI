@@ -12,7 +12,12 @@ import unicodedata
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
-TRACKING = {"Docs/project-status.md", "Docs/roadmap.md"}
+TRACKING = {
+    "Docs/project-status.md", "Docs/roadmap.md", "Docs/session-work-register.md",
+    "Docs/strategy-alignment-implementation-checklist.md",
+    "Docs/calibration-implementation-checklist.md", "Docs/delphi-live-implementation-checklist.md",
+    "Docs/reviews/open-questions.md", "Docs/running.md", "Docs/system-design.md",
+}
 LINK = re.compile(r"(?<!!)\[[^\]]*\]\((<[^>]+>|[^\s)]+)(?:\s+['\"][^)]*['\"])?\)")
 HEADING = re.compile(r"^ {0,3}#{1,6}\s+(.+?)\s*#*\s*$")
 FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
@@ -37,6 +42,7 @@ def anchors(text):
     counts = Counter()
     result = set()
     for _, line in prose_lines(text):
+        result.update(re.findall(r'<a\s+id=["\']([^"\']+)["\']\s*></a>', line, flags=re.I))
         match = HEADING.match(line)
         if not match:
             continue
@@ -52,7 +58,7 @@ def check(root, files):
     errors = []
     checked = 0
     tracked = {root / f for f in TRACKING}
-    watched = {root / f for f in TRACKING}
+    watched = tracked
     for source in files:
         try:
             text = source.read_text(encoding="utf-8-sig")
@@ -67,7 +73,8 @@ def check(root, files):
                 if parts.scheme or parts.netloc or url.startswith("//"):
                     continue
                 target = (source.parent / unquote(parts.path)).resolve() if parts.path else source.resolve()
-                history = target.parent == root / "Docs" and bool(re.fullmatch(r"(?:project-status|roadmap)-history-\d{8}\.md", target.name))
+                history = ((target.parent == root / "Docs" or target.parent == root / "Docs/reviews")
+                           and bool(re.fullmatch(r"(?:project-status|roadmap|session-work-register|strategy-alignment-implementation-checklist|calibration-implementation-checklist|delphi-live-implementation-checklist|running|system-design|open-questions)-history-\d{8}\.md", target.name)))
                 if source.resolve() not in tracked and target not in watched and not history:
                     continue
                 if target.suffix.lower() != ".md":
@@ -85,7 +92,7 @@ def main():
     checked, errors = check(ROOT, [ROOT / name for name in names if (ROOT / name).is_file()])
     if errors:
         print("\n".join(errors), file=sys.stderr)
-    print(f"Checked {checked} local Markdown links in and into status/roadmap records; {len(errors)} errors.")
+    print(f"Checked {checked} local Markdown links in and into maintained documentation; {len(errors)} errors.")
     return bool(errors)
 
 

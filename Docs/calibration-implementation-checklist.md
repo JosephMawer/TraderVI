@@ -1,6 +1,6 @@
 # Paper calibration implementation checklist
 
-- **Last updated:** 2026-09-02
+- **Original baseline:** 2026-09-02; later observations are linked below.
 - **Authoritative design:** ADR-0020 through ADR-0043
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
@@ -19,7 +19,12 @@
 
 ## Current milestone
 
-The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. Migration 015 is applied and all five definitions are active. The verified ledger contains 8 official runs across 6 market-data cohorts and 1,729 candidates. The first deliberate `v3.2-leadership-missingness` cohort is valid for recommendation date 2026-09-02 using market data through 2026-09-01; it added 219 candidates, 438 lens rows, and 50 published picks. Athena has written 112 valid matured three-session marks and 112 valid matured excursion outcomes; 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. ADR-0040 now includes a continuity guard: proven policy/fill gaps and receipt-order conflicts become audited invalid outcomes, while an unproven end-of-data tail remains pending. ADR-0043 and migration 017 are applied and verified; v3.2 is solely active. The first post-migration Hermes run stored a 2026-09-01 observation with unavailable movers breadth kept null and produced a checksum-verified, hash-matched backup copy. Athena does not collect or repair leadership inputs. ADR-0045 fixes SGY's overlapping wide-request boundary and introduces `IntradayEvidenceCollectorV2` with five-minute collection while retaining completed 15-minute policy bars. The rebuilt WPF app produced six valid SGY/XIU/historical-Real receipts at both 10:22 and 10:27, verifying the five-minute runtime cadence and completing the fresh market-hours evidence prerequisite. Athena has not yet been rerun against that evidence. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
+The historical September 2 milestone and its original figures are preserved in the
+[checklist snapshot](calibration-implementation-checklist-history-20261102.md#current-milestone).
+Later Athena operations and the November 1 ten-session coverage assessment are recorded in
+[project status](project-status.md#evidence-and-development). Recent candidates pending maturity
+remain in the coverage denominator; prediction accuracy and delayed-intraday evidence are separate.
+Use the phase items below for acceptance, and do not infer a current database state from older results.
 
 ## Phase A — measurement contract and decisions
 
@@ -79,33 +84,9 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 
 ### Validation completed
 
-- [x] Core tests pass: 110 passed, 0 failed on 2026-08-26.
-- [x] Delphi focused build succeeds with no compiler warnings.
-- [x] Athena focused build succeeds with no errors; a clean rebuild currently surfaces 236 repository compiler warnings, primarily the existing nullable-annotation backlog.
-- [x] SQL project builds successfully with SSDT and includes all calibration objects.
-- [x] Migration and canonical schema definitions compile together.
-- [x] Validate ADR-0041 at commit `c51c084`: 20 focused relative-strength/presentation tests and all
-  170 Core tests passed in Debug; all 170 passed again from the Release build; focused Core, Delphi,
-  WPF, and Hermes builds succeeded; and the complete Release solution built with Visual Studio 18.10
-  MSBuild plus SSDT without database deployment on 2026-09-01.
-- [x] Keep ADR-0041 validation non-operational: no Delphi, Hermes, Hercules, TraderVI, WPF, Athena,
-  Oracle, DataAudit, or Sandbox application was launched; no SQL, market-service, training, model-artifact,
-  or publication workflow ran.
-- [x] Validate ADR-0042 source on 2026-09-02: all 174 Core tests passed in both Debug and Release;
-  focused Core, Athena, Delphi, and WPF Release builds succeeded; and the complete Release solution
-  built with Visual Studio 18.10 MSBuild plus SSDT without database deployment.
-- [x] Keep the ADR-0042 source-validation phase non-operational: at that stage migration 016 was not
-  applied and no application, database, external-service, training, artifact-publication, or market
-  workflow was launched. The later separately authorized rollout is recorded below.
-- [x] Validate ADR-0043 source at `fad4b96` on 2026-09-02: all 202 Core tests passed in both Debug and
-  Release; focused Core, Delphi, Hermes, and WPF Release builds succeeded; and the complete Release
-  solution built with Visual Studio 18.10 MSBuild plus SSDT without database deployment.
-- [x] Keep ADR-0043 validation non-operational: no Delphi, Hermes, Hercules, TraderVI, WPF, Athena,
-  Oracle, DataAudit, or Sandbox application was launched; no SQL, market-service, training,
-  model-artifact, outcome, or publication workflow ran.
-- [x] Validate prepared migration 017 offline: SQL Server 2019 `TSql150` parsing reports zero errors;
-  the strengthened canonical SQL project and complete Release solution build successfully with Visual
-  Studio 18.10 MSBuild plus SSDT; the DACPAC was produced only as a build artifact and was not deployed.
+The dated source, build and SQL parsing evidence is preserved in the
+[checklist snapshot](calibration-implementation-checklist-history-20261102.md#validation-completed).
+These historical checks do not establish current operational coverage or a new full-solution build.
 
 ### Operational rollout
 
@@ -175,7 +156,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 
 ### Operational and advanced reporting
 
-- [ ] **Operational step:** run Athena after the first official cohorts mature.
+- [x] Athena has run after official cohorts matured; the [November 1 status](project-status.md#evidence-and-development) records later ten-session coverage and its limits.
 - [x] Persist explicit invalid records for missing or duplicate symbol sessions once the required XIU horizon has matured; genuinely immature horizons remain pending so late ingestion can settle.
 - [x] Add coverage-first deterministic scorecards with run/cohort counts, valid/degraded/invalid/pending counts, completion and usable coverage, and a 95% primary-reporting floor.
 - [x] Add cohort-weighted Brier score, fixed reliability buckets, expected calibration error, AUC where supported, and within-run probability-decile lift.

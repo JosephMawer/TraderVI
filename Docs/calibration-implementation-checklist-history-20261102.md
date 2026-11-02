@@ -1,0 +1,301 @@
+> Historical snapshot before November 2, 2026 documentation cleanup. Consult the [current document](calibration-implementation-checklist.md) for current scope; later evidence and decisions supersede earlier claims.
+
+# Paper calibration implementation checklist
+
+- **Last updated:** 2026-09-02
+- **Authoritative design:** ADR-0020 through ADR-0043
+- **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
+- **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
+- **Intraday rollout script:** `TraderDB/Migrations/20260826_012_AddIntradayEvidenceLedger.sql` (applied and verified 2026-08-26)
+- **Tracked-execution rollout script:** `TraderDB/Migrations/20260827_013_AddTrackedExecutionMode.sql` (applied and verified 2026-08-28)
+- **Outcome-definition rollout script:** `TraderDB/Migrations/20260828_014_SeedCalibrationOutcomeDefinitions.sql` (applied and verified 2026-08-28)
+- **Delayed-outcome rollout script:** `TraderDB/Migrations/20260901_015_AddDelayedIntradayOutcomeDefinition.sql` (operator-applied; definition verified active 2026-09-01; backup not independently verified)
+- **Strategy-identity rollout script:** `TraderDB/Migrations/20260901_016_ActivateDateAlignedStrategyIdentity.sql` (applied and verified 2026-09-02)
+- **Leadership-missingness rollout script:** `TraderDB/Migrations/20260902_017_PreserveLeadershipSourceMissingness.sql` (applied and verified 2026-09-02)
+
+## Status legend
+
+- `[x]` Complete and validated in source.
+- `[ ]` Not complete.
+- **Operational step** means it changes the local database or runs a consequential producer and requires explicit authorization.
+
+## Current milestone
+
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. Migration 015 is applied and all five definitions are active. The verified ledger contains 8 official runs across 6 market-data cohorts and 1,729 candidates. The first deliberate `v3.2-leadership-missingness` cohort is valid for recommendation date 2026-09-02 using market data through 2026-09-01; it added 219 candidates, 438 lens rows, and 50 published picks. Athena has written 112 valid matured three-session marks and 112 valid matured excursion outcomes; 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. ADR-0040 now includes a continuity guard: proven policy/fill gaps and receipt-order conflicts become audited invalid outcomes, while an unproven end-of-data tail remains pending. ADR-0043 and migration 017 are applied and verified; v3.2 is solely active. The first post-migration Hermes run stored a 2026-09-01 observation with unavailable movers breadth kept null and produced a checksum-verified, hash-matched backup copy. Athena does not collect or repair leadership inputs. ADR-0045 fixes SGY's overlapping wide-request boundary and introduces `IntradayEvidenceCollectorV2` with five-minute collection while retaining completed 15-minute policy bars. The rebuilt WPF app produced six valid SGY/XIU/historical-Real receipts at both 10:22 and 10:27, verifying the five-minute runtime cadence and completing the fresh market-hours evidence prerequisite. Athena has not yet been rerun against that evidence. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
+
+## Phase A — measurement contract and decisions
+
+- [x] Separate prediction outcomes from tradeable outcomes.
+- [x] Define official, exploratory, and legacy-reconstruction run purposes.
+- [x] Define the model-evaluated candidate population and pre-scoring exclusion boundary.
+- [x] Define normalized columns versus versioned JSON snapshots.
+- [x] Define code commit, working-tree, strategy, and model-artifact provenance.
+- [x] Define invalid versus degraded evidence and the 95% reporting-coverage floor.
+- [x] Define label-aligned 1/5/10/20-session prediction outcomes.
+- [x] Define next-eligible-session-open trade timing, costs, exits, and OHLC ambiguity handling.
+- [x] Define Top-1, Top-3, Top-5, and rank-weighted research policies.
+- [x] Define champion/challenger evidence tiers and human promotion rules.
+- [x] Define the primary multi-day swing direction and keep intraday/opening confirmation as separate challengers.
+- [x] Define coverage reporting and market-session cohort identity so reruns do not inflate evidence.
+- [x] Define the initial three-session mark-to-market measure without claiming it is the final swing exit policy.
+- [x] Define signed MFE/MAE, session-to-extreme, and same-session uncertainty as a separate immutable outcome.
+- [x] Define separate lens scorecards and nested run/cohort aggregation so reruns cannot inflate evidence.
+- [x] Define delayed 15-minute management of an open swing, same-day exits, trailing profit, conditional/absolute loss alerts, and five-/ten-session limits.
+- [x] Accept ADR-0020 through ADR-0043 and add review cards.
+
+## Phase B — immutable evidence capture
+
+### Source implementation
+
+- [x] Add canonical `CalibrationRun` schema.
+- [x] Add canonical `CalibrationCandidate` schema.
+- [x] Add canonical `CalibrationLensEvaluation` schema.
+- [x] Add canonical `CalibrationOutcomeDefinition` schema.
+- [x] Add canonical `CalibrationCandidateOutcome` schema.
+- [x] Add one additive, transactional migration containing every new SQL object.
+- [x] Add calibration domain records and schema-version constants.
+- [x] Add transactional batch validation and persistence.
+- [x] Capture the complete model-evaluated universe rather than only top picks.
+- [x] Keep shared candidate facts separate from Continuation and Breakout decisions.
+- [x] Capture configuration, market context, gate traces, model registry IDs, artifact hashes, and Git provenance.
+- [x] Keep exploratory runs from refreshing official operational tables.
+- [x] Add the new tables and migration to the SQL project.
+- [x] Add Athena and the ADRs to the Visual Studio solution.
+- [x] Add explicit `StrategyVersion.InitialCodeCommit` / `DecisionRef` provenance and refuse an
+  unidentified persisted `OfficialPaper` run at both workflow and ledger boundaries.
+- [x] Scope comparative coverage, prediction, lens-tradeability, delayed-intraday, WPF, and export
+  surfaces to one identified active strategy; count rather than rewrite earlier-identity runs.
+- [x] Prepare guarded manual migration 016 to clone the active thresholds/model associations unchanged
+  into `v3.1-rs-date-aligned`; do not apply it through a DACPAC.
+- [x] Implement ADR-0043's nullable leadership-source contract end to end: distinguish unavailable
+  movers data from a genuine tied basket; require an exact same-date XIU anchor and complete 50-symbol
+  movers payload; preserve only contiguous canonical XIU-session coverage; and surface neutral/no-data
+  diagnostics instead of false zero or falling breadth.
+- [x] Record fixed successor identity `2BD1A7D0-D144-4A7B-9FA4-49606AB7E963` /
+  `v3.2-leadership-missingness` with initial behavioral commit `fad4b968244d57a6224cb7ab137774a9bff4b645`
+  and decision `ADR-0043`; earlier strategy evidence remains immutable and excluded from `v3.2` comparisons.
+- [x] Prepare guarded manual migration 017 to make the three active-breadth columns nullable, convert only
+  legacy `0/0/0` sentinels to `NULL`, add the trusted all-null-or-valid observation constraint, and clone
+  the active v3.1 thresholds/model associations unchanged. The same atomic migration strengthens the
+  intended paired strategy-identity check against SQL `UNKNOWN`; do not apply it through a DACPAC.
+
+### Validation completed
+
+- [x] Core tests pass: 110 passed, 0 failed on 2026-08-26.
+- [x] Delphi focused build succeeds with no compiler warnings.
+- [x] Athena focused build succeeds with no errors; a clean rebuild currently surfaces 236 repository compiler warnings, primarily the existing nullable-annotation backlog.
+- [x] SQL project builds successfully with SSDT and includes all calibration objects.
+- [x] Migration and canonical schema definitions compile together.
+- [x] Validate ADR-0041 at commit `c51c084`: 20 focused relative-strength/presentation tests and all
+  170 Core tests passed in Debug; all 170 passed again from the Release build; focused Core, Delphi,
+  WPF, and Hermes builds succeeded; and the complete Release solution built with Visual Studio 18.10
+  MSBuild plus SSDT without database deployment on 2026-09-01.
+- [x] Keep ADR-0041 validation non-operational: no Delphi, Hermes, Hercules, TraderVI, WPF, Athena,
+  Oracle, DataAudit, or Sandbox application was launched; no SQL, market-service, training, model-artifact,
+  or publication workflow ran.
+- [x] Validate ADR-0042 source on 2026-09-02: all 174 Core tests passed in both Debug and Release;
+  focused Core, Athena, Delphi, and WPF Release builds succeeded; and the complete Release solution
+  built with Visual Studio 18.10 MSBuild plus SSDT without database deployment.
+- [x] Keep the ADR-0042 source-validation phase non-operational: at that stage migration 016 was not
+  applied and no application, database, external-service, training, artifact-publication, or market
+  workflow was launched. The later separately authorized rollout is recorded below.
+- [x] Validate ADR-0043 source at `fad4b96` on 2026-09-02: all 202 Core tests passed in both Debug and
+  Release; focused Core, Delphi, Hermes, and WPF Release builds succeeded; and the complete Release
+  solution built with Visual Studio 18.10 MSBuild plus SSDT without database deployment.
+- [x] Keep ADR-0043 validation non-operational: no Delphi, Hermes, Hercules, TraderVI, WPF, Athena,
+  Oracle, DataAudit, or Sandbox application was launched; no SQL, market-service, training,
+  model-artifact, outcome, or publication workflow ran.
+- [x] Validate prepared migration 017 offline: SQL Server 2019 `TSql150` parsing reports zero errors;
+  the strengthened canonical SQL project and complete Release solution build successfully with Visual
+  Studio 18.10 MSBuild plus SSDT; the DACPAC was produced only as a build artifact and was not deployed.
+
+### Operational rollout
+
+- [x] Record ADR-0042's post-ADR-0041 identity and treatment: existing runs remain immutable under their
+  original `StrategyVersionId`, outcome maturation may continue, and active comparative claims exclude
+  and count those earlier identities.
+- [x] **Operational step:** create and checksum-verify `TraderDB_FULL_20260902_002015_223.bak`,
+  hash-match its 37,508,096-byte approved OneDrive copy with SHA-256
+  `33C5A08493BE4A2941341CC22EFECAB773BD854AA908C289DB6D6F5E15573EFF`, and confirm synchronization.
+- [x] Obtain separate authorization and apply migration 016 manually. Its first execution stopped on a
+  same-dynamic-batch column-resolution error before activation; the transaction rolled back completely
+  with every captured count unchanged. Split column/constraint compilation was committed at `d391db8`,
+  rebuilt with SSDT, independently reviewed, and then executed successfully.
+- [x] Verify one exact active `v3.1-rs-date-aligned` identity, inactive immutable `v3.0`, expected
+  nullable identity columns, enabled/trusted clean check constraint, zero threshold/model differences,
+  zero successor runs, 0 included active-identity official runs, and 7 excluded legacy official runs.
+- [x] Preserve all calibration rows across migration 016: 8 runs, 1,723 candidates, 3,446 lens
+  evaluations, 5 outcome definitions, and 224 outcomes.
+- [x] **Operational step:** create and checksum-verify `TraderDB_FULL_20260902_012154_689.bak`, hash-match
+  its 37,497,344-byte approved OneDrive copy with SHA-256
+  `D74FF2F3F3B18AED0C8C72BCCB99D6214497B7BFA3738B6E9420B7FA5EACF658`, and confirm synchronization.
+- [x] Obtain separate authorization, manually apply migration 017, and verify all three active-breadth
+  columns nullable; enabled/trusted/non-replication leadership and paired-identity checks; exactly 101
+  sentinel rows normalized with all 115 leadership rows preserved; zero invalid/partial rows; one exact
+  active v3.2 and inactive v3.1; zero threshold/model differences; zero successor runs; and preserved
+  counts/references for 8 runs, 1,723 candidates, 3,446 lens rows, 5 definitions, and 224 outcomes.
+- [x] **Operational step:** after migration 017, run Hermes once after market close and inspect the newest
+  `LeadershipData` observation plus the verified post-success backup. The 2026-09-01 row stored 11 new
+  highs, 18 new lows, 467 issues, and an all-null movers/price-anchor observation; zero sentinel and partial
+  triples remain absent and the leadership check remains enabled/trusted. Hermes inserted 483 daily bars,
+  reported BLKY and RCTR as no-data without failing, and produced
+  `TraderDB_FULL_20260902_013547_367.bak`; both 37,552,640-byte copies matched SHA-256
+  `B4C7126D851B20704C37B3A8D4EE43497AFE9AD3A1B8B9E20F779F3EB51AE625`.
+- [x] **Operational step:** run the first deliberate official `v3.2-leadership-missingness` cohort. The
+  2026-09-02 run is valid against market data through 2026-09-01 and persisted 219 candidates, 438 lens
+  rows, and 50 published picks. Run Delphi again only for another deliberate cohort. Run Athena later only
+  when eligible outcomes have matured; Athena does not repair leadership data.
+- [ ] For the original migration-011 rollout, a fresh immediately pre-migration backup was not
+  independently observed; the newest recorded backup before that discovered schema application was the
+  valid 2026-08-22 full backup.
+- [x] Review `20260823_011_AddCalibrationEvidenceLedger.sql` against the target database.
+- [x] Migration application discovered from live object creation timestamps: all five tables were created together on 2026-08-23 at 16:58:29 and contained zero rows when audited.
+- [x] Verify all five tables, foreign keys, checks, unique constraints, and indexes exist and match the committed canonical definitions.
+- [ ] Existing operational row-count preservation cannot be proven retrospectively because no immediate pre-migration counts were captured; the migration is additive and the five new tables were empty when inspected.
+- [x] Create and verify a fresh post-migration full backup with checksums: `TraderDB_FULL_20260823_170922_281.bak` (31.23 MB).
+- [x] Copy the backup to the approved OneDrive directory and verify matching SHA-256 `B1F19BDD3C2919DE5D1204BEF357F06276D174F9C46715D050D158E83EE5C2C3`.
+- [ ] Confirm the OneDrive client reports cloud synchronization complete.
+- [x] **Operational step:** run one controlled official Delphi evaluation: run `a8df36d1-3c4b-4d30-b062-f041d760d055`.
+- [x] Verify the first run contains 213 distinct candidates and exactly 426 lens rows (Continuation and Breakout per candidate), with no duplicate candidates or lens evaluations.
+- [x] Verify strategy/model/context JSON, commit `bf5be830a0a131ec05ce359c66b95f0c90e80101`, clean working-tree provenance, 2026-08-21 observation session, captured counts, and `Valid` audit state.
+- [x] Rerun Delphi deliberately: run `092dc95b-9ad6-42dc-877e-db96db8c1d0e` appended another 213 candidates and 426 lens rows without overwriting the first run.
+- [x] Run an explicit exploratory Delphi evaluation: run `99c0e2a3-1920-4b8d-a1e0-2cd7823bd751` captured 213 candidates and 426 lens rows as `ExploratoryReplay` while operational state remained 50 picks, 25 dossiers, and 11 Granville rows.
+- [x] Create and verify a final post-run full backup, then hash-match its approved OneDrive copy: `TraderDB_FULL_20260823_173759_377.bak` (32.51 MB), SHA-256 `62CB244339235D555830CD93B139AD19182B160B4B4C7CBF9429B5A52CCB08BB`.
+
+## Phase C — prediction outcomes
+
+### Implemented
+
+- [x] Add the separate local Athena console application.
+- [x] Reuse enabled `ProfitModelRegistry` `ILabeler` implementations.
+- [x] Compute aligned 1-, 5-, 10-, and 20-session returns.
+- [x] Compute 10-session XIU return and excess return.
+- [x] Refuse to substitute a later symbol bar for a missing XIU-aligned session.
+- [x] Add deterministic IDs and idempotent inserts for initial outcome definitions.
+- [x] Add idempotent matured prediction-outcome persistence.
+- [x] Add focused maturity, session-alignment, label reuse, and evidence-integrity tests.
+
+### Operational and advanced reporting
+
+- [ ] **Operational step:** run Athena after the first official cohorts mature.
+- [x] Persist explicit invalid records for missing or duplicate symbol sessions once the required XIU horizon has matured; genuinely immature horizons remain pending so late ingestion can settle.
+- [x] Add coverage-first deterministic scorecards with run/cohort counts, valid/degraded/invalid/pending counts, completion and usable coverage, and a 95% primary-reporting floor.
+- [x] Add cohort-weighted Brier score, fixed reliability buckets, expected calibration error, AUC where supported, and within-run probability-decile lift.
+- [x] Add eligible-lens Spearman rank information coefficient and top-1/top-3/top-5/top-decile return lift.
+- [x] Add descriptive gate, OBV-state, regime, observation-dollar-volume, observation-range, sector, and published-lens slices.
+- [x] Add versioned invariant-culture CSV artifacts and an explicit non-overwriting Athena export option.
+- [x] Add a read-only WPF Scorecards workspace over the exact same official evidence query and pure calculator; CSV is not required for normal viewing.
+- [x] Add integrity tests for duplicate candidates/ranks, wrong-session joins, mixed purposes/lenses, and definition identity/version changes.
+- [x] **Operational step:** create and checksum-verify `TraderDB_FULL_20260828_085526_014.bak`, hash-match its approved OneDrive copy with SHA-256 `A01FFCECAD236C967D8BA68AA4DCC8387BFB49DFA9C5B22F533A69C995D48F27`, apply migration 014, and verify all four canonical definitions while preserving 1,505 total candidate rows and zero outcome rows.
+
+## Phase D — tradeable recommendation outcomes
+
+- [x] Add a versioned tradeable-outcome definition and persistence shape.
+- [x] Add separately versioned 1-, 2-, and 3-session economic measures for the short-term swing objective; retain 10/20-session model diagnostics.
+- [x] Select the first eligible entry session using run time in `America/Toronto`.
+- [x] Implement the three-session missing-entry-bar allowance and `NoEntry` result.
+- [x] Apply raw open plus separately persisted 10 bps slippage and 15 bps half-spread per side.
+- [x] Compute gross/net returns and net excess return versus XIU at the 1-, 2-, and 3-session closes.
+- [x] Add raw MFE, signed MAE, first session-to-extreme, and conservative same-session ordering under an explicitly reviewed metric contract.
+- [ ] Implement warning diagnostics and versioned hard-stop fills, including gap-through-stop handling.
+- [ ] Flag conservative same-day path ambiguity.
+- [x] Restrict tradeable outcomes to published lens recommendations.
+- [x] Add recommendation-level Continuation and Breakout tradeability reports with joint coverage, no-entry rate, net/XIU-relative returns, MFE, MAE, and nested run/cohort weighting.
+- [x] Resolve and version the initial delayed intraday swing profit-protection, trend-extension, loss-alert, and maximum-hold challenger rules in ADR-0028.
+- [x] Add a deterministic pure policy engine for 15-minute bars, cost-aware break-even, non-decreasing trailing protection, fresh-Delphi exception qualification, data-age diagnostics, and time exits.
+- [x] Add and run the authorized read-only `tmx-xiu-intraday` probe with no database writes: three bounded XIU calls completed on 2026-08-25.
+- [x] Record the failed response contract honestly: the 2-, 14-, and 90-day 15-minute requests all returned the same seven daily 4:00 p.m. bars, and the two-day response included dates before its requested start.
+- [x] Correct the TMX intraday request to omit `freq`, round Unix bounds to whole minutes, reject obvious daily fallback responses, and rerun the probe: the corrected 2- and 14-day requests returned clean, current, gap-free 15-minute XIU sessions.
+- [x] Record the wide-window cap: the 90-day request returned the oldest 754 bars (29 sessions) only, so rolling monitoring windows are viable but historical loading requires bounded chunks and deduplication.
+- [x] Harden `TmxClient` with bounded transient retries, timestamped intraday batches, strict OHLCV/timestamp/interval validation, explicit five-day chunked history, and neutral quote-freshness terminology.
+- [x] Add the bounded read-only `tmx-xiu-market-hours` probe for five polls spaced fifteen minutes apart; it refuses to call TMX outside the regular Toronto market window and performs no database or file writes.
+- [x] Run the TSX market-hours probe on 2026-08-26: five calls completed without a surfaced transport failure and advanced completed XIU events exactly once per poll, while every newer forming bar was revised before completion.
+- [x] Verify lower resolutions with the read-only comparison probe: 1-, 5-, and 15-minute bars exist and each response includes a newer forming bar; five- and fifteen-minute sequences stayed gap-free, while the longer one-minute response developed two- and three-minute gaps.
+- [x] Verify deterministic aggregation: all nine comparable completed fifteen-minute XIU bars exactly matched the OHLCV reconstructed from their three completed five-minute bars.
+- [x] Accept completed five-minute bars as the version-1 evidence resolution while retaining completed 15-minute policy bars. ADR-0045 later separates the five-minute collection schedule from the unchanged policy-bar interval.
+- [x] Add and test deterministic completed-five-minute to fifteen-minute aggregation that refuses incomplete three-bar groups.
+- [x] Define the immutable completed-bar and per-request poll-audit ledger in ADR-0030, independent from positions and official outcomes.
+- [x] Add canonical `IntradayPollObservation` and `IntradayEvidenceBar` definitions plus the single additive `20260826_012_AddIntradayEvidenceLedger.sql` migration; do not mix interval bars into `DailyBars` or legacy `Quotes`.
+- [x] Validate the canonical intraday schema with Visual Studio MSBuild 18.10 plus SSDT; no DACPAC deployment or migration execution was performed.
+- [x] Add transactional persistence planning/repository code for completed bars, exact-repeat idempotence, conflict invalidation, failed-poll audits, and schema presence checks.
+- [x] **Operational step:** review the exact script, create and checksum-verify `TraderDB_FULL_20260826_161611_862.bak`, apply migration 012 manually, and verify both new empty tables, keys, checks, and indexes.
+- [x] Copy that backup to the approved OneDrive directory and verify matching SHA-256 `CBDDB1E31877CA36E7B798867B5AC924DE0C9F09373F382191F30AE815C4A5B7`.
+- [x] Add the ADR-0029 operational bridge for preflighted, one-share intraday ghost entries linked to today's persisted Continuation picks.
+- [x] Add the pilot 15-minute monitor for linked positions, using direct completed policy bars with source age and position snapshots.
+- [x] **Operational step:** preflight and open the first one-share ADR-0029 cohort for NDM, CMG, ALK, EDR, and OGI on 2026-08-26; verify all five linked active positions exist and the first monitor pass returned `Hold` while awaiting eligible completed bars.
+- [x] Record the authorized CMG, EDR, and OGI ghost exits through TraderVI; realized pilot P/L is currently -$0.01, with NDM and ALK still active.
+- [x] Replace the replay-only pilot with a shared durable collector-backed monitor that writes poll receipts/completed evidence before exposing decisions.
+- [x] Add ADR-0031 database-guarded automatic ghost exits at a separately observed post-detection TMX price; this can never place a broker order.
+- [x] Add the ADR-0032 live WPF paper dashboard with scheduled market polling, positions, P/L, trade history, and durable receipt history; ADR-0045 later reduces collection to five minutes while retaining 15-minute policy bars.
+- [x] Apply ADR-0033's thirty-second SQL display refresh without changing five-minute evidence collection or fifteen-minute policy decisions.
+- [x] Add the first tabbed-shell vertical slice: Paper Trading plus a read-only Data Audit tab backed by the same shared workflow as the retained DataAudit CLI. Historical completion; [ADR-0113](adr/0113-nightly-data-audit-report.md) retires the tab and schedules the CLI after Hermes.
+- [x] Extract Delphi into one shared workflow and add the ADR-0034 desktop tab. Its initial confirmed-run action and later settings-triggered execution were removed from source under [ADR-0118](adr/0118-delphi-desktop-results-only.md); saved-result viewing remains. This removal is built/tested, not installed.
+- [x] Add ADR-0035's typed immutable Delphi presentation snapshot and six inner views; reconstruct older saved runs only from date-aligned evidence and clearly label missing legacy facts.
+- [x] Add ADR-0036's read-only Project Docs tab so status, ADRs, architecture, running guidance, and this checklist are searchable in the operator shell without SQL or external calls. Historical completion; [ADR-0112](adr/0112-repository-documentation-outside-desktop.md) retires the reader in favor of GitHub documentation.
+- [x] Add ADR-0037's operator-confirmed bridge from saved Continuation/Breakout rows to pick-linked monitored ghost positions with explicit shares, actual fill, duplicate protection, and exploratory Breakout labelling.
+- [x] **Operational step:** open a new five-share EDR ghost position at the reported $15.34 average fill ($76.70 book cost), linked to the 2026-08-26 Continuation rank-4 pick; preserve the prior closed one-share lifecycle.
+- [x] Implement ADR-0039's explicit Ghost/Real source model, account labelling, immutable reconciliation audit, separate dashboard P/L, manual Real fills, and Ghost-only automatic-exit guard without broker connectivity.
+- [x] **Operational step:** review and correct migration 013 before its first successful run; create and checksum-verify `TraderDB_FULL_20260828_081259_747.bak`, hash-match its approved OneDrive copy with SHA-256 `6DF2FAFD8590688B21D610190754FE72BC6375FAE67C7DD267B20A26904BC365`, apply the migration manually, and verify all columns, defaults, trusted checks, audit keys, and the preserved 6-position/11-trade row counts.
+- [x] Resolve the separate EDR Real-reconciliation choice: on 2026-08-28 the operator declined to add a `REAL / TFSA` row because EDR is no longer in the current Delphi picks. Preserve the closed Ghost mirror and its audited $15.62 exit unchanged.
+- [x] **Operational step:** observe the first WPF market-hours durable cycle on 2026-08-27 at 09:47 Toronto: four valid ALK/NDM receipts persisted 191 new 5-/15-minute bars and refreshed both position snapshots; no exit rule triggered. Three immediate repeat cycles were valid and idempotent with zero new bars, so ensure only one monitor host is open.
+- [x] Verify the five-share EDR Ghost position joins a scheduled durable cycle and observe an automatic Ghost exit end to end: valid five- and fifteen-minute receipts persisted at 10:47 Toronto on 2026-08-27, followed by the separately recorded $15.62 `Policy TrailingProfit` sale.
+- [x] Join the latest valid post-entry OfficialPaper Breakout evidence needed by the conditional -10% exception, using run `CreatedUtc` for per-bar availability and refusing fallback when the newest valid run omitted or did not publish the symbol.
+- [x] Core tests pass: 143 passed, 0 failed, 0 skipped on 2026-08-28; the complete Release solution build succeeds with Visual Studio 18.10 MSBuild, including the SSDT database project.
+- [x] Complete the separately versioned delayed-intraday paper outcome with achievable post-detection fills and lens scorecards in source.
+  - [x] Accept ADR-0040: use the first five-minute bar open at or after detection, never the earlier trigger threshold.
+  - [x] Report raw zero-commission return separately from the 25-basis-point-per-side spread/slippage sensitivity.
+  - [x] Add the pure deterministic calculator and focused fixtures.
+  - [x] Collect XIU five- and fifteen-minute evidence once per future WPF monitor cycle, even with no active tracked position.
+  - [x] Add immutable-evidence repository queries, Athena persistence, the reviewed migration 015 definition, and cohort-weighted Continuation/Breakout lens reports.
+  - [x] Reject proven 15-minute bar/session gaps, receipt-order conflicts, and missing exact symbol/XIU fill bars as audited invalid outcomes; leave only unproven tails pending.
+  - [x] **Operational step:** the operator applied migration 015 and read-only inspection verified the fifth active definition on 2026-09-01. A corresponding backup was not independently verified.
+  - [x] **Operational step:** run Athena and verify 112 valid matured `SwingMarkToMarket3` plus 112 valid matured `SwingExcursion3` outcomes; prediction and delayed-intraday outcomes remain at zero.
+  - [x] **Operational step:** observe a new WPF market-hours collection after 2026-08-28 with fresh SGY/XIU
+    five-/fifteen-minute receipts. The 09:47 and 10:02 cycles exposed SGY's overlapping-chunk conflict;
+    ADR-0045 fixed the request windows, and the rebuilt app stored six valid receipts at both 10:22 and
+    10:27 under collector v2. Rerun Athena separately when eligible delayed evidence should be evaluated.
+- [ ] Keep opening confirmation and intraday wave execution as separately scored challengers; do not activate either without evidence and human approval.
+
+## Phase E — shadow portfolios
+
+- [ ] Define and version the paper-controller entry/rotation policy, including whether an automatic first-completed-15-minute Top-pick entry should exist as a separately scored shadow challenger; ADR-0037's operator-confirmed entry is the only accepted operational entry path today.
+- [ ] Implement normalized fractional Top-1 selection-quality portfolio.
+- [ ] Implement normalized fractional Top-3 and Top-5 equal-weight portfolios.
+- [ ] Implement the versioned rank-weighted formula.
+- [ ] Implement capital-constrained integer-share versions using historical capital and reserve.
+- [ ] Implement the accepted versioned swing holding/exit policy, vacancy filling, duplicate-symbol handling, and rotation rules.
+- [ ] Add equity curves, drawdown, turnover, costs, utilization, and recovery metrics.
+- [ ] Keep Continuation and Breakout portfolio results separate.
+
+## Phase F — calibration experiments and promotion
+
+- [ ] Add calibration experiment/proposal persistence.
+- [ ] Record hypothesis, champion, challenger, attempted variants, windows, primary metric, and guardrails.
+- [ ] Add one-variable replay/ablation support for OBV weight, raw versus Z-scored RS, and gate thresholds.
+- [ ] Add untouched forward-validation windows and cohort-aware uncertainty estimates.
+- [ ] Enforce the 10, 20–30, 60, and 120-cohort evidence tiers from ADR-0022.
+- [ ] Record approval identity/time and link approved changes to strategy, model, policy, ADR, and code versions.
+- [ ] Preserve the former champion for rollback comparisons.
+- [ ] Confirm no code path can automatically activate a challenger.
+
+## Phase G — optional narration
+
+- [ ] Revisit LLM narration only after deterministic scorecards and fixtures are stable.
+- [ ] Keep calculations, proposal approval, and activation outside the LLM.
+- [ ] Reconcile any proposal-narration role with Oracle Rule R1.
+
+## Promotion-readiness tracker
+
+- [ ] 10 matured official cohorts: measurement system validated.
+- [ ] 20–30 matured cohorts: provisional challengers may be formed with aligned historical evidence.
+- [ ] 60 matured cohorts plus regime/forward-window requirements: ordinary promotion proposals may be reviewed.
+- [ ] 120 matured cohorts plus stronger downside evidence: safety-gate or concentration changes may be reviewed.
+
+## How to ask for status
+
+Useful prompts include:
+
+- “Update the paper-calibration checklist and tell me the next safe step.”
+- “What is complete in Phase B, and what blocks the first official calibration run?”
+- “Show me everything left before Athena can produce its first scorecard.”
+- “Which operational calibration steps require a database backup or explicit authorization?”

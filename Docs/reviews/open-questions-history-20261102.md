@@ -1,0 +1,1515 @@
+> Historical snapshot before November 2, 2026 documentation cleanup. Consult the [current document](open-questions.md) for current scope; later evidence and decisions supersede earlier claims.
+
+# Open Questions
+
+Things we punted on and need to revisit. Cleared as decisions are made
+(those then become ADRs).
+
+## Active
+
+### Bounded ordinary engine recovery — October 30, 2026
+
+The [investigation and proposed contract](restart-recovery-design-20261030.md) recommends compact
+transaction-maintained Real state, a bounded local/SQL operation witness, original-order broker
+reconciliation and scoped capabilities, with historical auditing separate. Accept or revise this
+direction before a superseding ADR or implementation. Proposed 10-second p95 / 30-second p99 and
+30-second blocker deadline need representative capacity evidence and agreement.
+
+Sequential review has accepted design directions in items 1–8 of the draft, with concrete mechanisms
+still subject to review. Item 9 is explicitly deferred to
+[#25](https://github.com/JosephMawer/TraderVI/issues/25): expanded damaged-database/old-backup recovery,
+automatic repair and joint-rollback guarantees need discussion separately and must not become a
+prerequisite for fast ordinary restart and reduced database load. Preserve existing exceptional-state
+handling; a local witness cannot detect every silent joint rollback of SQL and all local state.
+Engineering evidence still needed for the current increment includes complete writer coverage,
+bounded broker reconciliation/lookup, ordinary interruption tests and phase-level SQL/transition
+profiling. Existing backup/restore qualification retains its separate #12/#14 ownership.
+[Issue #19](https://github.com/JosephMawer/TraderVI/issues/19)
+owns the work; the [strategy checklist](../strategy-alignment-implementation-checklist.md) owns
+implementation/acceptance state. Existing recovery monitoring and LSPD hold remain unchanged.
+
+SQL cleanup is separately scoped in [#26](https://github.com/JosephMawer/TraderVI/issues/26), coordinating
+with #16's retention policy. Investigate other database cleanup candidates and one-job-versus-many
+there; this is not a prerequisite for the restart increment. Current plus previous checkpoint and
+SQL-owned cleanup are agreed directions; schedules, candidate sets and implementation remain open.
+
+The [October 31 read-only inventory and dry run](sql-cleanup-inventory-20261031.md) measures major
+tables and preliminary candidate pools, maps consumers, and proposes one ordered SQL Agent job.
+Agent is installed but stopped; no job or deletion was installed/run. #16 still owns retention
+acceptance; complete reference/rollback proof and #19 installation are prerequisites for legacy
+Real-history removal. Candidate counts are review pools, not approved deletion counts.
+
+### Indicator history recovery and opening-entry alternative — October 27, 2026
+
+Accepted direction: validated stored history and separately identified backfill for current indicators,
+an independent collector/recovery process, unchanged VWAP and three-of-four support. Opening-entry
+strategy work is explicitly deferred. The persistence/ownership decision is now accepted in
+[ADR-0111](../adr/0111-independent-collector-and-recovered-confirmation.md): validated recovered bars may
+establish both consecutive qualifying observations with no extra wait, subject to a current latest
+signal and unchanged execution checks. Remaining source qualification is tracked below. Implementation
+belongs to the collector section of the strategy checklist; installed behavior is unchanged.
+
+### One-minute Delphi confirmation source — October 27, 2026
+
+October 28 BTE evidence adds an unresolved identity/recovery boundary: one anomalous raw minute
+response changed 140 completed bars, while later responses and all 56 five-minute inputs behind the
+15:25 signal agree. The minute conflict remains latched; legacy entry checks do not consume that book.
+Before source qualification, establish instrument/venue/currency identity and decide a reviewed recovery
+rule and whether an incident in one interval should also block another interval's entries. Same-provider
+agreement alone cannot settle that choice. No cross-path veto or conflict clearance is authorized.
+[Saved-response comparison and limits](independent-engine-implementation-20261022.md#bte-saved-source-investigation--october-28-1535-toronto).
+
+Joseph requested two consecutive genuinely fresh minute observations while preserving longer indicator
+windows. The October23 sample was sparse/delayed, but twelve authorized October27 reads at10:42–10:47
+show fresh advancing minute data, with latest completed bars about9seconds old in the final sample.
+XIU/RY had complete recent ten-minute coverage in that early sample; later reads show gaps in both.
+At 15:32, the three sampled symbols have two/one/three missing recent minute slots; completed-bar
+response ages are 72.2/12.7/13.1 seconds. Freshness is demonstrated, sustained coverage/latency is not.
+The day-only watch has ended. See the [closing review](independent-engine-implementation-20261022.md#october-27-closing-signal-review--selectivity-missing-evidence-and-minute-successor).
+Distinguish
+no trades/venue coverage from source gaps before adopting missing-minute rules. Current storage/slots
+and evaluator are five-minute contracts. Decide whether TMX can qualify under sustained market-hours
+measurement or a different licensed real-time minute source is needed. The conditional alternative is
+QuoteMedia, subject to API entitlement, venue definitions, automated-use terms, capacity and price;
+none is yet qualified. [Live evidence and follow-up](independent-engine-implementation-20261022.md#october-27-minute-source-qualification--live-samples-and-follow-up).
+No source replacement/purchase is accepted. A consistent collector/publication/storage/evaluator
+successor and explicit updated-strategy review follow qualification; timer-only changes and repeated
+bars do not satisfy the request. [ADR-0109](../adr/0109-explicit-ongoing-delphi-live-management.md).
+
+### Monday Delphi data and price qualification — October 23, 2026
+
+**October26/27 disposition:** the earlier assessment-only scope below is historical. Joseph now
+authorized implementation/installation and accepted fixed broker ask +0.25% movement /0.50% spread;
+ADR-0109 implements that policy only for explicit new ongoing approval. Six saved price rejections
+contain no prices/timestamps, so causal attribution remains unresolved. Further matched price evidence
+must not be described as proving those historical causes. The accepted bounded policy settles the
+tolerance choice, not the underlying source-latency investigation.
+
+- Joseph requests a readiness assessment for October26, preserving safeguards. Proposed work is an
+  offline saved-receipt coverage audit and a bounded quote comparison independent of buy signals,
+  using a reviewed broker-helper extension. No new implementation, source change, external probe,
+  financial permission or monitor is authorized by this assessment.
+- Determine whether missing endpoints reflect collection defects or upstream absence, and whether
+  AskAboveDecisionReference reflects fallback/timing/mapping or a genuine price move. Preserve exact
+  bars, quote provenance/unknown source age and the strict price guard. Source replacement remains a
+  decision only if evidence establishes the need. [Evidence and acceptance criteria](independent-engine-implementation-20261022.md#october-26-readiness-assessment--october-23).
+- **Learning-session proposals (open, not authorized behavior changes):** Joseph asks
+  whether Real should accept a higher ask and tolerate the difference, or whether faster TMX queries
+  could reduce it. Source inspection distinguishes Real's own TMX reference from a Paper fill and
+  finds that Paper's later-quote fill has no matching earlier-reference ceiling. See the
+  [fill walkthrough](../system-design.md#how-delphi-live-paper-records-a-fill). Do not assume the
+  unknown Friday gap was small, caused by delay, or a realized loss. The current market-order
+  preflight also does not guarantee the eventual fill price.
+- **Recommended resolution:** measure matched quote fields, identity and timing, then evaluate
+  reference quality, measured latency, Paper fill realism and a separately defined execution-price
+  policy. Unconditional higher-price acceptance is not recommended; a bounded allowance or limit
+  order is only an alternative for review, with cash/risk sizing, non-fill and recovery implications.
+  Evaluate whether the current zero-adverse-difference rule rejects reasonable opportunities too;
+  retaining it during investigation is not a claim that it is the optimal final policy.
+  Close this question with documented causes/remaining uncertainty and an explicit accepted or
+  rejected policy decision; diagnostics alone cannot change the guard. Prepare the investigation
+  separately from this learning/documentation session. A
+  [copyable investigation prompt](documentation-consolidation-20261023.md#separate-quote-and-fill-investigation-prompt)
+  is prepared; no new chat, external probe, implementation or operational action has started.
+
+### Real recovery to next-session operation — October 22, 2026
+
+- Real recovery completes independently; the15:59read confirms unchanged relevant heads and identifies
+  known holds eligible for explicit real-only resolution while preserving paper restrictions. Nothing
+  was cleared. Normal-mode/broker/direct-input acceptance remains; the broker-read helper cannot verify
+  the saved login. [Results review](independent-engine-implementation-20261022.md#real-account-results-review--october-22-1559-toronto).
+- Saved permission expired October21; the installed continuation contract only supports October22.
+  Decide and implement the next-session review path before claiming October23 readiness. Recommended:
+  a bounded session-date review preserving original risk/account history and explicit per-session/current-
+  build approval, rather than another unconditional date substitution. This is a proposal, not accepted
+  automatic renewal or a change to existing capital-flow/valuation rules. Operator confirmation of
+  outside account activity and fresh broker reconciliation remain necessary under the existing contract.
+- Paper completion is not a prerequisite for these real checks. Hold clearance can resume market
+  collection even in verification mode; normal engine mode permits broker access. Both are operational
+  changes, separate from this read-only review and subsequent explicit execution enable.
+
+### Paper workload architecture and storage — October 21, 2026
+
+- User requests investigation and plain discussion, using the pinned architecture as reference.
+  [Findings and proposed boundaries](paper-workload-architecture-20261021.md) distinguish background
+  execution from admission waits, full-history processing from compact storage, and database evidence
+  growth from retained development libraries.
+- **Accepted direction:** real trading is independent of paper research (ADR-0103). The operator asks
+  to review a simple revised architecture before implementation; see the
+  [draft](../concepts/independent-real-processing-design.md).
+- **Accepted follow-up:** immediate current-state/new-event/exact-input checks are separate from full
+  historical integrity audits, acknowledging later detection of unrelated historical corruption.
+- **Audit policy adopted:** nightly new-history checks, weekly archive coverage target, scoped integrity
+  holds and explicitly verified recovery. Research-only continuation requires verified independence;
+  protection continues only when its prerequisites remain trustworthy. The engine audit schedules are
+  installed for verification; native capacity and complete acceptance remain pending.
+- **Lifecycle accepted:** closing the dashboard leaves the engine running, with a separate stop control.
+  The operator then requested implementation through history/storage. Source implementation and offline
+  tests are recorded in the [cutover review](independent-engine-implementation-20261022.md). The overnight
+  target was missed. Standard Release0082a88a is installed in verification mode; ownership/close/stop/
+  resume checks and separate Real recovery pass. Paper coverage, concurrency, resource and audit-capacity acceptance remain open.
+  Retention is separate before cleanup; no installed saving is claimed.
+- **October22 cost/availability correction:** ADR-0104 sequential reads/decodes and separate real recovery
+  are installed. Real verification passes; explicit known-hold resolution remains before collection
+  can resume independently of paper. Original full-state checksums still require per-revision work;
+  full-run capacity remains unproved. [Measured scope and limits](independent-engine-implementation-20261022.md).
+- Checkpoint trust, exact references, locking, direct freshness/progress, resource/acceptance budgets and
+  incident persistence/release mechanics are engineering work under accepted rules. Bring back substantive
+  behavior/authority trade-offs, not routine algorithm choices. Special-backup retention remains separate.
+
+### Delphi Live tomorrow readiness — October 21, 2026
+
+- User requests remaining lag fixed and exact confirmed-signal/order reasons recorded so the app
+  is ready for tomorrow, preserving risk. ADRs0099/0100 cover the focused code changes and evidence.
+- Native timing after installation remains unproved; today's exact16:00permission is expired.
+  Earlier source/build review flows are explicitly October21-only (ADRs0097/0098). No October22
+  authority follows from performance fixes, source approval, app startup or a protected-file edit.
+- Operator explicitly answers **Prepare tomorrow's review only**: prepare an October22-only review/
+  approval path for the existing Portfolio rules only assignment, retaining original financial
+  history/risk and16:00expiry. This preparation decision is implemented under
+  [ADR-0101](../adr/0101-october22-portfolio-rules-only-review.md). No approval, grant or financial
+  mutation is authorized by that answer. Review is available on October 22 only, including pre-open
+  with current daily evidence. Exact approval and separate enable remain operator actions.
+- Standard Release from97ad0a11 is installed October21 at21:10Toronto after normal closure/zero-owner
+  verification. Remaining acceptance: actual October 22 review and native timing/decision publication.
+  No further design decision is inferred or required
+  merely to carry out the accepted review-only scope.
+
+### Delphi Live ungated TFSA source request — October 21, 2026
+
+- **User direction:** use an existing ungated Delphi Live portfolio. The existing profile is
+  Portfolio rules only: daily admission gates are bypassed, while intraday confirmation, data,
+  capital/stock risk, order reconciliation and cutoff remain (ADR-0067).
+- **Current mismatch:** October 18 preparation recommended Normal from a limited paper comparison.
+  The operator approved the Normal preset, initially saved October 20 and continued today. The
+  scoped setup/native qualification explicitly selects Normal; display selection has no assignment
+  effect. This was not autonomous daily winner selection, and approval does not establish informed
+  preference for gates. The 11:56 read confirms the ungated source exists but TFSA remains Normal.
+- **Resolved design:** the operator subsequently explicitly requests implementation now, for personal
+  review/approval. [ADR-0097](../adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md)
+  accepts an exact matched-source, prospective cash-only transition within original authority/risk/
+  history/full-fill restrictions and today's 16:00 expiry. Code/review UI are implemented; installation
+  and operator approval/enable are tracked in the checklist. No financial switch is inferred from
+  implementation. SQL-fix evening deferral is independent. General portfolio switching and invested
+  handover remain the broader ADR-0085 work, not an expansion of this dated path.
+
+### Live evaluation save timeout — October 21, 2026
+
+- **Work recovery, October 28:** implementation/installation remain complete; the outstanding native
+  save-recovery and stage-delivery acceptance is tracked in [GitHub #17](https://github.com/JosephMawer/TraderVI/issues/17).
+  Current independent shared-input services still use this repository/retry path. Historical timeout
+  cause remains unknown; architecture/source separation is not a native retry proof. Historical
+  workload capacity is [#13](https://github.com/JosephMawer/TraderVI/issues/13); the earlier paper-pause
+  workaround is superseded by the accepted independence, not a new switch requirement.
+
+- **Resumed evening scope:** operator requests the remaining SQL fix now and explicitly selects
+  **Fix SQL only for now**. [ADR-0102](../adr/0102-bounded-immutable-live-evaluation-save-recovery.md)
+  implements one identical save replay with original guards/timeouts and bounded safe stage logs.
+  71focused/2,919Core pass/nine native SQL skips, isolated Release and SQL parse/guard comparison pass.
+  Standard Release fromc4d094fd installs21:31Toronto after normal closure/zero-owner checks; native
+  recovery/cause/capacity acceptance remains pending. Metadata
+  confirms expected enabled indexes but grants no wait/plan evidence. Paper-workload switch is
+  deferred; neither global shutdown of the shared source nor barrier removal is implemented.
+
+- **Observed:** SQL timeout -2 at 09:37:46 in DelphiLiveEvaluationRepository.PersistAsync, a 30.10 s
+  stage, no initial durable five-minute evaluations and a stale Normal source. Real evaluations gap
+  from 09:32:50 to 09:45:45. Shared evaluations subsequently persist; actions add 115.53 s before
+  source/real execution recovery. Current Watching/immature/unconfirmed signals also explain no
+  orders after recovery. [Current evidence](../project-status-history-20261101.md#october-21-post-open-execution-watch).
+- **Unresolved:** exact database wait/blocking/plan cause and repeatability. Timeout location is
+  established; lock contention versus slow execution is not. Do not conflate this with the older
+  import-lock diagnosis below or loosen freshness/gates/timeouts to manufacture progress.
+- **Distinct recurring failure:** safe diagnostics subsequently record SQL52232 in observation-set
+  synchronization at10:43:05,11:07:47 and11:37:51, enforcing the existing seven-minute collection deadline.
+  Real execution recovers10:52:16,11:16:46 and11:46:51 after roughly12-minute gaps. The 11:16 paper-actions
+  stage lasts138.85s; the original cause of arriving late remains unresolved. Investigate this
+  separately from SQL-2; the partial evaluation-save retry does not establish a deadline correction.
+- **Deferred October 21:** operator requests a focused correction, then defers it to tonight to
+  prioritize the running app/trades. One-time21:00Toronto reminder was delivered/deleted21:14. Partial bounded
+  immutable-save retry/diagnostics passes an initial 29-test focused run; subsequent explicit
+  updated-build review work is incomplete/uncompiled/untested. That original draft remains uncommitted
+  and uninstalled, byte-for-byte parked outside compiled source under
+  `artifacts/deferred-sql-20261021/saved-source/` for the independent source-switch build. Expected indexes are enabled; available helper permissions do not expose the historical
+  wait/plan cause. [Resume notes/current evidence](../project-status-history-20261101.md#october-21-post-open-execution-watch).
+- **Next:** observe native recovery/stage delivery and capacity under tomorrow's separately
+  reviewed current-build approval/host after the21:31SQL correction installation.
+  Historical SQL wait/plan remains unresolved. Today's dated approval stays expired and the
+  through-close watch is complete/deleted; no native write rehearsal or financial action follows
+  from this implementation request.
+
+### TFSA review waiting for paper work — October 20, 2026
+
+- **October21 observed cost:** during the requested source-switch review, setup waits438.82s
+  (12:35:11–12:42:30) for an admitted LiveEngine cycle lasting502.90s. Collection3.34s/evaluation
+  1.49s are short; paperActions take188.39s, and numerous snapshot reads/unpacks progress during
+  the cycle. Investigate source-context/history/snapshot reconstruction and repeated loads, then
+  the narrower import coordination boundary. Exact SQL-versus-CPU cost/root cause remains unknown.
+  The wait drains normally; no bypass or implementation change is accepted merely by this report.
+  [Dated evidence](../project-status-history-20261101.md#october-21-post-open-execution-watch).
+
+- **Recovered rationale:** the [October 19 SQL 51413 diagnosis](delphi-live-morning-decisions-20261019.md#sql-51413-and-desktop-scheduling-coordination--october-19)
+  records a real contention failure: paper cycles hold a shared `TraderVI.EngineSettings` lock
+  across work; TFSA import saving requests it exclusively. Both continuation preparation and
+  approval call account synchronization, which can save the reconciled import. The desktop barrier
+  lets existing paper work drain and defers new cycles before attempting those operations. SQL
+  locks and financial validation remain authoritative; the desktop barrier helps avoid timeouts,
+  rather than establishing a financial requirement that paper accounts be idle.
+- **Current distinction:** a successful review holds desktop admission through its original
+  two-minute window and into approval. Normally approval has no second long paper wait. This
+  does not prevent other processes changing evidence or replace approval's fresh checks.
+- **Open proposal, not an accepted implementation:** investigate narrower coordination for the
+  conflicting import write, preserving account/legacy-ledger integrity, risk/reference checks,
+  order recovery and strategy/source identity. Removing the blanket wait alone can restore the
+  known lock timeout; offline concurrency validation is needed for any narrower lock contract.
+  No new code, financial authority or timing change follows from this explanation. This is not
+  an added October 21 prerequisite. Keep the current workaround until a replacement is agreed
+  and validated; do not generalize its existence into a permanent trading rule.
+
+### Real TFSA execution status and permission UI — October 20, 2026
+
+- **Accepted scope, detailed design for review:** the operator accepts the small display/layout
+  proposal, including the five-minute display-only stale warning, then requests design documents
+  before code. [ADR-0094](../adr/0094-real-tfsa-execution-status-presentation.md) records that boundary;
+  the [design draft](../concepts/real-tfsa-execution-ui-design-draft.md) contains account/setup
+  wireframes, state/permission wording and offline acceptance cases. Layout/wording review and
+  implementation remain pending; the understanding-check conversation continues separately.
+- **Static finding:** `BrokerExecutionHost` reports Off, Waiting, Running, Paused and Blocked.
+  `WealthsimpleAccountPanel.SetExecutionHostStatus` displays a short label with the reason in a
+  tooltip. Running can accompany blocked new purchases; Waiting covers several different causes.
+  A useful presentation should distinguish saved host enablement, observed activity/freshness,
+  buying permission/expiry and the reason purchases cannot proceed. A saved grant alone is not
+  evidence that a cycle is currently running.
+- **Deferred design question:** the operator suggested a possible state meaning automatic start next
+  morning. Existing startup can resume polling an exact matching enabled grant while the app is
+  open; it neither starts a closed app nor renews buying permission. No scheduling or new trading
+  authority is agreed. October 21 still requires fresh native review, manual dated approval and
+  separate host enable. Do not present an expired grant as tomorrow's readiness or extend the cutoff.
+- Keep changes based on actual findings, preserve financial history and all existing controls, and
+  validate offline. Coordinate normal closure before replacing loaded standard Release output.
+  This records a request and open questions, not an implemented UI or broker verification.
+- **October 20 dedicated inspection:** the shared desktop timer awaits account refresh before host
+  polling, which itself waits for admitted paper work. `CheckedAt` changes only on a presented host
+  result; no separate cycle-start/completion history is exposed. Core `Running` is presented after
+  an Active result, including a result with purchase blocks, rather than while `tick` is executing.
+  Enabled grants are reread after startup and resume polling only for the matching assignment/build/
+  continuation; they neither start a closed app nor renew the dated purchase scope. The saved-mode
+  display currently says buying is allowed after checks without showing the scoped expiry.
+- **Accepted presentation scope:** show an icon/text for stopped, enabled/waiting,
+  cycle in progress, paused or blocked; keep the reason visible and show observed last check and
+  last completed cycle separately. Add a five-minute display-only stale-status warning, updated
+  independently of financial polling. Show new-purchase mode, dated expiry and known saved blockers
+  separately; an unexpired permission remains subject to fresh checks, never a purchase guarantee.
+  Group setup into review account/evidence, explicit dated approval, then separate host enable;
+  retain older first-session actions in a secondary section. Keep current status visible during
+  setup actions. Do not change controls, qualification, scheduling, financial authority or execution
+  rules. Defer “starts automatically tomorrow” pending a separate behavioral decision.
+- **Implementation boundary:** no product code or binaries changed in this design checkpoint. Offline tests should
+  cover stale/missing observations, cycle start/completion/failure, expiry at the exact cutoff,
+  account changes and independent purchase blockers. A normal Release owner is open at inspection;
+  coordinate normal closure before any build replaces its loaded output. October 21 still requires
+  actual current-build native recovery/review, explicit dated approval and separate host enable;
+  new purchases stop at 4 PM Toronto. No orders, permission saves or operational validation here.
+
+### Obsolete generated build copies — October 20, 2026
+
+- **Operator preference:** normal checkout/Release output and `dotnet run` are the default; avoid
+  further full snapshot copies/helper launchers. All implementation is on `master`.
+- **Cleanup follow-up:** the related TFSA and performance artifact folders total about 8.45 GiB,
+  mostly copied build dependencies. Scope obsolete generated outputs for removal after the captured
+  binary is verified through normal-output recovery; preserve active output, protected account/
+  checkpoint/packet stores, logs/receipts/review evidence and source. No blanket artifacts/runtime/
+  package-cache deletion is authorized or performed by this inventory. No new application code is
+  required to restore the normal workflow.
+
+### After the October 20 supervised trial — October 19, 2026
+
+- **October 20 simplification accepted in the understanding discussion:**
+  [ADR-0095](../adr/0095-current-readiness-without-daily-verification-replay.md) removes daily
+  qualification replay from October 21 approval. Current account/history/orders, risk, source/build,
+  storage and dated permission remain required; completed native tests retain their historical
+  dates/limits in development records. Current approval no longer needs an old test packet or a
+  verification restart. Ordinary reconciliation still protects the original financial history.
+  Source/validation/install progress is owned by project status/checklist. This closes the question
+  of daily reuse for October 21; later recurring/production permission remains deferred below.
+- **October 20 follow-up:** the operator accepts tomorrow's readiness contract without repeating setup.
+  The [October 21-only continuation contract](delphi-live-continuation-contract-20261021.md)
+  preserves the existing assignment and original references/holds/trades, with the
+  unchanged cash-only/no-outside-change condition, fresh all-nine-check/native build review, explicit
+  dated approval and separate host enable. The operator explicitly accepts this contract after
+  clarifying that original order readback is not a stock whitelist; source implementation is now
+  present. Offline validation/normal-output handoff and actual October 21 native review remain
+  separate. The October 20 carry or old enabled host grant cannot renew buying automatically.
+- **Deferred:** determine the reviewed transition from the trial-only carried original references to
+  later buying or ordinary production continuation. The accepted October 20 exception neither
+  recovers missing historical closing/opening evidence nor supplies full external cash-event proof.
+  The separately accepted October 21-only amendment preserves these production limits and permits
+  no baseline/reference reset or October 22 renewal. Recover/qualify the required
+  historical and cash sources and agree the transition explicitly before granting later buying.
+  This is follow-up work, not a condition silently waived by the trial or its implementation.
+  [Accepted dated contract](delphi-live-next-session-contract-20261020.md), ADRs 0083/0092.
+
+### Four-screen visual redesign — October 18, 2026
+
+- **Accepted priority:** fresh, clearer main layouts across Trading, Portfolios, Delphi and Delphi Live;
+  detailed drill-downs follow once the visual layout is established.
+- **Accepted follow-up:** Workspace; agree Trading's main layout before moving to other screens;
+  both Buy/Sell controls in the holding panel.
+- **Accepted arrangement:** account overview, assigned strategy, holdings beside the stock panel, then
+  compact activity. Next refine the holdings table and holding panel.
+- **Accepted overview:** Performance first; Today by default with an Overall option, integrated into
+  the full Trading concept. Remove the entire account heading block following the earlier title/badge
+  cleanup, and use smaller overview figures/tighter spacing. Currency stays beside figures in this
+  single-account concept. Net deposits are removed from this overview; cash-movement records and
+  calculations are unchanged. Account value first remains design history.
+- **Accepted table decision:** Stock, Position value, Open gain and Strategy status columns;
+  shares appear only in the holding panel alongside average cost.
+- **Accepted panel grouping:** position figures and share/cost/price facts precede strategy
+  explanation; both Buy/Sell remain below. Explain why Hold/Sell without repeated “saved strategy
+  evaluation” wording; retain actual check time and missing-data state.
+- **Accepted strategy control:** one selected strategy dropdown at the former portfolio placeholder
+  is the manual-switch entry point. The read-only transition review is now wired; exact portfolio is
+  deferred and real assignment/execution remains unfinished under existing handover/protection contracts.
+- **Accepted explanation:** decision, concrete reason/evidence and next trigger/step; distinguish Sell
+  from submitted/sold. Fictional examples do not set thresholds or imply qualified real strategy choices.
+- **Accepted switching:** queue old-strategy-only exits when trading checks allow, even at a loss; keep
+  shared holdings/protection and reconcile required exits before buys. Manual/unmanaged stocks stay
+  outside implicit management. No new pacing or partial-sale rule is agreed.
+- **Implemented scope:** Trading-only WPF layout and dropdown-to-existing-transition-preview path;
+  other tabs unchanged. Build, 194 focused tests and four synthetic WPF renders pass. Automatic execution,
+  full verified Hold/Sell source integration remains open. The operator-
+  authorized Release rebuild/launch is responsive (October 18, 22:16 Toronto); operator UI feedback and
+  native Trading/broker qualification remain pending.
+- **Accepted daily source:** Wealthsimple's native one-day simple return since previous close;
+  preserve amount/rate/reference/valuation time and date prior-session responses explicitly. Implemented
+  through the existing connection and refresh loop, with 233 focused tests and WPF build passing.
+- **Open:** current native daily-read availability/operator comparison, target window size and later
+  screens' layouts/order. Native returns remain distinct from unavailable complete gain calculated
+  from local records. Missing daily values never use Overall. Find stock remains provisional.
+- **Tentative context:** the operator leans toward switching among Delphi Live portfolios, but asks
+  for an explanation after forgetting there are multiple paper books. The recorded original paper
+  book plus Normal/Portfolio rules only comparison pair are distinct accounts; comparison books are
+  currently excluded from real-account selection. No exact configuration, new comparison eligibility,
+  narrowed wider family/AI support or switching change is agreed. The operator now explicitly defers
+  portfolio choice. One engine/three paper portfolios is clarified again; keep that deferral while
+  continuing the UI. Account results and paper results remain independent.
+- Preserve ADR-0068's account-first Trading page and existing financial/source/authority contracts.
+  Displaying concepts alone grants no operating authority; the later explicit request authorizes Trading-only UI implementation.
+- [Decision record and verification limits](../concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).
+
+### Intraday gain retention (revisit soon)
+
+- **Current October 18 state:** the implementation and rollout requests supersede the design-only boundaries
+  in the research history below. ADR-0090's original bands, completed five-minute highs, adaptive fresh-bid
+  checks and preserved combined-holding protection are implemented/tested across the portfolio engines,
+  and now installed/enabled for all 15 active paper portfolios with 37 holdings' state preserved. Original
+  V1/defaults stay false. Migrations 043–045 and prospective assignments are applied. Extra quote-source
+  investigation stays deferred and non-blocking; upstream bid freshness remains unqualified. Future
+  research includes morning/noon gap alternatives and observed outcomes following adoption. Normal
+  regular-session polling/touch behavior remains to observe; weekend checks verify saved state/host,
+  not bid-trigger returns. No additional setting decision is needed for the enabled behavior.
+- **Goal:** investigate retaining gains that appear earlier in a session and fade later. The operator
+  raised this September 11 in [Assess TraderVI priorities](codex://threads/01a0908e-613a-7713-9de1-dd3851a8a71c).
+  The September 18 [account-history investigation](../../artifacts/portfolio-history-20260918/report.md)
+  provides related observations, with incomplete valuation/closing evidence and reconstruction limits.
+- **Confirmed October 16:** preserve this as an **especially important open research goal**, revisit
+  soon and integrate it into future work. Keep both whole-portfolio gain protection and protection of
+  individual winning positions undecided; do not resolve the experiment during session recovery.
+- **Original questions:** experiment scope, whether time of day matters, activation/giveback levels, resulting
+  actions, re-entry and how to compare gains retained with later recoveries/opportunities sacrificed.
+  The earlier example thresholds were illustrative, not accepted settings. Existing stock/account
+  loss controls do not answer this profit-retention question. Later design choices and remaining
+  questions are recorded below.
+- **Status:** research only; no new trading rule or implementation chosen. Preserve complete/fresh
+  value paths and missingness when assessing the observation. Resume from R01 in the
+  [session-work register](../session-work-register.md), with priority in the roadmap.
+- **Offline evidence review, October 17:** the frozen September 18 export supports six full dates for
+  one rules-only Breakout Top-3 paper account. All six reconstructed closes trail their supported
+  morning best, but three full-day highs occur after noon; both held-position declines and later
+  purchases contribute. Sixty of 468 checkpoints and three stored closes are missing; receipt times
+  prevent treating reconstructed peaks as actionable prices. [Findings and limits](intraday-gain-evidence-20261017.md).
+- **Expanded evidence, October 17:** [all 15 paper accounts through October 16](paper-gain-patterns-20261017.md)
+  yield 74 usable invested/traded account-days at 09:35/noon/close. Fifteen rise by noon: eight fade,
+  six improve and one stays flat; for newer dates those counts are three/five/one. Continuation's
+  rules-only accounts show more giveback, while Breakout and Live are mixed. The peak-based observation
+  and fixed-time comparison answer different questions; neither selects a rule. Both approaches stay open.
+  These are whole-account results, retained as background after the scope correction below.
+- **Operator's scope correction, October 17:** investigate **individual stocks within each portfolio**.
+  The whole-account counts do not answer the intended question. Next follow each holding's morning
+  rise, giveback and later upside; include stocks purchased later from their actual purchase time.
+  **Accepted:** show the day's move and profit since purchase separately. For same-day purchases,
+  start ownership-based measurement at the actual purchase, not the earlier morning.
+- **Stock-level evidence, October 17:** the [corrected review](stock-gain-paths-20261017.md) supplies
+  235 covered position-days: 87 rise by noon, then 40 fade and 47 improve. Twenty-one rising carried
+  mornings remain below purchase cost. Of 79 noon winners since purchase, ten end below cost at their
+  actual sale/close. Later purchases and higher afternoon highs remain relevant. This is descriptive
+  saved-price accounting, not proof of an executable high or an accepted protection rule. Next discuss
+  ordinary individual-winner protection and later upside/new purchases; keep exception repairs secondary.
+- **Confirmed direction, October 17:** use an individual trailing stop whose **percentage gap below
+  the high shrinks as profit since purchase grows**. The operator explicitly prioritizes protecting
+  profit over capturing further gains after a sale; a subsequent rally alone does not invalidate a
+  profitable protective exit. DSV/ARE illustrate that accepted tradeoff. [Proposed ADR-0090](../adr/0090-progressive-individual-profit-trailing.md)
+  and its concept note preserve the direction. Activation, gap schedule, observation timing and
+  implementation/version scope remain open; no numeric policy or rule change is accepted.
+- **Initial numeric recommendation, before later design retention:** extra tightening at +1.5% highest purchase
+  profit with a 1% gap; at +3% use 0.75%, at +5% use a 0.50% minimum. Existing protection stays active
+  below activation and no stop is lowered. [Rationale/DSV illustration](../adr/0090-progressive-individual-profit-trailing.md#recommended-first-paper-study-schedule--not-accepted)
+  uses ordered saved closes, not a full trade or fill replay. DSV first crosses the illustrative
+  threshold in the 10:25 close, received about 10:27. The operator authorized offline testing only;
+  this recommendation is not an accepted operating policy or implemented rule.
+- **First broader comparison, October 17:** [complete saved single-purchase Shadow paths](progressive-trailing-trade-study-20261017.md)
+  yield 53 distinct non-DSV trades after duplicate removal. Seven receive earlier modeled exits,
+  six with profit and two recorded losses changed to modeled profits; 46 are unchanged. Median return
+  for those seven is +0.53% modeled versus +0.14% recorded. The first band has supporting examples;
+  only one activated path reaches 0.75% gap and none reach 0.50%. Keep bands unchanged pending review,
+  with upper-band efficacy, exact operating timing/version scope and adoption still open. Missing paths
+  are omitted; they do not expand this into an exception-repair project.
+- **Larger-winner extension, October 17:** [entry-based ARE/AGI examples](progressive-trailing-trade-study-20261017.md#larger-winner-extension-3-and-5-bands)
+  exercise +3%, with modeled purchase profits retained of +2.64% and +3.06%/+2.10%. Conditional
+  already-held day windows exercise +5% in ARE/CAS (+12.35%/+4.55% modeled), without proving those
+  positions survive the lower bands from entry. FVI sells under the first band before its later +5%
+  high. Tighter gaps sometimes retain less than wider comparisons, so no exact setting is adopted.
+  Twenty-four scenario crossing/fill checks pass offline. Review gaps, observation timing, policy/version
+  scope and prior add-ons' cost/high references; conditional windows do not decide a daily reset or
+  add-on policy. Keep profit protection primary and exception repairs secondary.
+- **Time-of-day idea and offline test, October 17:** the operator clarified **10 a.m. Toronto time**,
+  followed by **noon**, and authorized the proposed gaps plus nearby alternatives. The [five-schedule
+  comparison](progressive-trailing-trade-study-20261017.md#time-of-day-gap-comparison) finds three higher,
+  one lower and 51 equal modeled returns among 55 distinct closed trades for the agreed time version.
+  The gentler version has three higher/52 equal there, but both reduce retained profit in the separate
+  larger ARE entry. Conditional already-held ARE improves with morning room. Recommendation is to
+  keep original bands as baseline and preserve the time idea; no operating adjustment is accepted.
+  All 415 scenario outcomes independently verify. Decide whether clock-based tightening belongs in
+  the policy, including observation timing and carried stop behavior; no stop moves down next morning.
+- **Latest design choices / stop-add-on walkthrough, October 17:** retain the original +1.5%/+3%/+5%
+  bands and 1%/0.75%/0.50% gaps, without implementation; morning/noon alternatives are deferred research.
+  The operator accepted one combined holding for additional purchases, updated average cost and
+  preservation of the existing stop and tightest earned gap. The [worked contract](../adr/0090-progressive-individual-profit-trailing.md#existing-stops-and-additional-purchases--design-walkthrough)
+  retains actual price-high history, reports blended purchase profit without crediting new shares with
+  earlier gains, and keeps one protective exit. New shares may lose individually while the combined
+  position is profitable. Source/arithmetic checks were followed by the saved-path test below.
+- **Saved add-on test, October 17:** [seven supported records](progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
+  cover six distinct cost histories across ARE/MATR/CAS. Three ARE records retain +1.58%/+1.93% after
+  an add-on, while the added shares individually lose 1.48%. The delayed-add ARE account sells before
+  its add-on order (+2.64%); MATR/CAS keep original exits below activation. Recorded ARE returns are
+  larger profits; the overlay protects a smaller profit earlier. Four first crossings/fills, seven
+  recorded returns and six included cost/stop/band transitions independently verify. The +5%/0.50%
+  band is not reached in these modeled paths. Observation/high timing, policy/version scope and
+  adoption remain open. Existing rules are unchanged; missing-data repair remains secondary.
+- **Five/fifteen-minute update comparison, October 17:** the operator confirmed five-minute breach
+  checks in both variants to isolate stop raises. The [controlled same-source comparison](progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
+  finds 56 equal, four higher five-minute and one higher fifteen-minute modeled returns across 61
+  distinct closed trade/cost histories. DSV retains +1.29%/+2.03%; the earlier ARE +1.25%/+0.82%;
+  add-on ARE returns are equal. All 85 prior five-minute baselines reproduce and 170 scenario outcomes
+  verify independently. The comparison itself does not select an operating interval. Native bar-low
+  execution semantics are not adopted by this close-based
+  study. No trading rule, data collection, SQL record or running application changed.
+- **Subsequent agreed design, October 17:** completed five-minute prices raise the stop; the first
+  fresh observed price at or below the established stop triggers a sale, without waiting for a close.
+  A new/raised stop applies only to later observations. The operator accepts exiting a temporary dip
+  to prioritize profit protection. [Contract and limits](../adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
+  Settings are confirmed below; version integration remains work and extra source investigation is deferred.
+  Previous close-based results do not establish touch returns or continuous detection; no implementation.
+- **Scope and price input confirmed, October 17:** the operator wants all portfolios covered,
+  including and especially Delphi Live, still without implementation. Fresh valid bid at or below
+  the established stop is accepted after explanation. Live already has a fresh-bid floor check;
+  this does not qualify other families' quote inputs or apply the progressive bands. Remaining work:
+  prospective version integration and fresh-bid tests. Additional source research is deferred below.
+  [Scope, explanation and source check](../adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
+- **High and existing-holding rollout confirmed, October 17:** use the highest completed five-minute
+  close since purchase; include existing holdings as soon as the strategy is enabled, preserving
+  stronger protection. The operator suggests fewer bid checks while safely above the stop and faster
+  checks nearby. After the requested example, the operator accepted five-minute checks
+  above 0.25% over the stop, one-minute checks nearer, a new quote per check and no more than 60 seconds
+  since receipt. A breached stop triggers on observation without waiting for another interval.
+  Receipt age does not establish market quote age; the Live receipt lacks a bid-event timestamp.
+  [Example/remaining work](../adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation).
+- **Quote freshness review, October 17:** the current Live query/model/receipt has local receipt time
+  but no bid-update/as-of time. Independent reread of the September 29 saved probe confirms 22 current
+  quotes without positive bid-ask pairs; the separate delayed endpoint has pairs but no bid timestamp.
+  The pair flag does not establish whether a bid alone was absent. This does not qualify present
+  one-minute protection or establish today's bid lag. The operator subsequently declined the proposed
+  additional market-hours/source-guarantee investigation as a coding prerequisite: defer it, keeping
+  the limitation explicit and gap repair secondary. The design is ready to implement/test once requested;
+  no further trading-rule decision is required. State/version handover and integration are engineering
+  work, not reasons to demand another research round. No new market/broker/SQL access or source
+  changes. [Finding and evidence scope](../adr/0090-progressive-individual-profit-trailing.md#quote-source-freshness-check--october-17-2026).
+
+### Liquidity and execution-realism research
+
+- **Requested exploration, September 5:** assess the value of spread, dollar volume and position-size
+  participation for short-term TSX trading and capacity. Source:
+  [Explore liquidity-aware trading](codex://threads/01a06fe2-42dd-7fb1-86fc-014cf0dca9a0).
+- **Unanswered proposal:** a measurement-only first version using existing volume/position data,
+  separately investigating spread data, before deciding whether anything should block or resize trades.
+  That proposal was not accepted or implemented by the chat. Zero commissions do not establish a
+  spread/price-execution contract; no new cost deduction, score change or execution gate is agreed.
+- **Status:** preserve as an unfinished research idea (register R14), without assigning it a delivery
+  priority or conflating it with the accepted historical/Live fill contracts.
+
+### News context for the AI reviewer
+
+- **Requested exploration, September 29:** whether the operator's WSJ subscription could improve the
+  AI's decisions. Source: [Assess WSJ for TraderVI decisions](codex://threads/01a0eed7-1ef3-70f2-8eba-20efb0ff4b6c).
+- **Discussed only:** timestamped news context and a paper comparison with/without that context,
+  respecting what was available at each decision. Neither an ingestion feature, a data source,
+  a subscription decision nor spending was approved.
+- **Status:** retain the idea in register R15; scope/source/evaluation decisions remain open.
+
+### Continuing TMX coverage after the Delphi Live correction — October 14, 2026
+
+ADR-0089's initial correction is implemented/tested/installed. Three normal Live cycles complete and
+current portfolio marks recover. Passive tracing and the authorized four-request comparison identify
+remaining failures from trailing records after missing buckets; the sparse refinement is installed
+and its first scheduled cycle has zero CollectionFailed receipts and complete current Live marks.
+Missing stock bars and fifteen-minute canonical conflicts prevent complete coverage qualification.
+The subsequent nine-stock/27-request comparison finds one request-end omission and eight still
+missing exact intervals. Six have no reported minute records; CVO/PSI each have one. Neither proves
+no trades or supports inventing a bar. The observation-time end correction and explicit stale-source
+metadata are installed with their first prospective cycle/marks verified. Four of the original nine
+remain stale/missing in that later interval; this does not repair the original gap. Qualify availability
+for sparse stocks through an explicit source contract; a wider read cannot repair earlier deadlines.
+Qualify continuing capacity/held-stock freshness without accepting ambiguous rows, inventing
+bars, clearing conflicts or rewriting historical gaps. See project status for actual operational
+evidence; this follow-up grants no additional provider requests or database repair.
+
+### AI-managed portfolio and proposed live adoption — September 26, 2026
+
+- **Dots alternative raised October 17 (unresolved):** the operator asks whether ChatGPT Dots
+  could supply AI Momentum decisions instead of direct paid model API calls. Official documentation
+  reviewed today describes ongoing cloud work, saved schedules, supported plugins and local tasks
+  on an online connected computer with ChatGPT open. Work/Codex tasks still consume their product
+  allowances; unlimited intraday capacity is not established. No direct callable Dot request/response
+  interface or guaranteed 1–15-minute decision delivery was established by this documentation review.
+  A possible paper-only bridge would expose dated TraderVI inputs and accept structured proposals
+  through the existing validation/risk boundary, preserving TraderVI-owned protection and execution.
+  The operator subsequently authorized one saved-input, non-executing trial and confirms the Dot
+  is ready. Its returned historical `wait` now passes schema/domain validation and 16 factual checks.
+  It correctly recognizes four eligible choices and rejects stale schedule narrative. Wait is
+  defensible, not mandatory; pre-review `FreshAiReviewRequired` is not an independent permanent
+  refusal reason. The review supplies missing AI attention; other controls still need fresh rechecks. This does not approve an API replacement, recurring reviews or trading integration.
+  The [replay procedure](../running.md#dots-one-saved-input-replay) records the result. Selecting or
+  switching an eligible choice, actual decision quality, local bridging, timing and sustained capacity
+  remain unqualified; any further trial needs an agreed scope;
+  input qualification, stock actions, switching, runtime/UI and paper validation remain required.
+  Sources: [Meet dots](https://learn.chatgpt.com/docs/dots),
+  [tasks and memory](https://learn.chatgpt.com/docs/dots/tasks-and-memory),
+  [computers and apps](https://learn.chatgpt.com/docs/dots/computers-and-apps).
+
+- **First connected review follow-up (October 1):** the operator accepted the ten-minute age for
+  this review-only test. Protected history is initialized; one model review and exact SQL readback
+  are verified, with conservative usage/cost accounting. The AI returned `wait` and requested two
+  minutes. The dependency repair and authorized pipeline recovery restored today's publication to
+  all 15 portfolios. A follow-up test at 11:05 assembled four eligible choices but stopped before
+  generation because detailed Live checkpoint histories pushed input beyond the existing token cap.
+  The concise review view is implemented/tested and fits that saved packet under the existing cap
+  (ADR-0087). A fresh model decision using its tables/shared definitions and ongoing size headroom
+  remain unqualified; full source history, eligibility and risk/spending limits stay unchanged.
+  Further connected-review qualification, remaining evidence/admission causes and Athena's two invalid
+  prediction outcomes remain follow-ups. No eligibility or spending rule changed.
+  Continuous operating ages and
+  installed desktop lifecycle remain unqualified. Timing and first-review cost bounds remain agreed
+  (ADR-0087); automatic reviews and trading remain disabled. See project status for dated evidence.
+
+- **Review input gaps (September 30, deferred):** the operator prefers passing dated information
+  and explicit missing pieces to the AI so minor gaps do not block useful assessment. Keep the
+  existing input builder's rejection/eligibility checks for current coordinator work. Revisit only
+  if integration exposes a concrete blocker; distinguish permission to review from permission to
+  execute, and preserve actual source ages and financial/risk history (ADR-0087).
+
+- **Step 2 checkpoint (September 27):** core framework and portfolio scope are agreed. All current
+  strategy portfolios, including gate/position-count variants, are AI choices; expand the catalogue
+  as new portfolios are built and integrated (ADR-0087). The operator deliberately defers lesson
+  criteria until needed for Step 6; continue delivery without reopening that topic now. Discretion is
+  already agreed. Map concrete rules in implementation and ask only about genuine ambiguity.
+  Step 4 now has a tested offline continuous-round core and scoped local transition journal with
+  replay-validated recovery. Step 3 has tested broker and both paper-family adapters with saved source
+  evidence and a paper saved-record reader connection. Native SQL/freshness qualification and actual cash-flow adjustment remain pending.
+  Qualified data/cash-flow inputs, complete risk adapters, production
+  storage/retention/backup qualification and execution/host connection remain unfinished.
+
+- **Faster-source recovery (September 28):** combined paper values now have tested journal continuity,
+  explicit same-family source handover and durable repeated-bar conflict blocking. Define/qualify the
+  operational reconciliation and audited release of a saved source conflict before host rollout.
+  Never clear it by deleting risk history or resetting a round. Native timing/coverage and storage
+  retention/performance remain Step 3/7 dependencies.
+
+- **Held-stock price qualification (September 29):** connected market-hours diagnostics still cannot
+  accept invested values consistently: recent minute bars may be absent, too old or end at different
+  minutes; post-price trades require a newer complete price set. Qualify reliable coverage before
+  enabling recurring risk inputs. The separate SQL/app receipt-clock defect is fixed and natively
+  checked; it does not solve market coverage. Keep existing same-minute and expiry rules unless a
+  different valuation contract is explicitly reviewed. Do not invent no-trade bars or refresh old prices.
+  The September 29 quote probe also rules out the examined TMX page fields as an immediate solution:
+  current last-sale prices have no source timestamp and can match old trades; delayed bid/ask has only
+  a last-trade timestamp, not a quote timestamp. Source inspection finds Wealthsimple's existing
+  manual quote query has bid/ask and `quotedAsOf`, with separate receipt time. Authorized September 30:
+  two read-only samples of current paper-held symbols (at most 16), one minute apart, using the existing
+  signed-in connection. Both market-hours samples completed: all 11 held stocks returned bid/ask,
+  all timestamps advanced and seven pairs changed. Declared times are just before receipt, consistent
+  with on-demand snapshots; the test does not establish upstream freshness. September 30's official-domain
+  searches and review of current help/disclosure pages found no public definition of `quotedAsOf`.
+  Wealthsimple's
+  [public help](https://help.wealthsimple.com/hc/en-ca/articles/360056581314-Buy-a-stock-or-ETF)
+  describes real-time on-demand quotes and its current
+  [execution disclosure](https://www.wealthsimple.com/en-ca/legal/best-execution-disclosure)
+  describes web snapshots, but neither defines this field's freshness guarantee. The operator now
+  accepts the uncertainty remaining explicit, but clarifies the intended scope: TMX stays normal;
+  Wealthsimple is only a possible limited AI-manager fallback for a delayed/unavailable held-stock
+  input (ADR-0087). This is lower priority and deferred. No general valuation switch or bid/midpoint
+  choice is agreed or needed now. A parser comment records the uncertainty; preserve source/receipt
+  times in any future fallback evidence. When resumed, clarify triggers, the permitted AI use and any
+  valuation implications. No provider inquiry was sent, no fallback is implemented and existing
+  minute-bar valuation/stale-input behavior remains unchanged.
+
+- **Shared authority agreed (September 27, ADR-0087):** one deterministic risk authority with an
+  explicit portfolio risk configuration and the existing single execution path. AI continuous
+  rounds replace its engine daily-pause calculation; ordinary portfolios retain existing rules.
+  Preserve independent controls, existing holds and separate paper/live state. Engines supply
+  versioned signals/rules; AI proposes actions; execution rechecks permission. Focused extraction,
+  saved-hold transition integration and regression validation remain pending. Lesson criteria are
+  operator-deferred; catalogue mapping and concrete rule mapping are
+  implementation work under the already agreed discretion boundary.
+
+- **Cycle-loss schedule accepted (September 27, ADR-0087):** 5% / 3% / 1% replaces the earlier
+  7% AI pause; stop new buys for the day after three failed portfolio rounds while protective exits
+  continue. Failed-round closure is agreed: close remaining AI-managed holdings and confirm/reconcile
+  exits and commitments before a new permitted round. Fresh-entry qualification is agreed: a new
+  qualifying signal from the selected engine after closure, no extra fixed delay, and AI choice to
+  take it or wait. Proportional sizing within rounds is agreed in ADR-0087: allowance can recover
+  before the round limit; hitting it commits to closure. The 10% decline from highest recorded
+  completed-session closing value now requires operator approval before new buys resume, regardless
+  of attempts remaining; protective exits continue. Threshold proximity must be explicit in the UI
+  (ADR-0087, checklist Step 8). A fresh sequence after three failed, closed/reconciled attempts is
+  now eligible next trading session with fresh entry evidence and AI review; carried round limits
+  and the 10% approval hold persist. UI must clearly distinguish those states and unmet restart
+  conditions. Round limits and buying allowance now trail the highest verified round value,
+  initialized at its opening value; the overall 10% closing-peak guard retains its history. Next
+  qualify valuation/cash-event sources. Confirmed transfers now preserve measured loss percentages
+  through ADR-0083 reference scaling, without resetting round/attempt state, holds or stock stops;
+  AI integration remains pending. Original-capital capture and initial thresholds
+  from actual round opening capital are confirmed; later rounds use actual reconciled remaining
+  capital, with upfront forecasts labelled estimates. Independent protection on every fresh verified
+  portfolio update now supersedes five-minute-only checks; qualify sources/collection before claiming
+  one-minute coverage. Ordinary-sale handling is settled: profitable
+  exits and all-cash periods retain the same round/peak/limit and count; only a hard-limit hit
+  consumes an attempt, with no separate success reset. Cross-session
+  failure counting is settled: the whole sequence carries, round 2 remains at 3% next session,
+  and its failure advances to round 3 at 1% after required checks. No daily refill/renumbering.
+  Preserve original capital/peak records and independent holds; day/round changes cannot
+  clear the cumulative review. Existing engine templates remain unchanged.
+  Stop execution can exceed a trigger price:
+  [FINRA stop-order guidance](https://www.finra.org/investors/insights/stop-orders-factors-consider-during-volatile-markets).
+
+- **Round continuity and rule consultation (September 27, ADR-0087):** unfinished rounds retain
+  holdings, loss references, round limits and protection across nights/weekends under existing exit
+  rules. New sessions require review of qualified fresh entry-engine guidance. The operator wants
+  session-start, mid-session and pre-close consults alongside regular Delphi Live intraday checks
+  and AI receipt of their data. One-to-fifteen-minute AI review intervals during market hours are now
+  accepted, subject to the shared budget. Ownership is settled: the AI controls review attention;
+  app-owned protection checks every fresh verified portfolio valuation without an AI call. Slower
+  reviews cannot slow required collection/protection. Qualify a fresher source for minute-level
+  coverage; current five-minute bars are insufficient. Checkpoint times are now open / open+3h /
+  close-15m; finish relevant rule/event integration.
+  The recommended MVP uses AI-proposed
+  next-review intervals validated by the host, with defined local events requesting earlier reviews;
+  it cannot weaken protection or change five-minute bar semantics. Initial events are now agreed:
+  new qualifying entry signals, confirmed holding closures and risk-limit changes to permitted actions.
+  Combine events arriving together, respect the one-minute minimum and shared budget, and allow
+  later hooks through the same path. Event identity/duplicates and checkpoint priority remain
+  implementation details. Monthly spending is now agreed without daily allocations or future-consult
+  reserves. Provider/budget fallback is now agreed: pause new buys, additions and switches,
+  continue monitoring/stops/engine exits, and require a successful fresh review plus all other limits
+  before resuming. Define missed/stale review timing, retries and in-flight order/handover recovery
+  without blocking protective handling or clearing independent holds. Next-session restart after a
+  fully failed/reconciled sequence is agreed; the sequence and attempt count otherwise carry across
+  sessions unchanged. Ordinary sales and profit-taking retain the same round, even entirely in cash.
+  No scheduler is implemented.
+
+- **Step 2 / MVP discussion in progress:** the AI gradual allocation design follows continuous
+  losses/recovery across days without a calendar reset (ADR-0087, September 27 amendment). This
+  supersedes its original daily framing and session-minimum lock; the later cycle schedule above
+  adds a continuous three-attempt sequence with a pause after exhaustion and replaces the fixed 7%
+  AI pause. Both starting capital and recorded portfolio
+  peak are selected references. The round reference now trails its highest verified value, initialized
+  at the opening value, and drives both its trigger and allowance. Confirmed cash-flow percentage
+  preservation is agreed; qualify matched cash-event evidence and valuation sources/collection
+  frequency, then integrate the adjustment. Checking every fresh verified update is agreed.
+  Retain the independent overall closing-peak guard.
+  The operator wants continued monitoring and automatic pickup after recovery while in cash; the
+  fresh engine signal and round-relative sizing are agreed. Market recovery alone does not restore an
+  all-cash portfolio's value, so this requires an explicit recovery transition at zero allowance.
+  The AI risk profile replaces the daily-pause calculation; existing saved holds retain their
+  established release rules. Implement this transition without silently clearing holds. Existing engine
+  7% daily templates, frozen V1 and saved assignments are unchanged. AI enforcement remains pending.
+
+- **Requested direction, foundation only:** an AI-managed portfolio with a mandate, discretionary
+  decisions and enforced boundaries. The operator supports this framework and logging decisions,
+  supporting evidence, reasons for rule overrides and conditions for reconsideration.
+- **Requested live scope:** short-term momentum, with the AI portfolio also managing the real TFSA
+  in real time by Monday, September 28. This is a launch target; native risk/order qualification,
+  host readiness and an exact supported strategy remain prerequisites under the existing contracts.
+- **Accepted framework:** the AI may use or ignore discretionary trading rules when it records why;
+  separately enforced hard boundaries cover cash, exposure, emergency protection and account/data/order
+  validity. Use the accepted limits above; concrete rule mapping remains implementation work.
+  The explicit AI risk profile replaces its daily-pause calculation when integrated, preserving
+  independent controls and existing saved holds.
+- **Deferred by the operator:** AI Explorer, the separate paper experiment with freedom over investing
+  style, is outside the first pass and may be revisited in a future session. Current scope is AI Momentum
+  in paper and intended live use.
+- **Accepted protection direction:** reduce permitted risk as portfolio losses deepen. Reuse the
+  selected engine's existing per-stock hard-stop/trailing-profit settings; AI may tighten or sell
+  earlier, never loosen/remove an established stop. Application code must enforce this and recheck
+  current protection at execution. Valuation/cash-event qualification, adjustment integration and remaining recovery
+  details remain open. Round-level trailing protection is agreed; the gradual allocation
+  scale is agreed but not implemented. See
+  [ADR-0087](../adr/0087-ai-momentum-portfolio-boundaries.md). Triggers do not guarantee fill prices.
+- **Budget pacing settled (September 27, ADR-0087):** use the shared monthly allowance as needed,
+  without daily allocations or reserves for later consults; retain per-call reservations, token limits
+  and combined event requests. At exhaustion pause, unless the operator explicitly extends the
+  allowance/provides funding as needed. No specific increase or purchase is authorized now. The
+  current validator rejects CAD 100 or more and the journal retains the month's lowest ceiling;
+  implement the manual extension path without resetting
+  spend, automatic top-ups or bypassing fresh-review recovery. Provider funds alone do not change
+  TraderVI's cap. Production accounting/qualification remain pending.
+- **Client/budget:** GPT-6 Astra; operator allows API usage and sets an initial incremental ceiling
+  below CAD 100 monthly. Recommendation is API first using Oracle's abstraction; subscription access
+  remains an alternative if measured savings justify integration. All roles and learning share the cap;
+  reserve call costs including reasoning/retries and currency/tax headroom. The library implements
+  reservations and a default CAD 90 working ceiling; production FX/tax bounds, endpoint billing,
+  journal protection/recovery and cadence remain unqualified. Protection must operate independently.
+  Official documentation supports programmatic Codex and saved subscription authentication, but no
+  TraderVI connection, account/model access, latency or quota qualification has run. API-key use is a
+  separate usage-based option. The operator explicitly authorizes adapting the existing Oracle client;
+  proposal-only version-1 output and narration-rule scope are implemented under ADR-0087.
+  Historical Phase 2 narration exists, but the September 26 bounded process/schedule inspection found
+  no running Oracle or directly named scheduled action; current nightly configuration excludes Oracle.
+- **Return aspiration:** the operator asked for at least 1% daily gains. This is unproven, cannot be
+  guaranteed, and is not an accepted trading obligation or qualification criterion. A meaningful
+  evaluation objective and period remain to be agreed.
+- **Expanded requested role:** select an existing portfolio, operate within its strategy context,
+  monitor alternatives and switch in real time. Initial handover is agreed: retain mutually permitted
+  holdings/stops, sell other AI-managed holdings and confirm/reconcile required exits before replacements.
+  Preserve round reference/peak/limit, attempts and independent holds, including all-cash transitions;
+  log why the AI switched. Map the agreed whole catalogue and holding compatibility, and implement durable
+  handover/recovery before activation. Separate agents/conversations are a hypothesis, not yet chosen.
+- **Learning mandate:** self-improvement is integral; define recorded lessons, evaluation and versioned
+  changes without permitting risk-boundary or budget overrides. Model training and self-editing are not
+  implicitly authorized. See ADR-0087 for the proposed boundaries and unresolved scope.
+- **Blocked discretion learning (September 27):** record desired stop loosening/removal as a
+  non-executable hypothesis with the requested alternative, evidence, blocking rule and actual
+  outcome. Compare later with clearly labelled simulated alternatives, evaluating gain/loss magnitude
+  as well as frequency. Define comparison horizons/assumptions and lesson qualification/expiry;
+  missing evidence must remain unevaluable. No learned result can automatically change a hard
+  boundary. Stock-level records and outcome comparisons are not implemented.
+- **Accepted learning consultation:** both supervisor and execution coordinator must consult evaluated
+  lessons periodically (ADR-0087). Journal, version-2 assessments and execution-preparation rechecks
+  are implemented in source. One post-session learning review is now agreed for completed trades
+  and blocked alternatives with enough follow-up evidence; inconclusive cases remain pending and
+  evaluated lessons inform subsequent decisions. Intraday saved-lesson consultation continues.
+  Set exact post-close/refresh timing and missed-review handling, implement lesson qualification and
+  expiry policy, and qualify host handling of stale/unavailable learning. Preparation fails closed;
+  local consultation needs no model call and has no connection to protective handling.
+- **Future portfolio expansion:** additional portfolios should broaden the AI's choices. Specific
+  designs and development order are deferred; this does not delay Step 3 valuation integration.
+  Preserve exact strategy/gate versions and qualify each adapter before executable use (ADR-0087).
+- **Deferred at the operator's request (September 27):** leave lesson criteria open-ended for now.
+  Revisit only when relevant to learning implementation; continue data, risk and execution work.
+  No qualification thresholds are chosen and no automatic hypothesis-to-lesson promotion is enabled.
+- **Next qualification:** both Daily Shadow and Delphi Live saved decision contexts now feed the
+  catalogue/packet path offline. Verify native readers and source coverage; SQL, raw-bar/conflict checks and production
+  history/freshness settings remain unqualified. Verify prompt size/cost
+  against complete saved account evidence; retain missing-data/model-outage handling and durable proposal dispositions.
+  ADR-0087 records the implemented client/audit/proposal foundation and remaining dependencies.
+  No real model calls, broker operations or activation have run.
+
+### Portfolio-wide ongoing TFSA management
+
+- **October 18 Live request:** Normal is the working preparation target after the three-account
+  comparison; all recorded inception returns are negative and evidence remains limited. Capital
+  and opening ownership are now resolved for this first day: use actual available capital after
+  both current holdings sell completely. No outside transfers/trades; stop new buys on cash/order
+  mismatch. Connected read verifies two CAD whole-share holdings/no pending orders. Core Live
+  adapters and opening/cash foundations are tested, not installed/activated. The original launch
+  qualifications remain required. Unresolved: native risk/storage/source/lifecycle qualification,
+  shared-host/control integration, actual opening fills/cash and a fresh activation packet.
+  [ADR-0092](../adr/0092-scoped-supervised-delphi-live-tfsa-session.md), [assessment](delphi-live-tfsa-readiness-20261018.md).
+- **Accepted September 22:** any portfolio must be promotable; keep the exact approved strategy
+  managing across days until pause or switch, subject to each day's account/risk checks (ADR-0085).
+  Breakout Top 3 is an initial candidate, not the product scope.
+- **Accepted September 23:** manual purchases through TraderVI stay outside the active strategy by
+  default. Add a later holding handover action and an optional purchase-dialog strategy-management choice.
+  Regular account synchronization with manual refresh is requested; the first source implementation
+  uses five minutes. Native rollout remains pending.
+- **Accepted direction:** manual handover may exceed the normal position count (Breakout 3 can manage
+  four). Apply existing sell/protection rules and preserve explicit manual attribution; no forced exit
+  solely to restore the count. This replaces the assistant's proposed wait-for-a-slot restriction.
+- **Accepted clarification:** the strategy continues its own three automatic positions while manual
+  extras receive sell/protection management only. Extras do not occupy automatic slots; selling one
+  creates no replacement authority. This rejects counting extras against the normal automatic target.
+  Actual cash, account-wide valuation/risk and existing sizing rules still apply.
+- **Deferred September 23:** same-stock manual additions and split ownership. The operator will not
+  manually add to a strategy holding and asked to stop the edge-case design pass. Preserve conflict
+  checks; resume the main implementation without building a special ownership mechanism.
+- **Open:** direct-Wealthsimple trade ownership, manual holdings at promotion/switching, shared
+  capital/limits, transfer timing/protection and re-entry after a manual sale.
+- **Polling implemented/tested, not installed:** shared five-minute account/history refresh while
+  connected, manual/post-trade refresh coalescing, cancellation and bounded backoff. Only reviewed
+  existing links update; original-order recovery and fresh final preflight remain separate requirements.
+- **Revised proposal:** reconcile known in-app orders and continue automatically when ownership,
+  account and risk checks pass. Pending/uncertain orders retain reservations; human review addresses
+  unresolved facts or authority. The earlier blanket manual-fill review recommendation was too broad.
+  Current first-session source still invalidates any changed fill outside its own session order list,
+  including manual in-app orders; this is a source finding, not an operational test or accepted new rule.
+- **Accepted September 23:** stopping prevents new strategy purchases while ordinary exits continue.
+  Retain the existing Market sell all row action for manual exits. Proposed labels: Stop new buys /
+  Resume buying; status: New buys stopped · exits active. Core now persists a separate purchase control;
+  the existing full execution pause still blocks exits too.
+- **Accepted September 23:** restore the same approved strategy and saved buying mode after app restart
+  once fresh account/order checks pass. Stopped buying stays stopped; failed checks preserve state
+  without authorizing orders. Core now supports explicitly approved ongoing assignments across checked
+  days; TFSA saved-mode controls restore after a linked refresh. No execution host starts from these controls.
+- **Open:** replacement/cancellation and recovery of invalidated reviews.
+  Preserve family rules, account holds, causal protection and original order IDs.
+- **Implementation gap:** native risk/order qualification, Delphi Live protection, manual ownership,
+  switching and execution-host startup remain. Existing single-session approvals still expire; the
+  new ongoing scope cannot silently extend them or replenish their purchase ceilings. Follow the
+  [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22).
+### External broker trade synchronization extensions
+
+- ADR-0084 implements resolved whole-share order projection and signed-in desktop polling. Pending
+  partial executions, overlapping order sequences, broker corrections, nonzero withholding, sub-cent
+  amounts and fractional positions remain blocked pending explicit representation/recovery contracts.
+- Native installation/transaction acceptance, the reported external exit and repeat-refresh duplicate
+  prevention were verified September 24. Complete broker-backed cash/risk recommendation inputs remain
+  separate; preserve risk references.
+  [ADR-0084](../adr/0084-external-broker-trade-synchronization.md).
+
+### Morning account values and the future standalone engine
+
+- **Accepted September 21:** prefer dependable pre-session engine startup and shared Core reference
+  handling; investigate actual recovery data before adding a blanket late-start buy pause. A future
+  Windows scheduled task will host the extracted engine, not a separate WPF recovery workflow.
+- **Accepted September 22:** confirmed deposits/withdrawals preserve the measured loss percentage and
+  existing holds. That behavior is implemented with matched books, complete event-interval contracts
+  and durable duplicate checks. The later full suite passes 1,640 tests; migrations 035/039/040 are
+  installed, with native schema/preservation checks at 23:34 Toronto. Operational setup remains absent.
+- **Open source qualification:** the supplied activity capture shows completed/pending events and
+  occurrence times but does not establish effective cash timing or matching account-value books.
+  Qualify a complete evidence producer before using these calculations on the real account.
+- **Next:** verify that cash source plus native morning publication timing and broker value scope.
+  Delphi Live retains first-bar Open/exact final-bar Close; Shadow retains its saved-price book
+  definition. A graph point alone is not source qualification.
+- Shared broker orchestration, projection, setup UI and durable sessions are source/tested under
+  [ADR-0086](../adr/0086-supervised-broker-strategy-session.md). Native risk evidence production,
+  SQL runtime recovery verification, supervised host rollout and order authority remain unfinished. No new
+  blanket morning-pause rule is approved. See the [no-go review](supervised-session-20260923.md).
+  [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
+
+### Active-listing maintenance and partial sector refreshes
+
+- September 17 recovery applied migration 036 to deactivate verified acquired/delisted ARX and SES.
+  Existing active-universe filtering now excludes them; historical rows are preserved.
+- Decide how to surface listing/corporate-action review before retired symbols block nightly collection,
+  and how weekly sector refresh should track unsuccessful rows independently of its global timestamp.
+  No automatic deactivation from provider errors or relaxed data/trading gates is approved.
+
+### Backup capacity and retention
+
+- September 17 recovery hit a full C: drive during the post-Hermes backup. The latest compressed
+  backup was about 15 GiB, with both staging and local OneDrive copies consuming space.
+- Resolved September 17: the user selected **two completed backups per location**, after new-backup
+  and copy verification. ADR-0082 implements retention and compact Live storage. Migrations
+  037/038 and lossless conversion are installed and verified. The full backup fell from 16.27 GB to
+  535 MB; every historical/current snapshot reconstructed and WPF resumed compact writes.
+- Resolved September 23, 23:55: the user separately authorized reclaiming unused SQL capacity while
+  preserving all stock/application data. The one-time shrink is complete with a verified backup,
+  growth headroom and preservation checks; see [current evidence](../project-status-history-20261101.md#latest-operational-evidence).
+  No automatic shrink is approved, and no existing backups were deleted. An independent backup
+  download and documented restore drill remain outstanding; no application performance benchmark ran.
+
+### Broker history import and strategy-input cutover
+
+- **Implemented in source September 16:** ADR-0080 adds a concrete initial review, fixed TFSA binding,
+  append-only SQL observations, duplicate-safe cumulative order reads, preserved legacy references and
+  fresh/transactional rechecks. Migration 034, the linked 32-order import and the September 16 22:06
+  Toronto native refresh are verified. The alias/ETF compatibility, approved legacy correction and
+  timestamp readback follow-ups are complete; do not replay the migration/correction or relink history.
+- **Provisional:** review the first link, then update supported history on explicit import refresh.
+  This is not a background broker polling schedule or authority to activate a strategy.
+- **Accepted in ADR-0081:** first missing risk references can use verified current account value during
+  setup, recording the actual starting boundary and preserving known baselines/holds. Use the lower of
+  fresh broker CAD cash/buying power, constrained by sizing/reservations; unfinished sales supply no funds.
+  Current protection ownership remains until activation. Carry established protective levels; initialize
+  missing protection from actual cost/fresh evidence, never paper state or invented historical highs.
+  Confirmed deposits/withdrawals adjust loss references; unexplained cash movements pause new buys.
+- **Initial setup implemented in source:** pure risk-reference preparation and reviewed SQL save/recovery,
+  with source identities, explicit unknown-history blocking and no reinitialization of an established
+  baseline. Migration 035 is prepared/uninstalled. Operator setup UI and broker projection are now
+  implemented in the isolated source branch; no operational baseline or installed cutover exists yet.
+- **Next (September 22 evening):** qualify complete cash-event evidence/effective timing and native
+  opening values for the implemented continuation caller. Rehearse/install 035/039/040 separately.
+  Do not wait for a dedicated review screen. Minimal setup review and separately verified storage
+  remain prerequisites for operational use. Then complete position-cycle mapping and causal
+  protection handover, followed by source-aware strategy inputs and ongoing synchronization. See the
+  [continuing draft](../concepts/strategy-promotion-and-execution.md#account-baselines-and-protection-ownership--september-16-continuation).
+- **Native read follow-up:** the September 16 activity capture verifies POSTED completed-order details
+  and supplies account-chart and cash-flow-total read contracts. The subsequent screenshot identifies
+  an empty EXPIRED response, then a CANCELLED response on retry. A narrow compatibility fix retains
+  either order (including the CANCELED spelling) with explicit null provenance
+  and zero accounting quantity, subject to absent execution evidence and unchanged prior fills. Offline
+  tests cover partial fills and conflicting execution evidence; the later native import/refresh succeeded.
+  See the [contract review](../concepts/wealthsimple-account-history-contracts.md).
+- **Proposed simplification, September 16:** the operator asked whether full historical import is
+  necessary. Recommend an explicitly verified current-account baseline with forward synchronization
+  and optional older-history import. Optional history remains unimplemented; ADR-0081 accepts initial
+  reference rules while preserving history/protection. It does not bypass the existing importer.
+- **Native preview now reached, September 16:** a read-only HAR/protected-preview/SQL comparison finds
+  completed ETF history rejected by EQUITY-only validation, a symbol-only `.TO` candidate mismatch and
+  a recorded-sale gross/net disagreement beyond rounding. Historical ETF accounting, verified listing
+  aliases and side-by-side amount comparisons are now implemented. Strategy eligibility remains unchanged;
+  missing listing evidence and amount differences still block. Matched-only subsets no longer produce
+  a false position warning. The financial disagreement was subsequently resolved by the separately
+  approved, audited single-row correction; the account was imported and its native refresh verified.
+- **Deferred:** ambiguous/split-fill matching, broker corrections/relinking, individual execution
+  timestamps, retention and refresh cadence. No force-match or automatic legacy rewrite exists.
+
+### Remaining manual-sell integration
+
+- **Protocol implemented September 11:** [ADR-0076](../adr/0076-wealthsimple-market-sell-protocol.md)
+  adds captured whole-share market sell and scoped fill reading, validates market buy, and shares
+  compatible attempt fences across sides. Native sell acceptance is still unverified.
+- **Manual workflow resolved September 13:** [ADR-0077](../adr/0077-manual-holdings-market-sell.md)
+  implements the operator-chosen immediate sell-all row action, protected intent/recovery, exact
+  holdings/pending-order checks, cross-side reservations and remaining-holdings verification.
+- **Still deferred:** verified limit-sell placement (the dialog is only a preview), native live mutation
+  acceptance, cancel/replace, cross-device order coordination, full SQL position/cash reconciliation,
+  and ownership of manual versus strategy exits. No automatic sell engine is enabled.
+
+### Fixed-gate paper comparison follow-up
+
+- **Design resolved September 9:** [ADR-0067](../adr/0067-fixed-gate-paper-comparison-pairs.md) records
+  five fresh matched pairs: the four Shadow strategies plus Delphi Live, CAD 1,000 per account,
+  published selection limits, and lifetime-fixed Normal/Portfolio rules only profiles. Existing
+  accounts continue separately. Migration 033 and all ten accounts are now active, with a common
+  September 9 13:25 Toronto source boundary. Initial collection and both engines' processing are verified.
+- **Follow-up evidence:** observe paired closes over aligned sessions, preserving missing valuations
+  and today's partial coverage. No gate-performance conclusion exists on the activation day. The
+  accounts' pinned daily strategy must not be silently changed by global strategy selection.
+- **Deferred:** breadth-only variants, arbitrary per-gate editors and profile changes within existing
+  accounts. Provider conflicts and nightly Hermes mapping failures remain separate work.
+
+### Nightly reliability after source-adoption recovery
+
+- **Source/account recovery resolved September 9:** ADR-0066 automatic publication adoption and ADR-0067
+  fixed-gate pairs are implemented and active. Preserve the historical observations below; their proposed
+  late-start/account decisions are superseded. Hermes mapping failures and provider bar conflicts remain
+  independent operational follow-up work.
+
+- **September 9 revised user direction:** operational paper portfolios should automatically adopt a
+  newer valid Delphi publication, including the corrected current run, rather than permanently reject
+  publications after 09:30. Gate-profile/account details are being aligned in the
+  [source adoption and comparison draft](../concepts/paper-source-refresh-and-gate-profiles-draft.md).
+  A read-only evaluation of today's saved run found that breadth-only bypass still admits zero of 207
+  candidates per lens because Granville blocks next. Portfolio-rules-only comparison accounts are now
+  the recommended first experiment. No runtime adoption or new profile has been applied by this draft.
+
+- **September 8 bounded exception applied:** the operator subsequently requested forced Top 3/Top 5
+  paper candidates for engineering observation. [ADR-0064](../adr/0064-one-session-shadow-engineering-override.md)
+  and migration 030 record the 11:02 adoption, fresh 11:05 bar boundary, preserved financial/official
+  evidence, and visible test labels. This one-session exception does not implement a reusable late-start
+  control. Raw portfolio charts include the test and any carried effects.
+- **Observed September 8:** concurrent source edits stopped the nightly preflight before execution.
+  A user-authorized 09:52 Delphi run successfully published today's report from current completed-session
+  inputs, but Shadow's 09:30 availability cutoff and already-frozen `NoValidDelphiRun` sessions still block
+  ordinary entries. The operator challenged losing the rest of the day to this rule.
+- **Proposed direction, awaiting a decision:** an explicit, recorded late start may adopt the new daily
+  source prospectively, require fresh observations after that boundary, retain holdings/pending protective
+  exits/risk holds, and label the session incomplete for comparable performance evidence. Do not backdate
+  picks, replay missed fills, erase the original blocked session, or silently relax the ordinary cutoff.
+- **Resolve:** how to record the source transition within a frozen session, which account scopes can
+  resume, and whether late-start evidence is excluded or shown separately in comparison/research.
+- **Related retry risk resolved September 9:** authorized recovery exposed the unfinished-day US-index
+  issue. Hermes now requests before the local run date and refreshes its last stored observation;
+  Delphi bounds US diagnostic context to the completed TSX date. The corrected full pipeline passed.
+  See the daytime-recovery addendum to ADR-0058; this correction does not implement source adoption.
+
+### Historical practice environment — follow-up milestones
+
+- **Accepted:** shared Core runner, separate saved historical dataset, and eventual WPF Practice display;
+  see [ADR-0063](../adr/0063-historical-practice-environment-direction.md) and the
+  [running draft](../concepts/historical-practice-environment-draft.md).
+- **Verified:** bounded TMX probe returned full five-/fifteen-minute XIU and RY sessions on March 4,
+  August 4 and September 4, 2026; all 156 five-to-fifteen aggregation comparisons matched exactly.
+- **Accepted first model mode:** exploratory runs with today's preserved model set, pinned per run and
+  visibly labelled; later-trained/unverified models do not establish honest historical forecasts.
+- **Accepted starter universe:** today's eligible stock list and sector classifications, explicitly
+  exploratory and retaining their actual capture date. Historical membership remains unverified;
+  prices and indicator histories still obey the historical cutoff.
+- **Accepted first milestone:** historical daily Delphi plus all four independent Shadow portfolios,
+  carrying accounts across sessions; Delphi Live follows afterward.
+- **Accepted starter trial:** latest 20 consecutive completed TSX sessions, including source gaps. The
+  reviewed calendar resolves the current target to August 10–September 4, 2026; prior indicator history
+  is additional. This defines a starter test rather than a strategy-performance evidence threshold.
+- **Accepted capital:** each of the four accounts starts with CAD 1,000 cash, zero holdings/pending orders,
+  and no deposits/withdrawals during the trial; all accounts remain independent.
+- **Accepted missingness:** missing historical data does not block or abort the ordinary trial. Keep
+  the timeline, use production no-data/recovery behavior and record effects/failures; completeness is
+  not a prerequisite. Artificial failures have separate scenario identities. Unknown marks stay explicit.
+- **Implemented in source:** bounded historical daily inputs, the shared Shadow controller with isolated
+  storage/time, pinned packages, 20-session scheduling, per-account CAD 1,000, gap diagnostics and WPF
+  recorded playback. [Contracts and commands](../concepts/historical-practice-implementation.md).
+- **Starter trial completed and deployed:** 964 successful TMX requests supplied 44,792 bars, retaining
+  5,336 missing slots. Daily Delphi published on all 20 sessions; the four accounts produced 255 fills.
+  Two actual-data runs are byte-identical and the independent audit passed. WPF playback is open;
+  all 76 operational table counts and selected state hashes are unchanged. Exact historical membership
+  remains deferred, not backdated. See ADR-0063 for outcomes and assumptions.
+- **Deferred:** automatic checkpoint resume, real isolated SQL/time/lease integration, deliberate
+  provider-failure injection, throughput testing, live runner controls in WPF and Delphi Live replay.
+- **Deferred:** broader acquisition, historical quote/corporate-action verification and walk-forward training.
+  The first source implementation establishes neither strategy edge nor clean forward cohorts.
+
+### Central settings — strategy version adoption
+
+- **Accepted and implemented in source:** pause new buys, close holdings separately, then edit/save/assign
+  while paused and empty; explicitly resume afterward. One shared draft per strategy, retained navigation,
+  per-setting help and system banners are implemented. See [agreed workflow](../concepts/global-settings-design-draft.md).
+- **Initial scope:** family-wide locks; shared Daily Delphi changes require all dependent families paused
+  and empty. Old frozen daily picks cannot initiate buys under a changed daily selection.
+- **Rollout:** migration 027 is installed. Migration 028 and new host rollout are tracked in project status.
+- **Retained:** account history and risk holds; separate Save and Assign; no duplicate account-cap layer.
+- **Deferred:** a prospective research restart after operator intervention. Empty accounts remove carried
+  trades but do not establish equal capital, periods, inputs or clean controls. The broad promotion guard
+  remains in force. Narrowing it requires explicit study ownership, restart authority and eligibility.
+- **Deferred:** partial Real fills/commissions in the new dialog, durable drafts across app restarts,
+  editable Shadow lens/slot definitions, account capital flows/caps, provider/schedule editors and broker routing.
+### Delphi settings — candidate assignment and first operational selection
+
+- The desktop settings page selects complete preserved strategy/model sets. A candidate not yet assigned
+  to a reviewed strategy is not selectable, and individual model mixing remains deferred pending a
+  complete input-compatibility and evidence-review flow (ADR-0057/0059).
+- Perform the first intentional settings selection and later rollback with a concrete reviewed target;
+  verify the active identity and immutable event. Source validation deliberately did not change the
+  active daily strategy. Cross-family performance promotion remains separate; independent supported account policies now have
+  their own sections in central Settings.
+
+### Corrected daily model inputs — first scheduled evidence
+
+- **Accepted:** exclude only stocks with incomplete required dated inputs; unusable shared XIU inputs
+  stop the new daily recommendation set. Existing model reuse requires separately authorized proof of
+  compatibility; retrain candidates only when needed and authorized. Corrected behavior needs a new identity.
+- **Resolved:** the operator authorized inspection, replacement training when proof was unavailable,
+  and a new corrected daily selection. [ADR-0057](../adr/0057-preserved-model-sets-and-explicit-selection.md)
+  now governs candidate-only training and preserved assignments. The later ADR-0058 benchmark repair
+  selected `v3.4-observed-benchmarks` with the same four models; its actual bootstrap and observed
+  benchmarks verify. Previous strategies remain available for reviewed rollback.
+- **Q:** Does the first normal scheduled corrected cohort complete with the expected input coverage and
+  evidence identity? This requires observation of a real scheduled result, not another design approval.
+- **Status:** the separately authorized September 6 standalone v3.4 run completed at 22:43 Eastern with
+  valid provenance, 209 evaluated stocks, four matching model identities and no qualifying trade. All 50
+  published rows are Hold; seven input exclusions and unavailable leadership-movers evidence are explicit.
+  Earlier evidence/account snapshots are preserved. Scheduled pipeline completion remains pending; no
+  new monitor was launched. The
+  later readiness findings were repaired under separate operator authority: every-day scheduling,
+  Friday/SPY data refresh and required observed benchmark inputs now pass. See the
+  [cutover review](model-input-cutover-20260906.md). Continue ordinary dialogue
+  one concrete step at a time; the operator asked to stop using timed question cards.
+  [Design draft](../concepts/strategy-alignment-stabilization-draft.md);
+  [implementation checklist](../strategy-alignment-implementation-checklist.md).
+- **Tags:** architecture, machine-learning, data-pipeline, decision-engine
+
+### Common strategy comparison, recommendation promotion and broker execution
+- **Resolved/implemented in source:** immutable complete strategy identity, account-specific human approval,
+  auditable history, immediate committed boundary, paused/empty switching and Real recommendation routing.
+  [ADR-0062](../adr/0062-complete-strategy-recommendation-promotion.md). Migration 029 was applied with
+  verified backup/preservation checks on September 7; Debug and Release desktop builds are ready.
+- **Operator decision:** performance evidence is advisory in manual recommendation mode. A human may
+  accept incomplete evidence; this does not certify that ADR-0022 or Live research standards were met.
+  Live's internal untouched/research rules and Athena evidence are unchanged.
+- **Deferred to Wealthsimple live trading/automation:** decide which evidence tiers and family requirements
+  become enforced activation gates, including capital/cash-flow normalization, paired periods, costs/fill
+  assumptions, coverage, downside criteria and untouched validation. No universal winner score is agreed.
+- **Deferred:** reviewed Wealthsimple access/authentication, approved accounts, order authorization,
+  idempotency, partial fills, fees, reconciliation, cancellation, stale inputs, stopping and recovery.
+- **Installed read paths verified:** all four Shadow reviews, Real account/history/latest reads, the
+  unassigned workflow's no-quote/no-publication behavior and reviewed calendar loading. Live has no initialized
+  paper ledger to review. All existing data and the five empty promotion tables remain unchanged.
+- **Operational validation outstanding:** Real account reconciliation, existing paused/empty requirements,
+  explicit strategy approval and actual publication/source/quote capacity checks. Approval-write/concurrency
+  integration and an isolated migration rehearsal were not run; applying 029 successfully is not a rehearsal.
+  Do not execute operational activation as unit validation.
+- **Tags:** architecture, decision-engine, risk-management, market-microstructure
+
+### Delphi Live short sessions and calendar extension
+- **Q:** How should the frozen full-session V1 collection, protective exits, marks, daily baselines and
+  forward outcomes handle an official early close?
+- The reviewed calendar installed on 2026-09-06 ends at 2026-12-23. TMX lists a 13:00 close on December 24;
+  treating it as a full session or omitting it as though the exchange were closed would misstate evidence.
+- **Status:** open — resolve before 2026-12-24 and before extending the snapshot, including protection
+  for positions carried into the short session. [Calendar record](../../Operations/Calendars/README.md).
+- **Tags:** data-pipeline, risk-management, decision-engine
+
+### Risk-threshold ownership and persisted defaults
+- **Q:** Which values are the authoritative policy for new tracked positions and Delphi's downside veto,
+  and which are merely legacy constructor/repository defaults?
+- `StrategyConfig.MaxDownProb` and the design rules use `0.35`, while the repository insertion default and
+  `DownProbabilityGate` constructor fallback use `0.20`. Delphi currently supplies the strategy value, but
+  another caller can receive a materially different veto without an explicit policy choice.
+- `StrategyConfig.WarningPercent` and the design rules use −5%, while accepted ADR-0015 and `TradeManager`
+  create tracked positions with a −8% warning. The −10% stop agrees, but the warning contract does not.
+- Before changing code or stored values, classify each value as a versioned strategy setting, a tracked-position
+  lifecycle policy, a per-run override, or a compatibility default. Decide whether entry and exit policies need
+  separate versioned snapshots, and preserve existing position/audit history.
+- **Tags:** risk-management, decision-engine, database, architecture
+- **Status:** open — identified by the 2026-09-01 static changeability audit. Do not normalize these values as
+  mechanical cleanup; resolve them through an explicit decision and strategy/policy version boundary.
+
+### On-Balance Volume soft tilt — first live-read calibration (ADR-0016)
+- **Q:** The first live Delphi OBV read (2026-06-06, 233 symbols) validated the wiring
+  (`0 indeterminate`; the ±0.1 tilt verifiably reordered ESI below BTE) but surfaced two
+  numbers that should be calibrated before the soft tilt is trusted long-term.
+- **Finding 1 — is `ObvSignalWeight = 0.10` too strong vs. the *gate-passer* RScomp spread?**
+  ADR-0016 sized the weight against the full-universe `RScomp` range (~±0.2). But the names
+  that actually clear every gate and compete for the executable #1 slot cluster near
+  `RScomp` ≈ ±0.1 (e.g. FM +0.097, ORE −0.009, DPM +0.022) — the high-RS names (MATR +0.91,
+  ATH +0.77) all fail gates. So among gate-passers a ±0.1 tilt is the same magnitude as the
+  entire RS spread and can act as the deciding vote rather than a gentle nudge. Resolve via a
+  paper-trade IC/agreement window; candidate fix is to scale the tilt to gate-passer RS
+  dispersion or lower the constant. Do **not** retune by guess.
+- **Finding 2 — is the classifier's "≥2 pivots per side" rule inflating `Doubtful`?** First
+  read was 140/233 (60%) `Doubtful`. Part of that is structural, not market chop:
+  `ObvFieldTrendCalculator.Classify` only returns `Rising`/`Falling` when it has ≥2 UP *and*
+  ≥2 DOWN pivots; once any opposing pivot exists with fewer than two per side it falls into
+  the "too few pivots" `Doubtful` branch. With a 20-session breakout window over capped
+  6-month retention, pivots are sparse, so 1–3-pivot symbols are forced `Doubtful`. This is
+  conservative/safe for a soft tilt, but (a) keeps the signal quiet and (b) directly
+  throttles the upcoming **Climax** indicator, which aggregates the same UP/DOWN
+  designations — a thin pivot supply means a thin breadth tally. Decide whether to relax the
+  pivot rule (e.g. allow a single-pivot-per-side higher-high/higher-low call) or accept the
+  conservatism.
+- **Tags:** decision-engine, technical-indicators, time-series, math-statistics
+- **Status:** parked — wiring verified live (ADR-0016). Both numbers to be calibrated against
+  a paper-trade window; Finding 2 is also an explicit input to the Climax ADR.
+
+### Sector index history backfill (`dbo.SectorIndices` thin coverage)
+- **Q:** The 2026-05-23 Delphi run exposed `RScomp`/`CompZ`/`RS10d` displaying `null` for the top-14 passing candidates while a few lower-ranked rows (SOFY, RDDY) showed real values. Root cause: `dbo.SectorIndices` currently holds only **7–8 trading days** of history per `^TTxx` symbol (range 2026-04-16 → 2026-05-22). `RelativeStrengthCalculator.Compute(...)` clamps `n = min(stockBars, sectorBars, marketBars)` to ~8, so `ReturnDiff(horizon=10)` returns `null`, `ComputeRsZ(horizon=10, zWindow=20)` requires `n ≥ 30` and also returns `null`, and the switch expression collapses `CompositeScore` and `CompositeScoreZ` to `null` for every sector-mapped symbol. The 5 "fallback to XIU" symbols show non-null values because XIU has full history, but the sector dimension is mathematically degenerate (StockVsSector ≈ StockVsMarket, SectorVsMarket ≈ 0) — those numbers carry no real sector information.
+- **2026-05-23 partial fix (diagnostic, not data):** Delphi now emits an explicit RS-coverage block in both console and diagnostic report (min/max sector bars, fallback count, null-composite count) and a `⚠` warning when sector history < 80 bars. The bad data still produces null composites, but at least Delphi tells the truth about why instead of silently rendering empty cells.
+- **Real fix needed:** backfill TraderDB sector indices to ≥ 80 trading days (max RS horizon 60d + Z window 20d). Open sub-questions:
+  - Owner: should this live in Hermes (the daily TMX importer) as a one-shot backfill subcommand, or in a separate `Tools/Backfill` console app? Hermes-side keeps the data path centralized; standalone keeps a one-off concern out of the daily flow.
+  - Source: TMX Money historical query (matches Hermes's existing transport) vs Yahoo (`^GSPTSE` siblings — but TSX sector indices are not all on Yahoo). Probably TMX.
+  - Cadence: one-shot backfill + rely on Hermes daily appends afterward, or recurring "fill any gap to N bars on startup" guard. The latter is more robust to symbol-add events.
+  - Retention floor: do we always need ≥ 80 bars, or do we want a longer buffer (e.g., 120) so Hercules can backtest RS feature lift on the same data Delphi sees live?
+  - After backfill: re-validate Z-window choice (currently `zWindow = 20`) against actual sector volatility — 20 may be too short for sector indices that move smoothly.
+- **Tags:** data-pipeline, technical-indicators, decision-engine
+- **Status:** parked — diagnostic visibility shipped. Data backfill is the next ADR-tracked piece of work (candidate ADR-0011).
+- **2026-09-01 correctness update (ADR-0041):** the calculator no longer clips undated arrays to
+  `min(count)`. It aligns exact stock/sector endpoints to canonical XIU sessions and reports interior or
+  stale-tail gaps. The complete current feature set requires 61 sessions, not the earlier diagnostic's
+  `60 + 20 = 80`; retaining 80–120 sector sessions is still useful operating/backfill headroom. The
+  source, owner, cadence, and historical-backfill questions remain open.
+
+### Relative Strength composite scale — raw return diffs vs Z-score normalization
+- **Q:** The 2026-05-23 Delphi run showed `RScomp = +0.000` (3-decimal display) for the entire top-14 passing list. Investigation in [`RelativeStrengthCalculator.cs`](../../Core/RelativeStrength/RelativeStrengthCalculator.cs) confirmed the values are **real, not a bug**: the composite is a weighted blend of raw 10-day return differences (`0.5×svm10 + 0.3×svs10 + 0.2×secvm10`), which for typical TSX stocks lives in `±0.005` (±0.5%) on a 10-day window. The leaderboard now displays 4 decimals + `RS10d` (raw stock-vs-XIU 10d) for visibility, but this is a *cosmetic* fix.
+- The underlying issue is **scale**: as a tiebreaker, RS composite has almost no resolving power when the top candidates cluster within ±0.05% of XIU. The `RelativeStrengthRow` already carries `RS_Z_StockVsMarket` / `RS_Z_StockVsSector` / `RS_Z_SectorVsMarket` (Z-score normalization — today's RS expressed in std-devs of its own 20-day history), which would map the same data into a `~±2` range with real separation.
+- **Update 2026-05-23 — partially resolved by ADR-0010.** A new `CompositeScoreZ = 0.5·Z_svm + 0.3·Z_svs + 0.2·Z_secvm` is now computed, persisted (`dbo.RelativeStrengthFeatures.CompositeScoreZ`), and displayed in both Delphi console and diagnostic alongside the raw composite. v1 is additive only — no ranking change. The remaining open sub-questions:
+  - Historical Hermes RS rows do not yet have `CompositeScoreZ` populated; a full RS backfill is required before any IC measurement is meaningful.
+  - Should `CompositeScoreZ` eventually *replace* `CompositeScore` as the persisted primary RS scalar, or coexist permanently?
+  - Are the same `0.5 / 0.3 / 0.2` weights right for the Z composite, or does volatility normalization change which horizon/dimension matters most?
+- **Tags:** technical-indicators, decision-engine, math-statistics
+- **Status:** partially resolved — additive Z composite shipped (ADR-0010). Promotion to ranking is tracked in the separate "DirectionEdge as primary ranking key" question below. Backfill + weight-tuning questions remain parked.
+
+### DirectionEdge as primary ranking key — re-evaluation
+- **Q:** Delphi currently ranks by `DirectionEdge = P(up10) − P(down10)` (LightGBM probabilities for the next-10-day binary up/down models). This was chosen because (a) it's directly aligned with the trade horizon (~10 days), (b) it fuses two independently-trained models, partially cancelling shared bias, (c) it's bounded `[-1, +1]` and behaves like a calibrated conviction score, and (d) BreakoutEnhanced is already used as a setup *filter*, so the ranker needed an orthogonal directional axis.
+- Is this still the right primary key? Concerns surfaced 2026-05-23:
+  - P(up) and P(down) are both LightGBM outputs on overlapping feature sets — "independent" is aspirational, not measured.
+  - Top picks routinely cluster within `±0.02` of each other on Edge, so the ranking is effectively determined by `CompositeScore` anyway in practice.
+  - Relative strength — arguably the single best-validated momentum predictor in the public literature — is currently *not* in the ranking key at all.
+- Candidate alternatives to evaluate:
+  - Keep Edge primary; add `RS_Z_StockVsMarket` as an explicit tiebreaker before `CompositeScore`.
+  - Promote a blended key: `0.6×Edge + 0.4×RS_Z` (after Z-normalization is in place).
+  - Two-stage rank: Edge > threshold filters, then RS_Z ranks within the survivors.
+- Measurement needed before deciding: out-of-sample IC (information coefficient) of Edge vs RS_Z vs blend against next-10-day return on held-out 2024–2025 data.
+- **Tags:** decision-engine, ml-models, math-statistics
+- **Status:** parked — no ranking change until Z-score composite lands and IC comparison is run.
+
+### Leveraged/inverse ETP classification
+- **Q:** ADR-0009 introduced `dbo.Symbols.IsLeveragedOrInverseEtp` as the authoritative gate that excludes products like NRGU/BetaPro/MegaLong/SavvyLong/LFG-Daily-2× from Delphi's ranking universe. The flag was set by a one-shot curated UPDATE against the current 62 known leveraged/inverse rows. The runtime `IsLeveragedOrInverseByName` guard in `Delphi/Program.cs` is a defense-in-depth net, not a primary classifier — it relies on a hand-maintained keyword marker list and is therefore brittle to new naming conventions.
+- How do we keep the flag accurate as Hermes imports new symbols over time? Options:
+  - Manual review queue (Hermes flags any new `SecurityType = 'Stock'` row whose `ShortName` matches the marker list and writes it to a `SymbolsPendingClassification` table for human approval).
+  - Hermes-side classifier (run `IsLeveragedOrInverseByName` at import and write `IsLeveragedOrInverseEtp = 1` directly when it fires; rely on a periodic audit to catch misses).
+  - Periodic audit query (cron-style: re-run the marker scan weekly against `dbo.Symbols WHERE IsLeveragedOrInverseEtp = 0` and surface unflagged candidates in a report).
+- Residual risk to characterize: a brand-new BetaPro/Horizons product imported with a never-before-seen naming convention will pass both gates silently. What blast-radius bound should we accept (e.g., "at most 1 day in the leaderboard before the periodic audit flags it") before we commit to a heavier solution?
+- **Tags:** decision-engine, data-pipeline, risk-management
+- **Status:** parked — current curated flagging covers all known cases. Revisit when Hermes next imports a batch of new symbols or when an unflagged leveraged ETP appears in `TopPicks`.
+
+### Granville cross-family overlap audit (#04 Plurality / #10 Leadership / #14 Most Active)
+- **Q:** On 2026-06-?? these three indicators all fired `StrongBullish` simultaneously. Hypothesis: they report different *facets* of the same underlying evidence ("breadth was positive AND XIU rose"), which is acceptable ensemble behaviour. But before we tune Granville point weights we should deliberately audit cross-family correlation:
+  - Compute pairwise daily co-firing rates across all 28 active Granville indicators over the available history.
+  - Flag any pair with co-firing rate ≥ 0.85 and identical sign — these are candidates for either (a) deduplication via reduced point weight, or (b) explicit redundancy acknowledgement in the ensemble.
+  - Specifically inspect: #04 Plurality vs #10 Leadership vs #14 Most Active (the trigger for this question); #15/#16 Weighting vs #04 Plurality; #17/#18/#19/#20 within Genuity.
+- **Tags:** technical-indicators, decision-engine, math-statistics
+- **Status:** parked — no indicator code changes until audit run. Revisit before next Granville point-weight tuning pass.
+
+### Genuity #19 — fractional GranvillePoints follow-up
+- **Q:** ADR-0008 introduced a ±5% tolerance buffer on the magnitude-ratio band by abstaining (Neutral/0) inside the buffer, because `GranvilleResult.GranvillePoints` is an `int` in v1 and "half-point damping" isn't representable. Should we promote `GranvillePoints` from `int` to `double`/`decimal` system-wide so borderline cases can contribute fractional conviction (e.g. ±0.5) rather than abstain entirely? Scope: every `IGranvilleIndicatorGroup` implementation, the composite adjustment math, the `GranvilleIndicatorLog` schema, and any DB-backed analytics that assume integer points.
+- **Tags:** technical-indicators, decision-engine, math-statistics, architecture
+
+### Oracle (LLM layer) — follow-ups deferred during Phase 2 pause
+- **Q:** Should narrative quality have an automated lint pass
+  (e.g., regex that flags adjectives without an adjacent `(Field=value)`
+  citation)? Currently Rule #8 of the system prompt asks the model to
+  quantify, but we don't enforce it. Cheap Phase-3 add.
+- **Q:** Pre-compute deterministic qualitative buckets in C#
+  (`RelativeStrength.CompositeScoreBucket = weak|neutral|strong` from
+  empirical quantiles) and have prompts parrot them rather than coining
+  freeform adjectives?
+- **Q:** Add a real `ClosestGate` field to `DecisionDossier` (the gate with
+  the narrowest pass margin) so the model can answer "what nearly killed
+  this pick?" without guessing. The previous freeform version of the
+  question was dropped because the model always answered "Granville".
+- **Q:** Phase 3 debate-loop schema: should `[LlmConversation]` reference
+  `DossierId` directly, or go through a new `[OracleSession]` parent so a
+  single session can span multiple dossiers (e.g., "why these 7 picks and
+  not those 7?")? Decide before writing the table.
+- **Q:** Per-dossier token-budget enforcement (Rule R4) is not yet
+  implemented — currently the only guard is the implicit prompt size. Add
+  before Phase 4 (news context) since that's where prompts will balloon.
+- **Q:** Regression eval set (Rule R6) — we have no canned dossiers +
+  expected key points yet. Build before Phase 3 ships so prompt edits can
+  be evaluated objectively.
+
+### Weighting category (Granville #15–#16) — follow-ups after ADR-0003
+- **Q:** Re-validate `ScoreB ≥ 0.50` / `ScoreC ≥ 0.60` thresholds after
+  N ≥ 30 live triggers or 12 months in production (whichever first).
+  Current v1 calibration sample is N = 13.
+- **Q:** Should we eventually upgrade the price-weighted contribution proxy
+  to *true* cap weights (float-adjusted shares × price)? Defer until we
+  have a concrete divergence between proxy and cap-weighted views worth
+  investigating.
+- **Q:** Should narrow *down-day* behaviour become its own future
+  indicator? Backtest showed mean-reversion bounce, not continuation —
+  potentially a *bullish* short-horizon signal. Park until ADR-0003 has
+  live data.
+- **Q:** Promote `Core/Config/Xiu60Constituents.cs` to a DB-backed
+  `XiuConstituentMembership` table with effective-dated rows? Needed if
+  we move to point-in-time-correct backtests for the Weighting group.
+- **Q:** Hermes-side validation that all 60 constituents are present in
+  the universe — still deferred; runtime ≥ 50/60 graceful-degradation
+  guard remains the contract.
+
+### Granville Dullness (#21, #22) — deferred per ADR-0005
+- **Q:** When (not if) we backfill XIU to 2001, rerun `dullness-calibrate`
+  and check whether #21 / #22 hit-rates clear 55% at h ∈ {5, 10} with
+  n ≥ 25 per bucket. If so, supersede ADR-0005 with an implementation ADR.
+- **Q:** Is there a different universe (sector indices, individual stocks,
+  or a non-TSX benchmark) where post-decline dull days are frequent enough
+  to make #22 testable *now*, without waiting for a TSX backfill?
+- **Q:** The positive mean forward return after #21 fires suggests Dullness
+  may act as a *continuation* signal in a momentum regime. Should we
+  re-derive Dullness as a continuation indicator under a new ADR rather
+  than revive Granville's literal bearish framing?
+
+### Delphi opening confirmation and swing exits (ADR-0023)
+
+- **Q:** Which separately timestamped source should support the still-experimental opening-confirmation comparison, especially bid/ask spreads and opening gaps that ADR-0028's delayed OHLCV monitor does not establish?
+- **Q:** Does a 5-, 15-, or 30-minute observation checkpoint add the best net value after missed winners, avoided losses, spreads, and slippage?
+- **Tags:** architecture, data-sources, decision-engine, market-microstructure, risk-management
+- **Status:** partially resolved — ADR-0028 accepts fifteen-minute delayed management and completed five-minute evidence; ADR-0030's durable ledger, migration, collector, and first market-hours cycle are complete. Opening confirmation remains an unactivated challenger.
+
+### Automatic Delphi-to-paper entry and rotation policy (ADR-0034, ADR-0037)
+
+- **Q:** Should a separately scored shadow controller automatically open Delphi's selected Top pick at the first completed fifteen-minute checkpoint, or should all operational ghost entries continue to require operator confirmation?
+- **Q:** If automatic shadow entry is tested, which lens/rank, capital allocation, vacancy-filling, duplicate-symbol, and rotation rules define it, and how will it remain separate from operator-timed positions and official Athena outcomes?
+- **Tags:** architecture, decision-engine, market-microstructure, risk-management
+- **Status:** resolved for System-selected Ghost portfolios by ADR-0051. Shadow V1 freezes the valid 09:30 OfficialPaper Top 3/Top 5 Continuation and Breakout candidates, applies its versioned capital/risk/execution policy, and remains separate from operator Ghost/Real records and Athena. AI selection and real execution remain future decisions.
+
+### Delphi Live — future research after ADR-0053
+
+- **Q:** May a future evidence-backed version add an explicit named lens-specific requirement, such as requiring Volume Support for a Breakout action?
+- **Q:** Which causal calculations and categorical boundaries should govern the explanatory multi-horizon volatility profile after V1?
+- **Q:** What volatility-adjusted rule should group raw observations into one derived price-move event without erasing the immutable five-minute evidence?
+- **Q:** What structured input/output, model-and-prompt versioning, reproducibility, latency, failure, and evaluation contract must a future AI Selector satisfy before Shadow comparison?
+- **Tags:** architecture, decision-engine, machine-learning, technical-indicators
+- **Status:** deferred, non-blocking — ADR-0053 accepts the frozen V1 behavior and leaves these as prospective successor decisions. Source implementation does not authorize migration, activation, external collection, model training, deployment, or broker work.
+
+### Delphi Live historical replay follow-ups
+
+- **Q:** How should the pure frozen-source selector validate published-but-ineligible rows consistently with the SQL path, which filters eligibility before selection?
+- **Q:** Which explicit spread, slippage, commission and quote-path assumptions should a later research replay compare before performance interpretation?
+- **Tags:** architecture, data-pipeline, market-microstructure
+- **Status:** deferred after ADR-0054. The September 4 exploratory replay preserves the existing live eligibility filter and claims no live equivalence. Additional days, cost sensitivity and monitoring without an activated portfolio remain separate future decisions.
+
+### Always-on hosting for the paper monitor
+
+- **Q:** After the WPF-hosted monitor is proven, should the shared Core monitor
+  also run under Windows Task Scheduler or a Windows Service so closing the UI
+  or sleeping the interactive session cannot miss polls?
+- **Tags:** architecture, data-pipeline, risk-management
+- **Status:** parked — version 1 is explicitly process-local under ADR-0032.
+  Revisit after several live sessions establish restart, duplicate-instance,
+  and failure behavior.
+
+### Broker reconciliation and possible future order routing
+
+- **Q:** Should TraderVI eventually import broker positions and fills, or should Real reconciliation remain operator-entered?
+- **Q:** If order routing is ever proposed, which independently authenticated broker adapter, account allowlist, cash/position limits, order preview, partial-fill state machine, kill switch, and reconciliation proof are required?
+- **Q:** Should version 2 support partial Real exits and commissions before any broker integration is considered?
+- **Current safety boundary (2026-09-03):** ADR-0048 keeps version 1 as one all-shares,
+  zero-commission fill and requires the operator to affirm those facts. The workflow must not be used for a
+  partial fill or any fee-bearing transaction. A version-2 decision must define remaining-share state,
+  cost-basis and commission allocation, multi-fill retry identity, final-close rules, and correction handling;
+  adding shares/commission fields alone is insufficient.
+- **Tags:** architecture, data-pipeline, market-microstructure, risk-management
+- **Status:** open design decision, implementation blocked — ADR-0039 resolves the combined display and
+  manual-fill boundary and ADR-0048 makes the current full exit atomic/retry-safe. Neither authorizes partial
+  fills, commissions, a broker connection, or order routing.
+
+### Main-account overview — ADR-0068 follow-through
+
+- **Deferred: complete-account earnings periods.** The accepted UI direction is implemented and
+  verified offline, with total gain explicitly unavailable. The current useful measures are recorded
+  sale gains over the last 30 Toronto calendar days and saved open-position gains; neither is complete
+  broker earnings. Selectable full-account return periods and today's change await sufficient history.
+- **Open: complete earnings evidence.** Define supported account history, net contributions,
+  withdrawals/transfers, fees, income, open-position valuation and freshness before displaying a
+  real-account earnings total. Account reports alone do not establish complete cash-flow returns.
+  Distinguish closed-trade realized gains from unrealized changes in open holdings. Define strategy
+  attribution separately so a newly selected strategy does not inherit credit for all account history.
+- **Deferred behavior decisions:** changing strategy with holdings/orders still open, or making fixed
+  gate-comparison accounts promotable. Quick access to review is the accepted UI direction;
+  ADR-0062's paused/empty rule and ADR-0067's fixed-pair promotion exclusion remain unchanged.
+- **Deferred integration:** Wealthsimple connection, account reconciliation and autonomous execution
+  remain future work under ADR-0055. The UI must show its actual account-data and execution authority.
+
+See [the connected workspace draft](../concepts/trading-workspace-redesign-draft.md).
+
+## Resolved
+
+- **Missing Friday data and SPY confirmation (S8/S9)** — resolved under ADR-0058 on 2026-09-06.
+  Weekday-only midnight scheduling omitted Saturday's collection of Friday's close; execution and
+  read-only morning supervision now run every calendar day. Friday and actual SPY history were refreshed
+  with verified backups. The selected v3.4 strategy requires current observed XIU/SPY inputs and reuses the
+  same four models. No substitute benchmark, threshold retuning or historical evidence rewrite occurred.
+  Independent historical US-calendar gap detection remains outside this repair; a missing SPY endpoint
+  on a US-only closure stops new publication explicitly. The first official corrected run subsequently
+  completed with valid provenance and no qualifying trade; normal nightly completion remains open.
+
+- **Unified Ghost/Real trading dashboard** — resolved by ADR-0039 and operational migration 013 on 2026-08-28. Durable mode/account fields, an immutable Ghost-to-Real audit, separate P/L, manual Real entry/exit reconciliation, and a hard Ghost-only automatic-exit guard are implemented and verified. All legacy rows remain Ghost. The five-share EDR Ghost mirror was automatically closed at $15.62. On 2026-08-28 the operator declined to add a separate Real row because EDR is no longer in the current Delphi picks; the historical Ghost lifecycle remains unchanged.
+
+- **Intraday evidence resolution and durable ledger** — resolved 2026-08-26. Persist completed five-minute bars in version 1, consume and retain direct completed fifteen-minute bars for policy decisions, and use exact three-component aggregation as a consistency check when available. One-minute bars remain a possible research source rather than a storage requirement. Poll attempts and first-received bars are separate immutable records, and conflicts never overwrite first evidence. Recorded in ADR-0028 through ADR-0030.
+
+- **Switch Continuations lens ranking from raw `RScomp` to Z-scored `CompZ`**
+  — logged 2026-05-24. The user has agreed this should happen "soon" (ADR-0014
+  deferred it as option (d)). Before switching: confirm `CompZ` distribution is
+  healthy post-backfill (min/max sector bars ≥ 80 so Z-window is valid); measure
+  whether `CompZ` produces meaningfully different rank-orderings than raw `RScomp`
+  over a 2–3 week paper-trade window; if yes, cut ADR updating ADR-0014.
+  - **Prerequisite:** full `RelativeStrengthFeatures.CompositeScoreZ` backfill
+    (Hermes historical RS rows need to be re-computed with Z columns populated).
+  - **Tags:** decision-engine, technical-indicators, math-statistics
+  - **Status:** deferred — needs RS backfill + outcome measurement first.
+
+## Resolved
+
+- **ScoreB/ScoreC threshold defaults (`ScoreB ≥ 0.50`, `ScoreC ≥ 0.60`,
+  `K = 3`)** — closed by **ADR-0003**. Empirically calibrated from
+  distribution + forward-return analysis on 2020-01-02 → 2026-05-06.
+- **AND-gate vs. weighted-average for ScoreB/ScoreC** — closed by
+  **ADR-0003**. AND-gate at strict thresholds is the only configuration
+  with measurable 1d edge surviving sub-period split. Weighted-average
+  diluted both signals.
+- **Price-weighted Dow-style proxy for v1** — closed by **ADR-0003** and
+  the supporting `concepts/price-weighted-contribution.md`. True cap
+  weights deferred (see follow-ups above).
+- **Static C# constituent list for v1** — closed by **ADR-0003**. v1
+  uses `Core/Config/Xiu60Constituents.cs` (reviewed 2026-05-07).
+- **40% placeholder breadth threshold** — superseded by empirical
+  `ScoreC ≥ 0.60` in **ADR-0003**.
+- **Hermes / TMX dot-suffixed symbol handling** — resolved during
+  calibration: TMX accepts `TECK.B`, `BBD.B`, `RCI.B`, `GIB.A`, `REI.UN`
+  in canonical dot form; missing coverage was a seeding gap, not a
+  symbol-format limitation. Backfilled via `Tools/Backfill.MissingXiu`.
+
+### Portfolios comparison — follow-through after ADR-0061
+
+- **September 9 operational follow-up:** recovery published after 09:30, so normal Shadow and Live
+  source freezing correctly rejected it; all published rows also failed Breadth. The existing September 8
+  exceptions do not apply. A tracked holding's multi-day 15-minute request now reports immutable-bar
+  conflicts, blocking that holding's automatic policy evaluation. Provider correction/reconciliation
+  requires review; do not overwrite first-received evidence to clear a status. ARX/SES still have no
+  new TMX bars/detail responses; verify listing/universe treatment before the next weekly map refresh.
+
+- **September 8 operational follow-up:** ADR-0065 applies a specifically authorized, dated Live
+  engineering admission. A reusable late-start facility, UI test label and clean restart of the
+  resulting comparison history remain design work; the one-date SQL exception is not that facility.
+
+- **Accepted/implemented:** Compare as default, Performance, and one-challenger Strategy review; shared selection, period and account scope. Existing operational tools remain accessible in a collapsed section.
+- **Provisional display:** aligned saved closing-date returns, normalized charts and maximum observed closing decline. Account histories can span earlier rule assignments; observed dates do not prove complete TSX session coverage.
+- **Implemented under ADR-0062:** complete-strategy identity, supporting paper-account mapping and durable human-approved Trading routing. Prospective statistically comparable evidence remains deferred to automated Wealthsimple activation; lifetime paper returns remain descriptive.
+- **Deferred:** historical daily Shadow generations, arbitrary date selection, benchmark overlay, period trade/fill statistics and reconciled Real cash-flow returns. These need explicit evidence contracts, not invented values.
+
+
+**September 9, 11:10 update:** source adoption is deployed under [ADR-0066](../adr/0066-operational-paper-daily-source-adoption.md); four Shadow sessions and Live use the corrected current run. Earlier cutoff blocks above are historical. Separate normal/portfolio-rules-only comparisons are the next accepted milestone, with concrete account family/count and capital at activation. Gates remain unchanged. The tracked bar conflict, provider gaps and nightly Hermes map-failure handling remain separate follow-ups.
+
+### Direct Wealthsimple integration — ADR-0069 through ADR-0072
+
+- Native sign-in is operator-confirmed. Read-only self-directed TFSA discovery, balances, returns and
+  holdings are live-verified under ADR-0072. Managed TFSA accounts remain excluded.
+- Verify refresh rotation after actual expiry, reconnect behavior and any provider DPoP rollout.
+  Browser key handoff remains unsupported; protected bearer storage remains opt-in.
+- Design broker-to-local reconciliation of fractional holdings, security identities, fill history,
+  deposits/withdrawals, income, pending orders and valuation currency before feeding strategy inputs.
+- Design order submission/status/cancellation, duplicate prevention, account authority and reviewed
+  execution limits separately. The new account display has no order endpoint or SQL write path.
+
+### Permanent TFSA and primary execution — ADR-0073
+
+- **September 14 / ADR-0079:** regular-session market orders and promotion-initiated non-overlap exits
+  before new buys are accepted for the first version. Account-history reconstruction and protected
+  observations now gate the transition preview. Still open: broker-to-SQL mapping of existing Real
+  records, full cash/settlement coverage and risk baselines, correction of disputed history, individual
+  fill sequencing for overlapping orders, observation-journal retention, inherited protection, exact
+  intended-holdings evidence and automation qualification. Native validation and execution activation
+  remain separate operations. The earlier limit preference below is historical.
+
+- **Manual market-buy UI, September 10:** [ADR-0075](../adr/0075-manual-market-buy-ticket.md) implements
+  the accepted editable whole-share ticket, compact dialog and operator-managed buys. The captured
+  broker quote/session contract, protected full-intent recovery and cumulative observations are wired
+  and tested offline. Native live acceptance, account-wide accounting reconciliation, conflict recovery
+  tooling, cross-device history and less restrictive pending-order reservations remain unfinished.
+  Portfolio automation, selling and automatic tracked-position/exit ownership remain deferred.
+
+- ADR-0074 supplies the market-buy client contract and cumulative fill-status read from an operator
+  capture. ADR-0075 adds protected reviewed intents, cumulative observations and recovery UI for manual
+  buys. Native live mutation acceptance and broker duplicate-ID behavior remain unverified; strategy
+  execution/account reconciliation remain unfinished. Preserve the strategy limit-order preference;
+  manual market buying does not authorize automatic market fallback or strategy activation.
+
+- Accepted: permanent self-directed TFSA, independent paper portfolios, primary strategy version as
+  future real-order authority, reconciliation and no TraderVI-originated fractional-share orders.
+- The ten-share buy increment is a preference, not a board-lot or guaranteed-fill rule. The implemented
+  sizing helper rounds down within risk/cash limits and permits smaller whole quantities below ten.
+  Its use in a real execution workflow remains unfinished; exits allow any positive whole quantity.
+- Accepted clarification: retain overlapping holdings and let the incoming strategy manage them;
+  do not sell solely to repurchase on promotion. An unconditional cash-start transition is superseded.
+- Define the incoming intended-holdings snapshot, treatment of stale paper state, quantity adjustments,
+  protection initialization, required non-overlap exits and activation timing. Preserve actual cost
+  basis/entry history and distinguish strategy handover from a new purchase.
+- Confirm limit pricing, unfilled-order behavior, cancellation and protection ownership throughout
+  transition. Retained holdings change the future activation condition from unconditional emptiness.
+- Continue the [integration draft](../concepts/strategy-promotion-and-execution.md#tfsa-integration-draft--september-10-2026).
+  Reconciliation, complete order lifecycle, evidence eligibility and operational activation remain work.
+
+## Nightly build retention (ADR-0078, 2026-09-14)
+
+On November 1 the operator selected existing compiled outputs in place at 06:30 Toronto under
+[ADR-0122](../adr/0122-existing-output-nightly-execution.md). The installed runner no longer builds,
+restores or copies source/binaries. The earlier release-publishing proposal is not required.
+Historical cleanup, log/cache retention and a dashboard action remain open in the
+[design history](nightly-precompiled-releases-20261101.md). Preserve the four active output directories
+named by `Operations/nightly-outputs-20261101.json`, attributable logs and compiled-code identities.
+
+The September 23 user-authorized [one-time cleanup](../project-status-history-20261101.md#latest-operational-evidence)
+removed reviewed old compiled outputs while retaining source/evidence, models, the latest two nightly
+builds, package cache, recent work and the separate worktree. This was not a recurring-retention decision
+or installation. Future policy must preserve attributable evidence and active work, and distinguish
+rebuildable binaries from models and private captures; older pruned builds require rebuilding before reuse.

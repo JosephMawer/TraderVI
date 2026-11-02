@@ -261,115 +261,22 @@ new Command Prompt after that setting change. No financial setting/reference was
 
 ### October 22-only Portfolio rules only review
 
-[ADR-0101](adr/0101-october22-portfolio-rules-only-review.md) prepares the existing assignment for one
-separate October 22 review. After installing validated source with TraderVI normally closed, open
-the standard Release output with the command above and sign in normally. On October 22 before
-4 PM, including pre-open, open **Trading → Execution setup**, stop the old execution host normally,
-confirm no outside account changes and choose **Review October 22**. Review the exact existing
-Portfolio rules only source, current build/account, original references/holds, unused purchase
-allowance and exact October 22 4 PM expiry. Choose **Approve October 22 continuation** within two
-minutes, then separately **Enable reviewed host**. No approval is permitted tonight or on another
-date; code installation creates no trading authority. No repeat setup, sales or verification trades.
-
-Before open, October 22's matching Valid OfficialPaper daily input is required. Keep the app running
-and signed in after arming; there is no automatic app startup. No execution occurs before 9:30.
-Fresh matching inputs/account/risk/storage checks at the open may delay or block buys. Intraday
-confirmation and the existing 3:45 PM entry cutoff remain. New purchases cannot pass reservation/
-transmission checks at or after 4 PM. Previous financial history and coverage gaps remain recorded.
-Changed account/source/risk facts or incomplete risk/permission saves require recovery of the
-original request, never another baseline, grant rewrite or an inferred approval. October 23 is not
-authorized. Native latency and decision-trace publication still need observation after approval.
+The expired, date-specific procedure is preserved in the
+[November 2 running-guide snapshot](running-history-20261102.md#october-22-only-portfolio-rules-only-review).
+It does not renew approval; use the ongoing-management procedure above for the current agreement.
 
 ### October 21-only Normal continuation
 
-The [accepted continuation contract](reviews/delphi-live-continuation-contract-20261021.md) reuses
-the existing assignment, original four verification IDs, original selected opening sales and saved
-risk references. Do not repeat sales/test trades, Account risk setup or the October 20 carry save.
-Stop the old execution host normally before changing the build or reviewing continuation.
-
-On October 21, including before 09:30 Toronto under [ADR-0096](adr/0096-pre-open-october21-approval-and-armed-host.md),
-sign in and open **Trading → Execution setup**. Confirm no outside
-account changes since the original cash-only baseline, then choose **Review next session**.
-The app checks the fresh account/history/cash/buying power and orders, exact current Normal
-source/build, installed immutable storage, preserved references/holds and October 21 permission.
-The original financial records/sale selection remain saved. Completed broker verification stays in
-development records; no new test packet, verification restart or individual test-ID reread is required.
-An unchanged cash-only book remains required before this continuation can activate. Pre-open review
-checks the stored exact Normal definition and today's latest Valid OfficialPaper daily/config/model
-input; it does not claim current-session signal freshness or create a synthetic Live session.
-
-Opening setup and **Refresh readiness** read saved state without first waiting for desktop paper
-work to finish. **Enable reviewed host** likewise saves only the matching reviewed host grant;
-the actual execution poll still waits for admitted paper work before running. These actions can
-still wait on their own storage reads. Account/source review and approval retain their paper-work
-admission and current checks; a readiness display is not fresh financial approval.
-
-Review the displayed cash ceiling, original reference values/provenance/holds, exact Normal
-policy/daily/build and October 21 close expiry. Explicitly **Approve October 21 continuation** within
-two minutes, confirm saved/read back, then separately **Enable reviewed host**. The host stays off
-after approval. Before 09:30, enable arms the host: keep the app running and signed in. At the first
-eligible poll at/after 09:30 it rechecks immutable storage, fresh matching Normal source, the current
-unchanged cash-only account/orders and risk. Source collection, paper-work admission and strategy
-gates can delay or block purchases; arming does not promise a fill at exactly the open. No further
-operator clicks are needed for the waiting host to poll once readiness is available, unless recovery
-is required. Stay available for this supervised session. New buys expire at **4 PM Toronto on October 21**;
-there is no October 22 renewal, and ordinary Resume buying cannot extend permission. An incomplete
-or uncertain save recovers the original request; keep the host off if records do not agree.
-
-This builds and runs that checkout. It does not merge another branch/worktree or replace an already
-running process. No separate installer or manual binary copy is needed. The September 25 integration
-combines the strategy controls with the September 24 memory and broker-trade synchronization fixes.
-
-In **Trading**, leave **Real account** set to **TFSA**. The Wealthsimple panel should show
-**Strategy management** and **Account risk setup…**. With no approved managed assignment, disabled
-stop/resume controls and an execution-not-enabled message are expected. Verify sign-in, fresh
-holdings/cash/pending orders and refresh status. For the existing Normal assignment, use the dated
-continuation above. Account risk setup can display retained references; do not save initial setup again.
+The expired procedure and its original safeguards are in the
+[running-guide snapshot](running-history-20261102.md#october-21-only-normal-continuation).
+It grants no later permission.
 
 ### October 21 reviewed Portfolio rules only switch
 
-**Later lag/diagnostics preparation:** ADRs0099/0100 optimize exact report processing and add private
-`LatestDecision` evidence to the existing broker session revisions. They do not renew the dated
-scope. Use [DelphiLiveDecisionSummary.sql](../Operations/ReadOnlyChecks/DelphiLiveDecisionSummary.sql)
-only through the installed read-only SQL mailbox/helper and verify its query hash. The query shows
-aggregate first-failed entry checks, quote-attempt outcomes, selected-action stage and safe preflight
-check names; per-symbol details remain in private SQL. A returned quote, recommendation, intent,
-broker acknowledgement and confirmed fill are distinct. Read trace timestamps and pending states.
-Fixed BrokerAdmission/SourceRead/AccountRead/InputRead/LivePrepare/QuoteRead/Evaluate/StateSave/
-SecurityRead/Preflight/Submit stages share the existing bounded local timing log. Missing telemetry
-does not permit an assumption that checks passed. If a validation build would write to the running
-app's Release directory, use the [shared build folder](#build-output-folders). Close the app normally before replacing
-its installed Release files. October22 review/permission is a
-separate unresolved preparation question; never extend an October21 grant by changing a date or file.
-
-For the subsequent performance build, [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md)
-adds **Review updated build** and **Approve reviewed build** after normal stop/closure, installation
-and sign-in. It retains the already approved source, signal memory and financial history. Confirm
-unchanged account facts, review/approve within two minutes, then separately **Enable reviewed host**.
-The original16:00Toronto expiry remains. Orders/positions/holds block this cash-only workflow;
-they require separate recovery. No repeated qualification trades or new baseline are requested.
-
-For the operator-requested source replacement, follow [ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md).
-Stop the execution host normally and close TraderVI before replacing standard Release output.
-After the reviewed build, open the normal Release copy and sign in. Keep TFSA as the real account.
-Open **Trading → Execution setup**, confirm no outside account changes, then choose
-**Review Portfolio rules only**. Review the exact matched source/profile/policy/daily/build,
-daily-gate bypass, current cash/remaining ceiling, preserved original risk references and
-**October 21 4 PM Toronto** expiry. Within two minutes choose **Approve reviewed source switch**,
-confirm saved/readback, then separately **Enable reviewed host**.
-
-Review and approval wait for admitted paper work and defer new cycles during the review. Expired
-reviews require another review. Approval submits no order and leaves execution off. Existing host
-permission cannot authorize a different source/build. The workflow blocks an invested book,
-automatic order history, holds, invalidation, source/policy mismatch or changed financial scope;
-it never liquidates positions or resets references to make switching possible.
-
-Only the existing daily admission gates are bypassed. Published selection, post-approval intraday
-confirmation, fresh valid source data, sizing/cash/account/stock risk, stops, reconciliation and
-full-fill-only outcome controls remain. Original history/approvals and purchase ceiling remain;
-no earlier paper position or confirmation transfers. A fresh signal may take time or never qualify.
-Today’s cutoff does not renew. The independent SQL reliability work remains deferred and can still
-interrupt fresh-source progress. Do not install that draft as part of this source switch.
+The dated switch and diagnostic instructions are preserved in the
+[running-guide snapshot](running-history-20261102.md#october-21-reviewed-portfolio-rules-only-switch).
+Current execution controls and diagnostic authorization remain governed by the sections above and
+[read-only SQL procedure](../Operations/ReadOnlyChecks/README.md).
 
 ## Live evaluation-save recovery (ADR-0102)
 
@@ -1298,6 +1205,8 @@ dotnet run --project TraderVI.WPF
 ```
 
 Keep the app open for future polling. Closing it, signing out, sleeping, or restarting the computer stops the in-process schedule. Version 1 does not install a Windows service or background task. The tracked-position monitor has manual ledger-reconciliation controls; its automatic actions remain database-only Ghost exits. The separate manual-buy ticket can submit an explicitly reviewed broker order and does not give this monitor automatic broker authority.
+
+<a id="progressive-profit-protection--implemented-disabled"></a>
 
 <a id="progressive-profit-protection--implemented-disabled"></a>
 

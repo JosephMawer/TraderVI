@@ -17,5 +17,5 @@ jobs:
           persist-credentials: false
       - name: Test link checker
         run: python3 -m unittest discover -s Operations/DocumentationChecks -p 'test_*.py' -v
-      - name: Check status and roadmap links
+      - name: Check maintained documentation links
         run: python3 Operations/DocumentationChecks/check_links.py

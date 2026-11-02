@@ -59,13 +59,14 @@ Approval and separate host enable are distinct; a recommendation is not an order
 not a broker-confirmed fill. Reconciliation means matching saved account records to actual broker
 outcomes without inventing or duplicating holdings.
 
-For a side-by-side example, assume the same strategy, both accounts in cash, valid mature inputs
-and the required Real approval/enable. ABC is fictional; these are not Friday's missing prices.
+For a side-by-side example under the earlier strict-reference policy, assume the same strategy, both
+accounts in cash, valid mature inputs and the required Real approval/enable. ABC is fictional; these
+are not Friday's missing prices. The later ongoing agreement uses the separate policy described below.
 
 | Stage | Paper | Real |
 |---|---|---|
 | Two consecutive strong valid observations | Advances its own confirmation and considers entry | Uses the same evaluator with its own confirmation and account checks |
-| Execution price | Suppose a subsequent acceptable quote produces an assumed $10.00 fill | Suppose the unchanged reference is $10.00 and broker ask $10.02; the current guard rejects before submission |
+| Execution price | Suppose a subsequent acceptable quote produces an assumed $10.00 fill | Suppose the unchanged reference is $10.00 and broker ask $10.02; the earlier guard rejects before submission |
 | Resulting state | Holds a simulated position and evaluates protection/exits | Still holds cash; no purchase is recorded |
 
 Eligibility, permission to act, and evidence of a fill are separate questions. Sharing inputs and
@@ -138,23 +139,23 @@ that any particular saved trade is overstated or that Real must always perform w
 
 ### Why the Real price check can disagree
 
-Real does not compare the broker ask with Paper's recorded fill. Its own
-[recommendation](../Core/Trader/Promotion/TradingRecommendationEngine.cs) selects positive TMX Ask,
-otherwise Price, as the decision reference. The later
-[broker preflight](../Core/WSTrade/Orders/BrokerManagedOrderTransport.cs) rejects a broker ask strictly
-above that reference. Paper's fill policy has no corresponding earlier-reference ceiling; it can
-accept its later quote subject to its timing and account checks. This is a contract difference,
-not proof that TMX request speed caused Friday's rejection.
+Real does not compare the broker ask with Paper's recorded fill. Under the earlier strict-reference
+policy, its recommendation used TMX Ask or Price and preflight rejected a broker ask above that
+reference. The explicit ongoing agreement accepted a separate policy in [ADR-0109](adr/0109-explicit-ongoing-delphi-live-management.md#accepted-execution-price-policy):
+a fresh broker ask is the confirmation episode's fixed reference, with at most 0.25% upward movement
+and 0.50% bid/ask spread. Old approvals do not silently acquire this policy. Paper can accept a later
+quote under its own timing and account checks. These differences do not establish the cause of an
+older rejection or prove quote freshness.
 
 The submitted broker order is a market order under [ADR-0074](adr/0074-wealthsimple-market-buy-protocol.md).
 The preflight comparison is not an exchange-enforced limit price: passing it does not guarantee
 the eventual fill price. A market order has price uncertainty; a limit order specifies a price
 boundary but may not fill ([order-type explanation](https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders)).
-Limit-order support, any bounded adverse-price allowance, reference-source changes and Paper fill
+Limit-order support, changes to the accepted price policy, reference-source changes and Paper fill
 changes require their own reviewed contracts. Faster requests may reduce measured elapsed-time
 effects; they cannot by themselves fix last-trade versus ask differences or unknown upstream age.
-The [open decision](reviews/open-questions.md#monday-delphi-data-and-price-qualification--october-23-2026)
-preserves the operator's suggestions without treating them as accepted policy.
+The [open question](reviews/open-questions.md#monday-delphi-data-and-price-qualification--october-23-2026)
+separates the accepted ongoing policy from unresolved historical price and source-latency evidence.
 
 For agent-enforced implementation rules, see `Docs/design-rules.md`. For the dated operational
 snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.md`.

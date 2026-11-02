@@ -138,73 +138,24 @@ Start WPF sufficiently before 09:30 Toronto time to establish successful pre-ope
 
 ## Validation record
 
-- .NET SDK 10.0.400 verified in this environment.
-- The interrupted prior dependency restore was repaired with explicitly approved dependency restoration. Subsequent validation uses `--no-restore`.
-- All 581 Core tests passed in both Debug and Release: zero failures and zero skipped tests. This includes deterministic policy, collection capacity/deadline, session recovery, independent portfolio actions, research, experiment, diagnostics and persistence contract regressions.
-- Offline SQL Server 2019 `TSql150` parsing passed for 59 embedded SQL blocks and migrations 022–025 with their table includes expanded. Dapper list placeholders were normalized for syntax parsing only.
-- Synthetic collection tests include a full disjoint Top-25 union, ten additional held symbols and XIU (61 unique symbols) across three policy copies, and a persistence delay that crosses the collection deadline. These establish orchestration behavior, not real provider throughput.
-- The complete Release `TraderVI.sln` build succeeded with Visual Studio 18 MSBuild and SSDT, including `TraderDB.sqlproj`; the DACPAC was not deployed.
-- Existing compiler warnings remain, principally nullable-context annotations and unused/unreachable code. Dependency-security auditing was not rerun; no-restore builds do not establish that dependency advisories are resolved.
-- `git diff --check` passed. The frozen concept and concurrent calibration/System Shadow work were preserved; no commits were created.
+The original source, build and operational validation, migration 022–025 application, historical
+replay and Portfolios integration are preserved in the
+[November 2 checklist snapshot](delphi-live-implementation-checklist-history-20261102.md#validation-record).
+Those checks retain their dates and limitations; they do not prove current-session coverage.
 
 ## Migration application — 2026-09-06
 
-The user explicitly authorized backup and application of migrations 022–025. Independent review added
-missing precommit checks to the then-unapplied 023–025 scripts; their final versions and all 27 table
-includes passed offline SQL parsing. SQLCMD applied each migration separately, in order, with the
-required index session settings. The SQL database project built successfully and 18 focused database
-contract tests passed.
-
-- Backup: `TraderDB_FULL_20260905_235931_669.bak`, 41,238,016 bytes, with checksums enabled and no damage.
-  `RESTORE VERIFYONLY WITH CHECKSUM` passed. The staging and OneDrive copies had matching SHA-256:
-  `6E4574B7A6EBC40CAE243C28BB3297BAA3ED27CAB82990572B23BBEDE82A76EE`.
-  Windows Cloud Files reported the OneDrive copy in sync before application.
-- All 37 existing tables retained matching exact row counts, aggregate content checksums and schema
-  fingerprints. Aggregate checksums are supporting preservation evidence, not a restore rehearsal.
-- Exactly 27 tables were added, with one inactive V1 definition and zero operational rows. Its 48-key
-  settings JSON matches the stored UTF-8 SHA-256. All new constraints are enabled and trusted, and all
-  indexes are enabled. `DBCC CHECKDB` reported no errors; recovery remains `SIMPLE`.
-- The installed catalog has zero structural differences from the source manifest across 356 columns,
-  210 constraints and 79 indexes, including types/nullability, key mappings and index columns. SQL
-  Server's normalized expression text was retained separately from this structural comparison.
-- The [application record](reviews/delphi-live-migrations-20260906.json) preserves backup verification,
-  validation results and the SHA-256 of every applied script and included table definition.
+[Application and preservation evidence](delphi-live-implementation-checklist-history-20261102.md#migration-application--2026-09-06).
+The applied migration scripts must not be edited or rerun.
 
 ## Daily preview and historical replay — 2026-09-06
 
-- [x] Add the SELECT-only latest published-picks preview, preserving source dates and daily eligibility.
-- [x] Add a separate historical engine using V1 rule functions with the explicitly estimated
-  `EstimatedNextMinuteOpenV1` execution convention; no operational persistence path.
-- [x] Run the user-authorized September 4 replay using the saved Shadow account capital and bounded
-  historical source requests. Produce 78 frames, six estimated fills, and explicit missing-bar coverage.
-- [x] Simplify the WPF watchlist, add saved replay timing/account inspection, and retain existing
-  controls under Advanced with their shared view model and original confirmations.
-- [x] Validate all 592 Core tests, targeted Sandbox/WPF builds and isolated actual WPF rendering.
-  See the [replay review](reviews/delphi-live-friday-replay-20260906.md) for warnings and limitations.
-- [x] Read-only postflight: no Delphi Live operational rows and unchanged saved Shadow account capital.
-
-This is additive [ADR-0054](adr/0054-delphi-live-preview-and-historical-replay.md) work, not a change to
-the frozen V1 design. Historical estimates contribute zero engineering or promotion cohorts.
+[Completed historical replay and its limitations](delphi-live-implementation-checklist-history-20261102.md#daily-preview-and-historical-replay--2026-09-06).
+Historical estimates are not operational or promotion cohorts.
 
 ## Portfolios overview integration — 2026-09-06
 
-- [x] Read queued, enabled, cancelled and ended Delphi Live generations from their own ledger and list
-  them alongside the existing accounts, with distinct identities, currencies and statuses.
-- [x] Show an unfunded **Not activated** placeholder when there is no current/queued main account;
-  distinguish an unavailable read from an inactive account.
-- [x] Show selected-account states, holdings, decisions and fills; retain estimated-fill labels and
-  avoid substituting an older complete mark for missing or changed portfolio evidence.
-- [x] Guard daily Shadow start/pause/resume methods and controls from Delphi Live selections, and
-  discard an older asynchronous detail response after the selection changes.
-- [x] Validate 600 Core tests, including eight new regressions, and isolated WPF fixture rendering for
-  inactive, queued and invested accounts. The WPF build retains the existing unused-variable warning;
-  existing dependency advisories remain separate and unresolved. No full SSDT solution build was claimed.
-- [x] Execute the new SELECT-only reader against local SQL under the approved normal host context:
-  schema installed, zero saved Delphi Live accounts. The inactive row is a UI placeholder, not a ledger
-  write. Sandbox SQL authentication was unavailable; encryption was not disabled.
-
-This is the presentation integration of the existing ADR-0053/0054 account boundary. It introduces no
-schema, activation, source-collection, trading-policy or broker changes.
+[Completed integration and verification](delphi-live-implementation-checklist-history-20261102.md#portfolios-overview-integration--2026-09-06).
 
 ## Authorization boundary
 

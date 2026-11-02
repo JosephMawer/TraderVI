@@ -1,0 +1,1651 @@
+> Historical snapshot before November 2, 2026 documentation cleanup. Consult the [current document](strategy-alignment-implementation-checklist.md) for current scope; later evidence and decisions supersede earlier claims.
+
+# Strategy alignment implementation checklist
+
+**Current scope:** independent paper strategies followed by deliberately approved real-account
+execution. [Roadmap](roadmap.md) owns priorities; [project status](project-status.md) owns dated
+implementation, installation and verification evidence. This checklist owns remaining dependencies.
+The [session-work register](session-work-register.md) links unfinished work and ideas recovered across
+chats to their owning records; a closed chat or completed source milestone does not close these dependencies.
+The September 22 documentation cleanup preserves the
+[original checklist and validation history](strategy-alignment-history-20260922.md).
+
+## Paper strategy to real TFSA — current checklist
+
+### Tracked purchase symbol continuity — October 29
+
+- [x] Restore the current missing name through one independently verified alias and backup, without
+  restarting hosts; verify fresh native evaluations and unchanged protection/permissions.
+- [x] Implement and test position-scoped managed-purchase correspondence for unresolved tracked Real
+  observations, preserving original broker history and explicit aliases for unmanaged references.
+  [ADR-0088](adr/0088-source-symbol-aliases-for-monitoring.md#october-29-tracked-purchase-observation-extension).
+- [x] Install the reviewed engine package with the authorized normal engine/dashboard restart;
+  verify collector continuity, retained files/grant, zero holds/worker failures and saved checkpoints.
+- [x] Implement after-hours build review for the unchanged approved ongoing agreement, preserving
+  exact strategy/account/protection/risk history and all execution-time gates (ADR-0109 October29 amendment).
+- [x] Install the tested after-hours review update, restart engine/dashboard normally and verify
+  collector continuity, retained runtime/grant and native saved protection.
+- [x] Joseph reviews/approves the changed build and separately resumes the reviewed host through
+  the normal app flow. The after-hours update is installed; these actions may occur while closed;
+  execution must still wait for regular hours and fresh account, risk and source evidence.
+- [ ] Verify prospective resolution for a newly acquired managed holding without another alias write.
+  Synthetic successive-purchase tests and successful restart do not establish this native acceptance.
+
+### Independent collector and recovered confirmation — October 27 overnight
+
+[ADR-0111](adr/0111-independent-collector-and-recovered-confirmation.md) owns the accepted direction.
+Target: reviewable, tested engineering package by 08:00 Toronto October 28; actual source qualification
+and Joseph's updated-strategy financial activation cannot be claimed complete overnight.
+
+- [x] Accept independent intraday collection/local consumption and validated recovered two-observation
+  confirmation without an extra wait; retain three-of-four, VWAP, elapsed indicator windows and protection.
+- [x] Schedule this chat's overnight implementation continuation through 08:00 and October 28 09:25
+  TMX qualification preparation. Local laptop/app must remain running; tool permissions still apply.
+- [x] Implement/test offline recovery-aware windows and confirmation boundary with original availability
+  times, present-decision provenance, exact policy/source/session identity and unexpired latest endpoint.
+  Forty-one focused tests pass (no skips); original on-time window/legacy cadence behavior is preserved.
+  Subsequent full Core: 3,238 passed / nine skipped / zero failures; no native operations or installation.
+  This boundary accepts deterministic evaluator judgments; it is not connected to runtime publication.
+- [x] Connect the successor evaluator's actual four-family judgments to the recovery boundary, with
+  exact duration windows, immutable evidence provenance and explicit successor identity. Tests compare
+  five-minute-boundary measurements with V1 and reject gaps, weak/expired pairs and later-bar leakage.
+  This pure evaluator is not yet wired to production decisions; an offline pair grants no order authority.
+- [x] Prepare durable receipt/first-observation/conflict storage, bounded multi-bar recovery reducer,
+  database-clock fenced ownership and atomic append/coherent read repository. Additive migration052
+  and database project definitions are synchronized; 54 focused tests and SSDT Release build pass.
+- [x] Rehearse SQL ownership/takeover, transaction/crash/idempotent retry, immutable guards and reader
+  isolation in an explicitly authorized isolated database before production migration/cutover.
+  Explicit isolated rehearsal passed October28 08:50; production installation is recorded separately below.
+- [x] Implement separate collector executable, bounded source adapter, persisted pre-request intents,
+  subscription-union contract and health/stop controls. Prepare bounded supervisor; 62 focused tests,
+  collector Release and SSDT database build pass. No native host/supervisor launch or installed cutover.
+- [x] Connect the collector to the trader's revision-verified Real subscription projection, keeping
+  holdings/pending orders when daily candidates are absent; native execution remains unverified.
+- [ ] Qualify native supervision/recovery, include every legacy consumer's subscriptions and prove no
+  competing intraday polling owner at cutover.
+- [x] Prepare explicit local relay for frozen legacy intraday requests, with original receipt times,
+  independent Paper lifecycle/SQL publication and no trading-process HTTP fallback. Offline pipe tests
+  pass; combined provider capacity and installed ownership remain unverified.
+- [x] Wire the explicit successor into account-specific recommendation/quote/order-deadline checks and
+  review descriptions, preserving legacy null serialization and independent account confirmation.
+  Synthetic execution tests cover pause, uncertain orders, restart, expiry and protection without entry history.
+- [x] Implement local SQL book/input loading and recovered five-minute protection bars for the explicit
+  minute successor. Offline tests cover missing/conflicted context, identity and admission profiles.
+- [x] Implement explicit one-minute adoption review on the existing ongoing assignment, preserving
+  allowance, risk references, orders, held protection and paused mode. Qualification is separately
+  required; this source implementation does not approve or enable the installed account.
+- [ ] Verify native local loading and qualified adoption/cutover; retain independent Paper
+  lifecycle, existing legacy policies and broker execution/protection reads.
+- [x] Run the explicitly approved isolated native collector-storage rehearsal (October 28 08:50);
+  ownership, request/crash recovery, immutable/conflicting evidence and reader isolation pass.
+  This does not apply or qualify the production migration/cutover.
+- [x] Include the completed session-closing minute in the collector's bounded final read; correct
+  matching SQL reservation bounds and test without extending the trading entry cutoff.
+- [ ] Validate restart while collector current; collection outage recovered current pair; weak/stale pair;
+  missing benchmark; gaps/conflicts; clock/revision/source changes; lease fencing/crash boundaries;
+  pause persistence; uncertain orders/idempotency; held protection; next-session preservation.
+- [x] Run focused/full Core and affected Release builds; report skips/compiler/security warnings and
+  whether SSDT/schema validation ran. Commit each reviewed increment and prepare manifest/rollback.
+- [x] Install the approved collector/legacy-routing slice with migration052 and verified backup at
+  October28 09:19. Preserve original financial/history state and rollback evidence. This does not
+  qualify one-minute adoption or prove healthy native collection; see current project status.
+- [x] Resolve the pre-existing Real archive hold with exact historical approval evidence and native
+  scoped recovery; synchronize verified daily risk before build review without weakening its checks.
+  Joseph's existing-strategy review/resume and an actual protective exit are verified October28.
+  [Dated evidence](reviews/independent-engine-implementation-20261022.md#october-28-collector-and-execution-recovery).
+- [x] Correct and natively verify collector timestamp persistence; retain earlier missing receipts as missing.
+- [ ] Complete source/coverage and broader operational acceptance: conflicts, missing/late intervals,
+  every legacy consumer's subscriptions, native restart/outage recovery and reboot/login supervision.
+  The collector's continued operation during trader maintenance proves only that observed separation.
+  October 29 second-source evidence identifies sparse final records containing reported trades but
+  lacking the legacy adapter's aligned timestamp. Qualify final-bar meaning and inactive versus missing
+  intervals before adopting a mapping, aggregation or alternate source; two matching single-minute
+  cases do not qualify general relabeling. [Comparison](reviews/independent-engine-implementation-20261022.md#october-29-second-source-comparison).
+- [ ] Joseph explicitly reviews/adopts the successor and financially activates it in the app; verify
+  native collector ownership, publication, decision freshness, protection and buy readiness afterwards.
+
+**October 28 qualification tooling:** use the installed collector's saved SQL evidence as described in
+the [study guide](../Operations/TmxQualification/README.md); do not duplicate provider requests.
+The original [fixed-date runner](../Operations/TmxQualification/README.md)
+is prepared; eight offline checks pass, summary script parses, and an outside-window invocation is
+verified to refuse before network/file writes. The standalone sampler has not run; the installed
+collector now owns requests. Diagnostic outputs stay in ignored private artifacts.
+
+**Original fallback plan (superseded while the installed collector is active):** bounded sampler for XIU, RY and one current
+candidate. Sample consecutive minutes in 09:30–10:00, 11:00–11:15, 13:00–13:15 and 15:30–16:00 Toronto;
+at most one request per symbol per 60 seconds, three sequential requests per sample, 270 total requests
+maximum, 20-second request timeout, no automatic retries, exclusive sampler ownership. Skip missed slots
+instead of catch-up bursts. Persist raw responses privately and original first completed arrival times;
+use request start to exclude forming bars, even if they finish before receipt. Report coverage/arrival
+age/missing-slot streaks/duplicates/revisions and HTTP failures separately. Later complete history does
+not erase earlier gaps. Do not synthesize no-trade bars. Cross-symbol sampling establishes neither
+full-universe capacity nor venue completeness. Source adoption remains blocked if that evidence is absent.
+
+The morning handoff distinguishes completed versus unfinished work and exact app actions.
+The scheduled preparation observes the installed collector; at 16:05 summarize qualification and
+remove the day-only monitoring. No trading mutation,
+SQL writes, pipeline rerun, provider purchase or changed approved source is part of the diagnostic.
+
+ADR-0103 source work and validation are consolidated in the [implementation/cutover review](reviews/independent-engine-implementation-20261022.md).
+The overnight target was missed. Completed source work is separate from installed acceptance.
+
+October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/TraderVI/issues/19):
+
+- [x] Investigate current restart/scan/clearance contracts and prepare a
+  [draft replacement](reviews/restart-recovery-design-20261030.md), with schema/JSON examples,
+  synthetic codec measurements, scenarios and proposed acceptance/cutover tests.
+- [x] Accept the compact storage proposal and authorize only its first disconnected coding increment
+  with results for review before proceeding. [ADR-0117](adr/0117-compact-trading-current-storage.md)
+  records this limited boundary; the draft's alternatives are not all approved requirements.
+- [x] Implement the seven scalar row contracts, account-scoped repository, two reusable commit markers,
+  active/unique indexes and prepared migration 054 without engine registration or live SQL changes.
+- [x] October 30 offline validation: 30 compact-storage tests pass, zero failures/skips. Core builds;
+  TraderDB builds with Visual Studio Build Tools/SSDT, zero SQL warnings/errors. Synthetic measurements:
+  10,000 updates retain five rows/two markers (2,560 returned JSON bytes); 1k/100k/1m completed receipts
+  leave the six-row current read unchanged (3,149 bytes); benchmark book returns 154 rows/77,549 bytes
+  against a 524,288-byte budget. Each fixture row also fits its proposed per-record budget.
+  These are test-double/serialization measurements, not SQL timing/size.
+  Evidence: `artifacts/compact-storage-20261030/{focused-tests.log,results/compact-storage.trx,sql-build.log}`.
+  Initial Core/test compilation reported existing CS8632 (261), CS0162 (2), CS0168 (1) warnings in
+  unrelated files. Dependency auditing was disabled for this isolated build; no fresh security review
+  or complete-solution health claim is made.
+- [x] October 31 operator accepted the first storage increment and its offline results.
+- [x] Map the existing cumulative purchase allowance. `BrokerManagedSession.CommittedPurchaseCost` sums
+  original BUY requests. `BrokerManagedSessionWorkflow` reserves the original quantity × reference price
+  and later records the broker outcome on that same request. While the request is unresolved, its
+  contribution stays at the original estimate. Once reconciled, its contribution becomes the broker's
+  net cost. SELL proceeds do not replenish the approved ceiling. The order sizing path, first review,
+  continuation reviews and approvals, ongoing approval, and desktop execution/minute/source review
+  summaries read this allowance.
+  [Calculation](../Core/Trader/Promotion/BrokerManagedSession.cs),
+  [order writer and sizing](../Core/Trader/Promotion/BrokerManagedSessionWorkflow.cs).
+- [x] Pin this behavior before replacing the scan. For a $100 original buy the tests observe $100 used
+  while pending or partially filled at $38, $38 after cancellation of the remainder, $96 after a
+  $96 full fill or posting, and $0 after an unfilled rejection or expiry. An unknown submission,
+  a separate sale and the next trading day preserve the reservation. On October 31,
+  eight new allowance cases, one existing simulated restart/date-change case and 30 compact-storage
+  cases passed (39 passed, zero failed/skipped). [Test cases](../TraderVI.Core.Tests/BrokerManagedSessionTests.PurchaseAllowance.cs).
+- [x] October 31 compact writer now saves the allowance difference for each changed original buy
+  together with its receipt and checkpoint. On a synthetic $2,000 ceiling, a $100 order with $38
+  applied left $1,900 available. An interrupted cancellation preserved that balance. A committed
+  cancellation raised it to $1,962. Replaying the save after a lost reply and observing the cancellation
+  again each wrote zero rows and left $1,962 available. The four purchased shares remained accounted for.
+  Seven new writer cases and all 39 prior focused cases passed offline (46 passed, zero failures/skips).
+  [Writer tests](../TraderVI.Core.Tests/TradingCompactStorageTests.Allowance.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/allowance-writer.trx`.
+- [x] October 31 milestone 1 offline scenario. A fresh recovery instance reads an unfinished opening
+  buy by its original external ID. For a simulated $100 order cancelled after four shares filled
+  for $38, it saves those four shares, $38 cost, opening protection, completed receipt and allowance
+  together. A failed transaction preserves the original $100 reservation. Re-entry after a lost
+  commit reply leaves one receipt and releases the $62 once. Where two shares were already applied,
+  only two more are added and the existing protection floor and triggered exit survive. Conflicting
+  evidence leaves the request unfinished. A repeated fill cannot reopen a closed cycle.
+  Nine new cases and 46 prior focused cases passed offline, zero failures or skips.
+  [Recovery tests](../TraderVI.Core.Tests/TradingCompactStorageTests.InterruptedBuy.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/interrupted-buy.trx`.
+- [x] October 31 still-open opening buy, offline. Each recovery looked up the same original order.
+  On a $100 request the no-fill pending reply kept $100 reserved. Four shares for $38 left $62
+  reserved. Repeating that reply after restart wrote zero rows, including after a lost save reply.
+  Seven cumulative shares for $67 added just three shares and left $33 reserved. A stale zero-fill
+  response could not undo confirmed shares. The recovery component has only a broker status lookup.
+  Three new cases and 55 prior focused cases passed. [Still-open buy tests](../TraderVI.Core.Tests/TradingCompactStorageTests.OpenBuy.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/open-buy.trx`.
+- [x] October 31 full opening-buy fill, offline. On a $100 ceiling, recovery advanced from four
+  shares at $38 to ten at $96 net, applying six shares and $58. It cleared the $62 reservation
+  and left $4 available. The saved position kept its $9.25 protection floor and triggered exit.
+  A fresh second recovery made zero further lookups or writes and retained one original filled
+  receipt. The tests also cover a lost commit reply and a broker reporting the fill as posted.
+  All 61 focused tests passed. [Full-fill tests](../TraderVI.Core.Tests/TradingCompactStorageTests.FullBuy.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/full-buy.trx`.
+- [x] October 31 rejected and expired opening buys with zero fills, offline. For each outcome a
+  fresh recovery checked the original order, returned the full $100 allowance, kept zero shares
+  and zero spend, and saved one receipt with the broker outcome. A second restart made zero
+  further lookups or writes, including after a lost commit reply. A zero-fill report conflicting
+  with an earlier confirmed fill preserved the reservation and the existing shares. Six new cases
+  and 61 prior focused cases passed. The SQL project built with distinct expiry status support.
+  Migration 055 is prepared for review and requires empty compact order storage following 054.
+  [Zero-fill tests](../TraderVI.Core.Tests/TradingCompactStorageTests.UnfilledBuy.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/unfilled-buy.trx`.
+- [x] October 31 batched offline regression. Recovery recognizes the broker reader's pending status
+  list, retains the outstanding reservation during a pending cancellation, releases it on cancellation
+  before a fill, and books the actual cost on expiry after a partial fill. Twelve status cases first
+  reproduced gaps in the previous implementation. A thirteenth case exercised a read timeout, a
+  concurrent pause and a successful retry of the original ID while another reservation remained intact.
+  All 80 focused cases passed in the full Core run (3,518 passed, zero failed, 10 opt-in native tests
+  skipped). The SQL project built and both prepared migrations parsed offline using the SQL 150 parser.
+  [Additional cases](../TraderVI.Core.Tests/TradingCompactStorageTests.BuyRecoveryMatrix.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/offline-core.trx`.
+- [x] October 31 offline account restart with a simulated broker. An uncertain buy retained its $100
+  reservation. A second buy reconciled four shares for $38. An independently triggered ten-share
+  sale was reserved, sent once and fully accounted for, ahead of unrelated buy lookups. The next
+  pass preserved the settings, buy stop, risk flags, original reservation and completed sale.
+  One account snapshot supplied dated cash, buying power and holdings. A mismatch restricted only
+  its security and a later agreement cleared only that comparison's restriction.
+- [x] Exercise the account pass under overlapping restarts, lost reservation and submission replies,
+  partial/repeated sell fills, rejection, cancellation, expired or disabled authority, scope-specific
+  restrictions, ambiguous share reservations and invalid broker snapshots. All 20 account scenarios
+  passed in the full Core run (3,538 passed, zero failed, 10 opt-in native tests skipped).
+  [Account tests](../TraderVI.Core.Tests/TradingCompactStorageTests.AccountRestart.cs).
+  Local run record: `artifacts/compact-storage-20261030/results/account-restart-core.trx`.
+- [x] October 31 trace the installed permission, protection and original-order sources. Paired
+  binary/debug symbols matched 18 selected source files. The installed reader validated the actual
+  host grant and one encrypted sample per order side. October 30 saved diagnostics provided the
+  assignment and protection comparison. All 104 selected offline host, protection and order workflow
+  tests passed. [Verified sources, limits and gaps](adr/0117-compact-trading-current-storage.md#installed-input-verification).
+  Private local evidence: `artifacts/minute-source-check-20261027/execution-diagnostics-20261030T184605799Z.json`
+  and `artifacts/compact-storage-20261030/results/installed-input-contracts.trx`.
+- [x] October 31 offline protective decision capture. The managed workflow saved the original ID,
+  reason, decision time and permission before creating an order. After simulated power loss the
+  recovered workflow retained the decision through a rebound. The compact rehearsal sent the
+  eligible exit once and blocked either grant revocation or an overlapping journal sale at initial
+  admission and final send. Tests also covered an existing original request, a filled manual sale,
+  an unrelated sale, and a legacy reason missing the original ID/time. Full Core run: 3,548 passed,
+  zero failed, 10 opt-in native tests skipped. All ten new scenarios also passed with packed archive
+  restoration. [Trigger tests](../TraderVI.Core.Tests/TradingCompactStorageTests.ProtectiveDecision.cs).
+  Local receipts: `artifacts/compact-storage-20261030/results/protective-trigger.trx` and
+  `protective-trigger-codec.trx` in the same directory.
+- [x] October 31 verified the restart journal connection on an isolated copy of the installed
+  encrypted receipts and the previously captured account revision. Every managed buy in that
+  revision matched its original request, identity, account, security, symbol and quantity.
+  After reopening the copy, an injected unresolved manual sale blocked only its own holding.
+  Separate restart tests retained the $100 reservation through missing, unreadable and conflicting
+  receipts. The protected lookup contains current holding boundaries and relevant sale IDs.
+  Explicit preparation reads legacy receipts once. Ordinary checks use the lookup and exact
+  request filenames. Repeated status saves and unrelated sales left the lookup bytes unchanged.
+  [Journal tests](../TraderVI.Core.Tests/TradingCompactStorageTests.Journal.cs).
+  Private local evidence: `artifacts/restart-release/journal-final-copy.trx`.
+- [x] Connected the compact buy-fill and sell-fill writers to current journal coverage in the offline
+  candidate. A disposable SQL run opened four shares, closed the holding, and bought the same
+  security again under a new position ID. Repeated reads left the watch file unchanged.
+  Isolated tests checked a pending sale while flat, a fill before or at the new entry, and recovery
+  after a rolled-back save or lost commit reply. [Lifecycle tests](../TraderVI.Core.Tests/TradingCompactStorageTests.HoldingLifecycle.cs).
+  Native receipt: `artifacts/restart-release/lifecycle-native.trx`.
+- Defer automatic matching and clearance of manual fills. Delphi Live is the intended trader.
+  Keep the candidate's existing check for a conflicting manual sale. An unexplained sale on
+  the same shares needs reconciliation before another sale of those shares. Preserve visibility
+  of the affected holding and original request.
+- [x] Milestone 1, isolated send-disabled build. The candidate's default `--run` uses compact
+  recovery with the exact approved Delphi build, original opening terms, saved symbol progress
+  and alternate protected receipts for committed SQL state. A forced process exit inside the
+  protective-sale transaction left the original buy and previous compact checkpoint intact.
+  The restarted executable reached its decision in 0.998 s from launch, retained $100, booked $0,
+  and admitted the ten-share independent protective exit once. A second fresh process took
+  0.958 s and admitted zero new exits. Both used synthetic broker reads, with zero submissions.
+  A missing local witness blocked startup and restoring the file preserved the incident. The
+  installation at that October 31 checkpoint still used legacy recovery. [Reproduction and scope](adr/0117-compact-trading-current-storage.md#abrupt-stop-candidate).
+  Local evidence: `artifacts/restart-release/d7b9360653ee4396baa43b98b2584750/interrupted-result.json`
+  and `artifacts/restart-release/m1-core.trx`.
+- [ ] Qualify broker coverage, native grant/journal fencing and exclusive writer ownership at
+  cutover. Reprepare coverage before reuse if an older writer has owned the journal.
+- [x] October 31 ran migrations 054/055 against checksummed backups on disposable SQL Server
+  LocalDB 17. The native fixture kept 154 rows, two markers and 232 KiB of used table/index pages
+  through 10,000 saves (p95 4.82 ms). Concurrent retries committed once. An injected SQL failure
+  and a connection killed before commit each preserved the prior state. Explicit current-row indexes
+  corrected an account-history scan. At 1k/100k/1m completed orders the same 78,236-byte book
+  read in 6.10/5.57/3.19 ms at p95. Total receipt storage still grew. Local evidence:
+  `artifacts/restart-release/indexed.trx`, with the original comparison in `native.trx`.
+- [ ] Finish performance qualification on representative hardware, including first-open latency,
+  per-table/wire and log costs, and production-shaped writer contention.
+- [x] October 31 ran the isolated candidate executable against a copy of one settled account and
+  its encrypted grant. Permission, holdings, protection, cash, risk and the empty unfinished
+  managed order set agreed. Across 100 fresh processes the median/p95 elapsed from launch to
+  verification exit was 0.750/1.386 seconds. Fresh compact reads including opening the connection
+  took 0.935 seconds at p95 and 1.124 seconds at p99, exceeding the 0.250/1.000 second read targets
+  even on this smaller fixture. No broker call or order dispatch occurred. The candidate build
+  differs from the approved build. See the [release and rollback boundary](adr/0117-compact-trading-current-storage.md#release-rehearsal-and-rollback-boundary).
+  The default Core suite passed 3,548 with 11 opt-in skips, including the separately run native rehearsal.
+- [x] October 31 exercised the normal trading-host startup and first scheduled broker poll with
+  the compact recovery cycle injected in the test. On the same synthetic scenario the legacy
+  workflow returned `OrderRecoveryBlocked` before evaluating the sale. The candidate recovered
+  the original $100 buy reservation and admitted a ten-share protective sale on another security.
+  The next process looked up both original requests, preserved the reservations and admitted
+  zero additional sales. No broker submission transport was connected.
+  The initial run took 1.329 s from host setup through the decision and the repeat took 1.031 s.
+  A second fixture run alongside the Core suite took 2.486 s and 2.025 s respectively.
+  The runs used a clean continuity checkpoint, SQL LocalDB, a protected grant and order journal,
+  and fixed market-session time. They exclude process/test-runner launch, live broker latency,
+  production integrity-store checks, and unrelated background workers. The installation at
+  the time of that rehearsal used the legacy gate. [Rehearsal](../TraderVI.Core.Tests/TradingCompactStorageTests.NormalStartup.cs).
+  Local receipts are under `artifacts/restart-release/normal-*.trx`.
+- [ ] Finish writer/consumer mapping and the replacement's failure/latency contract, record exact
+  supersession of installed behavior and update #19 before integrating or activating that replacement.
+- [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
+  broker-coverage, writer-fencing and history-size acceptance. Preserve the remaining qualification
+  work separately from the operator-approved first production switch.
+- [x] November 1 installed production migrations 054 and 055 after the verified, synchronized
+  backup. Independent readback confirmed seven empty tables and enabled storage guards.
+  Account transfer and exact-build trading approval followed separately.
+- [x] November 1 activated the reviewed compact restart for Delphi Live. The exact package
+  completed its live account check in 2.88 seconds and waited for regular trading hours.
+  No market-hours order was exercised. See [operational status](project-status.md).
+- [ ] Replace the regular strategy's cumulative writes and repeated broker history reads.
+  This follow-up starts immediately after the restart switch. A bounded sample of 100 Friday
+  revisions over 22 minutes stored 489,240 bytes of manifests, used 34 distinct account
+  references and shared a single order-list reference. This excludes referenced data, indexes
+  and logs. Measure those costs separately. Preserve risk continuation and audit readers
+  when replacing the source record. SQL cleanup remains separate.
+- [x] First offline regular-cycle change reuses the account lock and current revision from
+  compact recovery when handing a settled book to ordinary strategy evaluation. It checks
+  the current permission again before the handoff. The test admitted the same fake order
+  with one account acquisition and rejected a different binding before dispatch. Focused
+  tests passed 680 with six opt-in skips. This change is separate from the installed release.
+- [x] Offline regular broker history reader groups up to eight discovered order IDs per
+  Wealthsimple request and validates each returned order against its own expected identity.
+  In a synthetic two-page, 46-order book, each reconciliation took 13 HTTP reads versus
+  53 previously (six order-detail requests versus 46). Both paths read all 46 records,
+  fresh balances, holdings, pending orders and the final activity checkpoint. The same
+  broker projections produced identical Delphi Live buy, protective sell and hold
+  recommendations on repeat polls. A corrected old fee with unchanged feed metadata still
+  required review. [Offline replay](../TraderVI.Core.Tests/WealthsimpleAccountTests.RegularTradingHistory.cs).
+- [x] November 1, 01:54 Toronto. The authorized read-only Wealthsimple comparison returned
+  the same 46 parsed order records and instrument listings in both passes. Five groups of
+  eight and one of six were accepted. Including activity pages, the individual history
+  pass used 48 requests and the grouped pass used eight. The final activity fingerprint
+  matched both passes. No order was sent. The trading engine continued running its
+  existing reader. Local receipt under `artifacts/read-only-broker/grouped-history-f089a7d0fb4e4a9ba3af07b27e5c4d97.json`.
+- [ ] Activation of the grouped reader remains pending. Removing historical records
+  from ordinary reads altogether requires evidence that would
+  detect financial corrections missing from the activity feed. Database write reduction remains open.
+- Item 9's expanded damaged-database/old-backup recovery design is explicitly deferred to
+  [#25](https://github.com/JosephMawer/TraderVI/issues/25), not a prerequisite for this increment.
+  Preserve existing exceptional-state handling and separate #12/#14 backup/restore qualification;
+  do not interpret the deferral as tested restore behavior or authority to bypass safeguards.
+- SQL cleanup implementation and broader database cleanup inventory are separately owned by
+  [#26](https://github.com/JosephMawer/TraderVI/issues/26), coordinating with #16; they are not part of
+  this restart increment. Retain the current-plus-previous checkpoint target and disclose temporary
+  accumulation until maintenance is installed; do not claim an active purge or physical row-count cap.
+
+- [x] Accept independence, immediate versus historical verification, nightly/weekly scoped audit policy,
+  dashboard-close continuation and explicit separate stop. Investigate original workload/storage.
+- [x] Extract the independent engine and asynchronous client; one broker/order owner, separate schedules,
+  draining stop and current-status reconnect. Move existing paper/Shadow/tracked/opt-in AI lifetime.
+- [x] Publish immutable shared inputs and derive real subscriptions from verified real account state;
+  retain exact approved definitions and freshness without paper progress or champion dependence.
+- [x] Separate paper/research consumers and receipts; preserve original timestamps and reject late buys.
+- [x] Implement incremental paper archive roots, qualified working checkpoints, replay identities and
+  atomic changed-record saves; share input/report/candidate content. Prepare migrations047–051.
+- [x] Use compact dashboard/Live refresh and explicit background/paged full history; support dual-format
+  AI, champion and broker diagnostics. Reuse only exact verified current broker revisions.
+- [x] Implement fixed-boundary audits, durable scoped holds, explicit recovery/clear, protected local/SQL
+  continuity witnesses and fresh reconstruction of current checkpoints/projections/replay identities.
+- [x] Implement ADR-0104 sequential per-pass archive reads/decodes, paged inputs and faster active
+  batches; separate Real/Paper recovery and preserve linked paper restrictions. Remove held paper
+  subscriptions/settings from real collection dependencies. Full Core3,028pass/nine skips;49 SQL parses.
+- [x] Install scoped recovery fc5f6e45 in verification mode and observe original cursor resume.
+  Native checks expose legacy timestamp/hash representation defects; preserve failed receipts/holds.
+- [x] Implement/test audit-only exact historical representation recovery;395focused tests and all
+  three saved broker approval boundaries plus paper settings transition pass offline.
+- [x] Install representation correction0082a88a and complete native Real recovery260/260independently
+  of paper; all current receipt/checkpoint hashes pass. Full Core3,032pass/nine native skips.
+- [ ] Qualify bounded sustained memory/throughput. Current broker/source/dated authority checks remain
+  required; the later operator review/approval/enable milestone is recorded below.
+- [x] Replace temporary unconditional execution blocking with required schema/guards, continuity,
+  scoped access and exact current subscription checks; retain existing account/build/dated authority.
+- [x] Validate offline:3,003Core pass/nine native skips with concurrency disabled; engine/WPF/SSDT
+  build and changed SQL parsing pass. No installed acceptance or dependency-security requalification.
+- [ ] Qualify native single ownership, close/reconnect, admitted-command draining and stalled-paper
+  independence. Test direct-input freshness and same-session evidence conflicts in the installed path.
+- [ ] Qualify SQL concurrency, current-state/replay/immutable guards, witness metadata permissions,
+  abnormal interruption/restore, durable holds and explicit verified recovery under concurrent access.
+- [ ] Measure realistic latency, growth, archive/recovery throughput and weekly coverage. Changed broker
+  appends still serialize full logical history under8MiB; historical revision audits still reconstruct
+  full history. Extend these paths if measured capacity fails the accepted objectives.
+- [x] Obtain explicit authority for backup, migrations047–051, checkpoint preparation and native
+  verification; keep real trading disabled pending operator review of results.
+- [x] Complete checksum backup, hash-matched copy/synchronization, migrations047–051 and initial
+  paper/real checkpoint preparation; verify original roots/counts and required schema/guards.
+- [x] Correct native timestamp/decimal comparison and dashboard command-error defects; verify recovery
+  advances, dashboard closure preserves engine identity, and full Core3,016pass/nine skips.
+- [x] Correct shared-runtime packaging, install matching standard Release a94c474a and verify native
+  startup in broker-disabled mode plus persisted audit resume. Restore the original nightly enabled
+  state without launching it. Record private runtime hashes and process/mode evidence.
+- [x] Complete the original Paper recovery plan. The hash-verified October 23 00:02 read confirms saved
+  Complete at October 22 23:43:48 Toronto, 205,058 verified units and unchanged plan; all receipt/checkpoint
+  hashes pass. This proves the saved plan's coverage, not unrestricted paper operation or whole-run capacity.
+- [x] Finish the explicitly authorized October 28 Paper recovery and native clearance: the historical
+  eight restrictions became nine by October 27; current pass `e73db89e-fa4b-4da4-a503-f8405a7a7377`
+  adds its own temporary pending hold. Complete 205,058 at October 29 01:22:41; native guarded clearance
+  resolves all ten at 01:22:45 with completed proof/current-head/identity/guard checks; zero remain.
+- [x] Verify affected Paper/research/protection workers resume after clearance in two fresh samples;
+  identify any remaining blocker and retain missed on-time observation/performance coverage.
+  Paper/Shadow protection and research history resumed first; Paper/Research inputs initially failed with SqlException.
+  Their shared query's missing ORDER BY separator is repaired and read-only validated, then installed
+  with Joseph's explicit approval at 01:33:44. Samples at 01:33:41 and 01:34:18 show all five affected
+  workers completing with zero failures; native Paper/Research consumer receipts confirm processing.
+- [x] Resolve the separate October29 post-reboot incident through full verified recovery: all299,036
+  units complete; native clearance resolves both incidents at09:28:08. Zero remain at09:36.
+  Worker recheck finds a separate market-input failure at09:30; clearance is not morning readiness.
+- [x] Implement/test the requested temporary Paper continuation under ADR-0116, without falsely
+  resolving incidents or changing Real authority. Full Core3,374passed/10SQLskips and final39focused
+  tests pass; Release WPF/engine builds. New errors, expiry or restart stop the permission.
+- [x] Install/activate temporary Paper continuation at02:49; Paper inputs/protection resume while
+  research remains held. Actual native clearance at09:28 subsequently restores normal incident access.
+- [x] Resolve the market-open input failure and missing current-session risk opening evidence.
+  Market inputs recover after authorized migration053 at09:55. A separately authorized collector
+  recovery saves the exact opening bar at10:09, retaining late receipt time; the native read-only
+  risk-evidence query confirms availability. This does not perform Joseph's build approval or enable.
+- [x] Observe Joseph's successful updated-build approval and separately enabled Real execution after
+  the repairs. At10:19 Toronto, following his own app actions, native status is Running and evaluating
+  fresh shared inputs; zero integrity incidents and zero consecutive worker failures. No new fill claimed.
+- [x] Prove actual new Paper revision advancement using version-3 roots and matching current checkpoints.
+  At09:56 all three original portfolios pass:6937>6936,25009>24998,5854>5853; newv3 counts1/11/1,
+  all checkpoints agree. Two samples09:56:11/09:57:34 show resumed workers without consecutive failures.
+  No manufactured writes, replayed expired buys or rewritten missed coverage. Real approval is separate.
+- [x] Develop/test the first historical recovery performance repair while the existing pass continues,
+  following Joseph's request to fix it before waiting. [ADR-0115](adr/0115-exact-audit-prefix-hash-reuse.md)
+  preserves original fingerprints using bounded exact-prefix SHA-256 state clones inside one guarded
+  reader. Fifty-one focused tests and 3,369 serial Core tests pass (ten native skips); Release WPF/engine
+  build passes. Identical synthetic quote-append workloads improve approximately 4x/24x/39x.
+- [x] Review/install the candidate with applicable operational authority and preserve durable cursor and
+  Real grant. Joseph explicitly approves; `cdbf777c` Core installed October 29 00:06 with normal engine/
+  dashboard restart, unchanged collector and byte-identical grant. Same recovery resumes.
+- [x] Complete this native recovery with the installed performance repair and original clearance guards.
+  Total elapsed 2h51m with the normal restart; research stage approximately seven minutes. Initial adjacent-segment observations are
+  2.74 revisions/s after versus 1.69/s before installation, not a controlled whole-run benchmark or ETA.
+  Early changes/cold reads and the separate legacy input scan limit gains. This installed repair does
+  not complete native Paper activity or broader weekly-capacity acceptance, retained below.
+- [ ] Obtain Joseph's normal review of the installed strategy/build before Real execution resumes;
+  post-install ExecutionStatus is Blocked because the build changed. Preserved grant is not new approval.
+  No archive deletion or silent conversion. The existing follow-up continues beyond hold clearance.
+  [Evidence and progress](reviews/independent-engine-implementation-20261022.md#october-29-recovery-repair-installation--0006-toronto).
+- [ ] Finish remaining native concurrency/latency/restore acceptance. Recovery completion does not
+  clear holds, qualify all interruption scenarios or grant financial authority.
+- [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine
+  with execution Off; verify single ownership, normal mode, connection and original Paper cursor progress.
+- [x] Verify fresh post-interruption Real recovery 260/260 and separately authorize/apply only its reviewed
+  Broker/Global clearance. The 23:31 read confirms zero Broker/Global and eight retained Paper restrictions,
+  valid hashes and Paper 31,788. No new financial permission. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-preparation--october-22-evening-recovery).
+- [x] Complete available evening checks: 129 runtime hashes, reviewed calendar, broker/history/no pending
+  orders, native local-journal synchronization, saved model binding/input contract and latest daily models/configuration.
+  Verify nightly scheduling and arrange the one-date 08:30 Toronto October 23 follow-up/report before 09:15.
+- [x] Prove native Real recovery completion while Paper remains unfinished; installed controls respond
+  in198–347ms during paper work. Paper passes the former failure and its first portfolio checkpoint.
+- [x] Review unchanged real/shared heads and classify retained holds without mutation; prepare the
+  eight-incident real-only proposal. The earlier unavailable broker-login check is superseded below.
+- [x] Obtain authority for controlled normal-mode cutover and verified real-only clearance with execution off.
+- [x] Execute guarded real-only clearance; fixed-helper16:47read verifies zero Broker/Global holds,
+  seven retained Paper restrictions and unchanged advancing Paper plan.
+- [x] Install ADR-0105 from444026c7 and verify normal-mode Running, execution Off and broker Connected;
+  preserve the original paper cursor across graceful stop/restart.
+- [x] Verify fixed-helper current cash-only broker history/holdings and no pending orders (16:57Toronto).
+  This read does not check the local journal or qualify cash-flow timing.
+- [x] Install c86f375d account RPC correction after graceful stop/zero-owner/hash checks. Native account
+  refresh, broker/local-journal history synchronization, zero pending orders and strategy restore pass.
+- [x] Observe installed setup after Joseph opens it: storage installed, Review2026-10-23, approval and
+  enable disabled. Core3,074pass/nine native skips; both Release builds pass/260existing warnings.
+- [x] Verify October 23 scheduled nightly success, target-date Valid OfficialPaper evidence using October 22
+  and exact saved definition/four models/input contract; refresh broker/history/no-pending checks and
+  normal Connected/execution Off status. Joseph reconfirms no outside changes and opens setup himself.
+- [x] Diagnose the account-risk event size rejection and verify no partial save. Implement ADR-0106 exact
+  storage reconstruction; saved-history offline size/hash check, 82 focused/3,087 full Core tests (nine
+  native skips) and isolated Release pass. The 256 KiB ceiling, original records and fingerprints remain.
+- [x] Install a090757f under explicit authority through normal dashboard closure/engine drain and restart;
+  verify runtime hashes, Connected/execution Off, native history synchronization, fresh broker/daily
+  checks and unchanged financial/recovery state. No financial approval/order is performed by this task.
+- [x] Observe the next operator attempt: risk sequence3 saves, permission append fails SQL547; managed
+  revision259 is unchanged. Preserve the original risk request for recovery. Reproduce the archive's
+  standalone-string/SQL JSON constraint mismatch with saved evidence and a read-only SQL check.
+- [x] Validate/install object/array-only archive correction d8364eff (57 focused/3,092 full Core passes,
+  nine native skips, Release pass). Guarded normal restart at03:51; hashes, Connected/execution Off,
+  exact original risk/managed head, daily/models and unchanged recovery/holds pass after installation.
+- [x] Verify Joseph's original-request approval recovery/readback: revision260 at08:45:49 links to
+  unchanged risk sequence3; no duplicate event, valid head/projection hashes and current daily/model checks.
+- [x] Observe Joseph's explicit dated approval and separate enable: screenshots and08:46 controls show
+  Armed/Waiting for09:30, Connected,16:00 expiry. Broker history/holdings/pending checks pass; no
+  Broker/Global holds. Complete/remove the one-date08:30 heartbeat; retain the separate Paper monitor.
+- [x] Observe fresh regular-session account/risk/source checks and actual input evaluation after repair:
+  October23 native11:33 evidence verifies40 consumed/evaluated/fresh symbols and24 mature Watching
+  symbols; no confirmed entry. Controls confirm Running.
+- [ ] Observe actual orders/fills and qualify populated protection. Fresh evaluation and an empty
+  entry trace do not establish order-lifecycle qualification or a promised trade.
+- [x] Diagnose the11:45 confirmed entry's preflight failure: revision823 records SQL51501 from a
+  separate risk-read transaction reacquiring the held account lock; no order intent/submission.
+  Joseph authorizes correction, tests and normal restart installation.
+- [x] Validate/install same-transaction risk read ba3ece6a: 524 focused/3,105 full Core pass (nine native
+  SQL skips), Release pass/260 existing warnings. Normal restart at12:09:37; all128 candidate/122
+  retained hashes pass, prior binaries preserved.12:13–14 Connected/Off, fresh publication, broker
+  history, head/projection/checkpoint and scoped-hold checks pass.
+- [x] Verify Joseph's changed-build approval898 at12:17:33/separate enable and actual real consumption
+  on ba3ece6a: revision904 evaluates40 fresh symbols through12:15, no entry/risk/quote block or failure.
+- [x] Observe native progression through the corrected account-risk read: confirmed13:25 entry1247
+  reaches AskAboveDecisionReference at13:27:40, after risk/broker/account checks. The old SQL51501
+  does not recur on this path; the buy stops before reservation. Same price guard at1259/13:31:36.
+- [ ] Observe all remaining preflight checks passing and qualify actual submission/order/protection.
+  Current ask-price rejection/backoff is preserved; native risk-read progression is not a full buy pass.
+  The13:48 follow-up verifies recent TMX receipt (1.581s before latest failure save), not upstream
+  quote age. The old price pair is not retained; its exact gap remains unavailable.
+- [x] Implement/test the subsequently authorized private rejected-buy price diagnostic:491 focused/
+  3,112 full Core passes (nine native SQL skips), Release/260 existing warnings. Retain unchanged price
+  guard, old trace compatibility and unknown source time. [Diagnostic](reviews/independent-engine-implementation-20261022.md#october-23-rejected-buy-price-diagnostic).
+- [x] Install diagnostic43424435 through normal cutover14:08:39;128 candidate/122 retained hashes pass,
+  previous binaries retained.14:12 Connected/Off and14:13 fresh14:10 publication/unchanged hashes/holds
+  are verified. Original dated permission/history remain; restart continuity is explicit.
+- [x] Verify Joseph's own changed-build approval1379 at14:17:52/separate enable and exact installed
+  build match.14:22 read verifies real1400 consuming/evaluating40 fresh symbols through14:15,
+  NoRecommendation/no failure/empty orders; all symbols still warming after14:10 continuity.
+- [ ] Inspect an actual rejected-buy price receipt without forcing a signal in a separately authorized
+  future session. October23 ends without a new-build rejection or price pair; full preflight/submission/
+  protection and an attributable first fill remain unqualified. Preserve existing guards and gaps.
+- [ ] Resolve the proposed October26 data/price qualification work: classify saved raw/normalized/
+  published/consumed coverage and review a bounded independent quote comparison before choosing any
+  repair or source change. Assessment only; no implementation or new live probe is authorized.
+  [Acceptance criteria](reviews/independent-engine-implementation-20261022.md#october-26-readiness-assessment--october-23).
+- [x] Complete the October23 first-fill/material-blocker watch at16:05 and delete its heartbeat.
+  Broker has zero holdings/pending and unchanged history; real1865 evaluates40 fresh symbols through
+  15:55, NoRecommendation/no failure/empty orders. Final16:00 publication is distinct from consumption.
+  Entry cutoff15:45 and original financial expiry16:00 pass without renewal; Paper monitor unchanged.
+  [Closing evidence](reviews/independent-engine-implementation-20261022.md#october-23-final-1605-watch-report).
+- [x] Complete Joseph's requested15:27 checkpoint: exact tracked candidate falls from three to one
+  supportive group, resetting confirmation. Real1712 evaluates40 fresh symbols through15:25,
+  NoRecommendation/no failure/empty orders.15:28 broker remains empty/history unchanged.
+- [x] Complete Joseph's requested15:17 checkpoint: exact tracked candidate falls from three to two
+  supportive groups, resetting strong confirmation. Real1667 consumes/evaluates40 fresh symbols
+  through15:15, NoRecommendation/no failure/empty orders.15:17 broker remains empty/history unchanged.
+- [x] Complete Joseph's requested14:37 checkpoint: the unique14:30 first-strong symbol loses support
+  from three groups to one at14:35, resetting confirmation. Real1475 consumes/evaluates the new bar,
+  NoRecommendation/no failure/empty orders. No buy preflight or new price comparison; watch continues.
+- [x] Verify rolling maturity after the restart:12:33 evidence confirms29 mature symbols through12:30,
+  11 still warming/unavailable, no first strong confirmation or buy recommendation. Native buy checks
+  remain unexercised. The requested12:37 checkpoint is complete: revision1000 consumes the12:35 bar,
+  with27 Watching,one dismissed for weakening,12 warming/unavailable and no entry/failure/order.
+  12:37 was conditional on two consecutive strong observations, not a promised buy.
+  The12:50 first strong reading breaks at12:55 as three families lose support;13:00 retains only volume
+  support. Valid Normal evidence is consumed by real revision1126 at13:03,no entry/failure/order;
+  native preflight remains pending. [Signal-gap evidence](reviews/independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction).
+- [x] Compare raw TMX responses with the installed adapter under Joseph's explicit read-only authority:
+  three requests at13:24, four offline harness checks and a clean probe build. All15 aligned five-minute
+  bars are retained exactly; missing bars are absent upstream in this sample. One-minute data cannot
+  supply five complete components in any of nine examined intervals. No adapter correction indicated.
+- [ ] Observe recovery of that candidate's exact stock-bar coverage. Its two votes remain12:35 memory;
+  source-coverage diagnosis does not explain upstream sparsity or repair historical receipt deadlines.
+- [x] Diagnose fresh collection without shared evaluations; reproduce the reviewed-successor versus
+  original comparison admission mismatch offline with the installed assembly and saved definitions.
+  Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).
+- [x] Validate successor admission/missing-input diagnostics and ADR-0107 current-session build review:
+  exact saved-source replay,107 focused/3,101 full Core passes (nine native SQL skips), Release passes.
+- [x] Install1a790e60 under Joseph's explicit authority and verify fresh matching-policy publication/
+  evaluation at11:02 (40 inputs;31 valid/on-time). Preserve all original gaps/holds.
+- [x] Correct the Paper-dependent build-review UI (136 focused tests/Release pass); install5144535c
+  at11:10:57 with128 candidate/122 retained hashes and execution Off.
+- [x] Complete operator updated-build approval/enable and verify actual account input consumption:
+  Joseph's approval675 at11:17:43, screenshots/separate enable, hash-checked decision717 at11:25:47.
+  No new risk event; original expiry, gaps and scoped holds retained. By11:33,24 symbols have matured
+  into Watching;16 still lack required observations. No confirmed entry or first fill.
+- [x] Schedule Joseph's requested same-chat five-minute09:30–16:05 first-fill/blocker watch.
+  Completed/removed after the October23 final check; no first fill or new diagnostic price pair.
+  Monitoring granted no operational recovery or trading authority and does not recur next session.
+- [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/
+  two skips; isolated WPF Release passes. Source preserves original
+  risk history and explicit dated/current-build approval, without paper-history reads or recursive
+  renewal copies. October21 permission remains historical; October23 is separately operator-approved.
+  No automatic renewal is accepted.
+- [ ] Complete realistic whole-run/weekly capacity and live collection independence acceptance.
+  Partial paper progress and dashboard availability are not trading readiness.
+- [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,
+  deleted or revalued; existing disk space has not been reclaimed.
+
+- [x] Implement/validate the resumed SQL-only correction under
+  [ADR-0102](adr/0102-bounded-immutable-live-evaluation-save-recovery.md): one unchanged evaluation-save
+  retry, all original guards/timeouts, bounded private stages.71focused/2,919Core pass/nine native
+  SQL skips with test concurrency disabled; isolated WPF Release/SQL parse/guard comparison pass.
+- [x] Install SQL correction standard Release fromc4d094fd,21:31Toronto after operator normal
+  stop/closure. Zero owners before/after; Core source/copies match;125output/eight source-output
+  hashes recorded; zero build errors. Existing compiler warnings/dependency advisories remain.
+- [ ] Operator performs tomorrow's exact current-build review/approval and separate host enable.
+- [ ] Observe native SQL stages/recovery and regular-session continuity/capacity. Historical wait/
+  plan cause remains unknown. The earlier workload deferral is superseded by ADR-0103 source work; native acceptance remains.
+
+- [x] Final October21 bounded read/report16:06 and deletion of today's heartbeat; zeroorders/fills/
+  positions/post-cutoff intents, exact16:00expiry. SessionIncomplete/Blockedcoverage retained.
+- [x] Implement remaining write/report optimization and private confirmed-entry/quote/selection/
+  preflight/intent diagnostics under ADRs0099/0100. Final2,852Core pass/nine native skips with test
+  concurrency disabled; isolated WPF Release build and diagnostic SQL parse pass. Full-parallel AI
+  cleanup timing failure remains a validation limitation. [Evidence](reviews/delphi-live-lag-and-decisions-20261021.md).
+- [x] Implement the expressly requested October 22-only review path under
+  [ADR-0101](adr/0101-october22-portfolio-rules-only-review.md), preserving the existing Portfolio rules
+  only source, original risk/history/modes and unused allowance. 386 related checks and isolated
+  Release build pass; final 2,885 Core pass/nine native SQL skips (2,894 total), with test
+  concurrency disabled.
+- [x] Install standard Release from97ad0a11 after operator normal stop/closure, October21 at21:10Toronto.
+  Zero owners before/after; Core commit/copies match;125output and34source/output hashes saved;
+  zero build errors. Existing compiler warnings and dependency advisories remain separate.
+- [ ] Operator performs October 22 review/approval and separate host enable on its date,
+  including pre-open if current daily/account/source/storage checks pass.
+  Verify native timing/decision publication afterward. No permission follows from preparation.
+
+- [x] Implement and validate operator-requested immediate snapshot slowdown correction and same-source build
+  review under [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md). Preserve
+  financial/signal history and 16:00 cutoff. 2,821 Core pass/nine native skips/Debug WPF build pass.
+  [Evidence and acceptance](reviews/delphi-live-snapshot-slowdown-20261021.md).
+- [x] Install validated slowdown build after normal closure/zero-owner verification14:01.
+  Standard Release from484f8cff succeeds14:02;125output hashes recorded/Core matches.
+- [x] Operator starts normally, signs in, reviews/approves the exact updated build and enables
+  separately.14:13read proves build approval14:06:29/first real14:11:23/revision193; original risk,
+  source/signal/financial history and16:00expiry preserved, zeroorders/holds/blocks.
+- [x] Verify initial twenty-minute recovery after installation: epoch13/start14:05 persists through
+  14:25bar; real14:31:12/revision202 consumes it with26mature/zero confirmed signals. Four captured
+  fullcycles283.69/265.13/264.38/273.62s stay under five minutes; no post-build appfailure observed.
+- [x] Complete October21 through-close watch and final16:06bounded report/deletion. Historical
+  Blockedcoverage remains; zero automatic orders/fills do not qualify native filled protection,
+  uninterrupted whole-day capacity or an attempted-order cutoff test.
+
+- [x] Recover the Normal selection provenance and record October 21 requested replacement:
+  existing Delphi Live/Portfolio rules only. Prior approval retained the Normal-only setup preset.
+- [x] Implement the explicitly requested dated source-switch workflow and review UI preserving
+  paper/real history, financial references/holds, intraday/data/order controls and 16:00 expiry
+  ([ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md)).
+- [x] Validate offline: 73 focused/2,780 full Core checks pass, nine native skips; Debug WPF build passes.
+  SQL reliability draft is parked outside compiled source, not included.
+- [x] Install standard Release after operator normal closure and zero-owner verification12:27:18.
+  Build succeeds from5dc368fd; warnings/evidence in project status. No app launch or financial action.
+- [x] Operator reviews/approves the exact Portfolio rules only source and separately enables its host.
+  Saved approval12:43:10; enabled-host screen supplied after the438.82s paper wait drains12:42:30.
+- [x] Read-only verification proves new effective source/build, preserved original scope/risk/ceiling/
+  16:00cutoff and first real evaluation12:43:34/revision147. Zero orders/fills/positions at12:44.
+- [ ] Verify fresh post-approval market inputs and sustained real progression; continue watching
+  meaningful orders/fills/protection, blockers and close expiry. First check is not sustained proof.
+  Recovery verified13:02: real12:57:33/revision156 consumes37post-approval12:50bar inputs, all
+  immature/unconfirmed.74target inputs nowthrough12:55bar; newerbatch not yetproved consumed.
+  Zeroorders/positions/holds/savedblocks,same16:00cutoff; sustainedfreshness/confirmation pending.
+  13:05real check consumes12:55bar,still0mature/confirmed. Verified12:50continuity permits earliest
+  mature13:10bar/possible13:15confirmation only if valid/consecutiveStrong; processing adds delay.
+  That conditional estimate is invalidated by13:07:41SQL52232;13:11read real13:07:53/revision162,
+  still12:55actualsignalbar/0mature/confirmed/orders/holds/blocks. Verify new continuity before ETA.
+  Recovery13:18:39/revision168 consumes13:10bar; nativeepoch10/start13:10 verified13:21.37symbols
+  remainimmature/unconfirmed,0orders/holds/blocks,same16:00; no renewed purchase ETA is promised.
+
+**Goal:** choose a paper portfolio and let its exact reviewed strategy manage the permanent real TFSA,
+while keeping paper and real histories independent. **October21 Portfolio rules only source is
+operator-approved/enabled, with first real evaluation verified; automatic orders/fills remain unobserved.**
+Any portfolio must be promotable and keep managing across days until pause or switch (ADR-0085).
+Ungated Breakout Top 3 is the initial September 23 review candidate. The
+[current launch verdict is NO-GO](reviews/supervised-session-20260923.md).
+
+**October 18 requested Live route:** the operator targets the most successful Delphi Live variant
+for October 19. Normal is the recommended integration candidate; all three recorded inception
+returns are negative and no automatic-execution qualification follows. [Current assessment](reviews/delphi-live-tfsa-readiness-20261018.md).
+- [x] Compare saved Live returns/trades/coverage and verify paper accounting independently.
+- [x] Implement/test exact Normal comparison definition/transition preview without recommendation
+  approval, execution authority or order submission (102 focused checks; isolated WPF build).
+- [x] Record the operator's first-day scope: actual available capital after both current holdings
+  sell; no outside transfers/trades; stop new buys on mismatch (ADR-0092). This waives no launch check.
+- [x] Verify connected account shape read-only at 22:58 Toronto: two CAD whole-share holdings,
+  no pending orders. No sale, order queue, plan installation or assignment follows from that read.
+- [x] Implement/test Core Live real-cost protection, exact source binding, save-before-bid ordering,
+  historical exit recovery, conditional scoped cash checks and immutable opening-plan progression.
+  179 focused/2,501 full Core tests pass; eight native cases skipped; isolated WPF build passes.
+- [x] Install the prepared Normal preview/Live adapters/default-off desktop loop and observe its
+  native setup screen after approved 10:52 startup. This does not qualify live source/protection/orders.
+- [ ] Verify exact executable Normal source and Live protection natively with the remaining proofs.
+- [ ] Complete native risk/baseline/continuation, source, broker lifecycle and shared-host checks
+  in items 1–7, then prepare a fresh activation packet. Conditional no-transfer coverage cannot
+  manufacture the original required qualifications. Monday automatic execution remains NO-GO.
+- [ ] Operator-controlled real orders/activation and subsequent confirmed fills/protection remain
+  separate operational steps; none was performed by this preparation session.
+- [x] After the requested Codex restart/resume, verify both exact installed helpers execute without
+  approval requests (23:43 Toronto, exit 0, SQL query hash/scalar verified, bounded broker read succeeds).
+- [x] Test the default-off Core host and protected exact-assignment/build permission store: 117 focused
+  session/opening/scope tests pass. This creates no actual host permission, session or order.
+- [x] Connect/test the host through the existing desktop poll/shared journal/gate and explicit
+  existing-assignment enable/full-stop controls; build an isolated morning copy. Latest validation:
+  153 focused tests, 2,544 full Core tests/nine native skips and nine synthetic WPF renders pass.
+  Copy subsequently launches under separate authority at 10:52 October 19; native storage test
+  remains the earlier separate opt-in pass.
+- [x] Rehearse Normal Live protection/stopped-mode SQL recovery in an isolated synthetic database,
+  alongside exclusive leases/interrupted/uncertain saves. This sends no native broker orders.
+- [x] Verify current storage counts/immutable triggers read-only (23:51 Toronto, query hash checked).
+- [x] Rehearse native baseline save/readback and a two-event hold continuation with canonical risk
+  tables/triggers in an isolated synthetic database; fix the discovered continuation column mapping.
+  91 focused tests and one explicit native test pass. This qualifies persistence, not broker evidence.
+- [x] Exercise cash-only Normal host activation, a source-bound purchase, actual-cost fill protection
+  and stopped-buy restoration after restart in one synthetic integration case (128 focused checks).
+  Its test/tracking is part of the subsequent first-review increment.
+- [x] Implement/test first cash-start Normal execution review, missing-qualification display, actual
+  capital ceiling, source/account/evidence rechecks and separate approval/host enable. The read-only
+  protected packet consumer creates no native qualifications. Expanded native SQL approval readback
+  and baseline/session recovery pass (two native tests); no actual account approval was created.
+- [ ] Complete independent native boundary/cash-flow, cash/source and broker lifecycle qualification
+  and install its reviewed evidence packet. Hashes/file protection cannot supply missing proof.
+  The complete native cash-effective/boundary producer and reviewed packet publication remain
+  unfinished production integration; the conditional first-day source is not their replacement.
+- [x] Implement/test the explicitly approved October 19 limited trial: only cash-event/opening-value
+  qualifications are replaced; four other native and five scoped checks remain. Recover the original
+  baseline import/two full sales, publish protected scoped evidence and enforce close-time purchase
+  expiry. Older scopes retain all six. 158 focused/2,558 full tests pass (nine native skips); WPF builds.
+- [x] Verify scheduled Monday input publication read-only at 10:03 Toronto: one official run/frozen
+  session; exact current Normal successor has 160 evaluations through 09:55. Query hash verified.
+- [ ] Independently qualify/install the four remaining native proofs for the limited trial, perform
+  actual opening sales/setup and verify installed current inputs/protection before operator activation.
+  Publication alone does not establish executable freshness. SQL rehearsals remain paused.
+- [x] Install the explicitly approved history-enabled read-only broker v2 helper, retaining v1:
+  66 offline/four scope checks pass; no SQL, order, local-journal or refresh capability is linked.
+- [x] Verify bounded native history after normal broker reconnect at 10:38: 42 reads, 33 historical
+  orders, matching holdings/history, zero pending orders. Local journal/native submission/partial or
+  uncertain recovery remain unqualified; this does not issue execution proof or allow activation.
+- [x] Read installed storage metadata at 10:33 Toronto with matching SQL receipt/query hash:
+  one link, zero baselines/continuations/managed revisions, enabled immutable triggers, max JSON column.
+- [x] Switch to the hash-verified prepared copy under separate startup authority, with host off;
+  observe native setup and one clean reconciled import/trade-sync receipt in the 10:57 bounded read.
+- [x] Prepare the authorized manual two-sale/buy/readback/return-to-cash verification route, preserve
+  the two original sale IDs through explicit selection, and record its qualification limits. 173 focused/
+  2,573 full tests pass, nine native skips; five synthetic renders and WPF Release pass. Separate
+  order-review copy subsequently launches under separate authority at 11:21. Initial AI timeout passes
+  focused/full-serial rechecks.
+- [x] Switch to the hash-verified updated copy under explicit operator authority at 11:21 Toronto;
+  old instance closes normally, one responding desktop remains, no host grant before/after startup.
+  At 11:24 the bounded query/receipt hashes match: clean new import/trade-sync receipt, zero baseline/
+  continuation/managed revisions. This is startup/reconciliation evidence, not native dialog/order proof.
+- [ ] Complete the independent native proof/publication route before treating the manual sequence as
+  a path to immediate activation.
+  Actual qualification orders and their outcomes remain operator actions, not completed tests.
+- [x] Record the separately accepted native first-day qualification contract in ADR-0092 and its
+  scoped amendment links from ADR-0055/0062. All four native/five scoped checks remain required;
+  performance gaps/native unobserved paths are disclosed, not certified as production-ready.
+- [x] Implement/test native checkpoint/readback/nine-reference packet publication from complete
+  actual full-fill/normal-restart/baseline/storage/source observations. Restrict proof to the exact
+  first-day account/strategy/build/anchor/expiry. 205 focused/2,605 full tests/nine skips, seven
+  synthetic UI renders and WPF Release pass; no actual packet or financial authority is issued.
+- [x] Implement/test a durable native-trial order-review hold, including repository monotonicity:
+  no new/residual order after partial/cancel/conflict/uncertainty, original-ID reads only; ordinary
+  resume/restart cannot release it or change the operator's saved buying mode/financial holds.
+- [x] Verify the new immutable-storage metadata predicate read-only at 11:54 with matching receipt
+  hash; all three immutable triggers/max JSON columns present, setup counts still zero.
+- [x] Switch to the final hash-verified native-review copy (e054e88f) at 12:07 Toronto; normal old
+  shutdown, one responding native desktop, no host grant/packet/checkpoint. Clean new import/empty
+  setup at 12:08 and existing pause/hold flags clear at 12:10, both bounded query hashes verified.
+- [x] Review operator screenshots of the original sales and one-share verification buy/sale, followed
+  by cash-only/no pending orders. Native journal/history qualification remains separately required.
+- [x] Reproduce clipped risk-setup button labels offline; prepare readable Workspace controls and
+  visible initial/busy/empty-result states. Six synthetic renders/WPF-only build pass; reviewed Core
+  unchanged. The reported failed Refresh itself is not yet explained or operationally fixed.
+- [x] Install the hash-verified corrected risk-setup working copy (74cb0987) at 14:45 Toronto;
+  normal old-process closure, one responding owner, unchanged reviewed Core, no host permission/
+  qualification/checkpoint. Source and prior order journal remain preserved.
+- [x] Review operator screenshots of successful native risk preview (14:55 observation) and explicit
+  initial-reference save confirmation. Setup sources/holds/empty position protection match the reviewed
+  cash-only book. This does not establish independent repository readback or native qualification.
+- [x] Review operator screenshot of reopened/refreshed setup recovering the same original request
+  and reference values, saved 14:56. Do not initialize replacement history or repeat trades.
+- [x] Inspect the operator's post-fix native risk screen: unexpected-failure message, no reference
+  values, Save disabled. Prepare stage/category-only diagnostic reporting (two privacy tests and
+  WPF Release pass; reviewed Core unchanged). The 14:49 bounded read verifies setup remains empty.
+- [x] Install/verify the diagnostic copy bc5a7f09 at 14:53:20 Toronto, PID 106248: normal prior
+  closure, matching hashes, one responding owner and absent host permission/packet/checkpoint.
+- [x] Observe successful native Refresh/save on operator screenshots after diagnostic startup.
+  The earlier unexpected exception did not recur; its cause remains unlocated, not claimed fixed.
+- [x] Identify/fix checkpoint's storage-readiness mapping mismatch: SQL returns four Boolean fields,
+  record constructor had three. Seven offline mapper cases/257 focused tests and WPF Release pass;
+  checks remain independent and the optional fourth flag defaults false. 2,614 full offline tests pass/nine native skips.
+- [x] Install/verify the new Core build 71207c86 at 15:06:33 Toronto, PID 73824: matching hashes,
+  normal prior closure, one responding visible desktop and absent host permission/packet/checkpoint.
+- [ ] Verify actual checkpoint capture in this new copy. Failed attempts do not count
+  as a checkpoint, restart proof or qualification. Preserve the saved baseline and original orders.
+- [x] Inspect continued generic capture failure and verify native checkpoint/packet/permission files
+  remain absent. Prepare WPF-only stage/category diagnostics across native read/validation/save
+  boundaries; nine focused checks/build pass, mapping-corrected Core unchanged.
+- [x] Install/verify staged diagnostic copy a78f0810 at 15:15:15 Toronto, PID 28564: normal prior
+  closure, matching hashes/unchanged Core, one responding owner, absent permission/packet/checkpoint.
+- [x] Identify SQL 51413 at reconciliation: EngineSettings lock wait timed out. Prepare WPF-only
+  local cycle/setup coordination without altering SQL fences or policies; five barrier cases/199
+  focused checks and WPF build pass, Core unchanged. Actual SQL owner was not inspected.
+- [x] Install/verify coordinated copy 943f964b at 15:30:19 Toronto, PID 74844: normal prior closure,
+  hashes/unchanged Core, one responding visible owner and no permission/packet/checkpoint.
+- [x] Identify Normal source rejection after reconciliation: original immutable comparison policy
+  differs from its approved progressive successor. Bounded native read confirms one Normal/allowed
+  successor. Implement exact assigned-successor review without rewriting the comparison or changing
+  recommendation eligibility; 217 focused/2,621 full offline passes, nine native skips/WPF build pass.
+  At 15:43 the bounded native read also confirms the latest exact assigned successor.
+- [x] Install/verify corrected successor copy 62c7b5fd at 15:46:33 Toronto, PID 58536: normal prior
+  closure, matching hashes/new Core, one responding visible owner, no authority/packet/checkpoint.
+- [x] Diagnose stale source using bounded read/app failure metadata; preserve historical entry policy separately from current protection policy (0accf067). 41 focused/2,622 full offline passes, nine native skips/WPF build. Installed/verified at 15:58:57, PID 59220, exact hashes/one owner/no authority/packet/checkpoint.
+- [x] Verify paper publication recovery through the close: 21:56 bounded read confirms Normal saved
+  16:03:40; pinned daily/successor match. UI shows 16:00 checkpoint/120 observations. Session finalized
+  16:03:48 as Incomplete/Blocked with historical gap retained (21:57 bounded read).
+- [x] Diagnose later SQL 52202 as repeated after-close finalization with expired lease; implement
+  close-once renewal/persist/release and status-only later wakes. 37 focused checks/WPF build pass.
+- [x] Install/verify closing fix cf0eee49 at 22:20:53, PID 1036: exact hashes/new Core, one visible responding owner, no authority/packet/checkpoint (2,624 full offline passes/nine native skips).
+- [ ] Verify native closing behavior at the next actual boundary; installation is not a closing rehearsal.
+- [x] Implement the accepted October 20 trial-only carry, explicit preview/save UI and original-ID
+  capture/restart integration, retaining original references and all nine checks. 2,655 full offline
+  passes/nine native skips; WPF Release and six synthetic panel renders pass. October 19 remains expired.
+- [x] Install/verify b1095ae9 next-session copy at 23:08:41 Toronto, PID 83608, exact output/Core hashes,
+  one visible responding owner; execution permission/packet/both dated checkpoints absent.
+- [x] Observe October 20 operator carry save/readback, fresh source, native checkpoint/restart and
+  all nine references, then approval/enable/initial evaluation and cutoff as detailed below.
+  These are dated native observations, not conclusions from installation/offline tests.
+- [x] Trace the repeated October 20 Preview wait/UI freeze; implement worker invocation, joined/single
+  display refreshes, bounded quote rows and financial-stage barrier scopes with bounded diagnostics.
+  65 focused/2,660 full offline passes, nine native skips; isolated WPF Release passes. Synthetic
+  dispatcher gap 614.6 → 26.3 ms; this does not locate the longest native stage or prove live response.
+  [Evidence and switch steps](reviews/desktop-paper-responsiveness-20261020.md).
+- [x] Perform the explicitly approved normal switch to 55e429d5 at 11:03:56, PID 78872, execution off,
+  all 124 hashes match/original TFSA copy preserved. Observe two completed wakes and bounded UI timing;
+  Live still takes 419/278 seconds, with substantial snapshot/protection/action work.
+- [x] Prepare the minimal redundant-serialization follow-up in separate outputs: 61 focused/2,664
+  full serial offline passes, nine native skips/WPF Release; synthetic retained-history validation
+  307 → 0.244 ms and 248 MB → 1,064 bytes. Native cycle benefit remains unverified.
+- [x] Perform the approved normal follow-up switch to 30775d12 at 11:32:14, PID 131204, after the
+  prior dashboard finishes; execution off, 124 manifest matches, both previous copies preserved.
+- [x] Observe four completed follow-up wakes through 11:42:00, including a 217.46-second collection/
+  action wake; short UI applies/no recorded pulse gap over two seconds, one held lease/durable progress.
+  Native cycle speedup is not established; sustained response/capacity remain open.
+- [ ] **Deferred by operator:** investigate remaining history cost/implement the simplest safe fix
+  later, preserving history/both copies and execution off; validate separately before another switch.
+- [x] Observe initial readiness and reviewed carry Preview after the queued wait correction:
+  October 20 operator screenshots show retained original references/evidence, unchanged cash-only
+  book, no holds/pending orders and all four original order facts matching. This is UI evidence only.
+- [x] Observe actual manual carry save/readback confirmation in the October 20 operator screenshot:
+  original reference records/values/source times/holds unchanged; no order/assignment/host permission.
+- [x] Observe native checkpoint saved after full manual verification/cash-only baseline readback
+  in the October 20 operator screenshot. Local read-only check confirms dated file exists, packet/
+  host permission absent, exact process copy and all 125 file hashes unchanged. No proof decoded.
+- [x] Observe operator normal restart of the identical captured build from standard Release output:
+  October 20, 13:43:30 Toronto, PID 72928; one owner/all 125 hashes match/checkpoint present,
+  qualification packet and host permission absent. No proof decoded or modified.
+- [x] Observe native first execution review after the normal restart: October 20 operator screenshots
+  show all nine reviewed native/scoped references, NormalV1/current source, original-reference carry,
+  reviewed close expiry and assignment approval available. Read-only packet file existence is
+  confirmed; host permission absent. Protected contents are not independently decoded/audited.
+- [x] Observe explicit operator assignment approval/save confirmation in the October 20 screenshot:
+  approved Normal, Transition, buying subject to current checks, automatic trading off/no order sent.
+  Earlier rejected attempts/zero-revision read remain historical; original predicate is unproven.
+- [x] Observe separate operator host enable confirmation in October 20 UI; permission file creation
+  at 15:19:37 Toronto independently observed, one responding normal-output owner. No agent enable.
+- [x] Verify initial native account synchronization, protection handover/activation, LiveProtectionPrepared
+  and StrategyEvaluated at 15:20:59 Toronto, revision four/Active, through the hash-verified bounded
+  15:22:03 installed read. No saved blocks/automatic orders/positions. This is initial activation/
+  evaluation, not actual automated submission/fill or sustained operation.
+- [x] Observe October 20 session cadence through close: hash-verified 16:04:27 installed read finds
+  sixteen evaluations from 15:20:59 to 16:00:00.470/revision 49, gaps 67.79–234.20 seconds, mean
+  156.04 seconds; pre-close evaluations have no saved account blocks. This is not sustained capacity
+  proof or guaranteed 30-second execution cadence.
+- [x] Observe native cutoff enforcement: 16:00:00.148 account synchronization records expired scoped
+  permission/new-buy-stop blocks, retained through final evaluation; exact 16:00 saved expiry,
+  zero automatic orders/positions or post-cutoff buy intents at 16:04:27. Requested watch completed/
+  heartbeat deleted. No attempted rejected-buy was exercised and no controls were changed.
+- [ ] Observe actual automatic submission/fill/populated protection in a separately authorized
+  session; preserve original IDs on uncertainty. This trial grants no next-day buying renewal.
+- [x] Draft the requested October 21 existing-assignment continuation with original trades/references/
+  holds preserved and no repeated verification trades or baseline setup. [Concrete proposal](reviews/delphi-live-continuation-contract-20261021.md).
+- [x] Obtain explicit acceptance of the October 21-only exception after clarifying historical order
+  readback versus new stock selection; preserve all original trades/references/holds.
+- [x] Implement append-only existing-assignment continuation, linked risk/permission original-request
+  recovery, read-only preview, current-build native proof/restart integration and explicit desktop
+  Review next session / Approve October 21 continuation / separate host enable. Old host grants
+  cannot inherit authority; original approval/memory and cumulative allowance remain preserved.
+- [x] Validate continuation/transport/carry with 252 focused and 2,702 full serial offline passes,
+  nine native SQL skips; Debug/initial normal Release compile pass. Compact carry storage preserves
+  the exact original risk hash and fits the saved-data shape under the existing risk-event limit.
+- [x] Finish compact-record normal Release rebuild/handoff after operator normal closure: source
+  c27a3cf8, output hashes recorded at 20:50 Toronto, zero running owners/no launch or copied runtime.
+  Source/offline checks do not qualify actual October 21 recovery or financial approval; all nine
+  checks/close expiry remain. [Manual steps](running.md#october-21-only-normal-continuation).
+- [x] Accept the current-readiness simplification: completed broker tests stay development evidence,
+  with no new daily qualification packet/test-ID qualification reread/verification restart (ADR-0095).
+- [x] Validate/build the changed current-account/risk/source/storage/dated-permission review and
+  original-request recovery: 243 focused/2,723 full serial offline passes, nine native SQL skips;
+  normal WPF Release passes after zero running owners are independently checked. No app launch,
+  SQL rehearsal/migration or broker action. Preserve all financial history and execution controls.
+- [x] Accept/implement the small operator-path simplification: skip paper-work waits for setup
+  opening, saved readiness refresh and host enable only; correct stale running instructions.
+  Review/approval/execution admission and all timing/financial controls remain. 274 focused offline
+  tests and standard Release build pass after verified zero owners; no app launch or native operation.
+  [Finding and tradeoff](reviews/delphi-live-continuation-contract-20261021.md#accepted-operator-path-simplification--october-20).
+- [x] Complete October 21 pre-open read-only checks through 09:06 Toronto: nightly stages succeeded,
+  daily OfficialPaper input Valid for today/prior October 20 data, immutable storage verified, and
+  broker check succeeds after operator sign-in with zero holdings/pending orders and matching history.
+  One responding normal-Release owner is observed after operator startup/rebuild. [Evidence/limits](project-status-history-20261101.md#october-21-pre-open-readiness).
+  This does not qualify the fresh Normal/account/risk review, save permission or activate execution.
+- [x] Accept/implement October 21-only pre-open review/approval and separate host arming, preserving
+  current account/risk/storage/definition checks and requiring fresh matching source/account at open.
+  No pre-open tick/order; exact date/build/ceiling/history/holds and 16:00 cutoff remain. [ADR-0096](adr/0096-pre-open-october21-approval-and-armed-host.md).
+- [x] Validate 284 focused/2,738 full serial offline passes (nine native skips) and standard Release
+  build after operator normal Stop/closure and independently verified zero owners. [Evidence](project-status-history-20261101.md#october-21-pre-open-approval-implementation).
+- [x] Observe operator normal updated-output startup and all five native pre-open review checks,
+  explicit continuation approval and Armed host UI. Hash-verified 09:22 SQL read confirms revision 50,
+  pre-open flag/today's scope/exact 16:00 expiry/no automatic orders or positions; one responding
+  owner matches both tested output hashes. [Native evidence](project-status-history-20261101.md#october-21-pre-open-approval-implementation).
+- [x] Verify actual post-open execution with the hash-matched 09:37 read: StrategyEvaluated at
+  09:31:41/09:32:50, revision 56/Active/today's permission/no saved blocks or automatic orders/positions.
+- [x] Create the operator-requested same-chat five-minute read-only execution/blocker/order watch,
+  bounded through today's close/final report/self-removal. [Scope and first evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
+- [ ] Observe sustained current execution, automatic order/fill behavior when eligible, and exact cutoff. Earlier all-nine-check/
+  verification-restart implementation/validation above remain historical under ADR-0095.
+- [x] Detect/report the new 10:51 over-ten-minute real-evaluation/source stall with safe observation
+  deadline error52232 at 10:43; distinguish it from SQL-2 and keep guards/expiry unchanged.
+  [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch). Recovery remains unverified at that read.
+- [x] Verify recovery at the 10:56 read: source10:51:52 and real evaluation10:52:16/revision110,
+  twenty evaluations/no saved execution blocks/orders/fills/positions; roughly12½-minute gap.
+  Preserve history/controls/16:00 expiry; sustained reliability remains unverified.
+- [x] Detect/report repeated observation deadline error52232 at11:07:47 and verify bounded recovery
+  at11:16:46/revision119 after a roughly12-minute gap,23evaluations/no saved blocks or orders.
+  Include the recurrence in tonight's unresolved reliability investigation; no control/expiry change.
+- [x] Verify third deadline error52232 at11:37:51 and real recovery11:46:51 at11:49 read:
+  roughly12-minute gap,27evaluations/no orders or saved execution blocks,unchanged16:00expiry.
+- [x] Diagnose the October 21 no-order question with bounded read-only evidence through 09:45:51:
+  SQL evaluation-save timeout/roughly 13-minute execution gap, then recovery at 09:45:45/revision 59;
+  all 37 Normal candidates Watching/immature/unconfirmed, no saved account blocks or orders.
+- [ ] Establish the exact SQL evaluation-save timeout cause and agree any correction before changing
+  the running system. [Open investigation](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026).
+- [x] Establish the upstream no-buy reason with11:43–11:46 read-only evidence:zero of35published
+  stocks admitted to Normal; all50lens entries first fail Breadth. Monitored momentum confirmation
+  cannot substitute for daily admission. Correct earlier confirmation-only explanations; gates stay.
+  [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
+- [x] Record operator deferral of the partial SQL reliability fix until tonight and create the
+  21:00 Toronto one-time reminder. Source remains uninstalled/incomplete; preserve today's running
+  build/gates/risk/16:00 expiry. [Progress and limits](project-status-history-20261101.md#october-21-post-open-execution-watch).
+- [x] Verify continued operation at 10:10:31: twelve real evaluations/latest 10:09:39, no saved
+  execution blocks or orders; two candidates start strong confirmation, all 37 remain unconfirmed.
+  Sustained operation/fills/cutoff remain unchecked above; historical coverage gap is preserved.
+- [x] Trace the two original confirming candidates through 10:15 using a hash-verified 10:18 read:
+  both lose confirmation on the 10:10 bar and return to Watching; neither confirms. Fifteen real
+  evaluations/latest 10:16, no saved execution blocks/orders/fills/positions. [Evidence](project-status-history-20261101.md#october-21-post-open-execution-watch).
+- [ ] Optional follow-up, not an October 21 prerequisite: review the broad paper/import settings-lock
+  coupling and agree a narrower coordination scope before code. [Rationale/open proposal](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026).
+- [x] Inspect the real execution-status/buying-permission UI paths in the dedicated October 20
+  session: Running follows an Active cycle result, purchase blockers remain independent, and shared
+  account/paper waits can delay new status. No code or operational validation in this checkpoint.
+- [x] Agree the small activity/permission display and ordered setup scope, including the five-minute
+  display-only stale warning. [ADR-0094](adr/0094-real-tfsa-execution-status-presentation.md).
+- [x] Draft requested design documents before code: account/setup wireframes, state/permission
+  wording and offline acceptance cases. [Design draft](concepts/real-tfsa-execution-ui-design-draft.md).
+- [x] Verify the design preview offline: 60 screen/state/width checks, bundled icons and normal/
+  narrow visual review; no WPF runtime or financial qualification is inferred.
+- [ ] Review layout/wording with the operator, then implement and validate offline, coordinating
+  normal closure before replacing loaded standard output.
+  [Request/open questions](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026);
+  automatic application startup remains deferred. Separately accepted October 21 pre-open host arming
+  is implemented above; it creates no next-day authority.
+- [x] Observe the expected October 21 regular-session-only refusal in the operator's October 20
+  evening screenshot. No checkpoint, account/source qualification or approval follows from this
+  after-hours check; restarting does not remove the date restriction.
+- [x] Prepare desktop-only bounded review admission and exact failed-input diagnostics, retaining
+  unchanged Core workflow/qualification identity. Seventeen focused/2,676 full serial offline tests
+  pass, nine native skips; Release WPF compile passes. No native financial operation is inferred.
+- [x] Verify operator normal closure/process exit and install the two corrected UI output files in
+  standard Release output, October 20 at 14:41 Toronto. All 123 other runtime hashes and protected
+  checkpoint/packet hashes remain unchanged; no host permission. No app started by installation.
+- [x] Verify normal-output restart (PID 118432, corrected UI/original Core hashes) and observe saved
+  approval confirmation. Packet present/host permission absent at that check; separate operator
+  enable/native initial evaluation are subsequently verified above.
+- [x] Honor normal checkout startup: all code is on `master`; put/hash-verify the 125 captured runtime
+  files in normal Release output, retaining identical Core hash and existing checkpoint. Persist/
+  verify the same reviewed calendar as an approved Windows user setting. No source/proof change.
+- [x] Restart from normal project output with `dotnet run --project TraderVI.WPF -c Release --no-build`
+  for this checkpoint; exact build/process verification recorded above. Normal build-enabled command
+  is the default before future qualification.
+- [ ] Remove obsolete generated outputs only after native recovery and reviewed cleanup scope.
+- [x] Identify the performance-copy retry timeout overlapping active Live work; implement interactive
+  queued idle wait/elapsed status with close-to-cancel before account checks, retaining admission,
+  existing financial close guards and the noninteractive host wait. Nine focused/2,668 full serial
+  passes, nine native skipped/WPF Release. No source, fence or financial guard change.
+- [x] Launch separate setup-wait copy 2cf08c33 at 12:27:51, PID 78688, after operator normal closure
+  and verified prior exit; all 125 manifest files/calendar match, one exact owner/no authority/packet/
+  checkpoints. Both performance fixes remain included. Native interactive acceptance is unverified.
+- [x] Observe successful readiness/carry-preview UI in that copy; sustained capacity and native
+  source/same-copy qualification remain unverified; manual carry save/readback UI is observed above.
+- [x] After explicit TFSA-session switch approval, normally close standard Release PID 61768 and
+  open reviewed performance copy 30775d12 (includes 55e429d5), 11:53:41 Toronto, PID 102648. Verify
+  124 manifest files/calendar, one visible responding owner, no authority/packet/dated checkpoints.
+  No financial action. Actual carry preview, source and new same-copy recovery remain unchecked.
+- [x] Verify actual capture UI success/dated file presence in the corrected copy as above. Offline
+  tests alone did not establish it; native post-restart packet qualification remains separate.
+- [ ] Collect actual native order qualification/cash-only baseline,
+  protected checkpoint and same-executable post-restart readback. Complete actual native packet,
+  review all nine checks, then operator financial approval/host activation. General production and
+  native partial/uncertain/power-loss qualification remain outside this first-day contract.
+
+A checked item means only the named action is complete. Agreed, implemented, tested, installed and
+operationally verified are different states; the [status tables](project-status-history-20261101.md#implemented-versus-operational)
+record them. A prepared migration or passing test never proves broker readiness.
+
+### Done
+
+- [x] Install and qualify the reusable read-only broker diagnostic helper (October 18, ADR-0093):
+  frozen standalone code, exact-request guard, encrypted observations and narrow saved launcher rule.
+  Fifty-four offline cases, four policy checks and the installed seven-request read pass; no orders,
+  refresh or saved-login change. Existing chats must reload/use the helper. This closes diagnostic
+  access setup only; market/risk/source qualification, reconciliation and activation remain separate.
+
+- [x] Install and verify the reusable local read-only SQL diagnostic path (October 18, ADR-0091):
+  restricted loginless principal, syntax-limited helper outside sandbox-writable roots and narrow
+  saved invocation rule. See [status](project-status.md) for 33 offline/12 native checks, backup and
+  installed-read evidence. Existing chats must reload rules; broker reads and live activation remain separate.
+
+- [x] Implement/test the AI Momentum API/proposal foundation (September 26, ADR-0087): explicit
+  disabled factory, bounded Astra Responses client, shared durable spending reservations and strict
+  portfolio proposals with explained discretionary exceptions. Forty synthetic cases are included
+  in the Core suite; [status](project-status.md) records validation. This does not run a portfolio.
+
+- [x] Implement/test the shared learning journal, supervisor consultation and execution-preparation recheck
+  (September 26, ADR-0087). Version-2 decisions assess every consulted lesson; consumer intervals and
+  review state persist across restart; 23 synthetic cases pass in the full Core suite. This source
+  has no order transport or installed scheduler.
+
+- [x] Build independent paper portfolios and manual complete-strategy selection for recommendations
+  (ADR-0062); this does not submit orders.
+- [x] Connect TFSA reads, link the permanent account and verify native saved-history refresh (ADR-0080).
+- [x] Implement/test resolved external-order projection, atomic real-ledger receipts and signed-in
+  desktop synchronization (ADR-0084).
+- [x] Install migration 040 after verified backup and the corrected desktop; verify the reported
+  broker-confirmed exit, historical completion, repeat-refresh duplicate prevention and current holdings.
+- [x] Build manual market buy/sell clients and controls; native mutation/lifecycle verification remains.
+- [x] Agree regular-session whole-share market handover: preserve overlaps and reconcile required exits
+  before new buys (ADR-0079); preserve known references/holds, real costs and protection ownership (ADR-0081).
+- [x] Implement/test initial risk-reference preparation, reviewed saving and uncertain-save recovery.
+- [x] Implement/test dated value reading, actual boundary-book valuation and durable daily references/holds
+  for positively verified intervals without deposits/withdrawals (ADR-0083). This is source completion,
+  not completion of operational item 1 below.
+- [x] Agree and implement percentage-preserving cash-flow adjustments using matched account books,
+  preserving holds and preventing duplicate application/restart resets (ADR-0083).
+  [Validation and source limits](project-status-history-20261101.md#verified-development-baseline).
+- [x] Implement/test exact comparison-profile review, actual broker position/cash projection and
+  shared synchronization/continuation orchestration; native risk source remains unqualified.
+- [x] Implement/test protection transfer/replay, immutable supervised approval, exit-before-buy,
+  original-order recovery and concurrency/duplicate prevention; prepare migration 040.
+- [x] Add an account setup review screen and production composition reusing existing broker clients,
+  journal and gates. Source integrated into the normal checkout; native setup review and activation remain.
+- [x] Install migrations 035/039/040 under operator authority after a verified backup/copy; verify empty
+  storage, trusted constraints, immutable triggers and preserved account records (Sep 22, 23:34 Toronto).
+- [x] Agree portfolio-wide promotion and ongoing assignment until pause/switch (ADR-0085); design only.
+- [x] Agree manual buys remain outside the active strategy by default, with optional purchase-dialog
+  handover and a later holding action, including explicitly adopted extra positions managed under
+  existing sell rules without consuming automatic strategy slots (Sep 23, ADR-0085). Controls and role
+  separation are not implemented; capital and transfer checks remain. Same-stock manual additions and
+  split ownership are deferred at the operator's request; continue the agreed common path.
+- [x] Implement/test shared account/history synchronization, five-minute background scheduling,
+  manual/post-trade refresh coalescing, cancellation and failure backoff (Sep 23). Existing link only;
+  native refresh/persistence is observed September 25; automatic order recovery remains separate.
+- [x] Agree stopping new automatic purchases while ordinary exits continue, retaining Market sell all
+  on real holding rows (Sep 23, ADR-0085). Full execution pause remains distinct.
+- [x] Agree restoring the same approved strategy and saved buying mode after fresh account/order checks
+  on app restart; stopped buying stays stopped (Sep 23, ADR-0085).
+- [x] Implement/test Core purchase-mode persistence and same-session recovery: 16 added cases cover
+  stopped buys with active exits, failed checks, partial fills, lost saves, concurrent stop and original-ID
+  recovery. Existing JSON storage needs no migration; the following increments extend this milestone.
+- [x] Implement/test explicitly scoped ongoing Daily Shadow assignment, checked daily continuation,
+  preserved cumulative ceiling, prior-day protection/closing-exit recovery, build-identity checks and
+  rejection of unsupported families before execution approval (Sep 23). Existing one-day approvals expire.
+- [x] Implement/test/install the ADR-0109 bounded Delphi Live ongoing no-transfer agreement, automatic
+  daily risk continuation, checked grant restoration, combined initial approval/start and saved pause
+  controls, preserving legacy authority and financial references/ceiling/orders/protection (October27).
+- [x] Implement/test/install the explicitly approved fixed broker-ask 0.25% movement / 0.50% spread
+  policy; durable episode reference, bounded sizing and restart/rejection preservation. Old rejected
+  events lack price/timestamp values, so the cause remains unproven.
+- [x] Complete post-laptop-restart Real integrity verification/qualified scoped resolution and bounded
+  broker history/holdings/pending checks (October27 09:52); preserve Paper restrictions and trading Off.
+- [x] Save Joseph's explicit initial ongoing app approval (October27, confirmed09:58).
+- [x] Verify corrected nightly publication and prospective adoption by the approved Real source
+  (October27, effective10:20); unchanged model/configuration/policy match.
+- [x] Observe the approved engine evaluating fresh recovered inputs (October27 10:27:40, no confirmed
+  entry signal); missing/stale candidate data is rejected individually.
+- [ ] Verify native multi-day/first-fill/protection operation; current account/source checks remain mandatory.
+- [x] Inspect current confirmation/collection contracts and perform bounded native minute-source checks
+  (October27 10:42–10:47): fresh advancing bars exist, but candidate gaps remain. Schedule the requested
+  same-day signal/source watch. [Evidence](reviews/independent-engine-implementation-20261022.md#october-27-minute-source-qualification--live-samples-and-follow-up).
+- [ ] Qualify sustained minute freshness, coverage/no-trade/correction semantics and candidate-scale
+  capacity; decide the source contract. Neither an old delayed sample nor one fresh sample settles it.
+- [x] Prepare/test source-independent minute evidence handling: original arrival/deadline, exact completed
+  timestamp selection, no reread advancement or late backfill promotion, persistent conflict across
+  serialization/reload. This pure component is not installed or connected to a collector/publication.
+- [x] Prepare/test explicit-duration minute window aggregates and four five-minute measurement legs;
+  preserve20/60/120/180-minute horizons, opening warm-up and causal missing/late/conflict rejection.
+  These offline components do not replace V1 bars or qualify a production indicator/source contract.
+- [ ] Implement and validate consistent minute collection/storage/publication/evaluation with immutable
+  timestamp identities, no repeated/unfinished-bar confirmation and unchanged longer indicator horizons.
+- [ ] Explicitly review the updated strategy before activation. Installed five-minute behavior remains.
+- [x] Connect saved strategy/mode display and stop/resume to the TFSA panel; restore after linked-account
+  refresh at startup and during polling. Verify stale/login/assignment changes and uncertain saves offline.
+  This control path has no approval/order transport and starts no execution loop. The native panel's
+  empty-assignment state is observed September 25; populated assignment recovery remains unverified.
+- [x] Rehearse the actual managed-session SQL repository in a separate synthetic database: precise
+  snapshot readback, exclusive ownership, stopped-buy restoration, interrupted append rollback and
+  original-ID recovery after uncertain saves/submissions, and partial-exit reconciliation before buys.
+  Parent tables are ID-only fixtures; this
+  does not qualify baseline/continuation storage or actual broker fills.
+
+### AI Momentum delivery sequence
+
+Keep this same ten-step list and its plain-language subpoints current at each milestone.
+**Built/tested** means source code is ready, not that the AI is operating. **Verified** names the
+specific check completed; it does not imply full trading readiness. Dated evidence belongs in
+[project status](project-status.md); priorities belong in the [roadmap](roadmap.md).
+Detailed agreed behavior remains binding in [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md),
+[design rules](design-rules.md) and their linked execution decisions. AI Explorer remains deferred.
+This checklist grants no deployment, paid API call or live-order authority.
+The October 17 [Dots alternative](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026)
+remains unresolved as an API replacement; one historical Dot wait proposal is returned/validated,
+with factual reasoning checked and selection/switching still unqualified. The same paper input,
+protection, execution, recovery and validation requirements apply whichever AI connection is chosen.
+
+#### Delivery milestones
+
+These milestones group the same ten steps below. Steps 7 and 8 have an initial version for Milestone 1
+and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
+All three milestones remain pending. Step 7's review scheduler, saved-state recovery, model-requested
+timing and Core coordinator are built/tested; SQL review storage is installed with native roundtrip checks.
+Opt-in desktop startup is built/tested. Private setup and one connected review with SQL readback and
+recorded usage are verified October 1. Dependency repair and the authorized pipeline recovery restored
+the October 1 publication to all 15 portfolios; two ungated Continuation choices had usable AI context at 10:57.
+Other choice-specific evidence/admission blocks and Athena's Attention result remain explicit. Installed
+successful recurring runtime verification remains pending. The follow-up review test assembled four eligible choices
+but exceeded the existing input-token limit before generation. The concise view now fits that saved
+packet under the same limit. The authorized October 9 concise review returned a validated wait for
+all-unavailable choices, with exact SQL/local records and recorded cost. Empty learning was explicitly
+continued through today's close. Eligible selection and continuous readiness remain unqualified; old
+scheduling explanations are now explicitly dated. Native startup, blocked-attempt timing, bounded stop and disabled restart pass. The approved v3 omissions are built/tested and the largest revised saved example fits the cap; fresh model interpretation and desktop installation remain pending. One fresh v3 review is authorized but its preflight is blocked by stale invested-account prices. Restore qualified held-stock valuation, then qualify v3 and recurring successful reviews before adding basic display.
+Persistent collection and invested-coverage qualification remain separate dependencies.
+Step 3's connected check verifies cash-only persistence/recovery;
+receipt timing is fixed and verified. One invested saved-Shadow value passed under the October 1
+test bound; normal held-stock coverage and faster-price qualification remain open. The possible
+Wealthsimple AI fallback is deferred and lower priority; return to
+the main reviewer delivery work while preserving existing stale-input blocks.
+
+| Milestone | What you can use | Checklist work needed |
+|---|---|---|
+| **1 — Visible AI reviewer** | The app reads verified paper-account inputs, runs scheduled AI portfolio reviews and shows proposals, reasons, freshness and spending. It does not execute trades. | Reuse Steps **1–2** and the built risk core in **4**; finish the paper-input path in **3**, the basic review runtime and bounded API verification in **7**, and the review/status display in **8**. |
+| **2 — Complete, tested AI paper trader** | The AI manages a paper account with enforced protection, simulated execution, portfolio switching, outcome learning and recovery. | Complete the paper scope across Steps **3–9**, including the remaining action/protection work in **4**, execution in **5**, learning in **6**, full runtime/controls in **7–8**, and connected validation in **9**. |
+| **3 — Supervised live AI trading** | The approved AI strategy manages the real account through verified broker execution and protection. | Complete Milestone **2**, the real-account/cash-event portions of **3–5** and applicable live runtime/controls in **7–8**, then the qualification and explicit activation in **10**. |
+
+Milestone 1 is the next visible delivery target. Lesson criteria remain deferred until Step 6 needs
+them. Real-account prerequisites remain required for Milestone 3; a paper milestone does not check
+off mixed paper/live items in full. Keep dependencies and individual completion marks below; independent
+runtime/display development can proceed while native input qualification remains open.
+
+#### Ten-step implementation checklist
+
+1. **Foundation — built and tested offline.**
+
+   - [x] Build the AI client and structured portfolio proposals.
+   - [x] Track spending, reserve call costs and enforce the budget.
+   - [x] Save decisions and supporting evidence in scoped journals.
+   - [x] Let the supervisor and execution preparation consult saved evaluated lessons.
+
+2. **Operating framework — agreed; sufficient to build.**
+
+   - [x] Include all current strategy portfolios and variants; add future integrated portfolios through the catalogue.
+   - [x] Agree continuous 5% / 3% / 1% rounds, trailing limits, buying allowance, the 10% approval hold and stock protection.
+   - [x] Agree switching, review timing, event-triggered reviews, monthly budget behavior and outage recovery.
+   - [x] Agree to preserve holdings, tighter stops, risk history and attempts across days, cash periods and portfolio switches.
+   - [ ] Define useful-lesson criteria **only when Step 6 needs them**; deliberately deferred, not a coding blocker.
+
+3. **Connect reliable data — in progress; continuous invested-price coverage pending.**
+
+   - [x] Build the maintained portfolio catalogue and map exact strategy, model and gate versions.
+   - [x] Connect saved Delphi signals, engine rules and account-specific activity to dated AI input packets.
+   - [x] Connect complete paper-account readers and broker evidence adapters to shared risk checks; keep candidate balances separate.
+   - [x] Verify saved cash, holdings and calculated values across all 15 installed paper portfolios.
+   - [x] Repair symbol resolution/source adoption and verify current cash-only Shadow observations without changing history.
+   - [x] Check saved and faster prices: delays and uneven minute coverage are measured; sampled gaps are consistent with quiet trading. [Dated evidence](project-status-history-20261101.md#latest-operational-evidence).
+   - [x] Build/test the one-minute price adapter with separate price/check times and rejection of stale, missing or failed reads.
+   - [x] Build/test combined paper values from faster prices, verified cash and every holding; retain evidence and reject changed accounts or mixed price times.
+   - [x] Save combined values through the risk journal; test history preservation, explicit source handover, repeat prices, lasting conflict blocks and restart recovery.
+   - [x] Verify after-hours rejection for all 15 real paper accounts and reopen isolated diagnostic journals; no prices or risk transitions accepted.
+   - [x] Run the connected market-hours check; verify cash-only values save/reopen correctly and blocked reads grant no buying allowance. [Dated results and limits](project-status-history-20261101.md#latest-operational-evidence).
+   - [x] Diagnose missing/old or differently timed held-stock bars and post-price trades; preserve their valuation blocks.
+   - [x] Fix the SQL/app receipt-clock discrepancy and verify locked account-read timestamps without loosening freshness.
+   - [x] Check TMX quotes as an alternative: sampled last sales can be old, and bid/ask has no verified quote timestamp. [Dated evidence](project-status-history-20261101.md#latest-operational-evidence).
+   - [x] Inspect existing connections: Wealthsimple's manual quote reader includes bid/ask and a source-time field; portfolio-price suitability is unverified.
+   - [x] Obtain approval, prepare/test the bounded broker quote diagnostic and verify its saved login; pre-open checks request no quotes.
+   - [x] Run both market-hours broker samples; record complete held-stock quote coverage, declared ages and changed times/prices. [Results and limits](project-status-history-20261101.md#latest-operational-evidence).
+   - [x] Check public timestamp documentation: real-time snapshots are described, but the exact API field meaning remains undocumented in the reviewed sources.
+   - [x] Clarify scope: TMX stays normal; accepted timestamp uncertainty applies only to possible limited AI fallback exploration.
+   - [ ] **Deferred / lower priority:** consider Wealthsimple only for AI review of a held stock when its TMX input is delayed/unavailable; agree fallback behavior when resumed.
+   - [x] Accept and persist the selected invested Shadow book under the ten-minute first-review bound (October 1); continuous coverage is not qualified.
+   - [ ] Qualify reliable held-stock price coverage; verify fresh invested values save and recover correctly.
+   - [ ] Qualify freshness, continuous coverage and recovery before scheduling recurring value checks.
+   - [ ] Resolve collection failures and distinguish them from quiet trading; never make old prices look fresh or silently change ordinary engine bars.
+   - [ ] Verify native account-read consistency during trading; qualify real-account cash events separately with matching before/after accounts.
+   - [ ] Connect recurring qualified observations through Step 7; no operating AI data loop exists yet.
+
+4. **Trading decisions and protection — partly built.**
+
+   - [x] Build and test continuous rounds, trailing thresholds, buying allowance, required closure and qualified re-entry.
+   - [x] Save risk history and test restart recovery without resetting peaks, attempts or existing holds.
+   - [ ] Add stock-level buy, add, hold and sell proposals, with permitted sizing and recorded exceptions.
+   - [ ] Enforce each action against the chosen engine, account limits and existing stops; never loosen established protection.
+   - [ ] Integrate the shared AI risk rules without changing ordinary portfolios or creating competing execution paths.
+   - [ ] Apply qualified deposit/withdrawal adjustments while preserving loss percentages, history and protection.
+   - [ ] Verify protection continues independently of AI availability and review timing, using genuinely fresh complete values.
+
+5. **Execution and portfolio switching — pending.**
+
+   - [ ] Send validated actions through the existing execution system, rechecking permission immediately before execution.
+   - [ ] Keep compatible holdings, actual costs and existing tighter stops when switching portfolios.
+   - [ ] Confirm and reconcile required sales before replacement buys; log the switch reason and exact versions.
+   - [ ] Preserve risk state and protection ownership through handover, including all-cash transitions.
+   - [ ] Recover uncertain orders using their original identities; keep paper and real histories separate.
+
+6. **Outcome-based learning — pending.**
+
+   - [ ] Review completed decisions once after each trading session; keep immature or inconclusive cases pending.
+   - [ ] Compare actual outcomes with clearly labelled simulated alternatives, including blocked protection changes.
+   - [ ] Agree useful-lesson criteria when needed, then save qualified lessons with evidence, versions and expiry.
+   - [ ] Verify later decisions consult those lessons within the shared budget; learning cannot change hard limits.
+
+7. **Runtime host — partly prepared.**
+
+   - [x] Connect/test the Core review coordinator: gather existing inputs, call the existing reviewer and save input/answer evidence through a SQL repository; no execution or approval workflow.
+   - [x] Prepare SQL review storage and migration 042; build the database schema project.
+   - [x] Install authorized migration 042 after a verified backup; verify native SQL saves, duplicate handling and recovered-answer saves with no test rows left behind.
+   - [x] Select and uniquely match Breakout 3 with skipped daily gates as the first cash/holdings source; other portfolio choices remain available to the AI.
+   - [x] Prepare masked local API-key entry, presence-only checks and a query for the selected portfolio's current cash/holdings and saved reviews.
+   - [x] Locate the existing Oracle user-secrets credential and confirm its suffix matches the operator screenshot (September 30, read-only; no API call).
+   - [x] Load Oracle's existing credential in Core and verify requested-model metadata access (September 30); no paid generation or portfolio submission.
+   - [x] Agree first-review cost accounting: CAD 90 monthly cap, 1.60 CAD/USD and 20% tax/fee headroom through October 31.
+   - [x] Connect opt-in app startup/shutdown to a background review host with shared/scoped history ownership; test cancellation and failure handling.
+   - [x] Build/test explicit first-time preparation and a one-review command that leaves automatic reviews off and preserves existing/interrupted history.
+   - [x] Inspect the selected book during market hours (October 1); verify recent saved marks are present before initialization.
+   - [x] Accept the ten-minute first-test input age and initialize protected private history with automatic reviews disabled.
+   - [x] Complete one connected review, verify exact SQL/local input and answer, and record token usage and conservative cost (October 1).
+   - [x] Diagnose missing signals across all 15 choices: nightly dependency restore stopped before today's daily publication was created.
+   - [x] Repair the Hermes/Delphi/Athena dependency locks and pass isolated nightly restore/build validation without running operational stages.
+   - [x] Run the authorized pipeline recovery and verify today's valid publication is adopted by all 15 portfolios (October 1); Athena separately reports two invalid outcomes.
+   - [x] Verify restored AI context with read-only engine readers: ungated Continuation 3/5 permit proposals; remaining choices preserve their admission/evidence blocks.
+   - [x] Test a review with restored signals: 15 choices/four eligible were assembled, but the input-token limit rejected generation; verify saved rejection and unchanged spending (October 1).
+   - [x] Build/test the concise review view; preserve eligibility, rules, current holdings/risk, missingness and full saved source packets. Verify the failed packet fits the unchanged token cap using count-only access.
+   - [x] Build/test explicit continuation of expired, always-empty learning for a later open session; preserve all history and refuse pending reviews. No automatic renewal or production write (October 2).
+   - [x] Inspect the operator's collector-warning screenshot and prepare/build a bounded two-target provider diagnostic; exception type is known, cause remains unverified (October 2).
+   - [x] Run the authorized two-target diagnostic: reproduce timestamp-alignment rejection on the reported-failure target; verify XIU returns the requested bar. Provider-versus-parser cause and separate cycle failure remain unresolved (October 2).
+   - [x] Run the authorized single-target follow-up: the later window returned no exact completed bar, without reproducing the exception. No offending timestamp captured and no recovery established (October 2).
+   - [x] Build/test fixed-window provider diagnosis for a repeat of the same completed interval; preserve session/alignment/delay checks. No new provider request (October 9).
+   - [x] Run the authorized fresh concise-input review with renewed empty learning and the ten-minute test ages; verify wait interpretation, tables/shared references, exact SQL/local evidence and cost (October 9). No eligible choice was available, so selection remains unqualified.
+   - [x] Label the retained interval reason with its original time and historical role; regression-tested after the October 9 model identified old holding narrative. Included in the prepared desktop test copy; that test generated no new model answer.
+   - [x] Capture an alignment-failing response and distinguish provider data from parsing (October 9); verify the initial provider contract and install the qualified correction (October 14, ADR-0089). Continuing coverage remains under the separate unchecked qualification items below; further provider requests need authorization.
+   - [ ] Trace remaining Breakout/Live evidence blocks and Athena's invalid outcome reasons without treating publication receipt as entry permission.
+   - [x] Build/test a process-only desktop qualification run capped at two new attempts or ten minutes; preserve disabled saved settings and await cancellation cleanup (October 9, 73 focused tests).
+   - [x] Verify native startup, two-minute blocked-attempt scheduling, automatic stop after two attempts, journal release, normal shutdown and disabled restart in the prepared desktop copy (October 9). No paid generation occurred; exact SQL/local rejection records match.
+   - [x] Build/test lossless v2 table defaults and short shared references, with expansion equality before transmission; preserve distinct account permissions and original response identities. Seven saved packets render; 64 focused tests pass (October 9).
+   - [x] Run one authorized v2 count-only check on the last saved desktop request; its count falls from 46,780 to 36,235, still above 32,000. This proves reduction, not admission or model interpretation.
+   - [x] Measure compressed request space by category offline, including shared definitions and instruction/schema overhead, to support the operator's reduction discussion (October 9; character shares, not token counts or accepted omissions).
+   - [x] Implement/test the approved v3 engineering-field omissions and minimal unavailable-choice notices, including small requests and unavailable active choices; preserve independent managed-account/risk/learning context and full audit sources (October 9, 139 focused tests).
+   - [x] Verify one authorized count on the largest revised saved request (four eligible choices): 11,859 tokens, below 32,000. Seven saved examples render; no v3 generation or installation (October 9).
+   - [x] Prepare the authorized October 17 Dots saved-input replay: frozen October 1 packet, current v3
+     instructions/schema, unchanged original journal and ten offline validator checks. Private bundle
+     and [procedure](running.md#dots-one-saved-input-replay) are ready; no execution.
+   - [x] Validate the returned Dot `wait` against the saved packet: JSON schema, packet/evidence IDs,
+     empty overrides/learning assessments and two-minute timing pass; 16 factual checks and manual
+     reasoning review find no explicit hard-rule violation. No selected choice/version is exercised.
+     Preserve the pre-review-attention circularity caution; wait is allowed, not compelled by eligibility.
+     Historical acceptance does not qualify current trading, selection/switching or unattended operation.
+   - [ ] Qualify compact-input capacity across continuing sessions without raising the cap; saved-request success does not bound future growth or additional eligible choices.
+   - [x] Obtain one fresh v3 review authorization and run SELECT-only preflight (October 9, 13:49-13:51 Toronto); invested-account valuation and latest saved bar are stale. No review/generation attempt or extra spend; authorization remains unused.
+   - [x] Trace saved held-price updates and current Live/Shadow collection (October 9, about 14:00-14:02 Toronto): collectors continue, but held-symbol Shadow requests fail and the position mark is stalled; saved codes do not establish the exact exception cause. See project status.
+   - [x] Run the authorized two-target fixed-window TMX diagnostic (October 9, 14:21 Toronto): both requests reject off-grid five-minute timestamps; no timeout or SQL/journal mutation. The grant is consumed; see project status.
+   - [x] Build/test bounded timestamp-only inspection (47 focused tests) and run the authorized same-window comparison (October 9, 14:30 Toronto): off-grid times are present in TMX source text and mapping preserves them in this sample; XIU's aligned row is rejected with its extra off-grid row.
+   - [x] Run the authorized narrow one-/five-minute comparison (October 9, 14:51 Toronto; four read-only requests). Missing minute components prevent full aggregation verification; keeping aligned rows is not qualified. No acceptance change applied.
+   - [x] Verify the authorized full-session provider contract comparison and implement/test stable context with explicit supplementary exclusion (October 14, ADR-0089; 69 exact complete aggregates, no mismatches).
+   - [x] Identify native receipt-clock rejection, test actual-store-time waiting and install the corrected WPF build under restart authority (October 14; source validation and limits in project status).
+   - [x] Observe three completed Live cycles and current held-value recovery after restart; identify/test
+     sparse trailing-record handling with the separately authorized four-request comparison (October 14).
+   - [x] Install/verify the sparse refinement's first scheduled cycle, complete current Live marks and
+     continuing Shadow held-price updates (October 14); absent exact bars and canonical conflicts remain.
+   - [ ] Qualify continuing Live/Shadow collection and complete invested valuation through the agreed
+     input path without loosening freshness or substituting a source. One recovered mark is not
+     continuous coverage or qualification of the separate AI risk reader; the v3 review remains unqualified.
+   - [x] Investigate missing-bar coverage and implement/test live observation-time end context plus
+     stale-source receipt metadata (October 14, ADR-0089).
+   - [x] Install/verify that follow-up's first scheduled collection and complete current Live marks
+     (October 14, 11:14–11:15); source gaps cannot become synthetic prices.
+   - [ ] Use the unconsumed bounded-review authority once current inputs qualify; verify fresh v3 interpretation, unavailable-choice notices, original identities, SQL/local records and cost. No v3 model answer or qualified desktop installation yet.
+   - [ ] Verify repeated successful desktop reviews and native in-flight shutdown after the input fix; the blocked-attempt test does not qualify these or continuous operation. Further paid tests need authorization.
+   - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
+   - [x] Build and test local risk-journal persistence and recovery.
+   - [x] Build/test the single-session review scheduler: configurable daily checkpoints, bounded 1–15-minute intervals, combined events and one review at a time.
+   - [x] Connect explicit test ticks to the existing learning-aware reviewer; retain trigger evidence and test budget failures, stale results and fresh-review recovery.
+   - [x] Build/test account-scoped scheduling history; preserve pending events, timing and blocks through restart and reviewed session changes.
+   - [x] Record interrupted reviews without retrying their old call IDs or releasing spending reservations; require fresh review after recovery.
+   - [x] Connect validated AI requests for the next review (1–15 whole minutes plus a reason); save accepted timing with the completed review.
+   - [x] Agree a five-minute initial interval and checkpoints at open, open+3h and close-15m; AI-requested intervals remain 1–15 minutes.
+   - [ ] Run qualified account observations, independent protection and AI reviews automatically in shared Core code.
+   - [ ] Verify scheduled/event reviews in the connected host; keep protection independent of paid reviews and their failures.
+   - [ ] Enforce outage/budget review blocks in the execution path; resume new risk only after fresh review and all other checks.
+   - [ ] Protect storage and qualify backups, retention, performance, concurrent access and reviewed source-conflict recovery; schedule restart-safe learning reviews.
+   - [ ] Support explicit budget increases without resetting spending; remove the current cap restriction only through that reviewed flow.
+   - [ ] Verify API access, latency and actual costs through a bounded separately authorized call, including currency/tax headroom.
+
+8. **UI and controls — pending.**
+
+   - [ ] Show the selected portfolio, holdings, proposals, decisions, exceptions and lessons.
+   - [ ] Show actual round opening/current/peak values, trailing limits, buying allowance, stock stops and attempts remaining.
+   - [ ] Show every active hold, remaining room, data freshness, spending, review timing and operating status.
+   - [ ] Provide stop-new-buys, portfolio-switching, explicit budget-extension and eventual live-activation controls.
+   - [ ] Distinguish daily pauses, carried rounds, pending exits and approval holds; a countdown never promises automatic permission.
+
+9. **Complete paper validation — pending.**
+
+   - [ ] Test selection, stock actions, switching and learning together without real orders.
+   - [ ] Test stale/missing data, outages, exhausted budgets, concurrent events and restarts.
+   - [ ] Measure actual API costs and decision quality; synthetic tests alone do not establish either.
+   - [ ] Resolve failures and document the remaining limits before live qualification.
+
+10. **Live qualification and activation — pending.**
+
+    - [ ] Verify real account values, cash events, opening/drawdown references and broker order handling.
+    - [ ] Confirm protection ownership and recovery with real holdings under the existing broker prerequisites below.
+    - [ ] Review concrete activation evidence and the exact account, strategy and limits.
+    - [ ] Enable only the explicitly authorized supervised run and verify its outcomes.
+
+### Left to do — development order
+
+AI Momentum and learning are tracked once in the [milestones and ten-step list above](#ai-momentum-delivery-sequence).
+The prerequisites below cover the broader real-account execution work and remain required for Milestone 3.
+
+- [ ] **1. Complete risk-tracking source qualification.** Daily and percentage-preserving cash-flow
+  continuation are implemented/tested. Qualify complete broker event coverage, effective cash timing
+  and matching account books, then native morning timing and each family's existing valuation definition.
+  The activity capture does not establish effective cash timing; cumulative totals and chart points
+  alone are insufficient. This item remains open for source qualification and integration.
+  Existing holds persist. No new late-start-only buy pause is agreed.
+- [ ] **2. Finish initial operational setup.** The source screen presents references and preserved
+  holds. Migrations 035/039/040 are installed. Managed-session SQL readback/leases/interrupted-save
+  recovery is rehearsed; next exercise baseline/continuation repositories and verify saving/recovery of
+  initial and daily references. The source screen
+  does not establish an operational baseline.
+  Verified initial setup remains mandatory before operational use.
+- [ ] **3. Verify the broker-input cutover operationally.** The isolated source now projects reconciled holdings,
+  actual costs, cash/buying power and orders. Preserve position identity through partial sales; distinguish
+  closed/reopened holdings. Preserve linked history, installed migration 034 and existing protections.
+- [ ] **4. Verify synchronization natively.** Offline tests cover manual/external changes, partial/new fills, stale or
+  conflicting observations and uncertain orders. Reserve cash/shares once; unconfirmed sales supply no funds.
+  Shared recurring account/history refresh (five minutes), manual/post-trade refresh and visible
+  stale/error states are source/tested. September 25 integrates the newer resolved-trade/memory fixes
+  with these controls. The operator confirms the native panel and a successful combined refresh;
+  SQL shows repeated imports with trade-sync receipts about 5m30s apart. Rate limits, failures,
+  longer coverage and original-order recovery remain. Preserve fresh preflight.
+  September 24 resolved whole-share projection and signed-in desktop polling were verified: the reported
+  external exit is recorded once, its tracked holding is closed, historical missing trades are completed
+  and repeat refresh preserves trade counts. Working partial orders, corrections and unsupported financial
+  representations remain blocked; incremental-fill/correction handling and broader cash/order reservation
+  integration remain. Preserve pinned legacy-ledger checks.
+  [Evidence](project-status-history-20261101.md#verified-development-baseline).
+- [ ] **5. Complete protection handover.** Retain the existing owner through transition; at activation
+  transfer overlaps without losing established levels. Initialize missing protection only from real cost
+  and fresh evidence; no invented historical highs or reset of known holds.
+- [ ] **6. Verify the supervised execution host.** Source persists the exact approved strategy and transition state;
+  use existing market-order functions with duplicate prevention, uncertain-response and restart recovery.
+  Confirm/reconcile required non-overlap exits before new buys. Preserve independent paper history.
+- [ ] **6a. Complete portfolio-wide ongoing management.** Implement the agreed common path:
+  separate automatic positions from extras managed for exits, transfer boundaries and known in-app orders,
+  qualified automatic execution-host startup and replacement. Saved TFSA controls and Core ongoing
+  recovery are source/tested; the panel's empty state is observed, but populated real-assignment
+  recovery remains unverified. Reuse the existing manual
+  row sale and verify coordination with managed orders. The current
+  session invalidates even an in-app manual fill; automatic adoption of those fills remains a proposal.
+  Extend the current Daily Shadow execution/protection adapter to both portfolio families; verify
+  cross-family handover and native multi-day recovery. No silent upgrades of one-day approvals.
+- [ ] **7. Qualify and verify automation.** Establish strategy/evidence readiness, perform separately
+  authorized native order/lifecycle tests, then explicitly authorize real execution. Recommendation-only
+  approval under ADR-0062 retains its separate evidence policy; it does not qualify automation.
+
+**Immediate installed Delphi Live increment:**
+
+- [x] October 27: first managed purchase is reconciled; the existing holding and original protection
+  survive the explicitly reviewed repair/restart. Native checks through 15:20 confirm two usable broker bids,
+  advancing completed-bar protection and no account/valuation blocks on buying.
+- [ ] Verify sustained protective bid cadence, an actual protective exit/fill and native multi-day
+  continuation without weakening holds. A passing protection check does not prove a sale or fill.
+
+The bounded
+no-transfer agreement is explicitly accepted; a complete native cash-flow feed remains unqualified.
+One-minute source qualification is a separate dependency before its strategy successor.
+
+**Broader portfolio follow-on:** qualify the native cash-event/boundary-book evidence producer and
+opening values, alongside baseline/continuation SQL runtime recovery. Managed-session SQL recovery is
+rehearsed; background synchronization and the TFSA panel's empty state are observed natively.
+The bounded Delphi adapter/startup is now installed; cross-family handover, general adoption/replacement
+and native qualification remain. Do not reopen deferred rare cases.
+Storage is installed; baseline/continuation runtime recovery remains distinct from the completed
+schema/immutability checks and managed-session rehearsal.
+The orchestration and production composition exist; they cannot manufacture those inputs.
+Then complete the fresh financial activation packet and supervised host rollout. See
+[ADR-0086](adr/0086-supervised-broker-strategy-session.md) and the
+[concrete activation review](reviews/supervised-session-20260923.md).
+The [current design draft](concepts/strategy-promotion-and-execution.md#account-baselines-and-protection-ownership--september-16-continuation)
+and [ADR-0083](adr/0083-opening-account-values-and-shared-engine-hosting.md) hold detailed reasoning.
+Optional older-history import remains a proposal; no historical reset is approved.
+
+## Operational follow-through
+
+- [ ] Revisit the operator's important [intraday-gain retention research goal](reviews/open-questions.md#intraday-gain-retention-revisit-soon)
+  soon and carry it into future strategy/risk work. Individual progressive trailing is the confirmed
+  design direction below; operating policy is unapproved and whole-portfolio protection stays background.
+- [x] Review the original September 18 saved paper export offline (October 17): reproduce prior
+  checkpoints/cash/shares/closes, separate held-position and later-position contributions and measure
+  price-time/coverage limits. [Results](reviews/intraday-gain-evidence-20261017.md). No new collection or rules.
+- [x] Extend the saved-evidence audit to all 15 paper accounts through October 16, separating profiles,
+  cash days, fixed-time values and complete peak paths. October 17 SELECT-only export/offline checks
+  reconcile all cash books and 192 stored Shadow closes. [Broader findings](reviews/paper-gain-patterns-20261017.md).
+- [x] Record the operator's stock-level measurement choice: day-move and profit since purchase
+  separately; later purchases begin at actual entry, with no credit for earlier unowned moves.
+- [x] Complete the bounded **stock-level** saved-evidence review (October 17): 235 directly checked
+  held-through-noon position-days, later purchases, complete-path later highs and a five-stock day
+  walkthrough. [Findings/coverage](reviews/stock-gain-paths-20261017.md). No new SQL or collection.
+- [x] Record confirmed individual-winner direction: a shrinking trailing percentage gap as purchase
+  profit grows, with protecting profit prioritized over post-sale upside. Compare DSV/ARE using complete
+  saved paths, without stop/fill simulation. [ADR-0090](adr/0090-progressive-individual-profit-trailing.md).
+- [x] Retain original bands for design after operator review: +1.5%/+3%/+5% with 1%/0.75%/0.50% gaps;
+  no morning/noon adjustment selected. Later implementation authorization is recorded below.
+- [x] Record the operator's subsequent design choice: completed five-minute stop raises and a sale
+  trigger on the first fresh observed price at or below the established stop, without waiting for a
+  close. Newly raised stops apply only to later observations; close studies do not test touch returns.
+  [Contract](adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
+- [x] Record all-portfolio scope, including and especially Delphi Live. Fresh bid is the touch input.
+- [x] Record the highest completed five-minute close since purchase and inclusion of existing holdings
+  as soon as the strategy is enabled; preserve stronger existing protection.
+- [x] Agree adaptive bid timing: five/one minutes outside/within 0.25% above the stop, a new quote per
+  check and at most 60 seconds since receipt. Design only; no current-market-age guarantee.
+- [x] Review the current Live quote chain and independently recheck the September 29 saved probe:
+  no bid-update time, 22 quotes/zero positive bid-ask pairs; freshness remains unqualified.
+  [Source finding and limits](adr/0090-progressive-individual-profit-trailing.md#quote-source-freshness-check--october-17-2026).
+- [x] Reconcile design readiness: the operator defers the extra market-hours/source-guarantee study
+  as an implementation prerequisite. The source limitation remains explicit; later source/test
+  authorization does not authorize installation or activation.
+- Deferred/non-blocking: further bid-source freshness investigation. Local receipt age, changing prices
+  or a delayed last-trade timestamp alone do not prove market age; do not turn this into a new gate.
+- [x] Receive implementation authorization, retaining deferred quote investigation and disabled defaults.
+- [x] Implement shared progressive calculations and durable Live bid/stop integration, including
+  bid-only exits, separate fill quotes and persisted adaptive polling.
+- [x] Complete Shadow/recommendation and supported managed-account integration: 166 focused tests including Practice,
+  final full Core suite (2,422 pass/eight skips), WPF and SSDT builds pass October 17.
+- [x] Define prospective policy identities and safe initialization/handover for existing holdings,
+  retaining stronger floors, earned gaps and pending protective sells. Fixed comparison accounts
+  permit only the narrow progressive successor; original profiles/history remain immutable.
+- [x] Test synthetic fresh-bid touch triggers, restart recovery, combined purchases and prospective
+  policy guards. This is source/test evidence, not upstream freshness or operating qualification.
+- [x] Receive October 18 installation/enablement authorization, create checksum-verified backup and
+  hash-matched copy, and test the narrow paused-invested-account rollout path (59 focused tests).
+- [x] Install additive migration 043 and comparison-guard migrations 044/045 after verified backup.
+  No trigger is disabled and no profile is rewritten.
+- [x] Install hash-verified desktop binaries and assign prospective opt-ins to all 15 active paper
+  portfolios October 18. Verify saved protection for 37 holdings, stronger stops, pending sells,
+  financial history and comparison profiles; restore original entry controls.
+- [x] Verify the responsive installed host/Core hash, post-start state and off-session quote-only wake
+  (zero signals, unchanged orders/quote observations). [Evidence](project-status-history-20261101.md#reference-map-and-maintenance).
+- [ ] Observe normal regular-session polling/touch execution when available; weekend checks do not
+  prove continuous market coverage or bid-trigger returns. Quote investigation remains deferred.
+- [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete
+  single-purchase Shadow records, 53 distinct non-DSV paths; independently check actual/model fill prices,
+  first crossings and commitment timing. [Results](reviews/progressive-trailing-trade-study-20261017.md).
+- [x] Assess saved larger winners without changing bands: entry-based ARE/AGI exercise +3%; separate
+  conditional already-held ARE/CAS windows exercise +5%. Independently verify 24 scenario crossings/fills.
+  [Scope/results](reviews/progressive-trailing-trade-study-20261017.md#larger-winner-extension-3-and-5-bands).
+- [x] Compare the authorized 10 a.m./noon schedule, two nearby alternatives and a tighter all-day control
+  with the original using frozen stock evidence. Reproduce 83 baseline cases and independently check
+  415 scenario outcomes. [Mixed results/recommendation](reviews/progressive-trailing-trade-study-20261017.md#time-of-day-gap-comparison):
+  retain original bands as baseline; time-based tightening remains a candidate, not an adopted rule.
+- [x] Agree add-on design: one combined holding, updated average cost, preserved price stop/high and
+  tightest earned gap; one common protective exit. Source/arithmetic walkthrough only, not implemented.
+- [x] Run the bounded saved add-on comparison from actual entry: seven supported records/six cost
+  histories, six included add-on transitions and four earlier exits independently verified. ARE keeps
+  +1.58%/+1.93% after adding; its delayed-add account exits before buying more (+2.64%). MATR/CAS
+  are unchanged below activation. [Results/limits](reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison).
+  Earlier protection retains less than the actual ARE sale. No +5%/0.50% band is reached in these
+  modeled paths. Operating timing/version decisions remain unchecked above; no policy is implemented.
+- [x] Compare five-minute and fifteen-minute completed-price stop raises with five-minute closing-price
+  breach checks in both. Reproduce all 85 prior five-minute baselines and independently verify 170
+  scenario outcomes. Of 61 distinct closed histories, four favor five-minute updates, one (DSV)
+  fifteen-minute, 56 are equal; add-on ARE is unchanged. [Method/results](reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates).
+  This completes the bounded comparison, not selection/implementation of operating cadence or low/bid inputs.
+- [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun
+  ([dated success evidence and remaining limits](project-status-history-20261101.md#latest-operational-evidence)).
+- [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,
+  active lease renewal and the first completed collection; record its failures rather than qualifying coverage
+  ([runtime evidence](project-status-history-20261101.md#latest-operational-evidence)).
+- [x] Verify saved adoption by all four original Shadow portfolios and a same-day price for the remaining
+  open holding (October 8 records, checked October 9); this does not qualify complete ongoing coverage.
+- [x] Verify October 8 intraday records despite reported laptop downtime: 78 scheduled cycles and 1,753
+  bars exist, but receipt failures and an Incomplete / Blocked Live session remain.
+- [x] Verify October 13 current-source adoption by all three Live and twelve Shadow accounts and bounded
+  WPF responsiveness/runtime progress; this does not qualify uninterrupted collection or valuation.
+- [ ] Qualify uninterrupted monitor/cycle operation after the installed October 14 corrections;
+  bounded recovered cycles do not erase the October 13 failures or historical Blocked coverage.
+- [x] Capture current per-stock exceptions in the running app: October 13 traces correlate all eight
+  failed 11:30 requests with five-minute timestamp-alignment rejection and confirm repetition at 11:35.
+  This bounded diagnosis does not establish the aggregation contract or every historical failure.
+- [ ] Qualify remaining sparse-stock availability, canonical conflicts and the invested rules-only
+  Live account's missing opening value. The initial provider-contract and native receipt-clock causes
+  were identified/corrected October 14; continuing collection and distinct monitor failures still need evidence.
+- [ ] Diagnose why the sleeping/hibernating host missed the overnight wake despite WakeToRun being enabled;
+  automatic morning recovery does not establish overnight reliability. No power/task settings changed.
+- [x] Verify recovered latest daily endpoints for ILLM/RCTR: all 483 active symbols have October 9 bars
+  in the October 13 read-only audit. Historical feature exclusions/completeness remain separate.
+- [ ] Review Athena's older missing-session outcomes separately from successful daily collection;
+  preserve invalid evidence and do not infer intraday or strategy-performance qualification from nightly completion.
+- [x] Measure database allocation, staging backups and repository storage without changing production
+  data (September 23; [evidence](project-status-history-20261101.md#latest-operational-evidence)).
+- [x] Complete the user-authorized one-time cleanup of obsolete artifact binaries; verify retained
+  evidence and model/source hashes (September 23; [evidence](project-status-history-20261101.md#latest-operational-evidence)).
+- [ ] Review recurring build/artifact retention; the one-time cleanup did not install a policy.
+- [x] Complete the separately user-authorized one-time SQL shrink after a fresh verified backup and
+  integrity check; retain growth headroom and verify every table count afterward (September 23, 23:55;
+  [evidence](project-status-history-20261101.md#latest-operational-evidence)). No automatic shrink enabled.
+- [ ] Perform a documented restore into a separate test database. The pre-shrink backup is checksum/hash
+  verified and OneDrive reports IN_SYNC; neither an independent download nor restore drill has run.
+- [ ] Resolve the current held Live opening-value gap and tracked 15-minute conflict; verify subsequent
+  complete monitoring sessions without rewriting first-received evidence or clearing historical gaps.
+  [Last health evidence](project-status-history-20261101.md#latest-operational-evidence).
+- [ ] Finish native opening-value qualification and the actual setup/continuation caller before treating
+  offline valuation tests as operational account references.
+- [ ] Extract shared Core into a standalone host and arrange pre-session Windows Task Scheduler startup
+  with one active owner; no such host/task was installed by the valuation increment.
+
+## Remaining audit work
+
+These identifiers retain the [September 6 audit](reviews/strategy-direction-alignment-20260906.md)
+and original dependency meanings. They do not reorder the execution steps above. Reverify the affected
+source before implementation; historical phase labels are not new priorities or authorization.
+
+| Identifier | Remaining work / boundary |
+|---|---|
+| F1 | Supported candidate-only training/selection is implemented; review legacy activation/mutation paths and immutable whole-strategy ownership. |
+| F5 | Reverify or retire the unsupported unlinked Ghost CLI route while preserving operator Real monitoring. |
+| F6 | Complete typed Hermes per-source completion semantics; required SPY failure handling alone is insufficient. |
+| F8 | Bind pending Athena outcomes to immutable historical label/cohort definitions; preserve prior meanings. |
+| D1 | Broker projection and durable supervised workflow source/tested; qualified native inputs and operational rollout remain. |
+| D2 | Reverify saved Shadow policy dispatch, generation/pending-order loading and persisted friction; preserve V1 and prior fills. |
+| D3 | Read-only native reads pass; synchronization/order recovery tested offline. Native order and SQL runtime qualification remain. |
+| S1 | References, mapping and protection transfer source tested; qualify native risk producer and actual ownership before cutover. |
+| S2 | Reconcile published versus eligible consumers without changing entry gates; a published Hold is not a Buy. |
+| S3 | Make Oracle cache identity/replacement correct; Oracle gains no trading authority. |
+| S4 | Bound account-history CPU/memory and establish capacity. October 20 worker/display correction 55e429d5 and serialization follow-up 30775d12 are separately installed, execution off/both prior copies preserved. Four follow-up wakes have bounded UI timing but no clear full-cycle speedup; snapshot/protection/action cost remains substantial. Further history-cost investigation/fix explicitly deferred by operator, retaining integrity/freshness, both copies/history, execution off and separate validation/switch boundaries. Actual setup idle/interactive acceptance and sustained memory/capacity remain open. Same-copy recovery still requires fresh proof. [Evidence/steps](reviews/desktop-paper-responsiveness-20261020.md). |
+| S5 | Improve Core boundaries incrementally after consequential contracts are protected. |
+| S6 | Broaden CI host coverage beyond existing five-host checks; retain failure propagation. |
+| S7 | Resolve short sessions/calendar coverage before 2026-12-24, including carried-position protection. |
+| S8 | Complete source/concurrency/full-watchlist capacity qualification; daily schedule/input repair is partial evidence. |
+
+F2 (dated inputs), F3 (loaded-byte provenance), F4 (post-fill valuation), F7 (CI failure propagation)
+and S9 (observed SPY requirement) have their source/adoption evidence in the
+[archived findings register](strategy-alignment-history-20260922.md#findings-and-dependencies).
+That completion does not prove historical artifact semantics, independent calendar continuity,
+complete session coverage or strategy superiority. F1's supported workflow and D1's recommendation
+milestone are also recorded there; their remaining scope stays visible above.
+
+## Four-screen UI redesign — October 18 design track
+
+October 30 shell follow-up, governed by [ADR-0094](adr/0094-real-tfsa-execution-status-presentation.md#october-30--accepted-dashboard-placement):
+
+- [x] Accept and implement Status overview plus an Engine page, removing Trading's execution side
+  panel while preserving command/account guards and separate readiness/history evidence.
+- [x] Validate the isolated WPF build, focused presentation tests and offline layouts at minimum,
+  default and wide desktop widths; [status](project-status.md) owns the evidence and limitations.
+- [x] Install the header/Engine page with the authorized dashboard-only restart, preserving background
+  process identities and retained runtime/permission files; see October 30 installation in status.
+- [ ] Review the Engine page visually in the running dashboard. Header/navigation accessibility is
+  observed, but native screenshot/coordinate capture timed out; this does not complete operator review.
+
+- [x] Recover the existing account-first Trading and independent-paper comparison contracts; inspect
+  current screen source and record the operator's preference for fresh, clearer main layouts first.
+- [x] Prepare provisional Focus/Workspace concepts across Trading, Portfolios, Delphi and Delphi Live
+  using fictional data; wrapper generation and script syntax checked. This is not WPF implementation
+  or browser/viewport verification.
+- [x] Select Workspace and Trading-first refinement; place both Buy/Sell in the holding panel.
+- [x] Prepare the Trading-only main-layout concept; wrapper/script syntax checked, not visually verified.
+- [x] Agree Trading's overall overview/strategy/holdings-and-panel/activity arrangement.
+- [x] Prepare two gains/performance overview treatments; wrapper/script syntax checked only.
+- [x] Select Performance first and integrate it into the full Trading concept; wrapper/script syntax checked.
+- [x] Agree Today as default with an Overall option; after removing the Trading title/right-hand
+  badge, remove the whole account heading block and compact overview figures/spacing in the single-account
+  draft. Draft controls are wired locally; wrapper/script syntax
+  checked only, with browser interaction verification pending.
+- [x] Remove net deposits from the concept overview; retain account value/cash and existing financial records/calculations.
+- [x] Select shares in the panel only and prepare the four-column holdings concept (Stock, Position value, Open gain, Strategy status).
+- [x] Prepare a panel refinement grouping position facts before strategy explanation and both Buy/Sell; wrapper/script checks only.
+- [x] Accept the position/strategy panel grouping; request clear Hold/Sell reasons without repeated “saved strategy evaluation” wording.
+- [x] Prepare decision/reason/evidence/next-trigger examples, with Await data and submission state distinct; wrapper/script checks only.
+- [x] Agree one selected strategy dropdown at the portfolio placeholder for manual switching; wire local fictional table/panel context together.
+- [x] Accept explanation treatment and confirm queuing old-only exits when checks allow, including at a loss, with protection/shared holdings retained and required exits reconciled before buys.
+- [x] Authorize Trading-only WPF implementation; leave other tabs/views/pages unchanged.
+- [x] Implement compact Today/Overall overview, four-column holdings and selected holding manual Buy/Sell panel; retain missing facts as unavailable.
+- [x] Connect the strategy dropdown to the existing exact-source transition preview, with unsupported comparisons disabled and the actual selection restored after review.
+- [x] Validate .NET 10 WPF build, 194 focused tests and four synthetic renders/interaction checks with no binding errors; source/offline evidence only.
+- [x] Rebuild normal Release output and launch under the operator's explicit request; PID 20036 responsive October 18 at 22:16 Toronto, with output hashes recorded.
+- [x] Obtain the operator's October 19 running-layout feedback: move the right-hand selected holding above the grid and make it horizontal. Screenshot feedback does not establish broker/execution qualification.
+- [x] Implement the horizontal panel, full-width table and compact empty state; WPF build and six synthetic renders/selection/width checks pass October 19, with no binding errors.
+- [ ] Install and review the horizontal layout in the running desktop; no restart was performed by this UI pass.
+- [ ] Complete real switching/execution and qualified Hold/Sell source integration under existing account/protection/handover contracts; exact portfolio remains deferred.
+- [ ] Confirm target desktop dimensions and remaining Trading visual details.
+- [x] Agree Wealthsimple's previous-close one-day definition; inspect captured native simple returns and implement/test a separate display reader with amount/rate/reference/as-of and dated prior-day headings. 233 focused checks and WPF build pass October 18.
+- [ ] Verify current native daily-read availability and compare the displayed return with Wealthsimple. Captured/offline evidence is not current operational verification; missing Today must never use Overall.
+- [ ] Install the daily-performance increment with the next combined rebuild/restart; operator explicitly chose to wait for concurrent strategy-switching work.
+- [x] Explain the recorded original Live paper book plus the Normal/Portfolio rules only comparison
+  pair, independent ledgers and existing comparison promotion exclusion from source/ADRs only.
+- [x] Record explicit deferral of portfolio choice; clarify one engine/three paper portfolios again.
+- [ ] Choose the exact portfolio later (operator-deferred); preserve actual account history and existing
+  comparison eligibility/family/AI scope unless separately changed. This does not block UI refinement.
+- [x] Choose Portfolios as the next main-layout refinement; acceptance is recorded below.
+- [ ] Refine the remaining Delphi and Delphi Live main layouts; their order is open.
+- [ ] Then design detailed drill-downs and preserve existing feature, source/mode, missing-data and
+  consequential-action coverage before implementation. In-panel lookup for an unheld stock is provisional.
+- [x] Validate this Trading implementation offline. Other screens and full execution integration remain
+  separate; no operational rollout or execution readiness follows from the UI implementation.
+
+The [existing workspace draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft)
+owns the decision record. Detailed views are deliberately sequenced after the main visual layout;
+browser security blocked local-file preview, so layout/interaction verification remains pending.
+
+## Portfolios Strategy workspace — October 23
+
+- [x] Accept Strategy workspace as the default and Account directory as the secondary view,
+  preserving left application navigation under [ADR-0108](adr/0108-strategy-workspace-and-independent-account-evidence.md).
+- [x] Implement separate Paper and linked Real cards, source/version relationship, approval versus
+  host state, and per-stock lifecycle/check/outcome/next-action evidence with independent timestamps.
+- [x] Retain Paper trade history, existing performance periods/reference scope, exact-source TFSA
+  review eligibility and the separately labelled recommendation review. Missing facts remain unavailable.
+- [x] Verify the WPF build, focused account-evidence tests and offline XAML renders/navigation with
+  synthetic data and no binding errors. Detailed validation state is in [project status](project-status-history-20261101.md#portfolios-strategy-workspace--october-23-source-checkpoint).
+- [x] Install this increment through the operator-requested normal Release rebuild/restart on October 24;
+  dashboard responsive, engine Running and execution Off. See [installation evidence](project-status-history-20261101.md#portfolios-strategy-workspace--october-24-installation).
+- [ ] Review Portfolios in the running desktop at the operator's actual dimensions. Screen capture
+  timed out during the install check; subsequent user input ended UI automation. Installation and
+  offline rendering do not establish broker-execution qualification.
+
+## Authority and evidence
+
+Read [design rules](design-rules.md), relevant accepted ADRs and [AGENTS.md](../AGENTS.md) before
+behavioral work. The [original authority/evidence record](strategy-alignment-history-20260922.md#original-audit-phases-and-evidence)
+preserves past approvals and limits; it grants no fresh database, training, market-service or order
+authority. Existing positions, rule identities, historical labels and independent paper evidence remain
+intact. Keep detailed new validation in linked reports and current state in project status, rather than
+appending another chronology here. The earlier documentation cleanup performed no operational checks;
+the later execution increment has separately dated test/native-read evidence in project status.
