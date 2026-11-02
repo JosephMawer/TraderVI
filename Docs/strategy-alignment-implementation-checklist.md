@@ -994,8 +994,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
   native partial/uncertain/power-loss qualification remain outside this first-day contract.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
-operationally verified are different states; the [status tables](project-status-history-20261101.md#implemented-versus-operational)
-record them. A prepared migration or passing test never proves broker readiness.
+operationally verified are different states; [current status](project-status.md) records the latest
+dated evidence. The [earlier status table](project-status-history-20261101.md#implemented-versus-operational)
+is historical. A prepared migration or passing test never proves broker readiness.
 
 ### Done
 
@@ -1006,9 +1007,15 @@ The following acceptance items remain open; completed source or installation wor
 - [ ] Verify native multi-day/first-fill/protection operation; current account/source checks remain mandatory.
 - [ ] Qualify sustained minute freshness, coverage/no-trade/correction semantics and candidate-scale
   capacity; decide the source contract. Neither an old delayed sample nor one fresh sample settles it.
-- [ ] Implement and validate consistent minute collection/storage/publication/evaluation with immutable
-  timestamp identities, no repeated/unfinished-bar confirmation and unchanged longer indicator horizons.
+- [ ] Qualify the complete minute collection/storage/publication/evaluation path with immutable timestamp
+  identities, no repeated/unfinished-bar confirmation and unchanged longer indicator horizons. The
+  collector is installed and the one-minute publisher is staged; native source/cutover qualification and
+  explicit adoption remain open. [Dated evidence](project-status.md#operating-state-and-immediate-risks).
 - [ ] Explicitly review the updated strategy before activation. Installed five-minute behavior remains.
+- [ ] Complete the agreed manual-buy handover controls and role separation, with capital and transfer
+  checks. Same-stock manual additions and split ownership remain deferred (ADR-0085); the earlier
+  design agreement did not establish implementation.
+
 ### AI Momentum delivery sequence
 
 Keep this same ten-step list and its plain-language subpoints current at each milestone.
