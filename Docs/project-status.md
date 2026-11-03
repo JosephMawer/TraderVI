@@ -12,7 +12,10 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   checks confirmed two TFSA holdings and matching broker order history. The dashboard showed
   its empty 11:56 snapshot after refresh failed. A tested dashboard change reads holdings and
   balances separately when trade synchronization throws and dates retained holdings when a
-  current read is unavailable. The failing synchronization step has not been identified.
+  current read is unavailable. Dashboard repair `2476438f` was installed in the standard Release
+  folder with a dashboard-only restart. The reopened Trading page showed two holdings and a
+  successful account-history update. The engine and collector retained their process IDs.
+  The original failing synchronization step has not been identified.
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
   standard Release path in build-review mode, connected to the broker. The collector retained
