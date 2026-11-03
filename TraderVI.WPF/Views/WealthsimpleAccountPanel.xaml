@@ -53,8 +53,16 @@
       </Style></DataGridTextColumn.ElementStyle>
      </DataGridTextColumn>
      <DataGridTextColumn Header="Position value" Binding="{Binding Value}" ElementStyle="{StaticResource TradingCell}" Width="120"/>
-     <DataGridTextColumn Header="Gain/loss on cost" Binding="{Binding GainOnCost}" SortMemberPath="GainAmount" ElementStyle="{StaticResource TradingCell}" Width="128"/>
-     <DataGridTextColumn Header="Return on cost" Binding="{Binding GainRate, StringFormat=P2, TargetNullValue=—}" ElementStyle="{StaticResource TradingCell}" Width="112"/>
+     <DataGridTextColumn Header="Gain/loss on cost" Binding="{Binding GainOnCost}" SortMemberPath="GainAmount" Width="128">
+      <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource TradingCell}">
+       <Setter Property="Foreground" Value="{Binding GainColor}"/>
+      </Style></DataGridTextColumn.ElementStyle>
+     </DataGridTextColumn>
+     <DataGridTextColumn Header="Return on cost" Binding="{Binding GainRate, StringFormat=P2, TargetNullValue=—}" Width="112">
+      <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource TradingCell}">
+       <Setter Property="Foreground" Value="{Binding ReturnColor}"/>
+      </Style></DataGridTextColumn.ElementStyle>
+     </DataGridTextColumn>
      <DataGridTextColumn Header="Strategy status" Binding="{Binding StrategyDecision.Status}" ElementStyle="{StaticResource TradingCell}" Width="125"/>
     </DataGrid.Columns>
    </DataGrid>

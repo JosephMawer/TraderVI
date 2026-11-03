@@ -285,6 +285,14 @@ public sealed class WealthsimpleHoldingRow(WealthsimpleHolding holding, Wealthsi
     public string GainOnCost => GainAmount is { } gain
         ? new WealthsimpleMoney(gain, holding.Value!.Currency).ToString() : "—";
     public decimal? GainRate => holding.BookValue is { Amount: > 0 } cost ? GainAmount / cost.Amount : null;
+    public string GainColor => PerformanceColor(GainAmount);
+    public string ReturnColor => PerformanceColor(GainRate);
+    private static string PerformanceColor(decimal? value) => value switch
+    {
+        > 0 => "#55D68B",
+        < 0 => "#FF8585",
+        _ => "#E8EEF6"
+    };
     private TradingHoldingDecision strategyDecision = TradingHoldingDecision.Describe(null, null);
     public event PropertyChangedEventHandler? PropertyChanged;
     public TradingHoldingDecision StrategyDecision

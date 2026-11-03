@@ -60,6 +60,22 @@ public sealed partial class WealthsimpleAccountTests
     }
 
     [Fact]
+    public void HoldingsColorEachAvailablePerformanceValueByItsOwnSign()
+    {
+        var holding = new WealthsimpleHolding("FIX", "Fixture", "EQUITY", 2, new(20, "CAD"), new(18, "CAD"), null);
+        var gain = new WealthsimpleHoldingRow(holding);
+        var loss = new WealthsimpleHoldingRow(holding with { Value = new(16, "CAD") });
+        var flat = new WealthsimpleHoldingRow(holding with { Value = holding.BookValue });
+        var missing = new WealthsimpleHoldingRow(holding with { Value = null });
+        var zeroCost = new WealthsimpleHoldingRow(holding with { BookValue = new(0, "CAD") });
+        Assert.Equal(("#55D68B", "#55D68B"), (gain.GainColor, gain.ReturnColor));
+        Assert.Equal(("#FF8585", "#FF8585"), (loss.GainColor, loss.ReturnColor));
+        Assert.Equal(("#E8EEF6", "#E8EEF6"), (flat.GainColor, flat.ReturnColor));
+        Assert.Equal((flat.GainColor, flat.ReturnColor), (missing.GainColor, missing.ReturnColor));
+        Assert.Equal((gain.GainColor, flat.ReturnColor), (zeroCost.GainColor, zeroCost.ReturnColor));
+    }
+
+    [Fact]
     public void MissingCostOrZeroQuantityCannotManufactureAverageCost()
     {
         Assert.Equal("Unavailable", new WealthsimpleHoldingRow(new("FIX", "Fixture", "EQUITY", 0, null, new(10,"CAD"), null)).AverageCost);

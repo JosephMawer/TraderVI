@@ -20,7 +20,9 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   company name, shares held, average cost per share and gain or loss against the remaining book
   cost in both money and percent. The installed grid also shows current price per share
   beside average cost, using the snapshot's position value divided by shares held.
-  Wealthsimple supplies no quote time for that value. The engine and collector continued running.
+  Wealthsimple supplies no quote time for that value. The gain/loss and return columns show
+  positive values in green, negative values in red, and zero or unavailable values in neutral text.
+  The engine and collector continued running.
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
   standard Release path in build-review mode, connected to the broker. The collector retained
