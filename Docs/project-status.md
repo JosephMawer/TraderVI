@@ -15,7 +15,10 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   current read is unavailable. Dashboard repair `2476438f` was installed in the standard Release
   folder with a dashboard-only restart. The reopened Trading page showed two holdings and a
   successful account-history update. The engine and collector retained their process IDs.
-  The original failing synchronization step has not been identified.
+  The original failing synchronization step has not been identified. The subsequent dashboard
+  update `56cf3eb9` was installed and verified on the populated Trading grid. It shows ticker,
+  company name, shares held, average cost per share and gain or loss against the remaining book
+  cost in both money and percent. The engine and collector continued running.
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
   standard Release path in build-review mode, connected to the broker. The collector retained
