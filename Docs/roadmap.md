@@ -15,11 +15,12 @@ intentional handover without losing existing protection or financial history.
 
 ## Now — protect and qualify the operating system
 
-1. **Verify ordinary Real execution after protective-sale reconciliation**
+1. **Qualify an ordinary protective exit through reconciliation**
    ([issue #19](https://github.com/JosephMawer/TraderVI/issues/19)). The original sell reconciled,
    the approved engine passed its after-hours restart account check and the dashboard restored
-   the strategy. Both November 3 sells have reconciled once. Verify the normal restart,
-   account checks and ordinary strategy evaluation on the permanent receipt-time repair.
+   the strategy. Both November 3 sells reconciled once. Normal restart, the broker account
+   check and a fresh strategy evaluation passed on the permanent repair. Verification of a
+   future exit through ordinary reconciliation remains open.
    See the [opening evidence](project-status.md#operating-state-and-immediate-risks).
    Reducing ordinary history reads and writes
    remains a separate proposal. [November 2 investigation](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md)

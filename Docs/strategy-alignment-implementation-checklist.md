@@ -342,9 +342,9 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   sell's recovery. The [November 3 opening check](project-status.md#operating-state-and-immediate-risks)
   verified both ownership links after approval, one original request per exit and an empty
   broker portfolio. Both original sales reconciled by 10:23. The second required bounded
-  original-order maintenance. Ordinary execution on the permanently repaired build still
-  needs a normal-session evaluation.
-  The separate held-position bid investigation remains on operator hold.
+  original-order maintenance. The separate held-position bid investigation remains on operator hold.
+- [x] Verify normal restart and a fresh ordinary Real strategy evaluation on the permanent
+  receipt-time repair. The November 3 10:34 Toronto evaluation found no confirmed entry.
 - Separate proposal: reducing the regular strategy's cumulative writes and repeated broker history reads.
   The operator approved the restart switch and the grouped read comparison. A bounded sample of 100 Friday
   revisions over 22 minutes stored 489,240 bytes of manifests, used 34 distinct account

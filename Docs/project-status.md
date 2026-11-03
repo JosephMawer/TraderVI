@@ -21,7 +21,10 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   request, one managed fill, full quantity and net proceeds applied, a closed position
   and zero active compact restrictions. Repeating the command returned already reconciled.
   The permanent repair `a6110cb0` entered build review at the standard Release path at
-  10:24. Native diagnostics confirmed all 12 owned orders reconciled and no managed holdings.
+  10:24. After operator approval and separate enable, it passed the normal restart account
+  check at 10:31:04 Toronto. At 10:34:30 the strategy evaluated 38 fresh symbols from the
+  10:30 bar and found no confirmed entry. All 12 owned orders were reconciled with zero
+  managed holdings. The separate Paper recovery restriction remains.
   [Receipt-time contract](adr/0117-compact-trading-current-storage.md#november-3-clarification--protective-sell-receipt-times).
   Both original October 29 buys were fully filled and reconciled. Their original reservation
   revisions identified the same owners still saved on the positions. The first compact transfer
