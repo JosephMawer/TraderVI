@@ -14,9 +14,15 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   links, both original exit decisions and zero existing sell orders or reservations.
   Normal execution resumed at 10:02. Each exit had one original sell request. Broker history
   agreed with zero holdings and zero pending orders at 10:03, confirmed by a fresh account
-  read at 10:05. The managed account reconciled one exit. The other remained blocked because
-  its broker fill timestamp preceded the local order creation timestamp. The reason for
-  that difference remains unverified.
+  read at 10:05. One exit initially remained blocked because its broker fill timestamp
+  preceded local reservation by 85 milliseconds. Broker creation preceded its fill by 242
+  milliseconds. At 10:23 the no-submission maintenance process verified the original
+  acknowledged journal, terminal broker facts and inventory. SQL confirmed one sell
+  request, one managed fill, full quantity and net proceeds applied, a closed position
+  and zero active compact restrictions. Repeating the command returned already reconciled.
+  The permanent repair `a6110cb0` entered build review at the standard Release path at
+  10:24. Native diagnostics confirmed all 12 owned orders reconciled and no managed holdings.
+  [Receipt-time contract](adr/0117-compact-trading-current-storage.md#november-3-clarification--protective-sell-receipt-times).
   Both original October 29 buys were fully filled and reconciled. Their original reservation
   revisions identified the same owners still saved on the positions. The first compact transfer
   omitted the per-position link and subsequent approvals preserved that omission. Replaying

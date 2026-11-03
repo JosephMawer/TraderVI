@@ -341,8 +341,9 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [ ] Verify that an ordinary regular-session cycle proceeds through protection after the original
   sell's recovery. The [November 3 opening check](project-status.md#operating-state-and-immediate-risks)
   verified both ownership links after approval, one original request per exit and an empty
-  broker portfolio. One sale reconciled. The other still requires original-fill timestamp
-  verification and reconciliation before ordinary execution can be verified.
+  broker portfolio. Both original sales reconciled by 10:23. The second required bounded
+  original-order maintenance. Ordinary execution on the permanently repaired build still
+  needs a normal-session evaluation.
   The separate held-position bid investigation remains on operator hold.
 - Separate proposal: reducing the regular strategy's cumulative writes and repeated broker history reads.
   The operator approved the restart switch and the grouped read comparison. A bounded sample of 100 Friday
