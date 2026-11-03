@@ -50,10 +50,11 @@ public sealed class ExecutionReadinessView : UserControl
         heading.Text = Heading;
         heading.Visibility = Compact && !string.IsNullOrEmpty(Heading) ? Visibility.Visible : Visibility.Collapsed;
         title.Foreground = (Brush)new BrushConverter().ConvertFromString(display.Color)!;
-        title.FontSize = Compact ? 14 : 17;
-        detail.Visibility = Compact && display.Title is not ("Blocked" or "Unable to verify" or "Waiting for checks")
-            ? Visibility.Collapsed : Visibility.Visible;
-        ToolTip = Compact ? display.Detail : null;
+        title.FontSize = Compact ? 13 : 17;
+        title.TextWrapping = Compact ? TextWrapping.NoWrap : TextWrapping.Wrap;
+        title.TextTrimming = Compact ? TextTrimming.CharacterEllipsis : TextTrimming.None;
+        detail.Visibility = checkedAt.Visibility = Compact ? Visibility.Collapsed : Visibility.Visible;
+        ToolTip = Compact ? $"{display.Title}\n{display.Detail}\n{display.Checked}" : null;
         if (Content is Border border)
         {
             border.Padding = Compact ? new Thickness(0) : new Thickness(12);

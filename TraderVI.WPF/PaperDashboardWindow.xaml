@@ -134,41 +134,36 @@
     </Window.Resources>
 
     <DockPanel>
-      <Border DockPanel.Dock="Bottom" Background="#1A2029" Padding="14,8" BorderBrush="#2E3949" BorderThickness="0,1,0,0">
-        <Grid>
-          <Grid.ColumnDefinitions><ColumnDefinition Width="1.1*"/><ColumnDefinition Width="1.4*"/><ColumnDefinition Width="1.4*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-          <StackPanel Margin="0,0,20,0">
-            <Grid>
-              <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-              <TextBlock Text="Engine" Style="{StaticResource StatLabel}" Margin="0,1,10,0"/>
-              <TextBlock Grid.Column="1" x:Name="EngineOverviewText" Text="Checking…" FontWeight="SemiBold" TextWrapping="Wrap"/>
-            </Grid>
-            <TextBlock x:Name="EngineCheckedText" Text="No check received" Style="{StaticResource StatLabel}" TextWrapping="Wrap" Margin="0,6,0,0"/>
-          </StackPanel>
-          <StackPanel Grid.Column="1" Margin="0,0,20,0">
-            <views:ExecutionReadinessView x:Name="HeaderExecutionReadiness" Compact="True" Heading="Real execution"/>
-          </StackPanel>
-          <StackPanel Grid.Column="2" Margin="0,0,20,0">
-            <Grid>
-              <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-              <TextBlock Text="History checks" Style="{StaticResource StatLabel}" Margin="0,1,10,0"/>
-              <TextBlock Grid.Column="1" x:Name="HistoryOverviewText" Text="Awaiting status" FontWeight="SemiBold" TextWrapping="Wrap"/>
-            </Grid>
-            <TextBlock Text="Details and controls on Engine" Style="{StaticResource StatLabel}" TextWrapping="Wrap" Margin="0,6,0,0"/>
-          </StackPanel>
-          <Button x:Name="WealthsimpleStatus" Grid.Column="3" Margin="0,0,10,0" Padding="10,5" VerticalAlignment="Center"
-                  Style="{StaticResource WorkspaceButton}" HorizontalContentAlignment="Left"
-                  Command="{x:Static views:WorkspaceNavigationState.OpenWealthsimple}"
+      <Border DockPanel.Dock="Bottom" Background="#1A2029" Padding="10,3" BorderBrush="#2E3949" BorderThickness="0,1,0,0"
+              AutomationProperties.Name="System status">
+        <Grid VerticalAlignment="Center">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.2*"/><ColumnDefinition Width="1.1*"/><ColumnDefinition Width="1.6*"/>
+            <ColumnDefinition Width="1.35*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <DockPanel Margin="0,0,10,0" VerticalAlignment="Center" ToolTip="{Binding ToolTip, ElementName=EngineOverviewText}">
+            <TextBlock Text="Engine" Style="{StaticResource StatLabel}" Margin="0,0,5,0"/>
+            <TextBlock x:Name="EngineOverviewText" Text="Checking…" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+          </DockPanel>
+          <DockPanel Grid.Column="1" Margin="0,0,10,0" VerticalAlignment="Center" ToolTip="{Binding ToolTip, ElementName=CollectorOverviewText}">
+            <TextBlock Text="Collector" Style="{StaticResource StatLabel}" Margin="0,0,5,0"/>
+            <TextBlock x:Name="CollectorOverviewText" Text="Checking…" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+          </DockPanel>
+          <views:ExecutionReadinessView Grid.Column="2" x:Name="HeaderExecutionReadiness" Compact="True" Heading="Execution" Margin="0,0,10,0" VerticalAlignment="Center"/>
+          <DockPanel Grid.Column="3" Margin="0,0,10,0" VerticalAlignment="Center" ToolTip="{Binding ToolTip, ElementName=HistoryOverviewText}">
+            <TextBlock Text="History" Style="{StaticResource StatLabel}" Margin="0,0,5,0"/>
+            <TextBlock x:Name="HistoryOverviewText" Text="Awaiting status" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+          </DockPanel>
+          <Button x:Name="WealthsimpleStatus" Grid.Column="4" Margin="0,0,8,0" Padding="7,2"
+                  Style="{StaticResource WorkspaceButton}" Command="{x:Static views:WorkspaceNavigationState.OpenWealthsimple}"
                   ToolTip="{Binding AccessibleStatus}" AutomationProperties.Name="{Binding AccessibleStatus}">
-              <StackPanel Orientation="Horizontal">
-                  <Ellipse Width="10" Height="10" Fill="{Binding IndicatorColor, FallbackValue=#FF747D}" VerticalAlignment="Center"/>
-                  <StackPanel Margin="9,0,0,0">
-                      <TextBlock Text="Wealthsimple" FontSize="12" FontWeight="SemiBold"/>
-                      <TextBlock Text="{Binding Status, FallbackValue=Disconnected}" FontSize="10" Foreground="#ADBBCC" MaxWidth="112" TextWrapping="Wrap"/>
-                  </StackPanel>
-              </StackPanel>
+            <StackPanel Orientation="Horizontal">
+              <Ellipse Width="8" Height="8" Fill="{Binding IndicatorColor, FallbackValue=#FF747D}" VerticalAlignment="Center"/>
+              <TextBlock Text="Wealthsimple" Margin="5,0" FontSize="12"/>
+              <TextBlock Text="{Binding Status, FallbackValue=Disconnected}" FontSize="12" FontWeight="SemiBold" MaxWidth="105" TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
           </Button>
-          <Button Grid.Column="4" Content="Open Engine →" Click="OpenEngine_Click" VerticalAlignment="Center"/>
+          <Button Grid.Column="5" Content="Open Engine →" Click="OpenEngine_Click" Padding="8,3" FontSize="12"/>
         </Grid>
       </Border>
     <TabControl x:Name="MainTabs" Style="{StaticResource WorkspaceNavigation}" Background="Transparent" Foreground="#F4F7FB" BorderThickness="0" Padding="0">

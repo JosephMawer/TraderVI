@@ -17,6 +17,23 @@ public partial class PaperDashboardWindow
     private bool engineCommand;
     private IndependentEngineStatus? latestEngineStatus;
     private readonly DispatcherTimer engineDisplayTimer = new() { Interval = TimeSpan.FromSeconds(5) };
+    private bool readingCollectorStatus;
+    private async Task RefreshCollectorOverviewAsync()
+    {
+        if (readingCollectorStatus || shutdown.IsCancellationRequested) return;
+        readingCollectorStatus = true;
+        try
+        {
+            var pathFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "TraderVI", "Collector", "dashboard-status-path.txt");
+            var display = await Task.Run(() => DashboardCollectorOverview.Read(pathFile, TimeProvider.System));
+            if (shutdown.IsCancellationRequested) return;
+            CollectorOverviewText.Text = display.State;
+            CollectorOverviewText.Foreground = (Brush)new BrushConverter().ConvertFromString(display.Color)!;
+            CollectorOverviewText.ToolTip = display.Detail;
+        }
+        finally { readingCollectorStatus = false; }
+    }
     private void OpenEngine_Click(object sender, RoutedEventArgs e) => MainTabs.SelectedItem = EngineTab;
     private async void ReviewEngineSwitch_Click(object sender, RoutedEventArgs e) => await TradingRecommendationsTabView.ReviewBrokerStrategyAsync(null);
     private void RenderEngineOverview()
@@ -25,10 +42,10 @@ public partial class PaperDashboardWindow
         var display = DashboardEngineOverview.From(latestEngineStatus, DateTimeOffset.UtcNow);
         EngineOverviewText.Text = display.State;
         EngineOverviewText.Foreground = (Brush)new BrushConverter().ConvertFromString(display.StateColor)!;
-        EngineOverviewText.ToolTip = display.Detail;
-        EngineCheckedText.Text = display.Checked;
-        EngineStatusText.Text = display.Detail;
+        EngineOverviewText.ToolTip = display.Detail + "\n" + display.Checked;
+        EngineStatusText.Text = display.Detail + "\n" + display.Checked;
         HistoryOverviewText.Text = display.History;
+        HistoryOverviewText.ToolTip = display.HistoryDetail;
         HistoryOverviewText.Foreground = (Brush)new BrushConverter().ConvertFromString(display.HistoryColor)!;
         HistoryDetailText.Text = display.HistoryDetail;
     }

@@ -11,8 +11,14 @@ wait, last fresh evaluation with no qualifying signal, or a blocker and its reas
 status is not shown as ready. The engine's checks and explicit operator controls remain authoritative.
 See current status for source, installation and native verification boundaries.
 
-The full-width status bar at the bottom of the dashboard shows engine health, **Real execution**,
-history checks and the Wealthsimple connection. Choose **Wealthsimple** to manage the connection.
+The single-line status bar shows the engine, collector, real execution, history checks and
+Wealthsimple connection. Hover over a status to inspect its details. The dashboard checks the
+collector's existing status receipt every five seconds, independently of the engine. A receipt
+over two minutes old shows **Stale**. **Outside session** is a current collector report about its
+schedule. The indicator describes the last collection cycle, not per-symbol market-data freshness.
+For installation, place the absolute path of the selected collector's control-directory
+`status.json` in `%LOCALAPPDATA%\TraderVI\Collector\dashboard-status-path.txt`. Update that file
+if the control directory moves. Choose **Wealthsimple** to manage the connection.
 Choose **Open Engine** or the Engine navigation entry for engine start/stop,
 Execution setup, Stop execution host, Review switch and History checks. Older dated
 instructions below retain their historical Trading entry points; in the current installed dashboard,
