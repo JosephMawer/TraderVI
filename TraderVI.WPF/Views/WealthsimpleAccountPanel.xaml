@@ -106,19 +106,5 @@
     <TextBlock x:Name="StrategyPickerStatus" Style="{StaticResource WorkspaceLabel}" FontSize="11" Margin="0,4,0,0" AutomationProperties.LiveSetting="Polite"/>
    </StackPanel>
   </Grid>
-  <Expander Header="Recent account activity" Foreground="#E8EEF6" IsExpanded="True" Margin="0,0,0,0"><StackPanel Margin="0,8"><TextBlock Text="{Binding TradeSyncStatus}" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding OrdersStatus}" Style="{StaticResource WorkspaceLabel}" Margin="0,8,0,0"/></StackPanel></Expander>
-  <Expander Header="Account connection and tools" Foreground="#E8EEF6" Margin="0,20,0,0"><StackPanel Margin="0,10">
-   <WrapPanel><ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="DisplayName" IsEnabled="{Binding CanSelect}" MinWidth="240" MinHeight="36" Margin="0,0,12,8"/><Button Content="Refresh Wealthsimple" Style="{StaticResource WorkspaceButton}" IsEnabled="{Binding CanRefresh}" Click="Refresh_Click" Margin="0,0,0,8"/></WrapPanel>
-   <TextBlock Text="{Binding BuyingPowerText, StringFormat='Buying power · {0}'}" Style="{StaticResource WorkspaceLabel}"/>
-   <StackPanel DataContext="{Binding ManagedStrategy}" Margin="0,10"><TextBlock Text="{Binding BuyingMode}"/><TextBlock Text="{Binding Duration}" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding Status}" Style="{StaticResource WorkspaceLabel}" Margin="0,5,0,0"/>
-    <WrapPanel Margin="0,8"><Button Content="Stop new buys" IsEnabled="{Binding CanStopBuying}" Click="StopBuying_Click" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,0"/><Button Content="Resume buying" IsEnabled="{Binding CanResumeBuying}" Click="ResumeBuying_Click" Style="{StaticResource WorkspaceButton}"/></WrapPanel>
-   </StackPanel>
-   <WrapPanel><Button Content="Manual buys…" Command="{x:Static views:ManualBuyCommands.Orders}" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,8"/><Button Content="Manual sells…" Command="{x:Static views:ManualSellCommands.Orders}" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,8"/>
-    <Button Content="Reconcile account…" Command="{x:Static views:BrokerReconciliationCommands.Refresh}" CommandParameter="{Binding SelectedAccount}" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,8"/><Button Content="Import account history…" Command="{x:Static views:BrokerImportCommands.Open}" CommandParameter="{Binding SelectedAccount}" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,8"/><Button Content="Account risk setup…" Command="{x:Static services:BrokerRiskSetupCommands.Open}" CommandParameter="{Binding SelectedAccount}" Style="{StaticResource WorkspaceButton}" Margin="0,0,0,8"/>
-   </WrapPanel>
-  </StackPanel></Expander>
-  <Expander Header="Pending orders" Foreground="#E8EEF6" Margin="0,10,0,0"><StackPanel Margin="0,10"><TextBlock Text="{Binding OrdersStatus}" Style="{StaticResource WorkspaceLabel}" Margin="0,0,0,8"/>
-   <DataGrid ItemsSource="{Binding Orders}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" MinHeight="65" MaxHeight="220"><DataGrid.Columns><DataGridTextColumn Header="Stock" Binding="{Binding Symbol}" Width="85"/><DataGridTextColumn Header="Side" Binding="{Binding Side}" Width="65"/><DataGridTextColumn Header="Submitted shares" Binding="{Binding Quantity, StringFormat=0.########}" Width="145"/><DataGridTextColumn Header="Limit" Binding="{Binding LimitPrice}" Width="120"/><DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*"/></DataGrid.Columns></DataGrid>
-  </StackPanel></Expander>
  </StackPanel>
 </UserControl>

@@ -56,7 +56,7 @@ public sealed class TradingPromotionDialog : Window
             try
             {
                 var saved = await new TradingPromotionRepository().ApproveAsync(request);
-                status.Text = $"Approved for {saved.AccountLabel} at {saved.EffectiveUtc:yyyy-MM-dd HH:mm:ss} UTC. Approval {saved.PromotionId:D}. Open Trading → Main account to evaluate and inspect the result. Trading remains paused until you resume it.";
+                status.Text = $"Approved for {saved.AccountLabel} at {saved.EffectiveUtc:yyyy-MM-dd HH:mm:ss} UTC. Approval {saved.PromotionId:D}. Open Trading → Account tools to evaluate and inspect the result. Trading remains paused until you resume it.";
                 approve.Content = "Approval saved";
             }
             catch (Exception error)

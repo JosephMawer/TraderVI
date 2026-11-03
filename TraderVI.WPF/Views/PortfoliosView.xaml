@@ -224,7 +224,7 @@
                                     </UniformGrid>
                                     <TextBlock Text="{Binding WorkspaceRealStrategy}" TextWrapping="Wrap"/>
                                     <TextBlock Text="{Binding WorkspaceRealStatus}" Foreground="{StaticResource MutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,10,0,12"/>
-                                    <Button Content="Open Trading and broker history" Click="OpenTrading_Click" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left"/>
+                                    <Button Content="Open account tools and broker history" Click="OpenAccountTools_Click" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left"/>
                                 </StackPanel>
                             </Border>
                         </Grid>

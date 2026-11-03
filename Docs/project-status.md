@@ -24,7 +24,12 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   positive values in green, negative values in red, and zero or unavailable values in neutral text.
   The separate selected-holding card was removed from the installed dashboard. Trade options
   are on the holding's row menu, and strategy details are on the status cell.
-  The engine and collector continued running.
+  The installed **Account tools** tab now follows **Recorded trades & monitor**. It contains
+  the four broker and recorded-account expanders formerly on Main account. The November 3
+  read-only database check found no saved manual recommendation approvals, batches, operator
+  account reports or recommendation-linked purchase reports. Broker synchronization receipts
+  were present. Retirement of any manual workflow is undecided. The engine and collector
+  continued running.
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
   standard Release path in build-review mode, connected to the broker. The collector retained

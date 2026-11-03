@@ -55,12 +55,5 @@ public partial class WealthsimpleAccountPanel : UserControl
     }
     private void Today_Checked(object sender, RoutedEventArgs e)
     { if (DataContext is WealthsimpleAccountViewModel vm) vm.ShowOverallPerformance = false; }
-    private async void Refresh_Click(object sender, RoutedEventArgs e)
-    { if (DataContext is WealthsimpleAccountViewModel vm) await vm.RefreshAsync(); }
-    private async void StopBuying_Click(object sender, RoutedEventArgs e)
-    { if (DataContext is WealthsimpleAccountViewModel { ManagedStrategy: { } strategy }) await strategy.StopBuyingAsync(); }
-    private async void ResumeBuying_Click(object sender, RoutedEventArgs e)
-    { if (DataContext is WealthsimpleAccountViewModel { ManagedStrategy: { } strategy }) await strategy.ResumeBuyingAsync(); }
-
     private sealed record StrategyChoice(string Label, TfsaLiveStrategyCandidate Candidate, bool IsSupported, string Explanation);
 }

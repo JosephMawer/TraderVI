@@ -660,10 +660,19 @@ corroborated by native engine connection status; subsequent live refresh remains
 not establish healthy execution: [the separate engine diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md)
 records the current reconciliation block and retained Paper recovery hold.
 
-On **Trading → Main account**, the **TFSA** page loads the self-directed broker account after sign-in.
-Use **Refresh Wealthsimple** for a new snapshot. Multiple eligible self-directed TFSAs require a choice;
-managed accounts are excluded. The lower expander contains TraderVI records and the active strategy.
-Broker reads do not update SQL reports, recorded fills or recommendation inputs. See [ADR-0072](adr/0072-wealthsimple-tfsa-account-display.md).
+On **Trading → Main account**, review the self-directed TFSA's performance, holdings and strategy.
+**Trading → Account tools**, beside **Recorded trades & monitor**, contains the four expanders
+formerly on Main account. **Recent account activity** shows synchronization status. **Pending orders**
+shows the broker's submitted orders and the time of the read. **Account connection and tools**
+contains the TFSA selector, **Refresh Wealthsimple**, buying controls, manual order windows,
+reconciliation, history import and initial risk setup. Multiple eligible self-directed TFSAs
+require a choice. Refresh can update the linked local ledger through
+[broker trade synchronization](adr/0084-external-broker-trade-synchronization.md).
+
+**TraderVI records and recommendation tools** opens the operator-reported account workflow.
+Its account reports, advice evaluations, reported fills and approval history use TraderVI's
+recorded account. The pause bar inside this section is the same tracked-positions control as on
+**Recorded trades & monitor**. The broker's **Stop new buys** applies to the managed TFSA session.
 
 ## Historical Practice
 

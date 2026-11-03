@@ -163,7 +163,9 @@
       <TabItem x:Name="PaperTradingTab" Header="Trading" views:WorkspaceNavigationState.Icon="&#xE80F;">
        <!-- Nested tabs otherwise pick up the application's MaterialDesign Light surface and text. -->
        <TabControl x:Name="TradingSections" Background="#11151B" Foreground="#F4F7FB" BorderThickness="0" Padding="0">
-        <TabItem Header="Main account"><views:TradingRecommendationsView x:Name="TradingRecommendationsTabView"/></TabItem>
+        <TabItem Header="Main account">
+         <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#11151B"><ContentControl x:Name="MainAccountContent" Margin="18" HorizontalContentAlignment="Stretch"/></ScrollViewer>
+        </TabItem>
         <TabItem Header="Recorded trades &amp; monitor">
        <Grid Margin="22" TextElement.Foreground="#F4F7FB">
         <Grid.RowDefinitions>
@@ -331,6 +333,7 @@
         </Border>
        </Grid>
         </TabItem>
+        <TabItem x:Name="AccountToolsTab" Header="Account tools"><views:TradingRecommendationsView x:Name="TradingRecommendationsTabView"/></TabItem>
        </TabControl>
       </TabItem>
       <TabItem Header="Portfolios" views:WorkspaceNavigationState.Icon="&#xE821;">

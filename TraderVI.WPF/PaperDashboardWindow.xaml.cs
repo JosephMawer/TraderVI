@@ -57,7 +57,8 @@ public partial class PaperDashboardWindow : Window
         };
         DataContext = viewModel;
         WorkspaceNavigationState.SetConnection(MainTabs, wealthsimple);
-        TradingRecommendationsTabView.InitializeWealthsimple(wealthsimple, manualBuys.ReconcileForTransitionAsync,
+        MainAccountContent.Content = TradingRecommendationsTabView.BrokerPanel;
+        TradingRecommendationsTabView.InitializeWealthsimple(this, wealthsimple, manualBuys.ReconcileForTransitionAsync,
             manualBuys.SynchronizeAccountAsync, () => !manualBuys.IsSubmitting);
         PortfoliosTabView.AttachBrokerDisplay(TradingRecommendationsTabView.BrokerAccountDisplay);
         EngineAccountControls.DataContext = TradingRecommendationsTabView.BrokerAccountDisplay;
@@ -183,10 +184,17 @@ public partial class PaperDashboardWindow : Window
     {
         SettingsTabView.Navigate(section); MainTabs.SelectedItem = SettingsTab;
     }
-    public async void OpenTrading(string? account = null)
+    public async void OpenTrading(string? account = null, bool showTools = false)
     {
-        MainTabs.SelectedItem = PaperTradingTab; TradingSections.SelectedIndex = 0;
-        if (account is not null) await TradingRecommendationsTabView.ShowAccountAsync(account);
+        MainTabs.SelectedItem = PaperTradingTab;
+        if (!showTools && (account is null || string.Equals(account.Trim(), "TFSA", StringComparison.OrdinalIgnoreCase)))
+        {
+            TradingSections.SelectedIndex = 0;
+            return;
+        }
+        var load = TradingRecommendationsTabView.ShowAccountAsync(account ?? "TFSA");
+        TradingSections.SelectedItem = AccountToolsTab;
+        await load;
     }
     public void OpenTradingMonitor() { MainTabs.SelectedItem = PaperTradingTab; TradingSections.SelectedIndex = 1; }
     public async void OpenPortfolios(string account = "TFSA", Guid? livePortfolio = null)

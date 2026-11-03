@@ -29,17 +29,21 @@ public partial class TradingRecommendationsView : UserControl
     private WealthsimpleAccountViewModel? broker;
     private IWealthsimpleConnection? brokerConnection;
     private bool loadingStrategyChoices;
+    public WealthsimpleAccountPanel BrokerPanel { get; } = new();
+    private Window owner = null!;
     private Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountReconciliation>>? reconcileAccount;
-    public void InitializeWealthsimple(IWealthsimpleConnection connection,
+    public void InitializeWealthsimple(Window dashboard, IWealthsimpleConnection connection,
         Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountReconciliation>>? reconcile = null,
         Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountSynchronization>>? synchronize = null,
         Func<bool>? canSynchronize = null)
     {
+        owner = dashboard;
         broker?.Dispose();
         brokerConnection = connection;
         reconcileAccount = reconcile;
         broker = new WealthsimpleAccountViewModel(connection, synchronize: synchronize, canSynchronize: canSynchronize,
             managedStrategy: new(new BrokerManagedSessionControls(new BrokerManagedSessionRepository())));
+        BrokerTools.DataContext = broker;
         BrokerPanel.DataContext = broker;
         _ = broker.RefreshAsync();
     }
@@ -51,7 +55,7 @@ public partial class TradingRecommendationsView : UserControl
         var portfolios = await new DelphiLiveLedgerRepository().GetPortfoliosForSessionAsync(DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)));
         var candidates = TfsaLiveStrategySelection.Rank(portfolios);
         BrokerPanel.SetStrategyCandidates(candidates);
-        new TfsaTransitionReviewDialog(Window.GetWindow(this), brokerConnection, broker, candidates, reconcileAccount, sourceId).ShowDialog();
+        new TfsaTransitionReviewDialog(owner, brokerConnection, broker, candidates, reconcileAccount, sourceId).ShowDialog();
     });
     public Task RefreshRecordedAccountAsync() => Run(() => RefreshDisplayAsync(Account.Text));
     public Task RefreshWealthsimpleAsync() => broker?.RefreshAsync() ?? Task.CompletedTask;
@@ -85,7 +89,7 @@ public partial class TradingRecommendationsView : UserControl
             catch { BrokerPanel.SetStrategyChoiceError(); }
             finally { loadingStrategyChoices = false; }
         };
-        Account.TextChanged += (_, _) => BrokerPanel.Visibility = string.Equals(Account.Text.Trim(), "TFSA", StringComparison.OrdinalIgnoreCase)
+        Account.TextChanged += (_, _) => BrokerTools.Visibility = string.Equals(Account.Text.Trim(), "TFSA", StringComparison.OrdinalIgnoreCase)
             ? Visibility.Visible : Visibility.Collapsed;
         Loaded += async (_,_) => await Run(async () =>
         {
@@ -93,6 +97,13 @@ public partial class TradingRecommendationsView : UserControl
             else await RefreshDisplayAsync(snapshot.AccountLabel);
         });
     }
+    private async void RefreshBroker_Click(object sender, RoutedEventArgs e)
+    { if (BrokerTools.DataContext is WealthsimpleAccountViewModel vm) await vm.RefreshAsync(); }
+    private async void StopBuying_Click(object sender, RoutedEventArgs e)
+    { if (BrokerTools.DataContext is WealthsimpleAccountViewModel { ManagedStrategy: { } strategy }) await strategy.StopBuyingAsync(); }
+    private async void ResumeBuying_Click(object sender, RoutedEventArgs e)
+    { if (BrokerTools.DataContext is WealthsimpleAccountViewModel { ManagedStrategy: { } strategy }) await strategy.ResumeBuyingAsync(); }
+
     private async Task LoadAsync(CancellationToken token = default)
     {
         displayed = null;
@@ -140,10 +151,10 @@ public partial class TradingRecommendationsView : UserControl
     private async Task Run(Func<Task> action)
     {
         if (!await gate.WaitAsync(0)) return;
-        IsEnabled = false;
+        IsEnabled = BrokerPanel.IsEnabled = false;
         try { await action(); }
         catch (Exception error) { Status.Text = error.Message; }
-        finally { IsEnabled = true; gate.Release(); }
+        finally { IsEnabled = BrokerPanel.IsEnabled = true; gate.Release(); }
     }
     public async Task TickAsync(CancellationToken token)
     {

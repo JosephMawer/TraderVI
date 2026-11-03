@@ -25,6 +25,7 @@ public partial class PortfoliosView : UserControl
     }
     private void WorkspaceReview_Click(object sender, RoutedEventArgs e) => viewModel.SelectedView = PortfoliosViewModel.StrategyReviewView;
     private void OpenTrading_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenTrading(PromotionAccount.Text);
+    private void OpenAccountTools_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenTrading(PromotionAccount.Text, showTools: true);
     public async Task NavigateAsync(string account, Guid? portfolioId = null)
     {
         PromotionAccount.Text = account;
