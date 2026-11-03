@@ -8,6 +8,12 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 
 ## Operating state and immediate risks
 
+- **Trading dashboard holdings:** At 14:24 Toronto November 3, independent read-only broker
+  checks confirmed two TFSA holdings and matching broker order history. The dashboard showed
+  its empty 11:56 snapshot after refresh failed. A tested dashboard change reads holdings and
+  balances separately when trade synchronization throws and dates retained holdings when a
+  current read is unavailable. The failing synchronization step has not been identified.
+
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
   standard Release path in build-review mode, connected to the broker. The collector retained
   its process. After approval and separate enable, the 10:01 SQL read verified both owner

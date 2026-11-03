@@ -109,8 +109,10 @@ public partial class WealthsimpleAccountTests
             return Task.FromResult(SynchronizedRead(a, clock.Now));
         });
         await vm.PollAsync(); var prior = vm.Snapshot;
+        source.Read = _ => Task.FromResult(new WealthsimpleReadResult<WealthsimpleTfsaSnapshot>(WealthsimpleReadStatus.Unavailable));
         fail = true; clock.Now += TimeSpan.FromMinutes(5); await vm.PollAsync();
         Assert.Same(prior, vm.Snapshot); Assert.Null(vm.PendingOrders); Assert.DoesNotContain("private", vm.Status);
+        Assert.Contains("Last snapshot showed 0 holdings", vm.HoldingsStatus);
         Assert.Contains("retry in 5", vm.Status);
         clock.Now += TimeSpan.FromMinutes(5); await vm.PollAsync(); Assert.Contains("retry in 10", vm.Status);
         clock.Now += TimeSpan.FromMinutes(5); await vm.PollAsync(); Assert.Equal(3, reads);

@@ -22,6 +22,7 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
     private bool refreshRequested;
     private DateTimeOffset nextRefresh;
     private int failures;
+    private bool holdingsReadFailed;
     private long revision;
     private bool attempted, disposed;
     private string message = "Sign in with Wealthsimple to load your self-directed TFSA.";
@@ -90,7 +91,10 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
         (Snapshot != null && clock.GetUtcNow() - Snapshot.RetrievedAt > TimeSpan.FromMinutes(5) ? " Snapshot is over five minutes old; refresh to update." : "");
     public string ReturnPeriod => Snapshot?.ReturnReferenceDate is { } date ? $"Account return since {date}" : "Account return · Wealthsimple period";
     public string ReturnAsOf => Snapshot?.ReturnAsOf is { } at ? $"Return as of {TradingAccountOverview.Local(at.UtcDateTime)}" : "Return valuation time was not supplied.";
-    public string HoldingsStatus => Snapshot == null ? "Holdings have not been loaded." : Snapshot.Holdings.Count == 0 ? "No holdings in this TFSA." : $"{Snapshot.Holdings.Count} holdings · values include their currency.";
+    public string HoldingsStatus => Snapshot == null ? "Holdings have not been loaded."
+        : holdingsReadFailed || clock.GetUtcNow() - Snapshot.RetrievedAt > TimeSpan.FromMinutes(5)
+            ? $"Last snapshot showed {Snapshot.Holdings.Count} holdings at {TradingAccountOverview.Local(Snapshot.RetrievedAt.UtcDateTime)}. Refresh to verify current holdings."
+            : Snapshot.Holdings.Count == 0 ? "No holdings in this TFSA." : $"{Snapshot.Holdings.Count} holdings · values include their currency.";
     public string TradeSyncStatus { get; private set; } = "Trade synchronization has not run.";
 
     public Task PollAsync()
@@ -148,12 +152,28 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
             if (selected == null) { message = "Choose a self-directed TFSA."; return; }
             if (synchronize != null)
             {
-                var synchronized = await synchronize(selected, expected, cancellation.Token);
+                BrokerAccountSynchronization synchronized;
+                try { synchronized = await synchronize(selected, expected, cancellation.Token); }
+                catch (Exception ex) when (ex is not OperationCanceledException && IsCurrent(expected))
+                {
+                    TradeSyncStatus = "Trade synchronization could not complete. Refresh to verify saved records.";
+                    var display = await source.ReadTfsaSnapshotAsync(selected, cancellation.Token);
+                    if (!IsCurrent(expected)) return;
+                    if (display.Status != WealthsimpleReadStatus.Success) { Failure(display.Status, display.Stage); return; }
+                    if (display.Data == null || !ReferenceEquals(display.Data.Account, selected))
+                        throw new InvalidOperationException("The refreshed account changed.");
+                    Snapshot = display.Data;
+                    holdingsReadFailed = false;
+                    message = "Holdings and balances updated from Wealthsimple. Trade history synchronization is pending.";
+                    await ReadDailyPerformanceAsync(selected, expected, cancellation.Token);
+                    return;
+                }
                 if (!IsCurrent(expected)) return;
                 if (!ReferenceEquals(synchronized.Read.Snapshot.Account, selected) ||
                     !ReferenceEquals(synchronized.Read.PendingOrders.Account, selected))
                     throw new InvalidOperationException("The refreshed account changed.");
                 Snapshot = synchronized.Read.Snapshot; PendingOrders = synchronized.Read.PendingOrders;
+                holdingsReadFailed = false;
                 TradeSyncStatus = synchronized.TradeSyncStatus ?? (synchronized.Saved is null
                     ? "Trade synchronization needs attention: " + string.Join(" ", synchronized.Blocks)
                     : "Account history saved. Trade ledger status was not supplied.");
@@ -175,6 +195,7 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
             if (result.Status == WealthsimpleReadStatus.Success && result.Data != null)
             {
                 Snapshot = result.Data; message = "Loaded from Wealthsimple. Use Refresh to update.";
+                holdingsReadFailed = false;
                 var orders = await source.ReadTfsaPendingOrdersAsync(selected, cancellation.Token);
                 if (!IsCurrent(expected)) return;
                 if (orders.Status == WealthsimpleReadStatus.Success && orders.Data != null) { PendingOrders = orders.Data; succeeded = true; }
@@ -187,8 +208,8 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
             }
             else Failure(result.Status, result.Stage);
         }
-        catch (OperationCanceledException) { if (IsCurrent(expected)) { message = "Account refresh cancelled."; TradeSyncStatus = "Trade synchronization stopped. Refresh to verify saved records."; } }
-        catch { if (IsCurrent(expected)) { message = "Account refresh could not complete. Previous saved history is retained; new orders still need fresh checks. Use Refresh to retry."; TradeSyncStatus = "Trade synchronization could not complete. Refresh to verify saved records."; } }
+        catch (OperationCanceledException) { if (IsCurrent(expected)) { holdingsReadFailed = true; message = "Account refresh cancelled."; TradeSyncStatus = "Trade synchronization stopped. Refresh to verify saved records."; } }
+        catch { if (IsCurrent(expected)) { holdingsReadFailed = true; message = "Account refresh could not complete. Previous saved history is retained; new orders still need fresh checks. Use Refresh to retry."; TradeSyncStatus = "Trade synchronization could not complete. Refresh to verify saved records."; } }
         finally
         {
             activeRead = null;
@@ -205,6 +226,7 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
     private bool IsCurrent(long expected) => !disposed && source.HasSession && expected == source.SessionRevision;
     private void Failure(WealthsimpleReadStatus status, string? stage)
     {
+        holdingsReadFailed = true;
         TradeSyncStatus = "Trade synchronization could not refresh broker facts. Last saved records are retained.";
         message = status switch
         {
