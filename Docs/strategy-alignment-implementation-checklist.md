@@ -331,8 +331,11 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   build-review mode. [November 2 cutover](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#live-reconciliation-and-build-review).
 - [x] Verify the linked strategy display after the corrected dashboard refresh. At 21:17 on
   November 2 the Trading view restored the saved strategy and buying mode.
-- [ ] Verify the operator's exact-build approval and separate enable, normal restart and remaining
-  protection.
+- [x] Verify the operator's exact-build approval and separate enable, normal restart, broker
+  holdings and pending-order check, and preservation of remaining holdings' protection records.
+  [November 2 after-hours activation](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#normal-engine-activation).
+- [ ] Verify that an ordinary regular-session cycle proceeds through protection after the original
+  sell's recovery. The separate held-position bid investigation remains on operator hold.
 - Separate proposal: reducing the regular strategy's cumulative writes and repeated broker history reads.
   The operator approved the restart switch and the grouped read comparison. A bounded sample of 100 Friday
   revisions over 22 minutes stored 489,240 bytes of manifests, used 34 distinct account

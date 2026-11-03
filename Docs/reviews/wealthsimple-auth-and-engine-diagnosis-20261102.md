@@ -345,3 +345,24 @@ The 141-file package installed at the standard path with Core SHA-256
 Engine PID 21012 reported Connected in build-review mode. Dashboard PID 33972 displayed
 **Saved strategy and buying mode restored** after refreshing the linked account. Operator
 approval, separate Resume and normal restart still require their own receipts.
+
+### Normal engine activation
+
+By 21:23 Toronto on November 2 the operator had approved the installed build and separately enabled
+the host. SQL readback showed `ImplementationReviewed` at revision 6845, compact checkpoint 30
+and one new immutable settings row alongside the original. The installed Core hash matched the
+selected settings and the enabled, restartable Windows-protected grant. The review service drained
+before normal engine PID 25708 started. The dashboard and collector kept their existing processes.
+
+At 21:24:01 the normal engine completed its restart account check with zero consecutive failures.
+It verified the linked broker account and holdings, zero pending orders, and the compact assignment
+against the restored grant. Its service status was **Running**, broker status **Connected**, and
+execution **Waiting** for regular trading hours. Another SQL read at 21:24:28 verified the original
+sell still reconciled and fully applied, with the same financial, position/protection and order
+fingerprints and buying mode as before the repair. The setup window's current status at 21:25:47
+read **Waiting for market**. Its action summary still displayed the earlier review-mode confirmation.
+
+The read-only integrity check at 21:24 found only the existing Paper recovery incident. At 21:25
+five Paper/dependent-Research workers had reported blocked since startup. This after-hours check
+verified saved protection and restart readiness. Regular-session protection evaluation and the
+previously deferred bid investigation retain their separate verification boundaries.

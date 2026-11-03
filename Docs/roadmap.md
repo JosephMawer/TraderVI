@@ -15,10 +15,10 @@ intentional handover without losing existing protection or financial history.
 
 ## Now — protect and qualify the operating system
 
-1. **Resolve the Real execution block on the installed compact restart path**
-   ([issue #19](https://github.com/JosephMawer/TraderVI/issues/19)). Follow the original sell through
-   broker settlement, the local journal and the managed strategy. Qualify the correction offline
-   while the approved engine and collector keep running. Reducing ordinary history reads and writes
+1. **Verify the first regular-session protection cycle after the Real execution repair**
+   ([issue #19](https://github.com/JosephMawer/TraderVI/issues/19)). The original sell reconciled,
+   the approved engine passed its after-hours restart account check and the dashboard restored
+   the strategy. Verify the ordinary cycle against the remaining holdings. Reducing ordinary history reads and writes
    remains a separate proposal. [November 2 investigation](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md)
    and [restart contract](adr/0117-compact-trading-current-storage.md).
 2. **Resolve known reliability work in its existing scope.** The identified Paper-input symbol-resolution

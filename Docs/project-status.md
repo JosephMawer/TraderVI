@@ -10,12 +10,12 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 
 - **Real trading:** On November 2 at 17:50 Toronto the original completed sell reconciled into managed
   revision 6844 and compact checkpoint 29. SQL readback verified identical financial, holding and
-  order fingerprints and the same buying mode. A subsequent build approval lost the two held
-  positions' original purchase targets in its proposed account and failed before commit.
-  At 21:17 the corrected package was installed in the standard runtime. The review engine
-  reported Connected and the Trading view restored the saved strategy and buying mode.
-  Exact-build approval, separate host enable and normal startup verification are pending.
-  The collector stayed running.
+  order fingerprints and the same buying mode. The Trading view restored the saved strategy.
+  The operator approved build `cc64462c` and enabled its host. At 21:24 Toronto the normal
+  engine was Connected, passed the restart account check and waited for regular trading hours.
+  Post-start SQL confirmed revision 6845, compact checkpoint 30 and the two immutable settings
+  records. The original sell, remaining holdings and protection, risk references and purchase
+  allowance were preserved. The collector stayed running.
   [Cutover evidence](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#live-reconciliation-and-build-review).
   [Current diagnosis and evidence](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#follow-up-through-1512-toronto--closed-position-guard-confirmed),
   [November 1 installation](project-status-history-20261101.md#november-1--compact-restart-active-for-delphi-live).
@@ -24,7 +24,8 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   placed the investigation on hold; reliable automatic selling must not be inferred from saved stops
   or a Running status. [Evidence and limits](project-status-history-20261101.md#october-30--held-position-bid-protection-gap-verified-1003-toronto).
 - **Paper recovery and inputs:** The Paper recovery restriction retained after the October 30 Real
-  recovery remains at November 2, 15:12 Toronto, with seven Paper/dependent-Research workers blocked.
+  recovery was still the sole unresolved incident at 21:24 Toronto on November 2. At 15:12 seven
+  Paper/dependent-Research workers reported blocked. At 21:25 five had reported blocked since restart.
   [Current read-only diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
   A separate Paper-input failure was traced to missing verified holding correspondence in
   the service wiring; repair is planned in issue #24, not established by that diagnosis. The Real
