@@ -10,11 +10,12 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 
 - **Real trading:** On November 2 at 17:50 Toronto the original completed sell reconciled into managed
   revision 6844 and compact checkpoint 29. SQL readback verified identical financial, holding and
-  order fingerprints and the same buying mode. At 17:52 the repaired package was installed in the
-  standard runtime in build-review mode. At 20:26 a later operator approval failed. The fresh
-  account projection omitted the original purchase targets on two holdings. Offline reproduction
-  verified the correction. One immutable settings row remains. Exact-build approval, separate
-  host enable and normal startup verification are pending. The collector stayed running.
+  order fingerprints and the same buying mode. A subsequent build approval lost the two held
+  positions' original purchase targets in its proposed account and failed before commit.
+  At 21:17 the corrected package was installed in the standard runtime. The review engine
+  reported Connected and the Trading view restored the saved strategy and buying mode.
+  Exact-build approval, separate host enable and normal startup verification are pending.
+  The collector stayed running.
   [Cutover evidence](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#live-reconciliation-and-build-review).
   [Current diagnosis and evidence](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#follow-up-through-1512-toronto--closed-position-guard-confirmed),
   [November 1 installation](project-status-history-20261101.md#november-1--compact-restart-active-for-delphi-live).

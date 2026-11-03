@@ -332,3 +332,16 @@ mapping. With the saved import, both targets matched and the unchanged guard pre
 record with zero position or order writes. The offline workflow regression includes an invested
 compact account, a broker fill without its target, interrupted publication and repeated approval.
 All 22 focused review, risk synchronization and sale recovery cases passed.
+
+**21:17 Toronto installation.** Release `cc64462c` passed 3,578 Core tests, with 16 opt-in
+skips. A separate marked SQL Server LocalDB passed eight approval cases including rollback and
+retry with an attributed opening fill. The matching dashboard build had two compiler warnings
+and zero errors. The exact staged Core also passed the captured-account comparison. The fresh
+checksummed backup passed verification, its copy matched by SHA-256, and Windows reported it
+in sync before cutover. At 21:08:59 SQL still showed revision 6844, compact version 29 and one
+immutable settings record. The collector kept PID 1452 throughout the review-service switch.
+The 141-file package installed at the standard path with Core SHA-256
+`34C9C23F83341A202F75744DDD22F6CAC18DE44ED01B0451A42F0AF6C7069EBE`.
+Engine PID 21012 reported Connected in build-review mode. Dashboard PID 33972 displayed
+**Saved strategy and buying mode restored** after refreshing the linked account. Operator
+approval, separate Resume and normal restart still require their own receipts.
