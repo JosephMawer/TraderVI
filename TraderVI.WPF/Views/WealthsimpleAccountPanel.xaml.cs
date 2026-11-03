@@ -53,6 +53,8 @@ public partial class WealthsimpleAccountPanel : UserControl
         RequestedStrategy = candidate; StrategyPicker.IsDropDownOpen = false;
         ReviewTransitionRequested?.Invoke(this, new RoutedEventArgs());
     }
+    private async void RefreshBroker_Click(object sender, RoutedEventArgs e)
+    { if (DataContext is WealthsimpleAccountViewModel vm) await vm.RefreshAsync(); }
     private void Today_Checked(object sender, RoutedEventArgs e)
     { if (DataContext is WealthsimpleAccountViewModel vm) vm.ShowOverallPerformance = false; }
     private sealed record StrategyChoice(string Label, TfsaLiveStrategyCandidate Candidate, bool IsSupported, string Explanation);

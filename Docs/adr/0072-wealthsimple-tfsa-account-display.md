@@ -50,6 +50,13 @@ recommendation evaluation do not consume this new data. Reading balances is not 
 reconciliation must establish how broker holdings, fills, cash movements and pending orders map to
 TraderVI records before they can influence risk or execution.
 
+### November 3 single-TFSA dashboard
+
+The operator uses one self-directed TFSA for TraderVI. This supersedes the dashboard picker
+described above. The dashboard loads the sole eligible account automatically. If discovery
+finds several, the dashboard explains the ambiguity, leaves holdings unloaded and repeats
+discovery on refresh. Manual order ticket account checks retain their own scope.
+
 ## Validation and limitations
 
 An isolated process used the operator's Windows-encrypted session with exclusive ownership. Live

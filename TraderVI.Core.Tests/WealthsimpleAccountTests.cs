@@ -304,13 +304,16 @@ public partial class WealthsimpleAccountTests(Xunit.Abstractions.ITestOutputHelp
     }
 
     [Fact]
-    public async Task UiRequiresChoiceWhenMultipleSelfDirectedAccountsExist()
+    public async Task DashboardWaitsForOneEligibleTfsaAndRediscoversItOnRefresh()
     {
         var source = new Source { Accounts = new[] { new WealthsimpleTfsaAccount("a", "A"), new WealthsimpleTfsaAccount("b", "B") } };
         using var vm = new WealthsimpleAccountViewModel(source); await vm.RefreshAsync();
-        Assert.Null(vm.SelectedAccount); Assert.Null(vm.Snapshot); Assert.True(vm.CanSelect);
-        vm.SelectedAccount = source.Accounts[1];
-        Assert.Same(source.Accounts[1], vm.Snapshot.Account);
+        Assert.Null(vm.SelectedAccount); Assert.Null(vm.Snapshot);
+        Assert.Contains("Multiple self-directed TFSAs", vm.Status);
+        var onlyAccount = source.Accounts[1];
+        source.Accounts = new[] { onlyAccount };
+        await vm.RefreshAsync();
+        Assert.Same(onlyAccount, vm.Snapshot.Account);
     }
 
     [Fact]

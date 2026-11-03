@@ -196,7 +196,6 @@ public partial class PaperDashboardWindow : Window
         TradingSections.SelectedItem = AccountToolsTab;
         await load;
     }
-    public void OpenTradingMonitor() { MainTabs.SelectedItem = PaperTradingTab; TradingSections.SelectedIndex = 1; }
     public async void OpenPortfolios(string account = "TFSA", Guid? livePortfolio = null)
     {
         SelectWorkspace(PortfoliosTabView);

@@ -661,18 +661,20 @@ not establish healthy execution: [the separate engine diagnosis](reviews/wealths
 records the current reconciliation block and retained Paper recovery hold.
 
 On **Trading → Main account**, review the self-directed TFSA's performance, holdings and strategy.
-**Trading → Account tools**, beside **Recorded trades & monitor**, contains the four expanders
-formerly on Main account. **Recent account activity** shows synchronization status. **Pending orders**
-shows the broker's submitted orders and the time of the read. **Account connection and tools**
-contains the TFSA selector, **Refresh Wealthsimple**, buying controls, manual order windows,
-reconciliation, history import and initial risk setup. Multiple eligible self-directed TFSAs
-require a choice. Refresh can update the linked local ledger through
+Buying power appears below available cash. Use **Refresh Wealthsimple** below Today and Overall
+to read the account again. The dashboard loads the sole eligible TFSA automatically. If discovery
+finds several, it leaves the account unselected. Refresh can update the linked local ledger through
 [broker trade synchronization](adr/0084-external-broker-trade-synchronization.md).
+
+**Trading → Account tools → Broker status & orders** shows synchronization status and pending
+orders together. **Manual orders** opens the buy and sell windows. **Reconcile & import** offers
+separate actions to compare broker history or import it into the local ledger. **Advanced setup**
+contains account risk setup. **Managed TFSA buying controls** contains Stop new buys and Resume buying.
 
 **TraderVI records and recommendation tools** opens the operator-reported account workflow.
 Its account reports, advice evaluations, reported fills and approval history use TraderVI's
-recorded account. The pause bar inside this section is the same tracked-positions control as on
-**Recorded trades & monitor**. The broker's **Stop new buys** applies to the managed TFSA session.
+recorded account. Find tracked-position pause and resume on **Recorded trades & monitor**, and
+strategy comparison in **Portfolios**.
 
 ## Historical Practice
 

@@ -97,8 +97,6 @@ public partial class TradingRecommendationsView : UserControl
             else await RefreshDisplayAsync(snapshot.AccountLabel);
         });
     }
-    private async void RefreshBroker_Click(object sender, RoutedEventArgs e)
-    { if (BrokerTools.DataContext is WealthsimpleAccountViewModel vm) await vm.RefreshAsync(); }
     private async void StopBuying_Click(object sender, RoutedEventArgs e)
     { if (BrokerTools.DataContext is WealthsimpleAccountViewModel { ManagedStrategy: { } strategy }) await strategy.StopBuyingAsync(); }
     private async void ResumeBuying_Click(object sender, RoutedEventArgs e)

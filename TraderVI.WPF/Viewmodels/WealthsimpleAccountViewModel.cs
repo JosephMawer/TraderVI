@@ -86,7 +86,6 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
         Holdings.Any(h => h.SellSelection?.SelectionId == selection.SelectionId);
     public bool IsBusy { get; private set; }
     public bool CanRefresh => !IsBusy && source.IsConnected;
-    public bool CanSelect => !IsBusy && Accounts.Count > 1;
     public string Status => message + (Snapshot == null ? "" : $" Last retrieved {TradingAccountOverview.Local(Snapshot.RetrievedAt.UtcDateTime)}.") +
         (Snapshot != null && clock.GetUtcNow() - Snapshot.RetrievedAt > TimeSpan.FromMinutes(5) ? " Snapshot is over five minutes old; refresh to update." : "");
     public string ReturnPeriod => Snapshot?.ReturnReferenceDate is { } date ? $"Account return since {date}" : "Account return · Wealthsimple period";
@@ -140,16 +139,21 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
         message = "Reading your TFSA from Wealthsimple…"; Notify();
         try
         {
-            if (Accounts.Count == 0)
+            if (selected == null)
             {
                 var catalog = await source.ReadTfsaAccountsAsync(cancellation.Token);
                 if (!IsCurrent(expected)) return;
                 if (catalog.Status != WealthsimpleReadStatus.Success || catalog.Data == null) { Failure(catalog.Status, catalog.Stage); return; }
                 Accounts = catalog.Data;
                 selected = Accounts.Count == 1 ? Accounts[0] : null;
-                if (selected == null) { succeeded = true; message = Accounts.Count == 0 ? "No open self-directed TFSA was found." : "Choose which self-directed TFSA to load."; return; }
+                if (selected == null)
+                {
+                    succeeded = true;
+                    message = Accounts.Count == 0 ? "No open self-directed TFSA was found."
+                        : "Multiple self-directed TFSAs were found. TraderVI requires a single eligible account. Refresh to check again.";
+                    return;
+                }
             }
-            if (selected == null) { message = "Choose a self-directed TFSA."; return; }
             if (synchronize != null)
             {
                 BrokerAccountSynchronization synchronized;

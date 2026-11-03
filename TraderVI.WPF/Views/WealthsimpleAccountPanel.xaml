@@ -29,8 +29,10 @@
     <TextBlock Grid.Column="2" Text="Available cash · CAD" Style="{StaticResource WorkspaceLabel}" Margin="0,0,18,0"/>
     <WrapPanel Grid.Row="1" Margin="0,8,18,0" VerticalAlignment="Top"><TextBlock Text="{Binding PerformanceAmount, FallbackValue=Unavailable}" FontSize="26"/><TextBlock Text="{Binding PerformanceRate}" FontSize="17" Margin="12,7,0,0"/></WrapPanel>
     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ValueText, FallbackValue=—}" Style="{StaticResource TradingNumber}" FontSize="26" Margin="0,8,18,0" VerticalAlignment="Top"/>
-    <TextBlock Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Text="{Binding CashText, FallbackValue=—}" Style="{StaticResource TradingNumber}" FontSize="26" Margin="0,8,0,0" VerticalAlignment="Top"/>
-    <TextBlock Grid.Row="2" Grid.ColumnSpan="4" Text="{Binding PerformanceContext}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,0"/>
+    <Button Grid.Row="1" Grid.Column="3" Content="Refresh Wealthsimple" Style="{StaticResource WorkspaceButton}" IsEnabled="{Binding CanRefresh}" Click="RefreshBroker_Click" HorizontalAlignment="Right" Margin="0,6,0,0"/>
+    <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding CashText, FallbackValue=—}" Style="{StaticResource TradingNumber}" FontSize="26" Margin="0,8,0,0" VerticalAlignment="Top"/>
+    <TextBlock Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Text="{Binding BuyingPowerText, StringFormat='Buying power · {0}'}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,0"/>
+    <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding PerformanceContext}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,0"/>
   </Grid></Border>
   <StackPanel x:Name="HoldingsTable" Margin="0,18,0,0">
    <TextBlock Text="Your holdings" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="{Binding HoldingsStatus}" Style="{StaticResource WorkspaceLabel}" Margin="0,5,0,10"/>

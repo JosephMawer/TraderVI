@@ -20,10 +20,7 @@
    </StackPanel>
   </Border>
   <Border Style="{StaticResource WorkspacePanel}" Margin="0,14,0,0">
-   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-    <StackPanel Margin="0,0,14,0"><TextBlock Text="ACTIVE MAIN STRATEGY" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding Strategy, TargetNullValue=No account loaded}" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,6"/><TextBlock Text="{Binding StrategySince}" Style="{StaticResource WorkspaceLabel}"/></StackPanel>
-    <Button Grid.Column="1" Content="Compare / change strategy…" Style="{StaticResource WorkspaceButton}" Click="Portfolios_Click" VerticalAlignment="Center"/>
-   </Grid>
+   <StackPanel><TextBlock Text="ACTIVE MAIN STRATEGY" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding Strategy, TargetNullValue=No account loaded}" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,6"/><TextBlock Text="{Binding StrategySince}" Style="{StaticResource WorkspaceLabel}"/></StackPanel>
   </Border>
   <Grid Margin="0,22,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
    <TextBlock Text="Your recorded holdings" FontSize="20" FontWeight="SemiBold"/>
@@ -43,6 +40,6 @@
   <TextBlock Text="No recorded holdings in this account." Margin="0,8">
    <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource WorkspaceLabel}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding Holdings.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
   </TextBlock>
-  <WrapPanel Margin="0,8,0,14"><Button Content="Recorded trades / reconcile holdings" Style="{StaticResource WorkspaceButton}" Click="Monitor_Click"/><TextBlock Text="TraderVI records · recommendations only" Style="{StaticResource WorkspaceLabel}" Margin="12,8,0,0"/></WrapPanel>
+  <TextBlock Text="TraderVI records · recommendations only" Style="{StaticResource WorkspaceLabel}" Margin="0,8,0,14"/>
  </StackPanel>
 </UserControl>
