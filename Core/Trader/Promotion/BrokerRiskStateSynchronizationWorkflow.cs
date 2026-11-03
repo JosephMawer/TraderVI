@@ -32,6 +32,8 @@ public sealed class BrokerRiskStateSynchronizationWorkflow(IBrokerManagedSession
         var account = await source.SynchronizeAsync(prior.Orders, ct);
         RequireHostOff();
         if (BrokerAccountImport.Hash(prior.Account.Risk) == BrokerAccountImport.Hash(account.Risk)) return prior;
+        if (prior.HasReviewedCompactRestart)
+            account = account.WithManagedFillAttribution(prior.BindingId, prior.Orders);
 
         var receipts = new List<BrokerRiskContinuationReceipt>();
         var cursor = account.Risk.RevisionId;

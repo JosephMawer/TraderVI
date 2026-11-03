@@ -314,3 +314,21 @@ and no current connection. The review service and collector were both running. T
 why the later dialog could not proceed. The first failed RPC did not retain a stage code, so its
 cause is unconfirmed. Reopen setup after normal Edge sign-in and verify the operator's build
 approval and separate Resume against the saved receipts before switching to normal startup.
+
+**November 2, 20:26 Toronto.** A later review reached the approval action. Its dashboard reported
+`InvalidDataException`. Read-only SQL verified revision 6844, compact version 29, one settings
+record, the reconciled original sell and unchanged financial, position and order fingerprints.
+
+An offline replay expanded the checksum-verified managed head, used the saved 20:25:41 account
+import and verified the protected checkpoint against the compact rows. The installed successor
+writer rejected its comparison of the prior and proposed open positions. Both remaining
+positions matched the compact book exactly. The fresh broker projection omitted the original
+strategy purchase target on both opening fills. This reproduced the approval failure independently
+of the earlier expired connection.
+
+The correction restores strategy attribution from matching original managed orders in the two
+build-review paths that can save a fresh account. It uses the ordinary trading cycle's existing
+mapping. With the saved import, both targets matched and the unchanged guard prepared one settings
+record with zero position or order writes. The offline workflow regression includes an invested
+compact account, a broker fill without its target, interrupted publication and repeated approval.
+All 22 focused review, risk synchronization and sale recovery cases passed.

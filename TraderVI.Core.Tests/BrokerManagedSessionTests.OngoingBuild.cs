@@ -43,8 +43,22 @@ public sealed partial class BrokerManagedSessionTests
         if (scenario == "pending") prior = prior with { Orders = [order with { Reconciled = false }] };
         if (scenario == "protection") prior = prior with { Protection = [] };
         if (scenario == "risk") prior = prior with { Memory = prior.Memory with { DailyLossHold = true } };
-        x.F.Store.State = prior;
         var fresh = account;
+        if (scenario == "scoped")
+        {
+            order = order with { PositionTarget = 25m };
+            var fill = new TradingActualFill(BrokerManagedStrategy.StableId($"{prior.BindingId:D}:{order.ExternalId}"),
+                position.PositionId, fact.Symbol, "BUY", bought.AddSeconds(1).UtcDateTime, new(2026, 10, 23),
+                2, 10m, null, order.Kind, order.PositionTarget);
+            prior = prior with { Orders = [order], Account = account with { Fills = [fill] },
+                ImplementationReview = new(Guid.NewGuid(), prior.RevisionId, BrokerAccountImport.Hash(prior),
+                    "earlier-build", prior.Strategy.Strategy.ImplementationIdentity, bought, bought, "fixture")
+                { RestartPolicy = BrokerImplementationReview.ScopedRestart, PermissionRequestId = prior.EffectiveReview.RequestId } };
+            // Fresh broker history contains fill facts. Only the original strategy order has the target.
+            fresh = account with { Fills = [fill with { RecommendationKind = null, PositionTarget = null }] };
+            Assert.True(prior.HasReviewedCompactRestart);
+        }
+        x.F.Store.State = prior;
         if (scenario == "stale") fresh = account with { Account = account.Account with { ReportedUtc = x.F.Now.AddMinutes(-1).UtcDateTime } };
         if (scenario == "cash") fresh = account with { Import = account.Import with { Plan = account.Import.Plan with { Observation = observed with { Cash = observed.Cash + 1 } } } };
         x.F.TransformAccount = _ => fresh;
@@ -58,7 +72,11 @@ public sealed partial class BrokerManagedSessionTests
         var proposal = Prepare();
         var workflow = new BrokerImplementationReviewWorkflow(x.F.Store, x.F, x.Existing.Grants, SelectedSessionCalendar(), new HostClock(x.F));
         var saved = await workflow.ApproveAsync(proposal);
-        if (scenario == "scoped") await CheckImmutableBuildSuccessorAsync(prior, saved, x.F.Now);
+        if (scenario == "scoped")
+        {
+            Assert.Equal(prior.Account.Fills.Single(), saved.Account.Fills.Single());
+            await CheckImmutableBuildSuccessorAsync(prior, saved, x.F.Now);
+        }
         Assert.Equal(scenario == "scoped", saved.HasReviewedCompactRestart);
         var changed = saved with { ImplementationReview = saved.ImplementationReview! with
             { RestartPolicy = scenario == "scoped" ? null : BrokerImplementationReview.ScopedRestart } };

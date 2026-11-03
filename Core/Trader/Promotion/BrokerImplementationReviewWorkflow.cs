@@ -83,6 +83,8 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
         BrokerOctober21Continuation.RequireSameDefinition(prior.Strategy, proposal.Strategy);
         var account = await source.SynchronizeAsync(prior.Orders, ct);
         RequireAccount(prior, account, clock.GetUtcNow());
+        if (prior.HasReviewedCompactRestart)
+            account = account.WithManagedFillAttribution(prior.BindingId, prior.Orders);
         RequireHostOff(); now = clock.GetUtcNow(); RequireSession(prior, calendar, now);
         RequireFresh(proposal, now);
         if (source.ImplementationIdentity != proposal.Review.ImplementationIdentity)

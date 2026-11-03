@@ -20,6 +20,18 @@ public sealed record BrokerAccountProjection(BrokerImportReceipt Import, BrokerA
 {
     public string Fingerprint => BrokerAccountImport.Hash(new { Import.BindingId,
         Facts = BrokerAccountImport.FinancialFingerprint(Import.Plan.Observation), Risk, Positions });
+
+    // Broker history owns the fill facts. Only the original managed order supplies strategy attribution.
+    internal BrokerAccountProjection WithManagedFillAttribution(Guid bindingId, IEnumerable<BrokerStrategyOrder> orders)
+    {
+        var fills = Fills.Select(fill =>
+        {
+            var owned = orders.SingleOrDefault(o => BrokerManagedStrategy.StableId($"{bindingId:D}:{o.ExternalId}") == fill.TradeId);
+            return owned is null ? fill : fill with { RecommendationKind = owned.Kind, PositionTarget = owned.PositionTarget,
+                ExitReason = owned.Side == "SELL" ? owned.Kind : null };
+        }).ToImmutableArray();
+        return this with { Fills = fills };
+    }
 }
 
 public static class BrokerAccountProjector

@@ -146,14 +146,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
                 fact.IsTerminal && (fact.Status is not ("FILLED" or "POSTED") || fact.FilledQuantity != old.Quantity)))
                 state = state with { TrialOrderReviewRequired = true };
         }
-        // The imported history owns financial truth; restore strategy attribution only for exact owned orders.
-        var fills = account.Fills.Select(fill =>
-        {
-            var owned = orders.SingleOrDefault(o => BrokerManagedStrategy.StableId($"{bindingId:D}:{o.ExternalId}") == fill.TradeId);
-            return owned is null ? fill : fill with { RecommendationKind = owned.Kind, PositionTarget = owned.PositionTarget,
-                ExitReason = owned.Side == "SELL" ? owned.Kind : null };
-        }).ToImmutableArray();
-        account = account with { Fills = fills };
+        account = account.WithManagedFillAttribution(bindingId, orders);
         var oldFacts = state.Account.Import.Plan.Observation.Orders.ToDictionary(o => o.ExternalId);
         bool externalChange = account.Import.Plan.Observation.Orders.Any(f => f.FilledQuantity > 0 &&
             !orders.Any(o => o.ExternalId == f.ExternalId) &&
