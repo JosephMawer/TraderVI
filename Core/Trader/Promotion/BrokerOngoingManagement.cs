@@ -16,13 +16,19 @@ public sealed record BrokerOngoingManagement(Guid RequestId, Guid SessionId, Gui
     bool NoOutsideChangesConfirmed, bool PauseBeforeOutsideChanges, DateTimeOffset? ApprovedAt = null)
 {
     public string ExecutionPricePolicy { get; init; } = BrokerBuyReference.Contract;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool ReinvestSaleProceeds { get; init; }
     public const string Contract = "OngoingNoTransferManagementV1";
     [JsonIgnore] public string Fingerprint => BrokerAccountImport.Hash(this);
     [JsonIgnore] public BrokerOngoingRiskAuthorization RiskAuthorization => new(RequestId, Review.BindingId, Review.BaselineId,
         PreviousRiskHash, PreviousSessionHash, PreparedAt, Reviewer);
 
     public static BrokerOngoingManagement Prepare(BrokerManagedSession prior, BrokerManagedStrategy strategy,
-        DateTimeOffset now, string reviewer, bool noOutsideChanges, bool pauseBeforeChanges)
+        DateTimeOffset now, string reviewer, bool noOutsideChanges, bool pauseBeforeChanges) =>
+        Prepare(prior, strategy, now, reviewer, noOutsideChanges, pauseBeforeChanges, false);
+
+    public static BrokerOngoingManagement Prepare(BrokerManagedSession prior, BrokerManagedStrategy strategy,
+        DateTimeOffset now, string reviewer, bool noOutsideChanges, bool pauseBeforeChanges, bool reinvestSaleProceeds)
     {
         var origin = prior.EffectiveReview.NoTransferScope
             ?? throw new InvalidOperationException("Recover the existing dated permission before its explicit ongoing review.");
@@ -31,7 +37,8 @@ public sealed record BrokerOngoingManagement(Guid RequestId, Guid SessionId, Gui
             BrokerSessionContinuation.StateHash(prior), BrokerAccountImport.Hash(prior.Account.Risk),
             prior.EffectiveReview with { RequestId = id, Strategy = strategy, PreparedAt = now,
                 Duration = BrokerExecutionDuration.Ongoing, NoTransferScope = null },
-            origin.CashOnlyAnchor, now, reviewer, noOutsideChanges, pauseBeforeChanges);
+            origin.CashOnlyAnchor, now, reviewer, noOutsideChanges, pauseBeforeChanges)
+            { ReinvestSaleProceeds = reinvestSaleProceeds };
         value.RequirePrior(prior);
         return value;
     }

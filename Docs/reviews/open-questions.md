@@ -5,18 +5,6 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
-### Reusing confirmed sale proceeds in ongoing Real rotation — November 3, 2026
-
-The operator expected the strategy to buy the next stock with cash returned by a sale.
-The [current agreement](../adr/0109-explicit-ongoing-delphi-live-management.md) retains
-the [cumulative ceiling](../adr/0085-portfolio-wide-ongoing-tfsa-management.md). It prevented
-whole-share purchases despite available cash at the [November 3 sizing checks](../project-status.md#operating-state-and-immediate-risks).
-Decide whether a new ongoing permission should make reconciled net proceeds from the
-strategy's own sales, including realized gains, available for subsequent purchases up to
-verified unreserved broker cash and buying power. Define the opening balance for an existing
-assignment and verify that pending orders, partial fills, repeated reads and restart cannot
-release or credit the same funds twice. Existing permissions retain their original terms.
-
 ### Bounded ordinary engine recovery — October 30, 2026
 
 **November 2 release decision.** Joseph selected original-request-only maintenance followed by an

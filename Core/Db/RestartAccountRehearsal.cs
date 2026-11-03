@@ -54,14 +54,19 @@ public static class RestartAccountRehearsal
         BrokerExecutionHost.RequireMatchingAssignment(grant, saved, installedBuild, now);
         var review = saved.EffectiveReview;
         var account = Account(saved, grant.Enabled);
+        var configuration = new System.Text.Json.Nodes.JsonObject
+        {
+            ["StrategyFingerprint"] = saved.Strategy.Fingerprint,
+            ["RestoreAfterRestart"] = grant.RestoreAfterRestart
+        };
+        if (saved.ReusesSaleProceeds) configuration["ReinvestSaleProceeds"] = true;
         var settings = new TradingApprovedSettings
         {
             BindingId = saved.BindingId, AssignmentId = saved.SessionId, PermissionId = review.RequestId, BaselineId = review.BaselineId,
             StrategyId = account.StrategyId, SourceId = saved.Strategy.PaperAccountId, ImplementationIdentity = installedBuild,
             ApprovedUtc = approved.UtcDateTime, PurchaseCeiling = review.PurchaseCeiling, ScopeCode = BrokerOngoingManagement.Contract,
             // Rehearsal never grants either action. Source permission and host switch are compared separately.
-            BuyAllowed = false, SellAllowed = false, ConfigurationJson = JsonSerializer.Serialize(new
-                { StrategyFingerprint = saved.Strategy.Fingerprint, grant.RestoreAfterRestart })
+            BuyAllowed = false, SellAllowed = false, ConfigurationJson = configuration.ToJsonString()
         };
         var positions = Positions(saved);
         var marker = new TradingCheckpoint { BindingId = saved.BindingId, Slot = 0, OperationId = saved.RevisionId,

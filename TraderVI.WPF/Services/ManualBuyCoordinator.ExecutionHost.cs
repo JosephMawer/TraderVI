@@ -312,17 +312,19 @@ public sealed partial class ManualBuyCoordinator
                     summary.Text = lines + $"Ongoing management approved {agreement.ApprovedAt:g}\nStrategy: {saved.Strategy.Strategy.Name}\n" +
                         saved.Strategy.Strategy.EntryReviewDescription + "\n" +
                         (saved.NewBuysStopped ? "New buys paused · existing exit/protection rules active when checks pass.\n" : "New buying allowed after all current checks.\n") +
-                        $"Remaining cumulative purchase allowance: {saved.EffectiveReview.PurchaseCeiling - saved.CommittedPurchaseCost:N2} CAD\n" +
+                        $"{(saved.ReusesSaleProceeds ? "Remaining buying allowance including reconciled net sales" : "Remaining cumulative purchase allowance")}: {saved.RemainingPurchaseAllowance:N2} CAD\n" +
                         "Daily account, source, models/configuration, calendar, integrity and risk checks are automatic. No daily approval is needed for this unchanged agreement.\n" +
                         "Pause before outside account changes. A changed build/strategy or unresolved safety issue requires review.\n\n" +
                         ExecutionStatus.Message + "\n" + string.Join("\n", saved.Blocks);
-                    if (saved.Strategy.Strategy.ImplementationIdentity != BrokerManagedSessionComposition.ImplementationIdentity)
+                    bool changedBuild = saved.Strategy.Strategy.ImplementationIdentity != BrokerManagedSessionComposition.ImplementationIdentity;
+                    if (changedBuild || !saved.ReusesSaleProceeds)
                     {
-                        reviewingBuild = true; reviewed = null;
-                        reviewSwitch.Content = "Review updated build"; approveSwitch.Content = "Approve build and restart rules";
+                        reviewingBuild = true;
+                        if (changedBuild) reviewed = null;
+                        reviewSwitch.Content = "Review build and sale proceeds"; approveSwitch.Content = "Approve build and reuse of sale proceeds";
                         reviewSwitch.Visibility = approveSwitch.Visibility = noOutside.Visibility = Visibility.Visible;
-                        summary.Text += "\n\nThe installed build changed. Stop execution host, confirm no outside changes, then Review updated build. " +
-                            "Review the scoped restart rules for unfinished orders. Approval is available after hours. Resume the reviewed host separately afterward.";
+                        summary.Text += "\n\nTo review this build and reuse reconciled sale proceeds, stop the execution host and confirm no outside changes. " +
+                            "Review the buying and restart terms, then resume the approved host separately.";
                     }
                 }
                 else
@@ -331,7 +333,7 @@ public sealed partial class ManualBuyCoordinator
                     reviewOngoing.Visibility = approveOngoing.Visibility = Visibility.Visible;
                     summary.Text = lines + "Initial ongoing approval is required. The previous dated permission has not been extended.\n\n" +
                         "Confirm the no-transfer agreement, then Review ongoing management. This stops the execution host for the review and checks the exact strategy/build, account and original financial references.\n\n" +
-                        "Approve and start ongoing management saves the agreement and starts its host in one action. Buying remains subject to daily checks and regular market hours. Existing pause settings, protection and cumulative allowance are retained.\n\n" +
+                        "Approve and start ongoing management saves the reviewed buying terms and starts its host. Buying remains subject to daily checks and regular market hours. Existing pause settings and protection are retained.\n\n" +
                         "Signal confirmation remains five-minute until a separately reviewed minute-data successor is qualified.";
                 }
                 return;
@@ -524,7 +526,7 @@ public sealed partial class ManualBuyCoordinator
             ongoingReview = prepared.Review; ongoingWorkflow = prepared.Workflow;
             summary.Text = $"Review ongoing management · {ongoingReview.Review.Strategy.Strategy.Name}\n" +
                 $"Build: {ongoingReview.Review.Strategy.Strategy.ImplementationIdentity}\n" +
-                $"Cumulative purchase ceiling: {ongoingReview.Review.PurchaseCeiling:N2} CAD. Day changes and sales do not refill it.\n\n" +
+                $"Starting purchase authority: {ongoingReview.Review.PurchaseCeiling:N2} CAD. Reconciled strategy sales return their net proceeds, including profits, once broker cash and buying power are available. Outside deposits provide no new authority.\n\n" +
                 "Until paused, with automatic daily checks and checked restart restoration. Original account loss references and history remain. Pause new buys leaves existing protection active; full host stop is separate.\n\n" +
                 "No outside changes since the original baseline; pause before any outside deposit, withdrawal or trade. Unexplained differences block buying. Matching balances cannot detect offsetting transfers.\n\n" +
                 "Execution-price policy: fixed fresh broker ask per confirmation episode; at most 0.25% upward movement and 0.50% spread (ask minus bid, divided by ask). Shares reserve against the upper price within existing allocation/cash/allowance. Rejected references never move up. Market-order fills can exceed the checked quote.\n\n" +

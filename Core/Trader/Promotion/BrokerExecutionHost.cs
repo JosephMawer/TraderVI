@@ -12,6 +12,8 @@ public sealed record BrokerExecutionHostGrant(Guid BindingId, Guid SessionId, st
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public Guid? ContinuationId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public Guid? ReinvestmentReviewId { get; init; }
     // Explicit host scope, absent from legacy grants. A dated trial cannot gain restart authority.
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool RestoreAfterRestart { get; init; }
@@ -75,6 +77,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
             var grant = new BrokerExecutionHostGrant(bindingId, sessionId, reviewedStrategyFingerprint,
                 implementationIdentity, clock.GetUtcNow(), reviewer, true)
                 { ContinuationId = saved.OngoingManagement?.RequestId ?? saved.SessionContinuation?.Approval.Review.RequestId ?? saved.October22?.Approval.Review.RequestId ?? saved.Continuation?.Approval.Review.RequestId,
+                    ReinvestmentReviewId = saved.ReinvestmentReviewId,
                     RestoreAfterRestart = saved.IsOngoing && saved.EffectiveReview.NoTransferScope is null };
             grant.Validate(); RequireMatchingAssignment(grant, saved);
             ct.ThrowIfCancellationRequested();
@@ -180,6 +183,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
     {
         saved.Strategy.Validate();
         if (saved.BindingId != grant.BindingId || saved.SessionId != grant.SessionId || saved.Strategy.Fingerprint != grant.StrategyFingerprint ||
+            grant.ReinvestmentReviewId != saved.ReinvestmentReviewId ||
             grant.RestoreAfterRestart && (!saved.IsOngoing || saved.EffectiveReview.NoTransferScope is not null) ||
             grant.ContinuationId != (saved.OngoingManagement?.RequestId ?? saved.SessionContinuation?.Approval.Review.RequestId ?? saved.October22?.Approval.Review.RequestId ?? saved.Continuation?.Approval.Review.RequestId) ||
             saved.OngoingManagement is { } ongoing && (ongoing.ApprovedAt is null || ongoing.ApprovedAt > grant.ReviewedAt ||

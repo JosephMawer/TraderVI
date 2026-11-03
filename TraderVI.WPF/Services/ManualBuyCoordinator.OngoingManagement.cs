@@ -37,7 +37,7 @@ public sealed partial class ManualBuyCoordinator
         await Verify(ct);
         var definition = await new TradingPromotionRepository().ReviewExistingBrokerAsync(saved, executionCalendar!, DateTimeOffset.UtcNow, ct);
         var review = BrokerOngoingManagement.Prepare(saved, definition.Review.Strategy, DateTimeOffset.UtcNow,
-            Environment.UserName, true, true);
+            Environment.UserName, true, true, reinvestSaleProceeds: true);
         var risk = new BrokerOngoingRiskEvidenceSource(review, executionCalendar!, new BrokerOngoingBoundaryRepository().ReadAsync, reviewOnly: true);
         var components = CreateManagedComponents(connection, connection, connection, journal, journal, orderGate,
             account, executionCalendar!, risk);

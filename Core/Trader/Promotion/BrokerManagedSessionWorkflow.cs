@@ -345,6 +345,14 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             return await SaveDecisionOutcome(lease, state, "MinuteSignalExpiredBeforeReservation", ct);
         if (!sell && (state.NewBuysStopped || trialPurchasesEnded || !currentRiskDay || !account.NewRiskBlocks.IsEmpty || state.Memory.DailyLossHold || state.Memory.CapitalReviewRequired))
             return await SaveDecisionOutcome(lease, state, "NewRiskBlockedBeforeReservation", ct);
+        if (!sell && state.ReusesSaleProceeds)
+        {
+            try { _ = BrokerOngoingRiskEvidenceSource.Reconcile(state.OngoingManagement!, account.Import.Plan.Observation, state.Orders); }
+            catch (InvalidOperationException)
+            {
+                return await SaveDecisionOutcome(lease, state, "SaleProceedsAccountMismatch", ct);
+            }
+        }
         string security;
         try
         {
@@ -398,7 +406,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
                 buyReference.Validate(clock.GetUtcNow());
                 // Never increase shares or target allocation when switching from the signal feed to the executable ask.
                 quantity = buyReference.Size(quantity, recommendation.PositionTarget ?? quantity * price,
-                    account.Account.AvailableCash ?? 0, state.EffectiveReview.PurchaseCeiling - state.CommittedPurchaseCost);
+                    account.Account.AvailableCash ?? 0, state.RemainingPurchaseAllowance);
                 price = buyReference.MaximumAsk;
             }
             catch (Exception error)
@@ -407,7 +415,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             }
         }
         if (quantity < 1 || !sell && (price <= 0 || quantity * price >
-            System.Math.Min(account.Account.AvailableCash ?? 0, state.EffectiveReview.PurchaseCeiling - state.CommittedPurchaseCost)))
+            System.Math.Min(account.Account.AvailableCash ?? 0, state.RemainingPurchaseAllowance)))
             return await SaveDecisionOutcome(lease, state, quantity < 1 ? "InvalidOrderQuantity" : "PurchaseCeilingOrCashExceeded", ct);
         return await Submit(lease, state, new BrokerStrategyOrder(BrokerManagedStrategy.StableId(decisionId.ToString("D")), decisionId,
             recommendation.PositionId, security, recommendation.Symbol, sell ? "SELL" : "BUY", quantity,

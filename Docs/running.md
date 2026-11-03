@@ -20,6 +20,12 @@ use **Engine → Execution setup** for that workflow.
 
 ## Explicit ongoing Delphi Live — installed October 27
 
+For the [reinvestment approval](adr/0125-reusable-strategy-sale-proceeds.md), stop execution
+permission, confirm the no-outside-changes statement, and choose **Review build and sale
+proceeds**. Inspect the calculated available capital, existing risk references and preserved
+positions. Choose **Approve build and reuse of sale proceeds** within the review window and
+then **Resume stopped execution host**. A review-only engine still needs the normal restart.
+
 ADR-0109 is installed in the standard Release runtime. Financial activation remains an explicit app
 action; legacy dated approvals never become ongoing by startup. Once integrity recovery and current
 account/source checks pass, open Engine > Execution setup, confirm the truthful no-transfer agreement,

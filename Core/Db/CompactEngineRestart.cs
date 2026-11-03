@@ -89,6 +89,8 @@ internal sealed class CompactEngineRestart(TradingCurrentStore store, ManualBuyF
             if (saved.RevisionId != observed.RevisionId) throw new InvalidOperationException("The account changed before recovery.");
             var db = (await new EngineContinuityRepository().ReadAsync(ct)).Database;
             var (state, initial) = await ReadAsync(saved.BindingId, saved.RevisionId, db, ct);
+            if (state.Settings.ReusesSaleProceeds() != saved.ReusesSaleProceeds)
+                throw new InvalidDataException("The saved buying terms differ from the compact approval.");
             initial.Assignment.RequireAssignment(state, grants.Read(), build, clock.GetUtcNow(), allowReadRecovery: true);
             var committing = store.WithCheckpointWriter(updated =>
             {

@@ -24,6 +24,7 @@ internal static class CompactBuildSuccessor
             next.PreviousRevisionId != prior.RevisionId || seal.ManagedRevision != prior.RevisionId ||
             prior.BindingId != book.Account.BindingId || next.BindingId != prior.BindingId ||
             next.SessionId != prior.SessionId || prior.SessionId != book.Account.AssignmentId ||
+            old.ReusesSaleProceeds() != prior.ReusesSaleProceeds ||
             old.FinancialPermissionId != review.PermissionRequestId || next.EffectiveReview.RequestId != review.PermissionRequestId ||
             seal.Assignment.Permission != old.FinancialPermissionId || old.StrategyId != prior.Strategy.VersionId ||
             seal.Assignment.Strategy != old.StrategyId || seal.Assignment.Grant.StrategyFingerprint != prior.Strategy.Fingerprint ||
@@ -44,6 +45,7 @@ internal static class CompactBuildSuccessor
         var config = JsonNode.Parse(verifiedOwners.ConfigurationJson)!.AsObject();
         config["StrategyFingerprint"] = next.Strategy.Fingerprint;
         config["FinancialPermissionId"] = old.FinancialPermissionId;
+        if (next.ReusesSaleProceeds) config["ReinvestSaleProceeds"] = true;
         foreach (var key in config.Select(p => p.Key).Where(k => k.StartsWith("Held_", StringComparison.Ordinal)).ToArray())
             config.Remove(key);
         foreach (var p in book.Positions.Where(verifiedOwners.OwnsProtection))
@@ -61,7 +63,8 @@ internal static class CompactBuildSuccessor
         };
         // This is an expected identity in the checkpoint. Only an independently enabled host grant can run.
         var expected = seal.Assignment.Grant with { Enabled = false, ImplementationIdentity = settings.ImplementationIdentity,
-            StrategyFingerprint = next.Strategy.Fingerprint, ReviewedAt = review.ApprovedAt, ReviewedBy = review.ReviewedBy };
+            StrategyFingerprint = next.Strategy.Fingerprint, ReviewedAt = review.ApprovedAt, ReviewedBy = review.ReviewedBy,
+            ReinvestmentReviewId = next.ReinvestmentReviewId };
         return (write, seal.Assignment with { Grant = expected, Strategy = settings.StrategyId });
     }
 }

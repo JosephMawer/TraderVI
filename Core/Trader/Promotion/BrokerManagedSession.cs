@@ -173,6 +173,24 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     // An ongoing assignment does not refill its explicitly approved spending ceiling at midnight.
     [JsonIgnore] public decimal CommittedPurchaseCost => Orders.Where(o => o.Side == "BUY")
         .Sum(o => o.Reconciled ? o.Latest?.NetValue ?? 0 : o.Quantity * o.ReferencePrice);
+    [JsonIgnore] public Guid? ReinvestmentReviewId
+    {
+        get
+        {
+            if (OngoingManagement is not { ApprovedAt: not null } agreement) return null;
+            if (ImplementationReview is { ReinvestSaleProceeds: true } review && review.PermissionRequestId == agreement.RequestId)
+                return review.ReviewId;
+            return agreement.ReinvestSaleProceeds ? agreement.RequestId : null;
+        }
+    }
+    [JsonIgnore] public bool ReusesSaleProceeds => ReinvestmentReviewId.HasValue;
+    // One cumulative fact per original owned order. A repeated broker read or restart cannot credit a sale again.
+    [JsonIgnore] public decimal ReconciledOngoingSaleProceeds => Orders.Where(o => o.Side == "SELL" && o.Reconciled &&
+            o.CreatedAt >= OngoingManagement?.ApprovedAt && o.Latest is { Side: "SELL", Status: "FILLED" or "POSTED" } f &&
+            f.ExternalId == o.ExternalId && f.SecurityId == o.SecurityId && f.FilledQuantity == o.Quantity)
+            .Sum(o => o.Latest!.NetValue ?? 0m);
+    [JsonIgnore] public decimal RemainingPurchaseAllowance => EffectiveReview.PurchaseCeiling - CommittedPurchaseCost +
+        (ReusesSaleProceeds ? ReconciledOngoingSaleProceeds : 0m);
     [JsonIgnore] public DateTime? ProtectionReplayFromUtc => Protection
         .Where(p => Account.Positions.Any(h => h.PositionId == p.PositionId))
         .Select(p => (DateTime?)(p.ThroughUtc ?? p.EstablishedAt.UtcDateTime)).Min();

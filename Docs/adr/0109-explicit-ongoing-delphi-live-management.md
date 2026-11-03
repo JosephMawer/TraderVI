@@ -10,6 +10,9 @@ managing the actual TFSA across trading days until the operator pauses it.
 
 ## Accepted ongoing scope
 
+[ADR-0125](0125-reusable-strategy-sale-proceeds.md) supersedes the cumulative purchase rule
+below for an ongoing agreement explicitly approved for reinvestment.
+
 Joseph explicitly accepts an ongoing no-transfer agreement after reviewing its limitation: the broker
 adapter does not establish complete deposit/withdrawal coverage. Initial approval confirms no outside
 changes since the original cash-only anchor and a commitment to pause before an outside deposit,

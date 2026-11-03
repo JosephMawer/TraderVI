@@ -19,6 +19,7 @@ public sealed partial class BrokerManagedSessionTests
     [Theory]
     [InlineData("valid")][InlineData("scoped")][InlineData("stale")][InlineData("cash")][InlineData("pending")]
     [InlineData("protection")][InlineData("risk")][InlineData("source")]
+    [InlineData("reinvest")][InlineData("same-build reinvest")]
     public async Task OngoingInvestedBuildReviewPreservesAuthorityAndRequiresUnchangedCheckedBook(string scenario)
     {
         var x = await OngoingFixture(); var prior = await x.Workflow().ApproveAsync(x.Review);
@@ -44,7 +45,9 @@ public sealed partial class BrokerManagedSessionTests
         if (scenario == "protection") prior = prior with { Protection = [] };
         if (scenario == "risk") prior = prior with { Memory = prior.Memory with { DailyLossHold = true } };
         var fresh = account;
-        if (scenario == "scoped")
+        bool reinvest = scenario is "reinvest" or "same-build reinvest";
+        bool scoped = scenario == "scoped" || reinvest;
+        if (scoped)
         {
             order = order with { PositionTarget = 25m };
             var fill = new TradingActualFill(BrokerManagedStrategy.StableId($"{prior.BindingId:D}:{order.ExternalId}"),
@@ -62,24 +65,28 @@ public sealed partial class BrokerManagedSessionTests
         if (scenario == "stale") fresh = account with { Account = account.Account with { ReportedUtc = x.F.Now.AddMinutes(-1).UtcDateTime } };
         if (scenario == "cash") fresh = account with { Import = account.Import with { Plan = account.Import.Plan with { Observation = observed with { Cash = observed.Cash + 1 } } } };
         x.F.TransformAccount = _ => fresh;
-        x.F.RunningImplementation = "repaired-build";
+        x.F.RunningImplementation = scenario == "same-build reinvest" ? prior.Strategy.Strategy.ImplementationIdentity : "repaired-build";
         var current = x.Existing.Current with { PreparedUtc = x.F.Now.UtcDateTime,
             Strategy = prior.Strategy with { Strategy = prior.Strategy.Strategy with { ImplementationIdentity = x.F.ImplementationIdentity } } };
         BrokerImplementationReviewProposal Prepare() => BrokerImplementationReviewWorkflow.Prepare(prior, current,
             scenario == "source" ? x.F.Now.AddMinutes(-3) : x.F.Now, fresh, true, x.F.ImplementationIdentity, "fixture", SelectedSessionCalendar(), x.F.Now,
-            reviewScopedRestart: scenario == "scoped");
-        if (scenario is not ("valid" or "scoped")) { Assert.Throws<InvalidOperationException>(() => Prepare()); Assert.Equal(0, x.F.Transport.Sent); return; }
+            reviewScopedRestart: scoped, reinvestSaleProceeds: reinvest);
+        if (!scoped && scenario != "valid") { Assert.Throws<InvalidOperationException>(() => Prepare()); Assert.Equal(0, x.F.Transport.Sent); return; }
         var proposal = Prepare();
         var workflow = new BrokerImplementationReviewWorkflow(x.F.Store, x.F, x.Existing.Grants, SelectedSessionCalendar(), new HostClock(x.F));
         var saved = await workflow.ApproveAsync(proposal);
-        if (scenario == "scoped")
+        if (scoped)
         {
             Assert.Equal(prior.Account.Fills.Single(), saved.Account.Fills.Single());
             await CheckImmutableBuildSuccessorAsync(prior, saved, x.F.Now);
         }
-        Assert.Equal(scenario == "scoped", saved.HasReviewedCompactRestart);
+        Assert.Equal(scoped, saved.HasReviewedCompactRestart);
+        Assert.Equal(reinvest, saved.ReusesSaleProceeds);
+        var changedBuyingTerms = saved with { ImplementationReview = saved.ImplementationReview! with
+            { ReinvestSaleProceeds = !saved.ReusesSaleProceeds } };
+        Assert.Throws<InvalidOperationException>(() => BrokerImplementationReviewWorkflow.ValidateAppend(prior, changedBuyingTerms, SelectedSessionCalendar()));
         var changed = saved with { ImplementationReview = saved.ImplementationReview! with
-            { RestartPolicy = scenario == "scoped" ? null : BrokerImplementationReview.ScopedRestart } };
+            { RestartPolicy = scoped ? null : BrokerImplementationReview.ScopedRestart } };
         Assert.Throws<InvalidOperationException>(() => BrokerImplementationReviewWorkflow.ValidateAppend(prior, changed, SelectedSessionCalendar()));
         Assert.Equal(x.F.ImplementationIdentity, saved.Strategy.Strategy.ImplementationIdentity);
         Assert.Equal(prior.OngoingManagement, saved.OngoingManagement);
@@ -161,6 +168,7 @@ public sealed partial class BrokerManagedSessionTests
             await tx.CommitAsync(default);
         }
         Assert.Equal(next.RevisionId, current.Settings.PermissionId);
+        Assert.Equal(next.ReusesSaleProceeds, current.Settings.ReusesSaleProceeds());
         Assert.Equal(original.Settings.PermissionId, current.Settings.FinancialPermissionId);
         Assert.Equal(original.Account with { Version = 1, PermissionId = next.RevisionId, StrategyId = next.Strategy.VersionId }, current.Account);
         Assert.Equal(original.Positions, current.Positions.ToArray());
@@ -169,7 +177,8 @@ public sealed partial class BrokerManagedSessionTests
         var build = next.Strategy.Strategy.ImplementationIdentity;
         Assert.Throws<InvalidOperationException>(() => seal.Assignment.RequireAssignment(current, grant, build, now));
         Assert.Throws<InvalidOperationException>(() => seal.Assignment.RequireAssignment(current, seal.Assignment.Grant, build, now));
-        var enabled = grant with { StrategyFingerprint = next.Strategy.Fingerprint, ImplementationIdentity = build };
+        var enabled = grant with { StrategyFingerprint = next.Strategy.Fingerprint, ImplementationIdentity = build,
+            ReinvestmentReviewId = next.ReinvestmentReviewId };
         seal.Assignment.RequireAssignment(current, enabled, build, now);
         var later = next with { PreviousRevisionId = next.RevisionId, RevisionId = Guid.NewGuid(), Revision = next.Revision + 1 };
         later = later with { Event = "AccountSynchronized" };

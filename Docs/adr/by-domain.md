@@ -58,6 +58,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0088](0088-source-symbol-aliases-for-monitoring.md) — Resolve monitoring references without rewriting account history
 - [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — AI Momentum scope, budgeted client and proposal-only boundary
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Any portfolio and ongoing TFSA management until pause or switch
+- [ADR-0125](0125-reusable-strategy-sale-proceeds.md) — Reinvest reconciled net sale proceeds under explicit ongoing approval
 
 - [ADR-0086](0086-supervised-broker-strategy-session.md) — Durable supervised broker session and original-order recovery
 

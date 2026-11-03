@@ -155,7 +155,8 @@ without advancing protection's recovery boundary. This does not manufacture miss
 
 The reviewed purchase ceiling remains cumulative across this assignment. A day change, sale or
 restart never replenishes its unused authorization; actual committed costs and unresolved reservations
-still count. Ongoing duration is not extra spending authority. The exact running implementation is
+still count. [ADR-0125](0125-reusable-strategy-sale-proceeds.md) supersedes this ceiling only
+after explicit approval of reusable sale proceeds. The exact running implementation is
 checked before any new order, including transition exits; current unsupported families are rejected
 before approval can begin liquidation. The recommendation-only contract is unchanged.
 

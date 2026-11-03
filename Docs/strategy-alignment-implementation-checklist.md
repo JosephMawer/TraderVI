@@ -152,7 +152,9 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   original BUY requests. `BrokerManagedSessionWorkflow` reserves the original quantity × reference price
   and later records the broker outcome on that same request. While the request is unresolved, its
   contribution stays at the original estimate. Once reconciled, its contribution becomes the broker's
-  net cost. SELL proceeds do not replenish the approved ceiling. The order sizing path, first review,
+  net cost. Under the original approval SELL proceeds do not replenish the ceiling.
+  [ADR-0125](adr/0125-reusable-strategy-sale-proceeds.md) defines the separately reviewed reinvestment terms.
+  The order sizing path, first review,
   continuation reviews and approvals, ongoing approval, and desktop execution/minute/source review
   summaries read this allowance.
   [Calculation](../Core/Trader/Promotion/BrokerManagedSession.cs),

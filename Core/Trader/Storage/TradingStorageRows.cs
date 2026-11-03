@@ -45,6 +45,12 @@ public sealed record TradingApprovedSettings : TradingStorageRow
         return json.RootElement.TryGetProperty("Held_" + position.PositionId.ToString("N"), out var owner) &&
             owner.GetString() == position.ProtectionOwner;
     }
+
+    internal bool ReusesSaleProceeds()
+    {
+        using var json = System.Text.Json.JsonDocument.Parse(ConfigurationJson);
+        return json.RootElement.TryGetProperty("ReinvestSaleProceeds", out var flag) && flag.GetBoolean();
+    }
 }
 
 public sealed record TradingAccountCurrent : TradingStorageRow

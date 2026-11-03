@@ -43,8 +43,8 @@ public sealed partial class ManualBuyCoordinator
         string summary = "Review one-minute Delphi Live strategy\n\n" + proposal.Review.Strategy.Strategy.EntryReviewDescription + "\n\n" +
             "Two consecutive qualifying one-minute observations are required. Validated backfill may satisfy both immediately when the latest signal is still current; a restart adds no waiting period.\n" +
             "Three-of-four, VWAP, longer indicator windows, five-minute closing-high protection and fresh broker-bid protection are retained.\n" +
-            "The ongoing no-transfer agreement, original risk references, holdings, pending-order identities and cumulative allowance are preserved.\n" +
-            $"Remaining purchase allowance: {saved.EffectiveReview.PurchaseCeiling - saved.CommittedPurchaseCost:N2} CAD. Holdings: {saved.Account.Positions.Length}.\n" +
+            "The ongoing no-transfer agreement, original risk references, holdings, pending-order identities and approved buying terms are preserved.\n" +
+            $"Remaining purchase allowance: {saved.RemainingPurchaseAllowance:N2} CAD. Holdings: {saved.Account.Positions.Length}.\n" +
             $"Buying mode retained: {(saved.NewBuysStopped ? "paused" : "allowed after current checks")}. Source qualified {qualification.QualifiedAt:g}; original signal deadline {qualification.DeadlineOffset.TotalSeconds:N0} seconds after each minute.\n\n" +
             "Approve the reviewed one-minute strategy within two minutes, then resume the stopped execution host separately. Approval submits no order.";
         return new(proposal, workflow, summary);

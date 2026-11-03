@@ -44,14 +44,22 @@ public sealed partial class ManualBuyCoordinator
         var proposal=BrokerImplementationReviewWorkflow.Prepare(saved,normal.Review,normal.Updated,projected,
             storage.BaselineInstalled && storage.ContinuationInstalled && storage.SessionInstalled && storage.ImmutableStorageVerified,
             BrokerManagedSessionComposition.ImplementationIdentity,Environment.UserName,executionCalendar!,DateTimeOffset.UtcNow,
-            reviewScopedRestart: saved.OngoingManagement != null);
+            reviewScopedRestart: saved.OngoingManagement != null, reinvestSaleProceeds: saved.OngoingManagement != null);
+        decimal reusableCapital = saved.EffectiveReview.PurchaseCeiling - saved.CommittedPurchaseCost + saved.ReconciledOngoingSaleProceeds;
+        decimal availableForReview = Math.Max(0m, Math.Min(projected.Account.AvailableCash ?? 0m, reusableCapital));
+        string buyingTerms = proposal.Review.ReinvestSaleProceeds
+            ? $"Starting purchase authority {saved.EffectiveReview.PurchaseCeiling:N2} CAD. Reuse net proceeds, including profits, from verified strategy sales since the ongoing agreement began. " +
+              $"After purchases and reconciled sales, this review allows up to {availableForReview:N2} CAD before strategy sizing. " +
+              "Each original filled sale counts once after reconciliation. Every buy is limited by available broker cash, buying power, whole-share sizing and risk checks. " +
+              "Pending proceeds are unavailable. Outside deposits or unexplained cash changes require review.\n"
+            : $"Original cumulative purchase ceiling {saved.EffectiveReview.PurchaseCeiling:N2} CAD.\n";
         string summary=$"Updated build review\nExact strategy: {normal.Review.Strategy.Strategy.Name} · {normal.Review.Strategy.GateProfile}\n" +
             normal.Review.Strategy.Strategy.EntryReviewDescription + "\n" +
             $"Previous build: {BrokerAccountImport.Hash(proposal.Review.PreviousImplementation)[..16]}\nNew build: {BrokerAccountImport.Hash(proposal.Review.ImplementationIdentity)[..16]}\n" +
-            $"Original purchase ceiling remains {saved.EffectiveReview.PurchaseCeiling:N2} CAD. Fresh cash {projected.Import.Plan.Observation.Cash:N2} CAD.\n" +
+            buyingTerms + $"Fresh broker cash {projected.Import.Plan.Observation.Cash:N2} CAD.\n" +
             $"Original daily reference {projected.Risk.SessionReference.Value:N2} CAD; drawdown reference {projected.Risk.DrawdownReference.Value:N2} CAD; all source dates and history retained.\n" +
             (saved.OngoingManagement is not null ? $"Ongoing agreement retained with {saved.Account.Positions.Length} holdings and their saved protection. " : $"Original permission still expires {scope!.PurchaseExpiresAt?.ToLocalTime():g}. ") +
-            "Gates, risk controls, memory, buying/paused mode and cumulative allowance are unchanged.\n\n" +
+            "Existing risk controls, position protection, order history and buying mode are preserved.\n\n" +
             (proposal.Review.RestartPolicy == BrokerImplementationReview.ScopedRestart ?
                 "Restart permission for this build. Keep the money for an unfinished buy reserved. Look up its original order and count each confirmed fill once. A saved protective sell on a different holding may proceed without another quote or holdings refresh. A conflicting sale on those same shares still blocks that sale.\n\n" : "") +
             "Review these facts, then approve the reviewed build within two minutes. Resume the reviewed host separately afterward. " +

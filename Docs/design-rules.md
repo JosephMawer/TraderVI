@@ -216,7 +216,9 @@ restart only after fresh account/order checks; stopped buying stays stopped and 
 Core now saves a distinct purchase-only control; the supervised-session Paused phase still blocks
 automatic exits too. Existing one-session approvals still expire; new explicitly scoped ongoing
 approvals retain their exact strategy, protection, cumulative purchase ceiling and original orders
-across checked days. Only verified risk continuation clears the prior daily hold. Source/tested TFSA
+across checked days. Only verified risk continuation clears the prior daily hold.
+[ADR-0125](adr/0125-reusable-strategy-sale-proceeds.md) permits reinvestment of reconciled net
+sale proceeds under separately approved ongoing terms. Legacy approvals remain cumulative. TFSA
 controls restore the saved selection after linked-account refresh but start no execution loop.
 Native qualification, execution-host rollout, Delphi Live handover, switching and manual ownership
 remain unfinished. No new order

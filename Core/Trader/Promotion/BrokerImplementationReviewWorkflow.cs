@@ -16,9 +16,12 @@ public sealed record BrokerImplementationReview(Guid ReviewId, Guid PreviousRevi
     public Guid? PermissionRequestId { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? RestartPolicy { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool ReinvestSaleProceeds { get; init; }
     public const string ScopedRestart = "ScopedOriginalOrderRecoveryV1";
-    internal static Guid RequestId(Guid prior, string build, string? restartPolicy) =>
-        BrokerManagedStrategy.StableId($"{prior:D}:ImplementationReview:{build}" + (restartPolicy == null ? "" : ":" + restartPolicy));
+    internal static Guid RequestId(Guid prior, string build, string? restartPolicy, bool reinvestSaleProceeds = false) =>
+        BrokerManagedStrategy.StableId($"{prior:D}:ImplementationReview:{build}" + (restartPolicy == null ? "" : ":" + restartPolicy)
+            + (reinvestSaleProceeds ? ":ReconciledSaleProceedsV1" : ""));
     public override string ToString() => "Reviewed implementation update (financial data omitted)";
 }
 public sealed record BrokerImplementationReviewProposal(Guid BindingId, BrokerImplementationReview Review,
@@ -36,14 +39,20 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
 
     public static BrokerImplementationReviewProposal Prepare(BrokerManagedSession prior, BrokerStrategyReview current,
         DateTimeOffset sourceUpdatedAt, BrokerAccountProjection account, bool storageReady, string implementation,
-        string reviewer, ITsxSessionCalendar calendar, DateTimeOffset now, bool reviewScopedRestart)
+        string reviewer, ITsxSessionCalendar calendar, DateTimeOffset now, bool reviewScopedRestart) =>
+        Prepare(prior, current, sourceUpdatedAt, account, storageReady, implementation, reviewer, calendar, now, reviewScopedRestart, false);
+
+    public static BrokerImplementationReviewProposal Prepare(BrokerManagedSession prior, BrokerStrategyReview current,
+        DateTimeOffset sourceUpdatedAt, BrokerAccountProjection account, bool storageReady, string implementation,
+        string reviewer, ITsxSessionCalendar calendar, DateTimeOffset now, bool reviewScopedRestart, bool reinvestSaleProceeds)
     {
         RequireSession(prior, calendar, now);
         BrokerOctober21Continuation.RequireSameDefinition(prior.Strategy, current.Strategy);
         if (sourceUpdatedAt > now || now - sourceUpdatedAt > TimeSpan.FromMinutes(2))
             throw new InvalidOperationException("The latest shared market-input publication is not within the two-minute review window. Wait for the next scheduled market checkpoint, then review the updated build again.");
+        bool adopting = reinvestSaleProceeds && !prior.ReusesSaleProceeds;
         if (!storageReady || !current.Blocks.IsEmpty || current.Strategy.Strategy.ImplementationIdentity != implementation ||
-            implementation == prior.Strategy.Strategy.ImplementationIdentity || string.IsNullOrWhiteSpace(reviewer) || reviewer.Length > 128 ||
+            implementation == prior.Strategy.Strategy.ImplementationIdentity && !adopting || string.IsNullOrWhiteSpace(reviewer) || reviewer.Length > 128 ||
             current.Evidence.PaperAccountId != current.Strategy.PaperAccountId ||
             current.PreparedUtc.Kind != DateTimeKind.Utc || current.PreparedUtc > now.UtcDateTime ||
             now.UtcDateTime - current.PreparedUtc > TimeSpan.FromMinutes(2))
@@ -52,10 +61,12 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
         string? policy = reviewScopedRestart ? BrokerImplementationReview.ScopedRestart : null;
         if (reviewScopedRestart && prior.OngoingManagement == null)
             throw new InvalidOperationException("Scoped restart requires an approved ongoing Delphi assignment.");
-        var id = BrokerImplementationReview.RequestId(prior.RevisionId, implementation, policy);
+        bool reuse = reinvestSaleProceeds || prior.ReusesSaleProceeds;
+        if (reuse && !reviewScopedRestart) throw new InvalidOperationException("Reusable sale proceeds require reviewed ongoing restart terms.");
+        var id = BrokerImplementationReview.RequestId(prior.RevisionId, implementation, policy, reuse);
         return new(prior.BindingId, new(id, prior.RevisionId, BrokerAccountImport.Hash(prior),
             prior.Strategy.Strategy.ImplementationIdentity, implementation, now, default, reviewer)
-            { PermissionRequestId = DatedPermission(prior), RestartPolicy = policy }, current.Strategy,
+            { PermissionRequestId = DatedPermission(prior), RestartPolicy = policy, ReinvestSaleProceeds = reuse }, current.Strategy,
             sourceUpdatedAt, new DateTimeOffset(current.PreparedUtc));
     }
 
@@ -167,12 +178,15 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
         RequireSession(prior,calendar,next.SavedAt);
         var review=next.ImplementationReview ?? throw new InvalidOperationException("A build review is required.");
         if (review.RestartPolicy != null && (review.RestartPolicy != BrokerImplementationReview.ScopedRestart || prior.OngoingManagement == null) ||
-            review.ReviewId != BrokerImplementationReview.RequestId(prior.RevisionId, review.ImplementationIdentity, review.RestartPolicy) ||
+            review.ReinvestSaleProceeds && (prior.OngoingManagement == null || review.RestartPolicy != BrokerImplementationReview.ScopedRestart) ||
+            prior.ReusesSaleProceeds && !review.ReinvestSaleProceeds ||
+            review.ReviewId != BrokerImplementationReview.RequestId(prior.RevisionId, review.ImplementationIdentity, review.RestartPolicy, review.ReinvestSaleProceeds) ||
             next.Event != "ImplementationReviewed" || next.RevisionId != review.ReviewId ||
             review.PreviousRevisionId != prior.RevisionId || !BrokerHistoricalStateHash.Matches(prior, review.PreviousSessionHash, historical) ||
             review.PreviousImplementation != prior.Strategy.Strategy.ImplementationIdentity ||
             review.PermissionRequestId != DatedPermission(prior) ||
-            string.IsNullOrWhiteSpace(review.ImplementationIdentity) || review.ImplementationIdentity == review.PreviousImplementation ||
+            string.IsNullOrWhiteSpace(review.ImplementationIdentity) || review.ImplementationIdentity == review.PreviousImplementation &&
+                (!review.ReinvestSaleProceeds || prior.ReusesSaleProceeds) ||
             string.IsNullOrWhiteSpace(review.ReviewedBy) || review.ReviewedBy.Length > 128 ||
             review.PreparedAt > review.ApprovedAt || review.ApprovedAt != next.SavedAt || review.ApprovedAt-review.PreparedAt > TimeSpan.FromMinutes(2) ||
             BrokerAccountImport.Hash(next with { Revision=prior.Revision,RevisionId=prior.RevisionId,PreviousRevisionId=prior.PreviousRevisionId,
