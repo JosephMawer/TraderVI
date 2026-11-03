@@ -351,7 +351,10 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   Restart tests cover profitable and losing sales, unavailable buying power, an outside
   deposit, duplicate polls, legacy approval and a separately enabled immutable settings
   successor. Exact Release passed 3,592 tests with 16 opt-in skips and opened in review mode.
-- [ ] Verify operator approval, separate enable and normal restart under the reusable terms.
+- [x] Verify operator approval, separate enable and normal restart under the reusable terms.
+  [November 3 readback and fresh evaluation](project-status.md#operating-state-and-immediate-risks).
+- [ ] Verify the first naturally qualifying live buy funded by returned proceeds and its
+  original-order reconciliation.
 - Separate proposal: reducing the regular strategy's cumulative writes and repeated broker history reads.
   The operator approved the restart switch and the grouped read comparison. A bounded sample of 100 Friday
   revisions over 22 minutes stored 489,240 bytes of manifests, used 34 distinct account

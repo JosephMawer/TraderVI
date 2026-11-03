@@ -31,8 +31,13 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   was reserved under the cumulative approval then in force. At 11:56 Toronto the standard
   Release dashboard and engine `9d2882a6` opened in build-review mode. The broker was
   connected and the collector retained its process. A read-only reconstruction of original
-  settled orders matched cash to the proposed reusable balance. Operator approval and
-  normal restart were pending at that check. [Reinvestment terms](adr/0125-reusable-strategy-sale-proceeds.md).
+  settled orders matched cash to the proposed reusable balance. After explicit operator
+  approval and separate enable, the normal engine passed the 11:58:41 restart account
+  check. At 11:59:28 SQL confirmed the approved build and matching reinvestment terms in
+  both records, each of the 12 original orders reconciled once, reusable capital equal
+  to cash and zero unfinished orders or positions. The 12:02:46 Real evaluation consumed
+  38 fresh symbols from the noon bar and found no confirmed entry. A live buy using
+  returned proceeds had not occurred at that check. [Reinvestment terms](adr/0125-reusable-strategy-sale-proceeds.md).
   [Receipt-time contract](adr/0117-compact-trading-current-storage.md#november-3-clarification--protective-sell-receipt-times).
   Both original October 29 buys were fully filled and reconciled. Their original reservation
   revisions identified the same owners still saved on the positions. The first compact transfer
