@@ -41,6 +41,22 @@ public sealed partial class WealthsimpleAccountTests
     }
 
     [Fact]
+    public void HoldingReturnUsesTheRemainingBookCostInTheSameCurrency()
+    {
+        var holding = new WealthsimpleHolding("FIX", "Fixture", "EQUITY", 2.5m, new(19, "CAD"), new(20, "CAD"), new(99, "CAD"));
+        var row = new WealthsimpleHoldingRow(holding);
+        Assert.Equal(-1m, row.GainAmount);
+        Assert.Equal(-.05m, row.GainRate);
+        Assert.Equal(new WealthsimpleMoney(8, "CAD").ToString(), row.AverageCost);
+        Assert.Equal(new WealthsimpleMoney(-1, "CAD").ToString(), row.GainOnCost);
+
+        var foreignCost = new WealthsimpleHoldingRow(holding with { BookValue = new(20, "USD") });
+        Assert.Null(foreignCost.GainAmount); Assert.Null(foreignCost.GainRate);
+        var zeroCost = new WealthsimpleHoldingRow(holding with { BookValue = new(0, "CAD") });
+        Assert.Equal(19m, zeroCost.GainAmount); Assert.Null(zeroCost.GainRate);
+    }
+
+    [Fact]
     public void MissingCostOrZeroQuantityCannotManufactureAverageCost()
     {
         Assert.Equal("Unavailable", new WealthsimpleHoldingRow(new("FIX", "Fixture", "EQUITY", 0, null, new(10,"CAD"), null)).AverageCost);

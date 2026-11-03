@@ -280,7 +280,11 @@ public sealed class WealthsimpleHoldingRow(WealthsimpleHolding holding, Wealthsi
     public decimal Quantity => holding.Quantity;
     public string Value => holding.Value?.ToString() ?? "—";
     public string BookValue => holding.BookValue?.ToString() ?? "—";
-    public string UnrealizedGain => holding.UnrealizedGain?.ToString() ?? "—";
+    public decimal? GainAmount => holding.Value is { } value && holding.BookValue is { } cost && value.Currency == cost.Currency
+        ? value.Amount - cost.Amount : null;
+    public string GainOnCost => GainAmount is { } gain
+        ? new WealthsimpleMoney(gain, holding.Value!.Currency).ToString() : "—";
+    public decimal? GainRate => holding.BookValue is { Amount: > 0 } cost ? GainAmount / cost.Amount : null;
     private TradingHoldingDecision strategyDecision = TradingHoldingDecision.Describe(null, null);
     public event PropertyChangedEventHandler? PropertyChanged;
     public TradingHoldingDecision StrategyDecision

@@ -43,9 +43,13 @@
     </Style></DataGrid.CellStyle>
     <DataGrid.RowStyle><Style TargetType="DataGridRow"><Setter Property="Background" Value="#11151B"/><Setter Property="Foreground" Value="#E8EEF6"/><Style.Triggers><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#233C56"/><Setter Property="Foreground" Value="#E8EEF6"/></Trigger></Style.Triggers></Style></DataGrid.RowStyle>
     <DataGrid.Columns>
-     <DataGridTemplateColumn Header="Stock" Width="*" MinWidth="100"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel Margin="8,10"><TextBlock Text="{Binding Symbol}" FontWeight="SemiBold"/><TextBlock Text="{Binding Name}" FontSize="11" Foreground="#ADBBCC" TextWrapping="Wrap"/></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+     <DataGridTextColumn Header="Ticker" Binding="{Binding Symbol}" ElementStyle="{StaticResource TradingCell}" Width="70"/>
+     <DataGridTextColumn Header="Company name" Binding="{Binding Name}" ElementStyle="{StaticResource TradingCell}" Width="*" MinWidth="145"/>
+     <DataGridTextColumn Header="Shares held" Binding="{Binding Quantity, StringFormat=0.########}" ElementStyle="{StaticResource TradingCell}" Width="95"/>
+     <DataGridTextColumn Header="Avg. cost/share" Binding="{Binding AverageCost}" ElementStyle="{StaticResource TradingCell}" Width="115"/>
      <DataGridTextColumn Header="Position value" Binding="{Binding Value}" ElementStyle="{StaticResource TradingCell}" Width="120"/>
-     <DataGridTextColumn Header="Open gain" Binding="{Binding UnrealizedGain}" ElementStyle="{StaticResource TradingCell}" Width="110"/>
+     <DataGridTextColumn Header="Gain/loss on cost" Binding="{Binding GainOnCost}" SortMemberPath="GainAmount" ElementStyle="{StaticResource TradingCell}" Width="128"/>
+     <DataGridTextColumn Header="Return on cost" Binding="{Binding GainRate, StringFormat=P2, TargetNullValue=—}" ElementStyle="{StaticResource TradingCell}" Width="112"/>
      <DataGridTextColumn Header="Strategy status" Binding="{Binding StrategyDecision.Status}" ElementStyle="{StaticResource TradingCell}" Width="125"/>
     </DataGrid.Columns>
    </DataGrid>
@@ -81,7 +85,7 @@
         <StackPanel x:Name="HoldingIdentity" Margin="0,0,14,0"><TextBlock Text="{Binding Symbol}" FontSize="21" FontWeight="SemiBold"/><TextBlock Text="{Binding Name}" Style="{StaticResource WorkspaceLabel}" Margin="0,3,0,0"/></StackPanel>
         <StackPanel x:Name="PositionMetrics" Grid.Column="1">
          <TextBlock Text="Position value" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding Value}" Style="{StaticResource TradingNumber}"/>
-         <TextBlock Text="{Binding UnrealizedGain, StringFormat='Open gain · {0}'}" Style="{StaticResource WorkspaceLabel}" Margin="0,4,0,12"/>
+         <TextBlock Text="{Binding GainOnCost, StringFormat='Gain/loss on cost · {0}'}" Style="{StaticResource WorkspaceLabel}" Margin="0,4,0,12"/>
          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
           <TextBlock Text="Shares held" Style="{StaticResource WorkspaceLabel}"/><TextBlock Grid.Column="1" Text="{Binding Quantity, StringFormat=0.########}"/>
           <TextBlock Grid.Row="1" Text="Average cost" Style="{StaticResource WorkspaceLabel}" Margin="0,7,0,0"/><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding AverageCost}" Margin="0,7,0,0"/>

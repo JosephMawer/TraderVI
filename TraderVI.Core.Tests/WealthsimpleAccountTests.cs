@@ -346,7 +346,7 @@ public partial class WealthsimpleAccountTests(Xunit.Abstractions.ITestOutputHelp
         Assert.Equal("—", vm.ValueText); Assert.Equal("Unavailable", vm.ReturnText);
         await vm.RefreshAsync(); Assert.Contains("CAD", vm.ValueText); Assert.Equal("Unavailable", vm.ReturnText);
         var row = new WealthsimpleHoldingRow(new("FIX", "Synthetic", "EQUITY", 0.00000001m, null, null, null));
-        Assert.Equal(0.00000001m, row.Quantity); Assert.Equal("—", row.Value); Assert.Equal("—", row.UnrealizedGain);
+        Assert.Equal(0.00000001m, row.Quantity); Assert.Equal("—", row.Value); Assert.Equal("—", row.GainOnCost);
     }
     [Fact]
     public async Task SellRowPinsWholeHoldingAndBecomesStaleOnRefreshAccountChangeOrDisconnect()
