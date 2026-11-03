@@ -305,3 +305,12 @@ collector routing and individual history reads for ordinary trading. Engine PID 
 PID 1452 continued throughout. The prior standard runtime and private cutover receipts are preserved
 under ignored `artifacts/issue19-release-20261102`. This checkpoint verifies live sell recovery and
 installation. Activation and market-hours protection require their own evidence.
+
+The dashboard showed **Execution stopped** at 17:59:51 and a generic engine error with no build
+proposal. The 17:59:57 SQL read still showed revision 6844 and one immutable settings row. A later
+retry in the same dialog failed its current-account check before review preparation. At 18:22:15
+the engine's own connection receipt reported its last verification at 17:58:13, expiry at 18:00
+and no current connection. The review service and collector were both running. This establishes
+why the later dialog could not proceed. The first failed RPC did not retain a stage code, so its
+cause is unconfirmed. Reopen setup after normal Edge sign-in and verify the operator's build
+approval and separate Resume against the saved receipts before switching to normal startup.
