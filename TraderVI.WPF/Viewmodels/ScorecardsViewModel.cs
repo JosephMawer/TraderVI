@@ -25,7 +25,7 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
     private string candidateCount = "—";
     private string evidenceIdentity = "Strategy identity has not been loaded.";
     private string readinessExplanation =
-        "Metrics remain hidden until at least 95% of expected official outcomes are usable.";
+        "Predictions are due after ten later XIU market sessions. Scores below 95% coverage are provisional.";
 
     public ObservableCollection<ScorecardModelRow> Models { get; } = [];
     public ObservableCollection<ScorecardReliabilityRow> Reliability { get; } = [];
@@ -61,10 +61,8 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
             OfficialPredictionScorecard report =
                 OfficialPredictionScorecardCalculator.Build(evidence);
             Apply(report);
-            Status = report.Coverage.PrimaryScoreAvailable
-                ? "Official scorecards loaded · descriptive evidence only · Delphi unchanged"
-                : "Official evidence loaded · advanced metrics are waiting for sufficient matured coverage";
-            StatusBrush = report.Coverage.PrimaryScoreAvailable
+            Status = "Official Delphi predictions · scores describe the graded predictions";
+            StatusBrush = report.Coverage.Grades.State == PredictionScoreState.Ready
                 ? Brushes.MediumSeaGreen
                 : Brushes.Goldenrod;
         }
@@ -77,6 +75,8 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
         {
             ClearRows();
             CoverageState = "Unavailable";
+            UsableCoverage = CohortCount = CandidateCount = "—";
+            ReadinessExplanation = "Refresh to load the prediction scorecard.";
             EvidenceIdentity = "Official strategy identity unavailable.";
             Status = $"Scorecards unavailable · {ex.GetType().Name}: {ex.Message}";
             StatusBrush = Brushes.IndianRed;
@@ -89,29 +89,30 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
 
     private void Apply(OfficialPredictionScorecard report)
     {
-        CalibrationCoverageScorecard coverage = report.Coverage;
+        PredictionOutcomeCoverage coverage = report.Coverage;
+        PredictionGradeCoverage grades = coverage.Grades;
         EvidenceIdentity =
             $"{report.Identity.StrategyVersionName} · {report.Identity.DecisionRef} · " +
             $"{report.Identity.IncludedOfficialRuns} runs included · " +
             $"{report.Identity.ExcludedOfficialRuns} earlier-identity runs excluded";
-        CoverageState = coverage.State.ToString().ToUpperInvariant();
-        UsableCoverage = coverage.UsableCoverage.ToString("P1");
-        CohortCount = $"{coverage.Counts.MaturedCohorts} matured / {coverage.Counts.TotalCohorts} total";
-        CandidateCount =
-            $"{coverage.Counts.ValidOutcomes + coverage.Counts.DegradedOutcomes} usable / {coverage.Counts.ExpectedCandidates} expected";
-        ReadinessExplanation = coverage.PrimaryScoreAvailable
-            ? "Ready: lower Brier/ECE is better; higher AUC, decile lift, rank IC, and return lift is better. Results never change Delphi automatically."
-            : $"Blocked below the {CalibrationCoverageCalculator.PrimaryCoverageFloor:P0} usable-outcome floor. Pending or invalid evidence is shown in coverage but cannot produce primary metrics.";
+        CoverageState = StateText(grades);
+        UsableCoverage = Metric(grades.Rate, "P2");
+        CohortCount = $"{coverage.DueCohorts:N0} due / {coverage.TotalCohorts:N0} total";
+        CandidateCount = $"{grades.Graded:N0} graded / {grades.Due:N0} due";
+        ReadinessExplanation = $"{coverage.WaitingCandidates:N0} waiting for ten market sessions · " +
+            $"{coverage.PendingDue:N0} due, missing outcome · {coverage.InvalidOutcomes:N0} unusable · " +
+            $"{coverage.DegradedOutcomes:N0} graded with degraded data. " +
+            "Scores below 95% coverage of due predictions are provisional. Each model also requires a usable saved probability to grade a prediction.";
 
         Replace(Models, report.Models.Select(ScorecardModelRow.Create));
         Replace(
             Reliability,
             report.Models.SelectMany(model => model.Reliability.Select(bucket =>
-                ScorecardReliabilityRow.Create(model.TaskType, bucket))));
+                ScorecardReliabilityRow.Create(model, bucket))));
         Replace(
             Deciles,
             report.Models.SelectMany(model => model.ProbabilityDeciles.Select(decile =>
-                ScorecardDecileRow.Create(model.TaskType, decile))));
+                ScorecardDecileRow.Create(model, decile))));
         Replace(
             Lenses,
             report.Lenses.SelectMany(lens => lens.Selections.DefaultIfEmpty().Select(selection =>
@@ -130,6 +131,9 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
 
     private static string Metric(double? value, string format = "0.000") =>
         value.HasValue ? value.Value.ToString(format) : "—";
+
+    private static string StateText(PredictionGradeCoverage grades) =>
+        grades.State == PredictionScoreState.NoScore ? "No score" : grades.State.ToString();
 
     private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)
     {
@@ -151,6 +155,7 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
 
     public sealed record ScorecardModelRow(
         string Model,
+        string State,
         string Coverage,
         string Cohorts,
         string Brier,
@@ -160,7 +165,8 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
     {
         public static ScorecardModelRow Create(ProbabilityCalibrationReport report) => new(
             report.TaskType,
-            report.PredictionCoverage.ToString("P1"),
+            StateText(report.Grades),
+            $"{report.Grades.Graded:N0}/{report.Grades.Due:N0} ({Metric(report.Grades.Rate, "P2")})",
             report.ContributingCohorts.ToString(),
             Metric(report.BrierScore),
             Metric(report.AreaUnderRocCurve),
@@ -170,6 +176,7 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
 
     public sealed record ScorecardReliabilityRow(
         string Model,
+        string State,
         string ProbabilityRange,
         int Observations,
         int Cohorts,
@@ -177,9 +184,10 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
         string ObservedRate)
     {
         public static ScorecardReliabilityRow Create(
-            string taskType,
+            ProbabilityCalibrationReport model,
             ProbabilityReliabilityBucket bucket) => new(
-                taskType,
+                model.TaskType,
+                StateText(model.Grades),
                 $"{bucket.LowerBound:P0}–{bucket.UpperBound:P0}",
                 bucket.Observations,
                 bucket.ContributingCohorts,
@@ -189,6 +197,7 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
 
     public sealed record ScorecardDecileRow(
         string Model,
+        string State,
         int Decile,
         int Observations,
         int Cohorts,
@@ -197,9 +206,10 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
         string Lift)
     {
         public static ScorecardDecileRow Create(
-            string taskType,
+            ProbabilityCalibrationReport model,
             ProbabilityDecileReport decile) => new(
-                taskType,
+                model.TaskType,
+                StateText(model.Grades),
                 decile.Decile,
                 decile.Observations,
                 decile.ContributingCohorts,

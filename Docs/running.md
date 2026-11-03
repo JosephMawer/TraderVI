@@ -1217,10 +1217,9 @@ does not require CSV export. Refreshing it cannot mature outcomes or change
 Delphi. Migration `20260828_014_SeedCalibrationOutcomeDefinitions.sql` was
 applied on 2026-08-28 to initialize four contracts, and migration
 `20260901_015_AddDelayedIntradayOutcomeDefinition.sql` was operator-applied and
-verified active on 2026-09-01 to add the fifth. The latest verified Athena run
-wrote 112 valid three-session mark outcomes and 112 valid excursion outcomes;
-the two prediction definitions and delayed-intraday definition still have zero
-outcomes, so their performance sections remain correctly unavailable.
+verified active on 2026-09-01 to add the fifth. For ten-session scores, the tab
+shows graded and due counts, waiting and unusable evidence, and each model's
+coverage. See [Athena](#athena--calibration-outcome-evaluation) for report states.
 
 Read project documentation on GitHub, starting with [README](../README.md), [project status](project-status.md) and the [architecture guide](architecture-view.md). The desktop Docs and Architecture sections and their supporting code are removed from source under [ADR-0112](adr/0112-repository-documentation-outside-desktop.md). The architecture guide preserves the former maps and component descriptions; it is dated explanatory documentation, not live runtime status. See project status for the installation boundary.
 
@@ -1399,9 +1398,9 @@ Athena reads immutable official calibration candidates and local `DailyBars`, re
 
 For `DelayedIntradaySwing`, Athena replays only a continuous first-received 15-minute path. A later bar that proves a missing bar/session, a receipt-order conflict, or a later five-minute bar that proves the exact symbol/XIU fill bar is missing produces an audited invalid outcome. If no later evidence yet proves a gap, the candidate stays pending. An alert during the session uses the exact next five-minute boundary; an after-close alert waits for the next observed regular-session open. Athena never substitutes a later convenient price.
 
-The September 1 run recorded 112 valid three-session marks and 112 valid excursions before longer horizons matured. The WPF **Scorecards** tab loads `PredictionLabels10` for the active strategy on first open. Use **Refresh from SQL** to reload it. The 95% coverage calculation includes recent candidates still waiting for ten later market sessions. See the [November 1 check of due and pending predictions](project-status-history-20261101.md#november-1--athena-prediction-scorecards-and-the-ten-session-window).
+The WPF **Scorecards** tab loads `PredictionLabels10` for the active strategy on first open. Use **Refresh from SQL** to reload it. After ten later stored XIU market sessions a prediction is due. Coverage is graded / due. Each model also needs a usable probability. Supported scores appear as **Provisional** below 95% or **Ready** at 95% and above. **No score** means there are no gradable observations. Athena and WPF distinguish predictions waiting for ten sessions, due predictions missing an outcome, and unusable outcomes. [ADR-0124](adr/0124-due-prediction-scorecard.md).
 
-Athena reads local market data and writes missing definitions and matured outcomes to SQL. Apply the reviewed calibration migrations manually first and obtain explicit authorization before running it. Migration 016 is applied. The report counts official runs for the active strategy and separately shows how many earlier runs were excluded. The optional CSV switch writes five export-schema-v2 artifacts stamped with strategy ID/name, initial code commit, and decision reference, and refuses to overwrite an existing filename.
+Athena reads local market data and writes missing definitions and matured outcomes to SQL. Apply the reviewed calibration migrations manually first and obtain explicit authorization before running it. Migration 016 is applied. The report counts official runs for the active strategy and separately shows how many earlier runs were excluded. The optional CSV switch writes five export-schema-v3 artifacts stamped with strategy ID/name, initial code commit, decision reference and score state, and refuses to overwrite an existing filename.
 
 ```powershell
 dotnet run --project Athena

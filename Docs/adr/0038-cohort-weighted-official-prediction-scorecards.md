@@ -1,6 +1,7 @@
 # ADR-0038: Cohort-weighted official prediction scorecards
 
 - **Status:** Accepted
+- **Ten-session scorecard reporting superseded by:** [ADR-0124](0124-due-prediction-scorecard.md)
 - **Date:** 2026-08-27
 - **Domains:** architecture, decision-engine, machine-learning, math-statistics
 - **Related:** ADR-0020, ADR-0021, ADR-0022, ADR-0024, ADR-0027, ADR-0029, ADR-0037

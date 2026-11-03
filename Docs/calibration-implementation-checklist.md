@@ -159,6 +159,7 @@ These historical checks do not establish current operational coverage or a new f
 - [x] Athena has run after official cohorts matured; the [November 1 status](project-status.md#evidence-and-development) records later ten-session coverage and its limits.
 - [x] Persist explicit invalid records for missing or duplicate symbol sessions once the required XIU horizon has matured; genuinely immature horizons remain pending so late ingestion can settle.
 - [x] Add coverage-first deterministic scorecards with run/cohort counts, valid/degraded/invalid/pending counts, completion and usable coverage, and a 95% primary-reporting floor.
+- [x] For ten-session predictions, show supported scores on graded observations, calculate coverage against due predictions, label partial scores provisional below 95%, and distinguish waiting, missing and unusable outcomes across Athena, WPF and exports. [ADR-0124](adr/0124-due-prediction-scorecard.md).
 - [x] Add cohort-weighted Brier score, fixed reliability buckets, expected calibration error, AUC where supported, and within-run probability-decile lift.
 - [x] Add eligible-lens Spearman rank information coefficient and top-1/top-3/top-5/top-decile return lift.
 - [x] Add descriptive gate, OBV-state, regime, observation-dollar-volume, observation-range, sector, and published-lens slices.

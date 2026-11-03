@@ -454,13 +454,18 @@ Console.WriteLine($"Run scope:  {officialEvidenceIdentity.IncludedOfficialRuns:N
                   $"{officialEvidenceIdentity.ExcludedOfficialRuns:N0} earlier-identity runs excluded");
 
 var coverageRows = await outcomes.GetOutcomeCoverageAsync(officialEvidenceIdentity);
-Console.WriteLine("\n=== Outcome coverage scorecard ===");
+Console.WriteLine("\n=== Outcome inventory (all official dates) ===");
 foreach (var counts in coverageRows)
 {
     var scorecard = CalibrationCoverageCalculator.Build(counts);
     Console.WriteLine($"{counts.DefinitionName} v{counts.DefinitionVersion} ({counts.DefinitionKind})");
     Console.WriteLine($"  Cohorts:    {counts.MaturedCohorts:N0}/{counts.TotalCohorts:N0} matured ({counts.OfficialRuns:N0} official runs)");
     Console.WriteLine($"  Candidates: {counts.ExpectedCandidates:N0} expected | {counts.ValidOutcomes:N0} valid | {counts.DegradedOutcomes:N0} degraded | {counts.InvalidOutcomes:N0} invalid | {counts.PendingOutcomes:N0} pending");
+    if (counts.OutcomeDefinitionId == OfficialPredictionScorecardCalculator.PredictionLabels10DefinitionId)
+    {
+        Console.WriteLine("  See the prediction scorecard below for coverage among predictions due for grading.");
+        continue;
+    }
     Console.WriteLine($"  Coverage:   {scorecard.UsableCoverage:P1} usable | {scorecard.CompletionCoverage:P1} complete | primary score {(scorecard.PrimaryScoreAvailable ? "available" : "BLOCKED")}");
     Console.WriteLine($"  State:      {scorecard.State}");
 }
@@ -470,21 +475,24 @@ OfficialPredictionScorecard predictionScorecard =
     OfficialPredictionScorecardCalculator.Build(predictionEvidence);
 Console.WriteLine("\n=== Advanced official prediction scorecard ===");
 Console.WriteLine($"Definition: {predictionScorecard.Definition.DefinitionName} v{predictionScorecard.Definition.DefinitionVersion}");
-Console.WriteLine($"Coverage:   {predictionScorecard.Coverage.UsableCoverage:P1} usable | " +
-                  $"{predictionScorecard.Coverage.CompletionCoverage:P1} complete | " +
-                  $"performance {(predictionScorecard.Coverage.PrimaryScoreAvailable ? "available" : "BLOCKED")}");
-Console.WriteLine($"Evidence:   {predictionScorecard.Coverage.Counts.ExpectedCandidates:N0} candidates | " +
-                  $"{predictionScorecard.Coverage.Counts.MaturedCohorts:N0}/{predictionScorecard.Coverage.Counts.TotalCohorts:N0} matured cohorts | " +
-                  $"{predictionScorecard.Coverage.Counts.OfficialRuns:N0} official runs");
+PredictionOutcomeCoverage predictionCoverage = predictionScorecard.Coverage;
+PredictionGradeCoverage grades = predictionCoverage.Grades;
+Console.WriteLine($"Coverage:   {grades.Graded:N0}/{grades.Due:N0} due predictions graded " +
+                  $"({grades.Rate?.ToString("P2") ?? "—"}) | {grades.State}");
+Console.WriteLine($"Evidence:   {predictionCoverage.WaitingCandidates:N0} waiting for ten sessions | " +
+                  $"{predictionCoverage.PendingDue:N0} due, missing outcome | {predictionCoverage.InvalidOutcomes:N0} unusable | " +
+                  $"{predictionCoverage.DegradedOutcomes:N0} graded with degraded data");
+Console.WriteLine($"Cohorts:    {predictionCoverage.DueCohorts:N0}/{predictionCoverage.TotalCohorts:N0} due | " +
+                  $"{predictionScorecard.Identity.IncludedOfficialRuns:N0} official runs");
 
 Console.WriteLine("\nProbability calibration (lower Brier/ECE is better; higher AUC/lift is better):");
 foreach (ProbabilityCalibrationReport model in predictionScorecard.Models)
 {
-    Console.WriteLine($"  {model.TaskType}: {model.UsablePredictions:N0}/{model.ExpectedCandidates:N0} usable predictions " +
-                      $"({model.PredictionCoverage:P1})");
-    if (!model.MetricsAvailable)
+    Console.WriteLine($"  {model.TaskType}: {model.Grades.Graded:N0}/{model.Grades.Due:N0} due predictions graded " +
+                      $"({model.Grades.Rate?.ToString("P2") ?? "—"}) | {model.Grades.State}");
+    if (model.Grades.Graded == 0)
     {
-        Console.WriteLine("    Metrics BLOCKED by outcome or model-specific coverage.");
+        Console.WriteLine("    No gradable prediction for this model.");
         continue;
     }
 
@@ -497,12 +505,12 @@ foreach (ProbabilityCalibrationReport model in predictionScorecard.Models)
     }
 }
 
-Console.WriteLine("\nLens ranking quality (positive IC/lift means higher-ranked eligible candidates did better):");
+Console.WriteLine("\nLens ranking quality among graded eligible candidates (higher IC/lift is better):");
 foreach (LensRankPerformanceReport lens in predictionScorecard.Lenses)
 {
     Console.WriteLine($"  {lens.Lens}: {lens.EligibleObservations:N0} eligible observations | " +
                       $"{lens.ContributingCohorts:N0} cohorts | " +
-                      $"rank IC {(lens.SpearmanRankInformationCoefficient.HasValue ? lens.SpearmanRankInformationCoefficient.Value.ToString("+0.000;-0.000;0.000") : "BLOCKED/unsupported")}");
+                      $"rank IC {(lens.SpearmanRankInformationCoefficient.HasValue ? lens.SpearmanRankInformationCoefficient.Value.ToString("+0.000;-0.000;0.000") : "unsupported")}");
     foreach (LensRankSelectionReport selection in lens.Selections)
     {
         Console.WriteLine($"    {selection.Selection,-10} return {selection.MeanReturn10:+0.00%;-0.00%;0.00%} | " +

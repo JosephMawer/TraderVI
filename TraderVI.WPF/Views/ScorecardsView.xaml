@@ -71,7 +71,8 @@
                 <DataGrid ItemsSource="{Binding Models}" Margin="8" AlternationCount="2">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="*"/>
-                        <DataGridTextColumn Header="Probability coverage" Binding="{Binding Coverage}" Width="145"/>
+                        <DataGridTextColumn Header="Score state" Binding="{Binding State}" Width="95"/>
+                        <DataGridTextColumn Header="Graded / due" Binding="{Binding Coverage}" Width="185"/>
                         <DataGridTextColumn Header="Cohorts" Binding="{Binding Cohorts}" Width="75"/>
                         <DataGridTextColumn Header="Brier ↓" Binding="{Binding Brier}" Width="90"/>
                         <DataGridTextColumn Header="AUC ↑" Binding="{Binding Auc}" Width="90"/>
@@ -84,6 +85,7 @@
                 <DataGrid ItemsSource="{Binding Reliability}" Margin="8" AlternationCount="2">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="*"/>
+                        <DataGridTextColumn Header="Score state" Binding="{Binding State}" Width="95"/>
                         <DataGridTextColumn Header="Probability bucket" Binding="{Binding ProbabilityRange}" Width="145"/>
                         <DataGridTextColumn Header="Observations" Binding="{Binding Observations}" Width="105"/>
                         <DataGridTextColumn Header="Cohorts" Binding="{Binding Cohorts}" Width="80"/>
@@ -96,6 +98,7 @@
                 <DataGrid ItemsSource="{Binding Deciles}" Margin="8" AlternationCount="2">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="*"/>
+                        <DataGridTextColumn Header="Score state" Binding="{Binding State}" Width="95"/>
                         <DataGridTextColumn Header="Decile" Binding="{Binding Decile}" Width="70"/>
                         <DataGridTextColumn Header="Observations" Binding="{Binding Observations}" Width="105"/>
                         <DataGridTextColumn Header="Cohorts" Binding="{Binding Cohorts}" Width="80"/>
@@ -105,14 +108,14 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
-            <TabItem Header="Lenses">
+            <TabItem Header="Lenses" ToolTip="Selections use the highest-ranked eligible candidates with gradable outcomes.">
                 <DataGrid ItemsSource="{Binding Lenses}" Margin="8" AlternationCount="2">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Lens" Binding="{Binding Lens}" Width="110"/>
                         <DataGridTextColumn Header="Eligible" Binding="{Binding Eligible}" Width="75"/>
                         <DataGridTextColumn Header="Cohorts" Binding="{Binding Cohorts}" Width="75"/>
                         <DataGridTextColumn Header="Rank IC ↑" Binding="{Binding RankIc}" Width="90"/>
-                        <DataGridTextColumn Header="Selection" Binding="{Binding Selection}" Width="105"/>
+                        <DataGridTextColumn Header="Graded selection" Binding="{Binding Selection}" Width="130"/>
                         <DataGridTextColumn Header="Return 10" Binding="{Binding MeanReturn}" Width="100"/>
                         <DataGridTextColumn Header="Excess 10" Binding="{Binding ExcessReturn}" Width="100"/>
                         <DataGridTextColumn Header="Lift ↑" Binding="{Binding Lift}" Width="100"/>

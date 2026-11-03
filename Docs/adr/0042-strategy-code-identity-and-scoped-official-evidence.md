@@ -1,6 +1,7 @@
 # ADR-0042: Strategy/code identity and scoped official evidence
 
 - **Status:** Accepted
+- **CSV format superseded by:** [ADR-0124](0124-due-prediction-scorecard.md)
 - **Date:** 2026-09-01
 - **Domains:** architecture, data-pipeline, decision-engine, math-statistics
 - **Related:** ADR-0020, ADR-0022, ADR-0024, ADR-0027, ADR-0038, ADR-0041

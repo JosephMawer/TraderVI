@@ -67,6 +67,11 @@ SELECT [OutcomeDefinitionId],[DefinitionName],[DefinitionVersion]
 FROM [dbo].[CalibrationOutcomeDefinition]
 WHERE [OutcomeDefinitionId] = @DefinitionId;
 
+SELECT TOP (@LabelHorizon) [Date]
+FROM [dbo].[DailyBars]
+WHERE [Symbol] = 'XIU'
+ORDER BY [Date] DESC;
+
 SELECT r.[RunId],r.[StrategyVersionId],r.[MarketDataAsOf],r.[RunPurpose],r.[AuditState],r.[RunContextJson]
 FROM [dbo].[CalibrationRun] r
 WHERE r.[RunPurpose] = N'OfficialPaper'
@@ -104,6 +109,8 @@ ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.Add(new SqlParameter("@DefinitionId", SqlDbType.UniqueIdentifier)
             { Value = OfficialPredictionScorecardCalculator.PredictionLabels10DefinitionId });
+        command.Parameters.Add(new SqlParameter("@LabelHorizon", SqlDbType.Int)
+            { Value = PredictionOutcomeContract.LabelHorizon });
         command.Parameters.Add(new SqlParameter("@StrategyVersionId", SqlDbType.UniqueIdentifier)
             { Value = identity.StrategyVersionId });
         await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
@@ -114,6 +121,11 @@ ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
             reader.GetGuid(0),
             reader.GetString(1),
             reader.GetInt32(2));
+
+        var benchmarkSessions = new List<DateTime>();
+        await reader.NextResultAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+            benchmarkSessions.Add(reader.GetDateTime(0));
 
         var runs = new List<OfficialPredictionRunEvidence>();
         await reader.NextResultAsync(cancellationToken);
@@ -169,6 +181,6 @@ ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
                 reader.IsDBNull(5) ? null : reader.GetString(5)));
         }
 
-        return new OfficialPredictionEvidenceSet(identity, definition, runs, candidates, lenses);
+        return new OfficialPredictionEvidenceSet(identity, definition, runs, candidates, lenses, benchmarkSessions);
     }
 }

@@ -74,12 +74,13 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   [ADR-0123](adr/0123-edge-passkey-session-handoff.md),
   [setup and limits](../Tools/Wealthsimple.EdgeBridge/README.md).
 
-- **Prediction scorecards:** On November 1, 9,281 of 9,284 candidates already due had usable ten-session
-  labels; 2,506 candidates on the newest ten dates were still pending. The accepted calculation includes
-  pending candidates, yielding 78.7% coverage across 11,790 candidates, below the 95% reporting floor.
-  This describes availability, not predictive accuracy. Delayed-intraday outcomes have a separate
-  evidence gap. [Calculation and receipt](project-status-history-20261101.md#november-1--athena-prediction-scorecards-and-the-ten-session-window),
-  [ADR-0038](adr/0038-cohort-weighted-official-prediction-scorecards.md).
+- **Prediction scorecards:** The November 3 implementation grades ten-session predictions once due and
+  labels supported scores provisional below 95% coverage. The November 3 read-only aggregate found
+  9,281 stored usable outcomes / 9,284 due (99.97%), 3 invalid, 0 due pending and 2,715 waiting for
+  ten later XIU sessions (latest stored benchmark date October 30). Athena's 55 tests passed and the
+  desktop compiled in isolation. The running desktop still needs an updated installation.
+  Delayed-intraday outcomes have a separate evidence gap. [November 1 baseline](project-status-history-20261101.md#november-1--athena-prediction-scorecards-and-the-ten-session-window),
+  [reporting contract](adr/0124-due-prediction-scorecard.md).
 - **Paper protection:** Progressive individual-profit protection was installed and enabled October 18
   across all 15 then-active paper portfolios, with existing holding protection preserved. The off-session
   verification did not establish regular-session bid touches or continuous quote freshness.

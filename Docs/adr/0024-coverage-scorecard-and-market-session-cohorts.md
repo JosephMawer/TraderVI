@@ -1,6 +1,7 @@
 # ADR-0024: Coverage scorecard and market-session cohort identity
 
 - **Status:** Accepted
+- **Ten-session scorecard reporting superseded by:** [ADR-0124](0124-due-prediction-scorecard.md)
 - **Date:** 2026-08-23
 - **Domains:** architecture, data-pipeline, decision-engine, math-statistics
 - **Related:** ADR-0020, ADR-0021, ADR-0022

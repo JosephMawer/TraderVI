@@ -145,6 +145,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## data-pipeline
 
+- [ADR-0124](0124-due-prediction-scorecard.md) — Count observed XIU sessions to distinguish waiting from missing or unusable due outcomes
+
 - [ADR-0122](0122-existing-output-nightly-execution.md) — Reuse pinned existing outputs at 06:30; no nightly build or copy
 
 - [ADR-0121](0121-independent-athena-build.md) — Athena owns evaluation/writes; shares labels, reports and policies with actual Core/WPF consumers
@@ -453,6 +455,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## math-statistics
+
+- [ADR-0124](0124-due-prediction-scorecard.md) — Score gradable ten-session predictions and label results provisional below 95% due coverage
 
 - [ADR-0003](0003-weighting-indicator-narrow-advance.md) — Weighting narrow-advance warning
 - [ADR-0005](0005-defer-granville-dullness-21-22.md) — Defer Granville Dullness indicators

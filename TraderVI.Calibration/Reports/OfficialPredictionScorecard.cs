@@ -56,7 +56,29 @@ public sealed record OfficialPredictionEvidenceSet(
     OfficialPredictionScorecardDefinition Definition,
     IReadOnlyList<OfficialPredictionRunEvidence> Runs,
     IReadOnlyList<OfficialPredictionCandidateEvidence> Candidates,
-    IReadOnlyList<OfficialPredictionLensEvidence> Lenses);
+    IReadOnlyList<OfficialPredictionLensEvidence> Lenses,
+    IReadOnlyList<DateTime> RecentBenchmarkSessions);
+
+public enum PredictionScoreState { NoScore, Provisional, Ready }
+
+public sealed record PredictionGradeCoverage(int Graded, int Due)
+{
+    public double? Rate => Due == 0 ? null : (double)Graded / Due;
+    public PredictionScoreState State => Graded switch
+    {
+        0 => PredictionScoreState.NoScore,
+        _ when Rate >= CalibrationCoverageCalculator.PrimaryCoverageFloor => PredictionScoreState.Ready,
+        _ => PredictionScoreState.Provisional
+    };
+}
+
+public sealed record PredictionOutcomeCoverage(
+    int TotalCohorts, int DueCohorts, int WaitingCandidates,
+    int ValidOutcomes, int DegradedOutcomes, int InvalidOutcomes, int PendingDue)
+{
+    public PredictionGradeCoverage Grades => new(ValidOutcomes + DegradedOutcomes,
+        ValidOutcomes + DegradedOutcomes + InvalidOutcomes + PendingDue);
+}
 
 public sealed record ProbabilityReliabilityBucket(
     int Bucket,
@@ -78,12 +100,8 @@ public sealed record ProbabilityDecileReport(
 
 public sealed record ProbabilityCalibrationReport(
     string TaskType,
-    int ExpectedCandidates,
-    int UsablePredictions,
-    int MissingOrInvalidPredictions,
+    PredictionGradeCoverage Grades,
     int ContributingCohorts,
-    double PredictionCoverage,
-    bool MetricsAvailable,
     double? BrierScore,
     double? AreaUnderRocCurve,
     double? ExpectedCalibrationError,
@@ -122,13 +140,13 @@ public sealed record PredictionSliceReport(
 public sealed record OfficialPredictionScorecard(
     OfficialEvidenceIdentity Identity,
     OfficialPredictionScorecardDefinition Definition,
-    CalibrationCoverageScorecard Coverage,
+    PredictionOutcomeCoverage Coverage,
     IReadOnlyList<ProbabilityCalibrationReport> Models,
     IReadOnlyList<LensRankPerformanceReport> Lenses,
     IReadOnlyList<PredictionSliceReport> Slices);
 
 /// <summary>
-/// Builds version-1 official prediction scorecards. Candidate observations are
+/// Builds official prediction scorecards. Candidate observations are
 /// averaged within runs, official reruns are averaged within MarketDataAsOf
 /// cohorts, and cohorts receive equal weight.
 /// </summary>
@@ -136,7 +154,7 @@ public static class OfficialPredictionScorecardCalculator
 {
     public static readonly Guid PredictionLabels10DefinitionId =
         new("A72C01CB-9C83-45A6-9A72-CC49E67B9F5A");
-    public const int SchemaVersion = 1;
+    public const int SchemaVersion = 2;
     public const int ReliabilityBucketCount = 10;
     public const string ContinuationLens = "Continuation";
     public const string BreakoutLens = "Breakout";
@@ -228,18 +246,28 @@ public static class OfficialPredictionScorecardCalculator
             evidence.Lenses
                 .GroupBy(lens => lens.CandidateId)
                 .ToDictionary(group => group.Key, group => (IReadOnlyList<OfficialPredictionLensEvidence>)group.ToList());
-        List<ClassifiedCandidate> classified = evidence.Candidates.Select(Classify).ToList();
-        CalibrationCoverageScorecard coverage = BuildCoverage(evidence, classified);
+        // The tenth most recent XIU session must be strictly after the observation.
+        DateTime? tenthSession = evidence.RecentBenchmarkSessions.Select(date => date.Date)
+            .Distinct().OrderDescending().Skip(PredictionOutcomeContract.LabelHorizon - 1)
+            .Select(date => (DateTime?)date).FirstOrDefault();
+        List<ClassifiedCandidate> classified = evidence.Candidates
+            .Where(candidate => candidate.ObservationDate.Date < tenthSession)
+            .Select(Classify).ToList();
+        var cohorts = evidence.Runs.Select(run => run.MarketDataAsOf.Date).Distinct().ToList();
+        var coverage = new PredictionOutcomeCoverage(
+            cohorts.Count, cohorts.Count(date => date < tenthSession), evidence.Candidates.Count - classified.Count,
+            classified.Count(candidate => candidate.State == OutcomeState.Valid),
+            classified.Count(candidate => candidate.State == OutcomeState.Degraded),
+            classified.Count(candidate => candidate.State == OutcomeState.Invalid),
+            classified.Count(candidate => candidate.State == OutcomeState.Pending));
 
         IReadOnlyList<ProbabilityCalibrationReport> models = ModelSpecifications
-            .Select(model => BuildModelReport(model, classified, coverage.PrimaryScoreAvailable))
+            .Select(model => BuildModelReport(model, classified))
             .ToList();
         IReadOnlyList<LensRankPerformanceReport> lensReports = LensNames
-            .Select(lens => BuildLensReport(lens, classified, lenses, coverage.PrimaryScoreAvailable))
+            .Select(lens => BuildLensReport(lens, classified, lenses))
             .ToList();
-        IReadOnlyList<PredictionSliceReport> slices = coverage.PrimaryScoreAvailable
-            ? BuildSlices(classified, runs, lenses)
-            : [];
+        IReadOnlyList<PredictionSliceReport> slices = BuildSlices(classified, runs, lenses);
 
         return new OfficialPredictionScorecard(
             evidence.Identity,
@@ -253,8 +281,8 @@ public static class OfficialPredictionScorecardCalculator
     private static void ValidateEvidenceSet(OfficialPredictionEvidenceSet evidence)
     {
         if (evidence.Identity is null || evidence.Definition is null || evidence.Runs is null ||
-            evidence.Candidates is null || evidence.Lenses is null)
-            throw new ArgumentException("Identity, definition, run, candidate, and lens evidence are required.", nameof(evidence));
+            evidence.Candidates is null || evidence.Lenses is null || evidence.RecentBenchmarkSessions is null)
+            throw new ArgumentException("Identity, definition, run, candidate, lens and benchmark evidence are required.", nameof(evidence));
         if (evidence.Identity.StrategyVersionId == Guid.Empty ||
             string.IsNullOrWhiteSpace(evidence.Identity.StrategyVersionName) ||
             string.IsNullOrWhiteSpace(evidence.Identity.InitialCodeCommit) ||
@@ -320,49 +348,6 @@ public static class OfficialPredictionScorecardCalculator
             throw new ArgumentException("Lens ranks must be unique within each run.", nameof(evidence));
     }
 
-    private static CalibrationCoverageScorecard BuildCoverage(
-        OfficialPredictionEvidenceSet evidence,
-        IReadOnlyList<ClassifiedCandidate> classified)
-    {
-        int valid = classified.Count(candidate => candidate.State == OutcomeState.Valid);
-        int degraded = classified.Count(candidate => candidate.State == OutcomeState.Degraded);
-        int invalid = classified.Count(candidate => candidate.State == OutcomeState.Invalid);
-        int pending = classified.Count(candidate => candidate.State == OutcomeState.Pending);
-        var cohorts = evidence.Runs.Select(run => run.MarketDataAsOf.Date).Distinct().ToList();
-        int maturedCohorts = cohorts.Count(cohort => classified
-            .Where(candidate => candidate.Source.MarketDataAsOf.Date == cohort)
-            .All(candidate => candidate.State != OutcomeState.Pending));
-        int maturedRecommendationCohorts = cohorts.Count(cohort =>
-        {
-            var rows = classified
-                .Where(candidate => candidate.Source.MarketDataAsOf.Date == cohort)
-                .ToList();
-            return rows.Count > 0 && rows.All(candidate => candidate.State != OutcomeState.Pending);
-        });
-
-        var counts = new CalibrationCoverageCounts(
-            evidence.Definition.OutcomeDefinitionId,
-            evidence.Definition.DefinitionName,
-            evidence.Definition.DefinitionVersion,
-            "Prediction",
-            evidence.Runs.Count,
-            cohorts.Count,
-            maturedCohorts,
-            classified.Count,
-            valid,
-            degraded,
-            invalid,
-            pending);
-        CalibrationCoverageScorecard coverage = CalibrationCoverageCalculator.Build(counts);
-        return coverage.PrimaryScoreAvailable && maturedRecommendationCohorts == 0
-            ? coverage with
-            {
-                PrimaryScoreAvailable = false,
-                State = CalibrationCoverageState.Blocked
-            }
-            : coverage;
-    }
-
     private static ClassifiedCandidate Classify(OfficialPredictionCandidateEvidence source)
     {
         if (string.IsNullOrWhiteSpace(source.Symbol) ||
@@ -412,7 +397,7 @@ public static class OfficialPredictionScorecardCalculator
             outcome.ExcessReturn10 is not double excessReturn10 ||
             !Finite(return10) || !Finite(xiuReturn10) || !Finite(excessReturn10) ||
             System.Math.Abs((return10 - xiuReturn10) - excessReturn10) > 0.0000001 ||
-            outcome.Events is null)
+            outcome.Events is null || outcome.Events.Any(item => item is null))
             return false;
 
         string[] taskTypes = outcome.Events.Select(item => item.TaskType).ToArray();
@@ -423,8 +408,7 @@ public static class OfficialPredictionScorecardCalculator
 
     private static ProbabilityCalibrationReport BuildModelReport(
         ModelSpecification model,
-        IReadOnlyList<ClassifiedCandidate> classified,
-        bool primaryScoreAvailable)
+        IReadOnlyList<ClassifiedCandidate> classified)
     {
         List<ModelObservation> observations = classified
             .Where(candidate => candidate.State is OutcomeState.Valid or OutcomeState.Degraded)
@@ -445,21 +429,13 @@ public static class OfficialPredictionScorecardCalculator
             .Cast<ModelObservation>()
             .ToList();
 
-        int expected = classified.Count;
-        double predictionCoverage = expected == 0 ? 0 : (double)observations.Count / expected;
-        bool metricsAvailable = primaryScoreAvailable &&
-            predictionCoverage >= CalibrationCoverageCalculator.PrimaryCoverageFloor &&
-            observations.Count > 0;
-        if (!metricsAvailable)
+        var grades = new PredictionGradeCoverage(observations.Count, classified.Count);
+        if (observations.Count == 0)
         {
             return new ProbabilityCalibrationReport(
                 model.TaskType,
-                expected,
-                observations.Count,
-                expected - observations.Count,
-                observations.Select(item => item.Cohort).Distinct().Count(),
-                predictionCoverage,
-                false,
+                grades,
+                0,
                 null,
                 null,
                 null,
@@ -477,12 +453,8 @@ public static class OfficialPredictionScorecardCalculator
 
         return new ProbabilityCalibrationReport(
             model.TaskType,
-            expected,
-            observations.Count,
-            expected - observations.Count,
+            grades,
             observations.Select(item => item.Cohort).Distinct().Count(),
-            predictionCoverage,
-            true,
             brier,
             CohortWeightedSupportedMetric(observations, AreaUnderRocCurve),
             calibrationError,
@@ -573,8 +545,7 @@ public static class OfficialPredictionScorecardCalculator
     private static LensRankPerformanceReport BuildLensReport(
         string lens,
         IReadOnlyList<ClassifiedCandidate> classified,
-        IReadOnlyDictionary<Guid, IReadOnlyList<OfficialPredictionLensEvidence>> lenses,
-        bool primaryScoreAvailable)
+        IReadOnlyDictionary<Guid, IReadOnlyList<OfficialPredictionLensEvidence>> lenses)
     {
         List<LensObservation> observations = classified
             .Where(candidate => candidate.State is OutcomeState.Valid or OutcomeState.Degraded)
@@ -598,7 +569,7 @@ public static class OfficialPredictionScorecardCalculator
             .Cast<LensObservation>()
             .ToList();
 
-        if (!primaryScoreAvailable || observations.Count == 0)
+        if (observations.Count == 0)
         {
             return new LensRankPerformanceReport(
                 lens,

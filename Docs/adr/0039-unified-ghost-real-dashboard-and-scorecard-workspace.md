@@ -1,6 +1,7 @@
 # ADR-0039: Unified Ghost/Real dashboard and scorecard workspace
 
 - **Status:** Accepted
+- **Ten-session scorecard reporting superseded by:** [ADR-0124](0124-due-prediction-scorecard.md)
 - **Date:** 2026-08-28
 - **Domains:** architecture, data-pipeline, market-microstructure, risk-management
 - **Related:** ADR-0015, ADR-0021, ADR-0031, ADR-0032, ADR-0037, ADR-0038

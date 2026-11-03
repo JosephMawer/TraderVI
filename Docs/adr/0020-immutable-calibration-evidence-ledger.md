@@ -1,6 +1,7 @@
 # ADR-0020: Immutable calibration evidence ledger
 
 - **Status:** Accepted
+- **Ten-session scorecard reporting superseded by:** [ADR-0124](0124-due-prediction-scorecard.md)
 - **Date:** 2026-08-23
 - **Domains:** architecture, data-pipeline, decision-engine, machine-learning
 - **Related:** ADR-0013, ADR-0018, ADR-0019, ADR-0052, `Docs/concepts/paper-calibration-and-outcome-feedback.md`

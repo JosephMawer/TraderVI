@@ -29,9 +29,9 @@ public sealed class OfficialPredictionScorecardCalculatorTests
 
         OfficialPredictionScorecard report = OfficialPredictionScorecardCalculator.Build(evidence);
 
-        report.Coverage.State.ShouldBe(CalibrationCoverageState.Ready);
+        report.Coverage.Grades.State.ShouldBe(PredictionScoreState.Ready);
         ProbabilityCalibrationReport up = report.Models.Single(model => model.TaskType == "BinaryUp10");
-        up.MetricsAvailable.ShouldBeTrue();
+        up.Grades.State.ShouldBe(PredictionScoreState.Ready);
         up.BrierScore!.Value.ShouldBe(.01, .0000001);
         up.AreaUnderRocCurve!.Value.ShouldBe(1, .0000001);
         up.ExpectedCalibrationError!.Value.ShouldBe(.1, .0000001);
@@ -58,10 +58,11 @@ public sealed class OfficialPredictionScorecardCalculatorTests
             Evidence([], []));
 
         report.Identity.StrategyVersionId.ShouldBe(StrategyVersionId);
-        report.Coverage.Counts.OfficialRuns.ShouldBe(0);
-        report.Coverage.Counts.ExpectedCandidates.ShouldBe(0);
-        report.Coverage.State.ShouldBe(CalibrationCoverageState.NoEvidence);
-        report.Models.ShouldAllBe(model => !model.MetricsAvailable);
+        report.Identity.IncludedOfficialRuns.ShouldBe(0);
+        report.Coverage.Grades.Due.ShouldBe(0);
+        report.Coverage.Grades.Rate.ShouldBeNull();
+        report.Coverage.Grades.State.ShouldBe(PredictionScoreState.NoScore);
+        report.Models.ShouldAllBe(model => model.Grades.State == PredictionScoreState.NoScore);
         report.Lenses.ShouldAllBe(lens => !lens.MetricsAvailable);
         report.Slices.ShouldBeEmpty();
     }
@@ -114,7 +115,7 @@ public sealed class OfficialPredictionScorecardCalculatorTests
     }
 
     [Fact]
-    public void IncompleteOutcomeCoverageBlocksEveryPerformanceSurface()
+    public void IncompleteDueOutcomesProduceProvisionalMetricsAcrossSurfaces()
     {
         DateTime cohort = new(2026, 8, 21);
         Guid run = Guid.NewGuid();
@@ -123,9 +124,7 @@ public sealed class OfficialPredictionScorecardCalculatorTests
             .ToList();
         candidates[^1] = candidates[^1] with
         {
-            MaturityState = null,
-            OutcomeAuditState = null,
-            OutcomeJson = null
+            OutcomeJson = "malformed"
         };
         candidates[^2] = candidates[^2] with
         {
@@ -137,11 +136,65 @@ public sealed class OfficialPredictionScorecardCalculatorTests
         OfficialPredictionScorecard report = OfficialPredictionScorecardCalculator.Build(
             Evidence([Run(run, cohort)], candidates));
 
-        report.Coverage.UsableCoverage.ShouldBe(.9, .0000001);
-        report.Coverage.State.ShouldBe(CalibrationCoverageState.Blocked);
-        report.Models.ShouldAllBe(model => !model.MetricsAvailable && model.BrierScore == null);
-        report.Lenses.ShouldAllBe(lens => !lens.MetricsAvailable && lens.Selections.Count == 0);
-        report.Slices.ShouldBeEmpty();
+        report.Coverage.Grades.Rate!.Value.ShouldBe(.9, .0000001);
+        report.Coverage.InvalidOutcomes.ShouldBe(1);
+        report.Coverage.PendingDue.ShouldBe(1);
+        report.Coverage.Grades.State.ShouldBe(PredictionScoreState.Provisional);
+        report.Models.ShouldAllBe(model => model.Grades.State == PredictionScoreState.Provisional && model.BrierScore.HasValue);
+        var up = report.Models.Single(model => model.TaskType == "BinaryUp10");
+        up.BrierScore!.Value.ShouldBe(.09, .0000001);
+        up.AreaUnderRocCurve.ShouldBeNull();
+        report.Lenses.ShouldAllBe(lens => lens.EligibleObservations == 18 && lens.Selections.Count > 0);
+        report.Slices.ShouldNotBeEmpty();
+        OfficialPredictionScorecardCsv.Build(report).ShouldAllBe(file => file.Content.Contains("Provisional"));
+    }
+
+    [Fact]
+    public void ObservationNeedsTenDistinctLaterBenchmarkSessionsEvenIfAnOutcomeExists()
+    {
+        DateTime friday = new(2026, 8, 21);
+        DateTime monday = friday.AddDays(3);
+        var older = Run(Guid.NewGuid(), friday);
+        var recent = Run(Guid.NewGuid(), monday);
+        var evidence = Evidence([older, recent],
+            [Candidate(older.RunId, friday, 1, .8, true, .02), Candidate(recent.RunId, monday, 2, 0, true, -.01)]);
+        DateTime[] sessions = Enumerable.Range(0, 12).Select(i => monday.AddDays(i))
+            .Where(day => day.DayOfWeek is not (DayOfWeek.Saturday or DayOfWeek.Sunday)).ToArray();
+        var waiting = OfficialPredictionScorecardCalculator.Build(evidence with
+            { RecentBenchmarkSessions = [.. sessions.Take(9), monday] });
+        waiting.Coverage.WaitingCandidates.ShouldBe(2);
+        waiting.Coverage.Grades.Rate.ShouldBeNull();
+        waiting.Slices.ShouldBeEmpty();
+
+        var report = OfficialPredictionScorecardCalculator.Build(evidence with { RecentBenchmarkSessions = sessions });
+        report.Coverage.TotalCohorts.ShouldBe(2);
+        report.Coverage.DueCohorts.ShouldBe(1);
+        report.Coverage.WaitingCandidates.ShouldBe(1);
+        report.Coverage.Grades.ShouldBe(new PredictionGradeCoverage(1, 1));
+        var up = report.Models.Single(model => model.TaskType == "BinaryUp10");
+        up.Grades.ShouldBe(report.Coverage.Grades);
+        up.BrierScore!.Value.ShouldBe(.04, .0000001);
+        report.Lenses.ShouldAllBe(lens => lens.EligibleObservations == 1);
+        report.Slices.ShouldAllBe(slice => slice.Observations == 1);
+    }
+
+    [Fact]
+    public void Exactly95PercentIsReadyWhileAModelWithFewerUsableProbabilitiesIsProvisional()
+    {
+        DateTime cohort = new(2026, 8, 21);
+        var run = Run(Guid.NewGuid(), cohort);
+        var candidates = Enumerable.Range(1, 20)
+            .Select(index => Candidate(run.RunId, cohort, index, .7, true, .01)).ToList();
+        candidates[0] = candidates[0] with { MaturityState = null };
+        candidates[1] = candidates[1] with { OutcomeAuditState = "Degraded", UpProbability = null };
+        var report = OfficialPredictionScorecardCalculator.Build(Evidence([run], candidates));
+        report.Coverage.Grades.State.ShouldBe(PredictionScoreState.Ready);
+        report.Coverage.DegradedOutcomes.ShouldBe(1);
+        var up = report.Models.Single(model => model.TaskType == "BinaryUp10");
+        up.Grades.ShouldBe(new PredictionGradeCoverage(18, 20));
+        up.Grades.State.ShouldBe(PredictionScoreState.Provisional);
+        up.BrierScore.ShouldNotBeNull();
+        report.Models.Where(model => model != up).ShouldAllBe(model => model.Grades.State == PredictionScoreState.Ready);
     }
 
     [Fact]
@@ -156,8 +209,9 @@ public sealed class OfficialPredictionScorecardCalculatorTests
         OfficialPredictionScorecard report = OfficialPredictionScorecardCalculator.Build(
             Evidence([Run(run, cohort)], [candidate]));
 
-        report.Coverage.Counts.InvalidOutcomes.ShouldBe(1);
-        report.Coverage.State.ShouldBe(CalibrationCoverageState.Blocked);
+        report.Coverage.InvalidOutcomes.ShouldBe(1);
+        report.Coverage.Grades.State.ShouldBe(PredictionScoreState.NoScore);
+        report.Models.ShouldAllBe(model => model.BrierScore == null);
     }
 
     [Fact]
@@ -246,7 +300,7 @@ public sealed class OfficialPredictionScorecardCalculatorTests
             OfficialPredictionScorecardCsv.Build(report);
 
         artifacts.Count.ShouldBe(5);
-        artifacts.ShouldAllBe(artifact => artifact.FileName.StartsWith("official-prediction-v2-"));
+        artifacts.ShouldAllBe(artifact => artifact.FileName.StartsWith("official-prediction-v3-"));
         artifacts.Select(artifact => artifact.FileName).Distinct().Count().ShouldBe(5);
         artifacts.Single(artifact => artifact.FileName.EndsWith("models.csv"))
             .Content.ShouldContain("strategy_version_id");
@@ -308,7 +362,8 @@ public sealed class OfficialPredictionScorecardCalculatorTests
                 1),
             runs,
             candidates,
-            lenses);
+            lenses,
+            Enumerable.Range(0, 10).Select(i => new DateTime(2026, 10, 1).AddDays(i)).ToArray());
     }
 
     private static OfficialPredictionRunEvidence Run(Guid id, DateTime cohort) => new(
