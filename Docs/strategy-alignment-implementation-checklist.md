@@ -335,7 +335,10 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   holdings and pending-order check, and preservation of remaining holdings' protection records.
   [November 2 after-hours activation](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#normal-engine-activation).
 - [ ] Verify that an ordinary regular-session cycle proceeds through protection after the original
-  sell's recovery. The separate held-position bid investigation remains on operator hold.
+  sell's recovery. The [November 3 opening check](project-status.md#operating-state-and-immediate-risks)
+  reached both exit triggers on fresh bids but blocked both protective sells before reservation.
+  Resolve the ownership mismatch and verify the ordinary sale and reconciliation.
+  The separate held-position bid investigation remains on operator hold.
 - Separate proposal: reducing the regular strategy's cumulative writes and repeated broker history reads.
   The operator approved the restart switch and the grouped read comparison. A bounded sample of 100 Friday
   revisions over 22 minutes stored 489,240 bytes of manifests, used 34 distinct account

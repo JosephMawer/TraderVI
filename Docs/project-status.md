@@ -8,7 +8,14 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 
 ## Operating state and immediate risks
 
-- **Real trading:** On November 2 at 17:50 Toronto the original completed sell reconciled into managed
+- **Real trading:** At the November 3 open both remaining holdings triggered protective exits.
+  Fresh bids reached the normal engine, but neither sale passed the saved ownership check.
+  At 09:30:49 Toronto the broker showed zero pending orders. At 09:31 a read-only comparison
+  found neither current position recognized by any of the three saved settings records,
+  including the November 2 approval. Both trigger times and floors passed the corresponding
+  checks. The operator approved ordinary Release build `124c4408` after the machine restart.
+  The engine passed its restart account check at 09:29:43 before the opening block.
+  On November 2 at 17:50 Toronto the original completed sell reconciled into managed
   revision 6844 and compact checkpoint 29. SQL readback verified identical financial, holding and
   order fingerprints and the same buying mode. The Trading view restored the saved strategy.
   The operator approved build `cc64462c` and enabled its host. At 21:24 Toronto the normal

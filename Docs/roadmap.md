@@ -15,10 +15,12 @@ intentional handover without losing existing protection or financial history.
 
 ## Now — protect and qualify the operating system
 
-1. **Verify the first regular-session protection cycle after the Real execution repair**
+1. **Resolve the protective-sale ownership block and verify the ordinary Real exit cycle**
    ([issue #19](https://github.com/JosephMawer/TraderVI/issues/19)). The original sell reconciled,
    the approved engine passed its after-hours restart account check and the dashboard restored
-   the strategy. Verify the ordinary cycle against the remaining holdings. Reducing ordinary history reads and writes
+   the strategy. The November 3 opening cycle reached both exit triggers but blocked both sales
+   on the saved protection owner. See the [opening evidence](project-status.md#operating-state-and-immediate-risks).
+   Reducing ordinary history reads and writes
    remains a separate proposal. [November 2 investigation](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md)
    and [restart contract](adr/0117-compact-trading-current-storage.md).
 2. **Resolve known reliability work in its existing scope.** The identified Paper-input symbol-resolution
