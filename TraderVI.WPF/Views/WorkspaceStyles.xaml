@@ -79,19 +79,6 @@
                         </Grid>
                         <TextBlock x:Name="Tagline" Text="TSX · Trading workspace" Foreground="#ADBBCC" FontSize="11" Margin="16,5,0,0"/>
                     </StackPanel>
-                    <Button x:Name="WealthsimpleStatus" DockPanel.Dock="Bottom" Margin="8,12" Padding="8,14"
-                            Style="{StaticResource WorkspaceButton}" HorizontalContentAlignment="Left"
-                            Command="{x:Static views:WorkspaceNavigationState.OpenWealthsimple}"
-                            DataContext="{TemplateBinding views:WorkspaceNavigationState.Connection}"
-                            ToolTip="{Binding AccessibleStatus}" AutomationProperties.Name="{Binding AccessibleStatus}">
-                        <StackPanel Orientation="Horizontal">
-                            <Ellipse Width="10" Height="10" Fill="{Binding IndicatorColor, FallbackValue=#FF747D}" VerticalAlignment="Center"/>
-                            <StackPanel x:Name="WealthsimpleLabel" Margin="9,0,0,0">
-                                <TextBlock Text="Wealthsimple" FontSize="12" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding Status, FallbackValue=Disconnected}" FontSize="10" Foreground="#ADBBCC" MaxWidth="112" TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/></ScrollViewer>
                 </DockPanel></Border>
                 <ContentPresenter x:Name="PART_SelectedContentHost" Grid.Column="1" ContentSource="SelectedContent" Margin="0"/>
@@ -100,7 +87,6 @@
                 <Setter TargetName="NavigationColumn" Property="Width" Value="56"/>
                 <Setter TargetName="Brand" Property="Visibility" Value="Collapsed"/>
                 <Setter TargetName="Tagline" Property="Visibility" Value="Collapsed"/>
-                <Setter TargetName="WealthsimpleLabel" Property="Visibility" Value="Collapsed"/>
             </Trigger></ControlTemplate.Triggers>
         </ControlTemplate></Setter.Value></Setter>
     </Style>

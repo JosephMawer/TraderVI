@@ -32,7 +32,8 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   workflow. Tracked-position pause and resume are on **Recorded trades & monitor**. The November 3
   read-only database check found no saved manual recommendation approvals, batches, operator
   account reports or recommendation-linked purchase reports. Broker synchronization receipts
-  were present. Retirement of any manual workflow is undecided. The engine and collector
+  were present. The manual workflow decision is deferred in [issue #27](https://github.com/JosephMawer/TraderVI/issues/27).
+  The full-width engine status bar now includes the Wealthsimple connection control at the bottom of the dashboard. The engine and collector
   continued running.
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the

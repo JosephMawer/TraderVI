@@ -56,7 +56,7 @@ public partial class PaperDashboardWindow : Window
             lastDispatcherPulse = now;
         };
         DataContext = viewModel;
-        WorkspaceNavigationState.SetConnection(MainTabs, wealthsimple);
+        WealthsimpleStatus.DataContext = wealthsimple;
         MainAccountContent.Content = TradingRecommendationsTabView.BrokerPanel;
         TradingRecommendationsTabView.InitializeWealthsimple(this, wealthsimple, manualBuys.ReconcileForTransitionAsync,
             manualBuys.SynchronizeAccountAsync, () => !manualBuys.IsSubmitting);

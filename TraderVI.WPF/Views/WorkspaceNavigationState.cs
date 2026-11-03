@@ -7,10 +7,6 @@ namespace TraderVI.WPF.Views;
 public static class WorkspaceNavigationState
 {
     public static readonly RoutedUICommand OpenWealthsimple = new("Wealthsimple connection", "OpenWealthsimple", typeof(WorkspaceNavigationState));
-    public static readonly DependencyProperty ConnectionProperty = DependencyProperty.RegisterAttached(
-        "Connection", typeof(object), typeof(WorkspaceNavigationState), new PropertyMetadata(null));
-    public static object GetConnection(DependencyObject element) => element.GetValue(ConnectionProperty);
-    public static void SetConnection(DependencyObject element, object value) => element.SetValue(ConnectionProperty, value);
 
     public static readonly DependencyProperty IsCollapsedProperty = DependencyProperty.RegisterAttached(
         "IsCollapsed", typeof(bool), typeof(WorkspaceNavigationState),

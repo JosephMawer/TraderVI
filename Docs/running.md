@@ -11,10 +11,10 @@ wait, last fresh evaluation with no qualifying signal, or a blocker and its reas
 status is not shown as ready. The engine's checks and explicit operator controls remain authoritative.
 See current status for source, installation and native verification boundaries.
 
-The October 30 installed layout moves that summary into the global **Real execution** header and its
-details into **Engine**. Choose **Open Engine** or the Engine navigation entry for engine start/stop,
-Execution setup, Stop execution host, Review switch and History checks. Account selection and
-connection remain in Trading; setup and switch review retain their existing eligibility. Older dated
+The full-width status bar at the bottom of the dashboard shows engine health, **Real execution**,
+history checks and the Wealthsimple connection. Choose **Wealthsimple** to manage the connection.
+Choose **Open Engine** or the Engine navigation entry for engine start/stop,
+Execution setup, Stop execution host, Review switch and History checks. Older dated
 instructions below retain their historical Trading entry points; in the current installed dashboard,
 use **Engine → Execution setup** for that workflow.
 
@@ -642,7 +642,7 @@ recorded-account recommendation approval continues to use its existing gates. Se
 The isolated `Tools/Wealthsimple.Auth` console host can verify a user-completed browser session
 from a local HAR. It does not start the trading app or connect its dashboards. See
 [authentication commands and limits](concepts/wealthsimple-authentication.md). A successful direct
-token-info check is verified. WPF's **Wealthsimple** sidebar button now opens native email/password
+token-info check is verified. The **Wealthsimple** button in the bottom status bar opens native email/password
 inputs and prompts for 2FA when required. Browser verification is a conditional fallback, and saved
 sessions use optional Windows encryption. Native login is operator-confirmed; live refresh rotation
 still needs verification. Green denotes authentication only, not trading readiness.
