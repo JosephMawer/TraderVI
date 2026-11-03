@@ -17,11 +17,12 @@ public partial class PaperDashboardWindow
     private bool engineCommand;
     private IndependentEngineStatus? latestEngineStatus;
     private readonly DispatcherTimer engineDisplayTimer = new() { Interval = TimeSpan.FromSeconds(5) };
-    private bool readingCollectorStatus;
-    private async Task RefreshCollectorOverviewAsync()
+    private bool readingLocalStatus;
+    private DateTimeOffset nextPrepCheck;
+    private async Task RefreshLocalStatusAsync()
     {
-        if (readingCollectorStatus || shutdown.IsCancellationRequested) return;
-        readingCollectorStatus = true;
+        if (readingLocalStatus || shutdown.IsCancellationRequested) return;
+        readingLocalStatus = true;
         try
         {
             var pathFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -31,8 +32,17 @@ public partial class PaperDashboardWindow
             CollectorOverviewText.Text = display.State;
             CollectorOverviewText.Foreground = (Brush)new BrushConverter().ConvertFromString(display.Color)!;
             CollectorOverviewText.ToolTip = display.Detail;
+            if (DateTimeOffset.UtcNow >= nextPrepCheck)
+            {
+                var prep = await Task.Run(DashboardDailyPrep.Read);
+                if (shutdown.IsCancellationRequested) return;
+                DailyPrepText.Text = prep.Label;
+                DailyPrepText.Foreground = (Brush)new BrushConverter().ConvertFromString(prep.Color)!;
+                DailyPrepText.ToolTip = prep.Detail;
+                nextPrepCheck = DateTimeOffset.UtcNow.AddSeconds(30);
+            }
         }
-        finally { readingCollectorStatus = false; }
+        finally { readingLocalStatus = false; }
     }
     private void OpenEngine_Click(object sender, RoutedEventArgs e) => MainTabs.SelectedItem = EngineTab;
     private async void ReviewEngineSwitch_Click(object sender, RoutedEventArgs e) => await TradingRecommendationsTabView.ReviewBrokerStrategyAsync(null);

@@ -139,7 +139,7 @@
         <Grid VerticalAlignment="Center">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.2*"/><ColumnDefinition Width="1.1*"/><ColumnDefinition Width="1.6*"/>
-            <ColumnDefinition Width="1.35*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="1.35*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <DockPanel Margin="0,0,10,0" VerticalAlignment="Center" ToolTip="{Binding ToolTip, ElementName=EngineOverviewText}">
             <TextBlock Text="Engine" Style="{StaticResource StatLabel}" Margin="0,0,5,0"/>
@@ -154,16 +154,27 @@
             <TextBlock Text="History" Style="{StaticResource StatLabel}" Margin="0,0,5,0"/>
             <TextBlock x:Name="HistoryOverviewText" Text="Awaiting status" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
           </DockPanel>
-          <Button x:Name="WealthsimpleStatus" Grid.Column="4" Margin="0,0,8,0" Padding="7,2"
+          <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="0,0,10,0" VerticalAlignment="Center" ToolTip="{Binding ToolTip, ElementName=DailyPrepText}">
+            <TextBlock Text="Daily prep" Style="{StaticResource StatLabel}" Margin="0,0,5,0"/>
+            <TextBlock x:Name="DailyPrepText" Text="Checking…" FontWeight="SemiBold"/>
+          </StackPanel>
+          <Button x:Name="WealthsimpleStatus" Grid.Column="5" Margin="0,0,8,0" Padding="7,2"
                   Style="{StaticResource WorkspaceButton}" Command="{x:Static views:WorkspaceNavigationState.OpenWealthsimple}"
-                  ToolTip="{Binding AccessibleStatus}" AutomationProperties.Name="{Binding AccessibleStatus}">
+                  ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=(AutomationProperties.Name)}">
+            <AutomationProperties.Name>
+              <MultiBinding StringFormat="{}{0}&#10;{1}">
+                <Binding Path="AccessibleStatus"/>
+                <Binding ElementName="MainAccountContent" Path="Content.DataContext.FooterHoldingsDetail"/>
+              </MultiBinding>
+            </AutomationProperties.Name>
             <StackPanel Orientation="Horizontal">
               <Ellipse Width="8" Height="8" Fill="{Binding IndicatorColor, FallbackValue=#FF747D}" VerticalAlignment="Center"/>
               <TextBlock Text="Wealthsimple" Margin="5,0" FontSize="12"/>
               <TextBlock Text="{Binding Status, FallbackValue=Disconnected}" FontSize="12" FontWeight="SemiBold" MaxWidth="105" TextTrimming="CharacterEllipsis"/>
+              <TextBlock Text="{Binding ElementName=MainAccountContent, Path=Content.DataContext.FooterHoldingsFlag}" FontSize="12" FontWeight="SemiBold" Foreground="#F5B94C"/>
             </StackPanel>
           </Button>
-          <Button Grid.Column="5" Content="Open Engine →" Click="OpenEngine_Click" Padding="8,3" FontSize="12"/>
+          <Button Grid.Column="6" Content="Open Engine →" Click="OpenEngine_Click" Padding="8,3" FontSize="12"/>
         </Grid>
       </Border>
     <TabControl x:Name="MainTabs" Style="{StaticResource WorkspaceNavigation}" Background="Transparent" Foreground="#F4F7FB" BorderThickness="0" Padding="0">

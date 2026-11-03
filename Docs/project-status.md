@@ -33,8 +33,10 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   read-only database check found no saved manual recommendation approvals, batches, operator
   account reports or recommendation-linked purchase reports. Broker synchronization receipts
   were present. The manual workflow decision is deferred in [issue #27](https://github.com/JosephMawer/TraderVI/issues/27).
-  The single-line dashboard footer shows engine, collector, execution, history and Wealthsimple status.
-  Collector status comes from its dated local receipt. The engine and collector
+  The single-line dashboard footer shows engine, collector, execution, history, session-dated daily
+  preparation and Wealthsimple status. Daily prep uses the reviewed TSX calendar and nightly receipt.
+  The connection control separately flags stale or unloaded holdings. Collector status comes
+  from its dated local receipt. The engine and collector
   continued running.
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the

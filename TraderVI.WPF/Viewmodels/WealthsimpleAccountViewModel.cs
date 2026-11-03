@@ -90,8 +90,18 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
         (Snapshot != null && clock.GetUtcNow() - Snapshot.RetrievedAt > TimeSpan.FromMinutes(5) ? " Snapshot is over five minutes old; refresh to update." : "");
     public string ReturnPeriod => Snapshot?.ReturnReferenceDate is { } date ? $"Account return since {date}" : "Account return · Wealthsimple period";
     public string ReturnAsOf => Snapshot?.ReturnAsOf is { } at ? $"Return as of {TradingAccountOverview.Local(at.UtcDateTime)}" : "Return valuation time was not supplied.";
+    private bool HoldingsStale => Snapshot is { } snapshot && (holdingsReadFailed ||
+        snapshot.RetrievedAt > clock.GetUtcNow() || clock.GetUtcNow() - snapshot.RetrievedAt > TimeSpan.FromMinutes(5));
+    public string FooterHoldingsFlag => !source.IsConnected ? "" : Snapshot == null ? " · holdings unverified"
+        : HoldingsStale ? " · holdings stale" : "";
+    public string FooterHoldingsDetail => !source.IsConnected ? "Holdings cannot be verified while disconnected."
+        : Snapshot == null ? "No holdings snapshot has been loaded for this sign-in."
+        : $"Holdings last retrieved {TradingAccountOverview.Local(Snapshot.RetrievedAt.UtcDateTime)}. " +
+            (holdingsReadFailed ? "The last holdings read failed. Use Refresh Wealthsimple on Main account."
+            : HoldingsStale ? "Snapshot time is outside the five-minute freshness window. Use Refresh Wealthsimple on Main account."
+            : "Snapshot is within the five-minute freshness window.");
     public string HoldingsStatus => Snapshot == null ? "Holdings have not been loaded."
-        : holdingsReadFailed || clock.GetUtcNow() - Snapshot.RetrievedAt > TimeSpan.FromMinutes(5)
+        : HoldingsStale
             ? $"Last snapshot showed {Snapshot.Holdings.Count} holdings at {TradingAccountOverview.Local(Snapshot.RetrievedAt.UtcDateTime)}. Refresh to verify current holdings."
             : Snapshot.Holdings.Count == 0 ? "No holdings in this TFSA." : $"{Snapshot.Holdings.Count} holdings · values include their currency.";
     public string TradeSyncStatus { get; private set; } = "Trade synchronization has not run.";

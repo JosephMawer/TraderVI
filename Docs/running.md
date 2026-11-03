@@ -18,7 +18,14 @@ over two minutes old shows **Stale**. **Outside session** is a current collector
 schedule. The indicator describes the last collection cycle, not per-symbol market-data freshness.
 For installation, place the absolute path of the selected collector's control-directory
 `status.json` in `%LOCALAPPDATA%\TraderVI\Collector\dashboard-status-path.txt`. Update that file
-if the control directory moves. Choose **Wealthsimple** to manage the connection.
+if the control directory moves. **Daily prep** shows today's reviewed Toronto trading session
+until close, then the next session. It checks the nightly runner's local status every 30 seconds.
+An earlier receipt is pending before the target session opens and overdue from the opening bell.
+Ready requires a successful run for that session with a completed successful Delphi step.
+Hover for the receipt date, last finished step and time, current step or flagged stages.
+**Wealthsimple** keeps its sign-in status and flags an unverified or stale holdings snapshot separately.
+A failed holdings refresh or a snapshot outside the five-minute freshness window flags the retained
+holdings as stale. Hover for the retrieval time or open the control to manage the connection.
 Choose **Open Engine** or the Engine navigation entry for engine start/stop,
 Execution setup, Stop execution host, Review switch and History checks. Older dated
 instructions below retain their historical Trading entry points; in the current installed dashboard,

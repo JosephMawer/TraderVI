@@ -42,8 +42,8 @@ public partial class PaperDashboardWindow : Window
     {
         manualBuys = new(wealthsimple, brokerSetupCycles);
         InitializeComponent();
-        engineDisplayTimer.Tick += async (_, _) => { RenderEngineOverview(); await RefreshCollectorOverviewAsync(); };
-        Loaded += async (_, _) => { engineDisplayTimer.Start(); await RefreshCollectorOverviewAsync(); };
+        engineDisplayTimer.Tick += async (_, _) => { RenderEngineOverview(); await RefreshLocalStatusAsync(); };
+        Loaded += async (_, _) => { engineDisplayTimer.Start(); await RefreshLocalStatusAsync(); };
         Closed += (_, _) => engineDisplayTimer.Stop();
         DelphiLiveTabView.SetCycleBarrier(brokerSetupCycles);
         PortfoliosTabView.SetCycleBarrier(brokerSetupCycles);
