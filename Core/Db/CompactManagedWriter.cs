@@ -34,11 +34,13 @@ internal static class CompactManagedWriter
         if (prior?.HasReviewedCompactRestart != true) return;
         var db = await EngineContinuityRepository.IdentityAsync(connection, transaction, ct);
         await PublishAsync(SqlTradingStorageDatabase.InTransaction(connection, transaction), prior, next, db,
-            DirectoryPath, new CompactReceiptProtector(), ct);
+            DirectoryPath, new CompactReceiptProtector(), ct, (binding, buy, filledAt, token) =>
+                CompactOpeningProtection.ReadAsync(connection, transaction, binding, buy, filledAt, token));
     }
 
     internal static async Task PublishAsync(TradingCurrentStore store, BrokerManagedSession prior, BrokerManagedSession next,
-        EngineDatabaseIdentity database, string directory, IManualBuyProtector protector, CancellationToken ct)
+        EngineDatabaseIdentity database, string directory, IManualBuyProtector protector, CancellationToken ct,
+        CompactOpeningProtection.ReadIntent? readIntent = null)
     {
         var current = await store.ReadAsync(next.BindingId, ct);
         if (current == null) throw new InvalidOperationException("First transfer the reviewed compact account before advancing its strategy.");
@@ -55,7 +57,7 @@ internal static class CompactManagedWriter
                 throw new InvalidDataException("The terminal sell and closed position must precede the managed handoff.");
         }
         var (write, approved) = next.Event == "ImplementationReviewed"
-            ? CompactBuildSuccessor.Prepare(prior, next, current, sealedBook)
+            ? await CompactBuildSuccessor.PrepareAsync(prior, next, current, sealedBook, readIntent, ct)
             : (CompactManagedPublication.Prepare(prior, next, current, settledSale), sealedBook.Assignment);
         var committing = store.WithCheckpointWriter(updated =>
         {

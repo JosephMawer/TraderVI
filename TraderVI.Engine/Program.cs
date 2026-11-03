@@ -78,7 +78,12 @@ internal static class Program
             {
                 var preparation = new CompactAccountPreparation(new SqlTradingStorageDatabase(EngineIntegrityRepository.OpenAsync),
                     continuityStore, witness, new BrokerManagedSessionRepository(calendar, sharedStorage: true), grants,
-                    journal, new CompactReceiptProtector(), CompactManagedWriter.DirectoryPath);
+                    journal, new CompactReceiptProtector(), CompactManagedWriter.DirectoryPath,
+                    async (binding, buy, filledAt, token) =>
+                    {
+                        await using var db = await EngineIntegrityRepository.OpenAsync(token);
+                        return await CompactOpeningProtection.ReadAsync(db, null, binding, buy, filledAt, token);
+                    });
                 // Maintenance can run separately from the approved trading package. Its target
                 // is the actual installed binary, never a caller-supplied hash or edited grant.
                 string reviewedBuild = BrokerManagedSessionComposition.ImplementationIdentity;

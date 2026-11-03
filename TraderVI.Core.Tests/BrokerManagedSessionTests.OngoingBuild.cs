@@ -176,4 +176,44 @@ public sealed partial class BrokerManagedSessionTests
         await CompactManagedWriter.PublishAsync(store, next, later, id, dir.Path, protector, default);
         Assert.Equal(current.Settings.PermissionId, (await store.ReadAsync(prior.BindingId))!.Account.PermissionId);
     }
+
+    [Theory]
+    [InlineData("original", true)]
+    [InlineData("different decision", false)]
+    [InlineData("different owner", false)]
+    [InlineData("different session", false)]
+    [InlineData("missing receipt", false)]
+    public async Task MissingCompactOwnerRequiresTheOpeningIntentAndItsReconciledFill(string evidence, bool recognized)
+    {
+        var fixture = await OngoingFixture();
+        var source = await fixture.Workflow().ApproveAsync(fixture.Review);
+        var at = source.SavedAt.AddMinutes(1);
+        var intentOrder = new BrokerStrategyOrder(Guid.NewGuid(), Guid.NewGuid(), null, "security", "FIX",
+            "BUY", 3, 10, "Initial", 30, at);
+        var filled = at.AddSeconds(2);
+        var fact = new BrokerOrderFact(intentOrder.ExternalId, "security", "FIX.TO", "BUY", "POSTED", "CAD",
+            "EQUITY", 3, 3, 30, 30, 0, 0, at, filled);
+        var order = intentOrder with { Latest = fact, Reconciled = true, Submission = WealthsimpleSubmissionStatus.Acknowledged };
+        var id = BrokerManagedStrategy.StableId($"{source.BindingId:D}:security:{order.ExternalId}");
+        var held = new BrokerPositionCycle(id, "security", "FIX.TO", 3, 30, filled, order.ExternalId, null);
+        var fill = new TradingActualFill(BrokerManagedStrategy.StableId($"{source.BindingId:D}:{order.ExternalId}"),
+            id, held.Symbol, "BUY", filled.UtcDateTime, DateOnly.FromDateTime(filled.Date), 3, 10, null, "Initial", 30);
+        var protection = BrokerLiveProtection.Transfer(source.Strategy, held, null, filled);
+        if (evidence == "different owner") protection = protection with { Owner = Guid.NewGuid().ToString("D") };
+        var intent = source with { Event = "OrderIntentReserved", SavedAt = at, Orders = [intentOrder] };
+        if (evidence == "different decision") intent = intent with { Orders = [intentOrder with { DecisionId = Guid.NewGuid() }] };
+        if (evidence == "different session") intent = intent with { SessionId = Guid.NewGuid() };
+        var saved = source with { Revision = source.Revision + 2, Account = source.Account with { Positions = [held], Fills = [fill] },
+            Orders = [order], Protection = [protection] };
+        var positions = RestartAccountRehearsal.Positions(saved);
+        var settings = new TradingApprovedSettings { StrategyId = Guid.NewGuid(), PermissionId = source.EffectiveReview.RequestId,
+            BaselineId = source.EffectiveReview.BaselineId };
+        var book = new TradingCurrentState(RestartAccountRehearsal.Account(saved, true), settings, positions, [], [], [], []);
+        var repaired = await CompactOpeningProtection.RestoreAsync(saved, book,
+            (_, _, _, _) => Task.FromResult(evidence == "missing receipt" ? null : intent), default);
+        Assert.False(settings.OwnsProtection(positions.Single()));
+        Assert.Equal(recognized, repaired.OwnsProtection(positions.Single()));
+        Assert.Equal(repaired, await CompactOpeningProtection.RestoreAsync(saved, book with { Settings = repaired },
+            (_, _, _, _) => Task.FromResult<BrokerManagedSession?>(null), default));
+    }
 }

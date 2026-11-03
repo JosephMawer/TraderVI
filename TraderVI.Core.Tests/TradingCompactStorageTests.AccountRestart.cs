@@ -134,6 +134,35 @@ public sealed partial class TradingCompactStorageTests
     }
 
     [Fact]
+    public async Task TwoTriggeredPositionsRetainIndependentOriginalRequestsAcrossUnknownReplies()
+    {
+        var db = new Database();
+        var first = Triggered(2);
+        var second = Triggered(3);
+        await db.Store.SaveAsync(ActiveBook() with { Positions = [first, second], Orders = [],
+            Account = Account with { ExecutionEnabled = true, ReservedPurchaseCost = 0 } });
+        var broker = new SimulatedAccountBroker(db) { AfterSend = () => throw new TimeoutException() };
+        broker.AccountBook = () => BrokerBook(RecoveryAt, (first, first.Quantity), (second, second.Quantity));
+        await broker.Restart().RunAsync(Binding);
+        await broker.Restart().RunAsync(Binding);
+        Assert.Equal(2, broker.Sent.Count);
+        foreach (var position in new[] { first, second })
+            Assert.Equal(BrokerManagedStrategy.StableId(position.ExitDecisionId!.Value.ToString("D")),
+                Assert.Single(broker.Sent.Where(o => o.PositionId == position.PositionId)).RequestId);
+        broker.Status = id =>
+        {
+            var sale = broker.Sent.Single(o => id == $"order-{o.RequestId:D}");
+            return SellFact(sale, "FILLED", sale.Quantity);
+        };
+        broker.AccountBook = () => BrokerBook(RecoveryAt);
+        var recovered = await broker.Restart().RunAsync(Binding);
+        Assert.Empty(recovered.Current.Positions);
+        Assert.Empty(recovered.Current.Orders);
+        await broker.Restart().RunAsync(Binding);
+        Assert.Equal(2, broker.Sent.Count);
+    }
+
+    [Fact]
     public async Task UnknownSellReplySurvivesRestartAndPartialFillIsAppliedOnce()
     {
         var db = new Database();

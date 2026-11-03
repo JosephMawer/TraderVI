@@ -14,7 +14,8 @@ namespace Core.Db;
 // Called under exclusive engine ownership. A later startup must never recapture a damaged checkpoint.
 internal sealed class CompactAccountPreparation(ITradingStorageDatabase database, IEngineContinuityStore continuity,
     IEngineContinuityFile witness, IBrokerManagedSessionStore sessions, BrokerExecutionHostGrantFileStore grants,
-    ManualBuyFileJournal journal, IManualBuyProtector protector, string directory)
+    ManualBuyFileJournal journal, IManualBuyProtector protector, string directory,
+    CompactOpeningProtection.ReadIntent? readIntent = null)
 {
     internal async Task PrepareAsync(string build, CancellationToken ct)
     {
@@ -41,7 +42,8 @@ internal sealed class CompactAccountPreparation(ITradingStorageDatabase database
         var frozen = RestartAccountRehearsal.ProjectSettled(saved, grant, build, sourceHash, now, transferReviewedAccount: true);
         var initial = frozen with
         {
-            Settings = frozen.Settings with { BuyAllowed = true, SellAllowed = true },
+            Settings = (await CompactOpeningProtection.RestoreAsync(saved, frozen, readIntent, ct))
+                with { BuyAllowed = true, SellAllowed = true },
             Checkpoints = [frozen.Checkpoints.Single() with { OperationKind = "ReviewedLiveCutover" }]
         };
         TradingCurrentStore.ValidateCurrent(initial, grant.BindingId);

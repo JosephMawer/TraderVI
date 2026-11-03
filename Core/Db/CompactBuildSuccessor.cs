@@ -5,14 +5,17 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Nodes;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Core.Db;
 
 // Called inside the operator's validated ImplementationReviewed append and its SQL transaction.
 internal static class CompactBuildSuccessor
 {
-    internal static (TradingStateWrite Write, CompactDelphiAssignment Assignment) Prepare(
-        BrokerManagedSession prior, BrokerManagedSession next, TradingCurrentState book, CompactDelphiCheckpoint seal)
+    internal static async Task<(TradingStateWrite Write, CompactDelphiAssignment Assignment)> PrepareAsync(
+        BrokerManagedSession prior, BrokerManagedSession next, TradingCurrentState book, CompactDelphiCheckpoint seal,
+        CompactOpeningProtection.ReadIntent? readIntent, CancellationToken ct)
     {
         var review = next.ImplementationReview;
         var old = book.Settings;
@@ -37,17 +40,18 @@ internal static class CompactBuildSuccessor
             !priorPositions.SequenceEqual(RestartAccountRehearsal.Positions(next).OrderBy(p => p.PositionId)))
             throw new InvalidDataException("Build review requires unchanged compact positions and protection.");
 
-        var config = JsonNode.Parse(old.ConfigurationJson)!.AsObject();
+        var verifiedOwners = await CompactOpeningProtection.RestoreAsync(prior, book, readIntent, ct);
+        var config = JsonNode.Parse(verifiedOwners.ConfigurationJson)!.AsObject();
         config["StrategyFingerprint"] = next.Strategy.Fingerprint;
         config["FinancialPermissionId"] = old.FinancialPermissionId;
         foreach (var key in config.Select(p => p.Key).Where(k => k.StartsWith("Held_", StringComparison.Ordinal)).ToArray())
             config.Remove(key);
-        foreach (var p in book.Positions.Where(old.OwnsProtection))
+        foreach (var p in book.Positions.Where(verifiedOwners.OwnsProtection))
             config["Held_" + p.PositionId.ToString("N")] = p.ProtectionOwner;
         var settings = old with { Version = 0, PermissionId = review.ReviewId, StrategyId = next.Strategy.VersionId,
             ImplementationIdentity = review.ImplementationIdentity, ApprovedUtc = review.ApprovedAt.UtcDateTime,
             ConfigurationJson = config.ToJsonString() };
-        if (book.Positions.Any(p => settings.OwnsProtection(p) != old.OwnsProtection(p)))
+        if (book.Positions.Any(p => settings.OwnsProtection(p) != verifiedOwners.OwnsProtection(p)))
             throw new InvalidDataException("The build review would change an existing holding's protection eligibility.");
         var account = book.Account with { PermissionId = settings.PermissionId, StrategyId = settings.StrategyId };
         var write = new TradingStateWrite(next.RevisionId, "ReviewedBuildSuccessor", next.SavedAt.UtcDateTime, account.Version, account)

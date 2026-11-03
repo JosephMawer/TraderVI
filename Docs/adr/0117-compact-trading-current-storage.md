@@ -290,6 +290,22 @@ The November 1 read-only comparison verified broker support and agreement for th
 account. The trading engine still uses individual reads. See the
 [execution checklist](../strategy-alignment-implementation-checklist.md) for the offline and live measurements.
 
+### November 3 clarification — original protection ownership across builds
+
+An implementation review changes the strategy version ID even when the financial permission,
+strategy definition and source stay the same. A position may still carry the version that
+protected its original purchase. During first transfer or a build review, restore a missing
+position-specific owner only when the opening managed buy, reconciled broker fill, position
+cycle and saved protection agree. Read the original immutable reservation under that binding
+and verify the financial permission, source, strategy definition and original owner. Missing
+or ambiguous evidence leaves the position ineligible. A conflicting explicit mapping blocks
+the review.
+
+Write the verified owner into the new settings. Preserve the old settings, original trigger,
+position and order history. The ordinary sell path uses the same request ID derived from the
+original decision, reserves once, and only looks up that original on a retry. Approval and
+separate host enable still apply. No purchase-history scan is added to normal trading cycles.
+
 ### November 2 implementation — managed protection after a closed sell
 
 When compact recovery has closed a position still present in the managed account, verify the
