@@ -334,6 +334,10 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [x] Verify the operator's exact-build approval and separate enable, normal restart, broker
   holdings and pending-order check, and preservation of remaining holdings' protection records.
   [November 2 after-hours activation](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md#normal-engine-activation).
+- [x] Trace both November 3 blocked exits to their original purchases, recover verifiable ownership
+  during build review, and exercise two unknown sell replies through repeated restart and fill.
+  The exact Release replay restored both owners without changing either original decision.
+  [November 3 implementation](adr/0117-compact-trading-current-storage.md#november-3-clarification--original-protection-ownership-across-builds).
 - [ ] Verify that an ordinary regular-session cycle proceeds through protection after the original
   sell's recovery. The [November 3 opening check](project-status.md#operating-state-and-immediate-risks)
   reached both exit triggers on fresh bids but blocked both protective sells before reservation.

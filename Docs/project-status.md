@@ -8,7 +8,17 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 
 ## Operating state and immediate risks
 
-- **Real trading:** At the November 3 open both remaining holdings triggered protective exits.
+- **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
+  standard Release path in build-review mode, connected to the broker. The collector retained
+  its process. Operator approval and a normal-mode exit cycle were pending at that check.
+  Both original October 29 buys were fully filled and reconciled. Their original reservation
+  revisions identified the same owners still saved on the positions. The first compact transfer
+  omitted the per-position link and subsequent approvals preserved that omission. Replaying
+  the captured account on the exact Release binary restored both links with no position or
+  order writes. The Release suite passed 3,584 tests with 16 opt-in skips, including the new
+  two-exit retry regression among the passing tests.
+  [Repair contract](adr/0117-compact-trading-current-storage.md#november-3-clarification--original-protection-ownership-across-builds).
+  At the November 3 open both remaining holdings triggered protective exits.
   Fresh bids reached the normal engine, but neither sale passed the saved ownership check.
   At 09:30:49 Toronto the broker showed zero pending orders. At 09:31 a read-only comparison
   found neither current position recognized by any of the three saved settings records,
