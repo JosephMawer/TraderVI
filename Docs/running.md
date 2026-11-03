@@ -758,6 +758,15 @@ registers its actual directory, including one here. Keep that directory availabl
 and let an active nightly run finish before rebuilding it. Keep logs and receipts for a specific run
 separate from these reusable compiler outputs.
 
+The installed Windows desktop and approved engine share `TraderVI.WPF/bin/Release/net10.0-windows/`.
+The November 3 desktop update uses a WPF-specific entry in `TraderVI.WPF.deps.json` to load
+`desktop-libraries/TraderVI.Calibration.dll`. The engine resolves the original DLL at the root.
+Preserve both paths and the WPF manifest when maintaining this installation. Building WPF directly
+into the shared folder can overwrite the manifest and the engine's dependencies. Stage future
+changes in the reusable build folder and check each host's assembly resolution before installation.
+The prior WPF DLL, symbols and manifest are in `artifacts/desktop-scorecard-install/original/` for
+rollback with only the desktop closed. The validated before/after file hashes are alongside them.
+
 ## Safe validation commands
 
 Core tests:
