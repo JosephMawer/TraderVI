@@ -292,8 +292,10 @@ public sealed class WealthsimpleHoldingRow(WealthsimpleHolding holding, Wealthsi
         get => strategyDecision;
         internal set { if (value == strategyDecision) return; strategyDecision = value; PropertyChanged?.Invoke(this, new(nameof(StrategyDecision))); }
     }
-    public string AverageCost => holding.Quantity > 0 && holding.BookValue is { } book
-        ? new WealthsimpleMoney(book.Amount / holding.Quantity, book.Currency).ToString() : "Unavailable";
+    public string AverageCost => PerShare(holding.BookValue);
+    public string CurrentPricePerShare => PerShare(holding.Value);
+    private string PerShare(WealthsimpleMoney? total) => holding.Quantity > 0 && total != null
+        ? new WealthsimpleMoney(total.Amount / holding.Quantity, total.Currency).ToString() : "Unavailable";
     public string ValueContext => snapshot == null ? "Snapshot time unavailable"
         : $"Broker snapshot · {TradingAccountOverview.Local(snapshot.RetrievedAt.UtcDateTime)}; market-price time not supplied.";
 }

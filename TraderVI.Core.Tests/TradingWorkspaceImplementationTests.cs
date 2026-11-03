@@ -48,6 +48,9 @@ public sealed partial class WealthsimpleAccountTests
         Assert.Equal(-1m, row.GainAmount);
         Assert.Equal(-.05m, row.GainRate);
         Assert.Equal(new WealthsimpleMoney(8, "CAD").ToString(), row.AverageCost);
+        Assert.Equal(new WealthsimpleMoney(7.60m, "CAD").ToString(), row.CurrentPricePerShare);
+        Assert.Equal("Unavailable", new WealthsimpleHoldingRow(holding with { Quantity = 0 }).CurrentPricePerShare);
+        Assert.Equal("Unavailable", new WealthsimpleHoldingRow(holding with { Value = null }).CurrentPricePerShare);
         Assert.Equal(new WealthsimpleMoney(-1, "CAD").ToString(), row.GainOnCost);
 
         var foreignCost = new WealthsimpleHoldingRow(holding with { BookValue = new(20, "USD") });

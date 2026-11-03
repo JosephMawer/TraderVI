@@ -47,6 +47,11 @@
      <DataGridTextColumn Header="Company name" Binding="{Binding Name}" ElementStyle="{StaticResource TradingCell}" Width="*" MinWidth="145"/>
      <DataGridTextColumn Header="Shares held" Binding="{Binding Quantity, StringFormat=0.########}" ElementStyle="{StaticResource TradingCell}" Width="95"/>
      <DataGridTextColumn Header="Avg. cost/share" Binding="{Binding AverageCost}" ElementStyle="{StaticResource TradingCell}" Width="115"/>
+     <DataGridTextColumn Header="Current price/share" Binding="{Binding CurrentPricePerShare}" Width="140">
+      <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource TradingCell}">
+       <Setter Property="ToolTip" Value="Position value divided by shares held in the latest account snapshot. Wealthsimple does not supply a quote time here."/>
+      </Style></DataGridTextColumn.ElementStyle>
+     </DataGridTextColumn>
      <DataGridTextColumn Header="Position value" Binding="{Binding Value}" ElementStyle="{StaticResource TradingCell}" Width="120"/>
      <DataGridTextColumn Header="Gain/loss on cost" Binding="{Binding GainOnCost}" SortMemberPath="GainAmount" ElementStyle="{StaticResource TradingCell}" Width="128"/>
      <DataGridTextColumn Header="Return on cost" Binding="{Binding GainRate, StringFormat=P2, TargetNullValue=—}" ElementStyle="{StaticResource TradingCell}" Width="112"/>

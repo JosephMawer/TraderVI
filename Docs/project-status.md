@@ -18,7 +18,9 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   The original failing synchronization step has not been identified. The subsequent dashboard
   update `56cf3eb9` was installed and verified on the populated Trading grid. It shows ticker,
   company name, shares held, average cost per share and gain or loss against the remaining book
-  cost in both money and percent. The engine and collector continued running.
+  cost in both money and percent. The installed grid also shows current price per share
+  beside average cost, using the snapshot's position value divided by shares held.
+  Wealthsimple supplies no quote time for that value. The engine and collector continued running.
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
   standard Release path in build-review mode, connected to the broker. The collector retained
