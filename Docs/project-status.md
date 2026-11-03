@@ -28,7 +28,11 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   At 10:57 and 11:02 Toronto two buy selections reached final sizing. In both cases
   cash and the strategy allocation covered a whole share, while the remaining cumulative
   purchase allowance did not. The saved outcome was `InvalidOrderQuantity`. No new order
-  was reserved. Sale proceeds do not replenish the approved ceiling.
+  was reserved under the cumulative approval then in force. At 11:56 Toronto the standard
+  Release dashboard and engine `9d2882a6` opened in build-review mode. The broker was
+  connected and the collector retained its process. A read-only reconstruction of original
+  settled orders matched cash to the proposed reusable balance. Operator approval and
+  normal restart were pending at that check. [Reinvestment terms](adr/0125-reusable-strategy-sale-proceeds.md).
   [Receipt-time contract](adr/0117-compact-trading-current-storage.md#november-3-clarification--protective-sell-receipt-times).
   Both original October 29 buys were fully filled and reconciled. Their original reservation
   revisions identified the same owners still saved on the positions. The first compact transfer
