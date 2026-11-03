@@ -340,8 +340,9 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   [November 3 implementation](adr/0117-compact-trading-current-storage.md#november-3-clarification--original-protection-ownership-across-builds).
 - [ ] Verify that an ordinary regular-session cycle proceeds through protection after the original
   sell's recovery. The [November 3 opening check](project-status.md#operating-state-and-immediate-risks)
-  reached both exit triggers on fresh bids but blocked both protective sells before reservation.
-  Resolve the ownership mismatch and verify the ordinary sale and reconciliation.
+  verified both ownership links after approval, one original request per exit and an empty
+  broker portfolio. One sale reconciled. The other still requires original-fill timestamp
+  verification and reconciliation before ordinary execution can be verified.
   The separate held-position bid investigation remains on operator hold.
 - Separate proposal: reducing the regular strategy's cumulative writes and repeated broker history reads.
   The operator approved the restart switch and the grouped read comparison. A bounded sample of 100 Friday

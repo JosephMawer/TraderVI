@@ -1,6 +1,6 @@
 # TraderVI Roadmap
 
-Last reconciled **November 2, 2026**. This page owns priority order; [project status](project-status.md)
+Last reconciled **November 3, 2026**. This page owns priority order; [project status](project-status.md)
 records dated evidence, the relevant checklists own acceptance and dependencies, and
 [design rules](design-rules.md) and accepted ADRs govern behavior. A roadmap item does not authorize
 live operations, trading, training, market access or deployment.
@@ -15,11 +15,12 @@ intentional handover without losing existing protection or financial history.
 
 ## Now — protect and qualify the operating system
 
-1. **Resolve the protective-sale ownership block and verify the ordinary Real exit cycle**
+1. **Reconcile the remaining original protective sell and verify Real execution resumes**
    ([issue #19](https://github.com/JosephMawer/TraderVI/issues/19)). The original sell reconciled,
    the approved engine passed its after-hours restart account check and the dashboard restored
-   the strategy. The November 3 opening cycle reached both exit triggers but blocked both sales
-   on the saved protection owner. See the [opening evidence](project-status.md#operating-state-and-immediate-risks).
+   the strategy. The November 3 ownership repair allowed both exits to proceed. Verify why
+   one broker fill predates its local order creation time and reconcile the original request
+   once. See the [opening evidence](project-status.md#operating-state-and-immediate-risks).
    Reducing ordinary history reads and writes
    remains a separate proposal. [November 2 investigation](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md)
    and [restart contract](adr/0117-compact-trading-current-storage.md).

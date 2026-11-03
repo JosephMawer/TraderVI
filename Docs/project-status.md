@@ -10,7 +10,13 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
   standard Release path in build-review mode, connected to the broker. The collector retained
-  its process. Operator approval and a normal-mode exit cycle were pending at that check.
+  its process. After approval and separate enable, the 10:01 SQL read verified both owner
+  links, both original exit decisions and zero existing sell orders or reservations.
+  Normal execution resumed at 10:02. Each exit had one original sell request. Broker history
+  agreed with zero holdings and zero pending orders at 10:03, confirmed by a fresh account
+  read at 10:05. The managed account reconciled one exit. The other remained blocked because
+  its broker fill timestamp preceded the local order creation timestamp. The reason for
+  that difference remains unverified.
   Both original October 29 buys were fully filled and reconciled. Their original reservation
   revisions identified the same owners still saved on the positions. The first compact transfer
   omitted the per-position link and subsequent approvals preserved that omission. Replaying
