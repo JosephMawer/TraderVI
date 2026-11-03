@@ -78,7 +78,9 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   labels supported scores provisional below 95% coverage. The November 3 read-only aggregate found
   9,281 stored usable outcomes / 9,284 due (99.97%), 3 invalid, 0 due pending and 2,715 waiting for
   ten later XIU sessions (latest stored benchmark date October 30). Athena's 55 tests passed and the
-  desktop compiled in isolation. The running desktop still needs an updated installation.
+  desktop compiled in isolation. The November 3 nightly preflight selected the registered
+  `Athena/bin/Release/net10.0/Athena.dll` from `a6465c19` and verified all four applications.
+  The first scheduled report from this build and installation of the updated desktop remain pending.
   Delayed-intraday outcomes have a separate evidence gap. [November 1 baseline](project-status-history-20261101.md#november-1--athena-prediction-scorecards-and-the-ten-session-window),
   [reporting contract](adr/0124-due-prediction-scorecard.md).
 - **Paper protection:** Progressive individual-profit protection was installed and enabled October 18
