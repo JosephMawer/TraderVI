@@ -107,7 +107,7 @@ public sealed class ManualMarketSellWorkflow(IManualSellBroker broker, IManualSe
             var observation = read.Data; var previous = saved.Latest;
             var conflict = observation.SubmittedQuantity != saved.Intent.Quantity || observation.FilledQuantity < 0 ||
                 observation.FilledQuantity > saved.Intent.Quantity || (observation.Status == "FILLED" && !observation.IsFilled) ||
-                observation.RetrievedAt > clock.GetUtcNow() || observation.CreatedAt < saved.Intent.CreatedAt.AddMinutes(-2) ||
+                observation.RetrievedAt > clock.GetUtcNow() || !saved.Intent.AllowsBrokerCreationTime(observation.CreatedAt) ||
                 observation.CreatedAt > observation.RetrievedAt || observation.LastFilledAt > observation.RetrievedAt ||
                 observation.LastFilledAt < observation.CreatedAt || (observation.FilledQuantity > 0 && observation.LastFilledAt == null) ||
                 (saved.Submission == WealthsimpleSubmissionStatus.Rejected && observation.FilledQuantity > 0) ||

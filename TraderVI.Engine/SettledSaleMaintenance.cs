@@ -22,7 +22,7 @@ namespace TraderVI.Engine;
 internal static class SettledSaleMaintenance
 {
     private sealed record Target(string InstalledDirectory, Guid RevisionId, Guid RequestId);
-    internal static async Task<int> RunAsync(string packet)
+    internal static async Task<int> RunAsync(string packet, bool allowReservedFill = false)
     {
         string stage = "Target";
         try
@@ -55,7 +55,9 @@ internal static class SettledSaleMaintenance
                 new CompactReceiptProtector());
             stage = "PriorAssignment";
             if (seal.ManagedRevision != saved.RevisionId || !seal.Matches(grant.BindingId, continuity.Database, state) ||
-                !saved.HasReviewedCompactRestart || !state.Orders.IsEmpty || !state.Restrictions.IsEmpty ||
+                !saved.HasReviewedCompactRestart ||
+                (!allowReservedFill && (!state.Orders.IsEmpty || !state.Restrictions.IsEmpty)) ||
+                state.Orders.Any(o => o.RequestId != target.RequestId || o.Side != "SELL") ||
                 saved.ReviewInvalidated || saved.TrialOrderReviewRequired || !grants.Read()!.Equals(grant)) throw new InvalidDataException();
             BrokerExecutionHost.RequireMatchingAssignment(grant, saved, build, DateTimeOffset.UtcNow);
             seal.Assignment.RequireAssignment(state, grant, build, DateTimeOffset.UtcNow, allowReadRecovery: true);
@@ -81,21 +83,66 @@ internal static class SettledSaleMaintenance
                 if (snapshot.Status != WealthsimpleReadStatus.Success || snapshot.Data?.Account.Id != seal.Assignment.Account ||
                     pending.Status != WealthsimpleReadStatus.Success || pending.Data?.Account.Id != account.Id || pending.Data.Orders.Count != 0)
                     throw new InvalidDataException();
-                var notices = ImmutableArray.CreateBuilder<RestartNotice>();
-                _ = RestartAccountObservation.Prepare(state, grant.BindingId, snapshot.Data, DateTimeOffset.UtcNow, notices);
-                if (notices.Count != 0) throw new InvalidDataException();
                 void Check()
                 {
                     if (broker.SessionRevision != login || !broker.IsConnected || grants.Read() != grant) throw new InvalidDataException();
                     seal.Assignment.RequireAssignment(state, grant, build, DateTimeOffset.UtcNow, allowReadRecovery: true);
                 }
+                var sellChecks = new ManualMarketSellWorkflow(new SellReads(broker), journal);
+                if (state.Orders.SingleOrDefault() is { } reserved)
+                {
+                    stage = "ReservedOriginalFill";
+                    Check();
+                    var originalJournal = new RestartOrderJournal(journal, grant.BindingId, seal.Assignment.Identity, account.Id);
+                    var record = originalJournal.FindOriginalSell(reserved);
+                    var position = OfflineAccountRestart.ReservedSalePosition(state, reserved);
+                    if (reserved.RequestId != original.RequestId || reserved.DecisionId != original.DecisionId ||
+                        reserved.CreatedUtc != original.CreatedAt.UtcDateTime || reserved.PermissionId != state.Settings.PermissionId ||
+                        reserved.PositionId != original.PositionId || reserved.Quantity != original.Quantity ||
+                        reserved.Symbol != original.Symbol || reserved.SecurityId != original.SecurityId ||
+                        position.ExitDecisionId != reserved.DecisionId || !state.Settings.OwnsProtection(position) ||
+                        record?.Intent.ProtectiveSale is not { } exit || exit.DecisionId != reserved.DecisionId ||
+                        exit.PositionId != position.PositionId || exit.TriggeredUtc != position.ExitTriggeredUtc ||
+                        state.Restrictions.Any(r => r.ReasonCode != "BrokerHoldingMismatch" || r.ScopeKey != "Security:" + position.SecurityId))
+                        throw new InvalidDataException();
+                    var read = await broker.ReadOriginalOrderAsync(account, seal.Assignment.Identity, reserved, ct);
+                    if (read.Status != WealthsimpleReadStatus.Success || read.Data is not { LastFilledAt: { } filled } fact)
+                        throw new InvalidDataException();
+                    Console.WriteLine($"OriginalSaleTimes localReservation={reserved.CreatedUtc:O} localJournal={record.Intent.CreatedAt:O} brokerCreated={fact.CreatedAt:O} brokerFilled={filled:O}");
+                    var now = DateTimeOffset.UtcNow;
+                    var write = OfflineAccountRestart.PrepareSale(state, position, reserved, fact, now, originalJournal);
+                    if (write.Orders.Single() is not { Status: "Filled", NeedsWork: false } ||
+                        write.Positions.Single() is not { IsOpen: false, Quantity: 0 }) throw new InvalidDataException();
+                    var afterFill = state with { Positions = state.Positions.Remove(position), Orders = [] };
+                    var discrepancies = ImmutableArray.CreateBuilder<RestartNotice>();
+                    var observed = RestartAccountObservation.Prepare(afterFill, grant.BindingId, snapshot.Data, now, discrepancies);
+                    if (discrepancies.Count != 0 || state.Restrictions.Any(r => !observed.Restrictions.Any(
+                        update => update.RestrictionId == r.RestrictionId && !update.IsActive))) throw new InvalidDataException();
+                    if ((await sellChecks.CheckClosedSaleAsync(record.Intent, fact, ct)).Order is not { IsResolved: true })
+                        throw new InvalidDataException();
+                    Check();
+                    var committing = store.WithCheckpointWriter(updated =>
+                    {
+                        if (updated.Account.Version != seal.Version + 1) throw new InvalidDataException();
+                        (CompactDelphiCheckpoint.From(grant.BindingId, continuity.Database, seal.Assignment, updated)
+                            with { ManagedRevision = saved.RevisionId }).Write(
+                                CompactAccountPreparation.Slot(CompactManagedWriter.DirectoryPath, updated.Account.Version),
+                                new CompactReceiptProtector());
+                    });
+                    await committing.SaveAsync(write with { Account = observed.Account, Restrictions = observed.Restrictions }, ct);
+                    state = await store.ReadAsync(grant.BindingId, ct) ?? throw new InvalidDataException();
+                    originalJournal.AlignHoldings(state);
+                }
+                var notices = ImmutableArray.CreateBuilder<RestartNotice>();
+                _ = RestartAccountObservation.Prepare(state, grant.BindingId, snapshot.Data, DateTimeOffset.UtcNow, notices);
+                if (notices.Count != 0 || !state.Restrictions.IsEmpty) throw new InvalidDataException();
                 stage = "OriginalSellHandoff";
                 await CompactManagedSaleHandoff.ReconcileAsync(lease, new(state, []), store, journal.FindSell, async (order, token) =>
                 {
                     if (order.RequestId != target.RequestId) throw new InvalidDataException();
                     var read = await broker.ReadOriginalOrderAsync(account, seal.Assignment.Identity, order, token);
                     return read.Status == WealthsimpleReadStatus.Success ? read.Data : null;
-                }, new ManualMarketSellWorkflow(new SellReads(broker), journal), seal.Assignment.Identity, account.Id, Check, TimeProvider.System, ct);
+                }, sellChecks, seal.Assignment.Identity, account.Id, Check, TimeProvider.System, ct);
                 if (lease.Current?.Event != CompactManagedSaleHandoff.Event || lease.Current.PreviousRevisionId != target.RevisionId ||
                     lease.Current.Orders.Any(o => !o.Reconciled)) throw new InvalidDataException();
                 Console.WriteLine("OriginalSellReconciled");

@@ -25,6 +25,8 @@ internal static class Program
 #else
         if (args is ["--reconcile-closed-sale", var packet])
             return await SettledSaleMaintenance.RunAsync(packet);
+        if (args is ["--reconcile-original-sale", var original])
+            return await SettledSaleMaintenance.RunAsync(original, allowReservedFill: true);
         if (args is ["--sign-in"])
         {
             try { await RunSignInAsync(); return 0; }

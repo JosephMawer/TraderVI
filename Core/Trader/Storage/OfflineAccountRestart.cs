@@ -189,17 +189,29 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore sourceStore,
 
     private async Task<TradingSaveResult> RecoverSale(TradingCurrentStore store, TradingCurrentState state, TradingOrder order, CancellationToken ct)
     {
+        var position = ReservedSalePosition(state, order, belongsToManagedSale);
+        var fact = await lookup(order, ct);
+        var write = PrepareSale(state, position, order, fact, clock.GetUtcNow(), orderJournal);
+        return await store.SaveAsync(write, ct);
+    }
+
+    internal static TradingPositionCurrent ReservedSalePosition(TradingCurrentState state, TradingOrder order,
+        Func<TradingOrder, bool>? belongsToManagedSale = null)
+    {
         var p = state.Positions.SingleOrDefault(p => p.PositionId == order.PositionId);
         if (p is null || p.SecurityId != order.SecurityId || p.Symbol != order.Symbol ||
             (p.ExitDecisionId != order.DecisionId && belongsToManagedSale?.Invoke(order) != true) ||
             order.ReservedQuantity != order.Quantity - order.AppliedFilledQuantity ||
             p.ReservedSellQuantity != order.ReservedQuantity || p.Quantity < p.ReservedSellQuantity)
             throw new InvalidOperationException("Protective sell and saved position reservations do not agree.");
-        var fact = await lookup(order, ct);
-        var now = clock.GetUtcNow();
+        return p;
+    }
+
+    internal static TradingStateWrite PrepareSale(TradingCurrentState state, TradingPositionCurrent p, TradingOrder order,
+        BrokerOrderFact? fact, DateTimeOffset now, RestartOrderJournal? orderJournal)
+    {
         var (status, fill) = CompactOrderObservation.Reconcile(order, fact, now);
-        if (fact?.LastFilledAt?.UtcDateTime < order.CreatedUtc)
-            throw new InvalidOperationException("Reported sell fill predates the original intent.");
+        CompactOrderObservation.RequireSellFillTime(order, p, fact!, () => orderJournal?.FindOriginalSell(order));
         bool open = !TradingStorageValidation.IsTerminal(status);
         int remaining = p.Quantity - fill.QuantityDelta;
         int reserved = open ? order.Quantity - fill.Order.AppliedFilledQuantity : 0;
@@ -212,6 +224,6 @@ internal sealed class OfflineAccountRestart(TradingCurrentStore sourceStore,
         var symbol = state.Symbols.SingleOrDefault(s => s.Symbol == p.Symbol && s.StrategyId == state.Account.StrategyId);
         if (remaining == 0 && symbol is not null)
             write = write with { Symbols = [symbol with { LastExitUtc = fact!.LastFilledAt!.Value.UtcDateTime, LastExitReason = p.ExitReason }] };
-        return await store.SaveAsync(write, ct);
+        return write;
     }
 }

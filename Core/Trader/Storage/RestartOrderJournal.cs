@@ -11,6 +11,13 @@ namespace Core.Trader.Storage;
 // A local intent can corroborate the request. Only a broker observation can book a fill or release cash.
 internal sealed class RestartOrderJournal(ManualBuyFileJournal journal, Guid binding, string identity, string account)
 {
+    internal ManualSellRecord? FindOriginalSell(TradingOrder order)
+    {
+        if (order.BindingId != binding) return null;
+        var record = journal.FindSell(order.RequestId);
+        return record?.Intent.IdentityId == identity && record.Intent.AccountId == account ? record : null;
+    }
+
     internal void AlignHoldings(TradingCurrentState state)
     {
         if (state.Account.BindingId != binding) throw new InvalidOperationException("Wrong account for the restart journal.");

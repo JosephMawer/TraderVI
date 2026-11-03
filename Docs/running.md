@@ -80,6 +80,14 @@ and approves the exact updated build, and separately resumes it. The new setting
 commit with that approval. Start the normal owner after closing the review service. The initial
 transfer command is inapplicable to an existing compact account.
 
+For a fully filled original sell still reserved locally, the repair utility supports
+`--reconcile-original-sale <private-target-json>` under the same clean-stop, backup, exact
+installed-grant and pinned-revision procedure. It checks the original broker order and
+protected journal, confirms broker inventory and pending orders, and applies the remaining
+fill with its compact checkpoint before handing it to the managed account. The utility has
+no submission transport. Verify the terminal receipt, account restriction, original fill
+count and normal execution status after restart.
+
 ## Independent engine — normal mode with trading disabled, October 22
 
 The dated-permission instructions below remain historical/legacy scope; the new explicit ongoing

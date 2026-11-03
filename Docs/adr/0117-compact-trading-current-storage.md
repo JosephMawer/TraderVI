@@ -306,6 +306,17 @@ position and order history. The ordinary sell path uses the same request ID deri
 original decision, reserves once, and only looks up that original on a retry. Approval and
 separate host enable still apply. No purchase-history scan is added to normal trading cycles.
 
+### November 3 clarification — protective sell receipt times
+
+The local reservation and broker timestamps come from independent clocks. For a fill
+reported before local reservation, accept only a complete, terminal original sell with a
+matching acknowledged protected journal entry for the same account, request, decision,
+position, trigger, security and quantity. The broker must report creation before or at fill,
+and creation must fall within the manual sell reader's existing two-minute lower bound
+relative to journal creation. Preserve both clocks and the actual fill time. Apply only
+the unapplied cumulative quantity and net proceeds. A retry after closure verifies the
+same receipt and inventory before the managed handoff.
+
 ### November 2 implementation — managed protection after a closed sell
 
 When compact recovery has closed a position still present in the managed account, verify the

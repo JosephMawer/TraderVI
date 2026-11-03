@@ -73,7 +73,8 @@ internal static class CompactManagedSaleHandoff
 
             var observation = saved.Account.Import.Plan.Observation;
             var entry = observation.Orders.Single(o => o.ExternalId == holding.FirstBuyOrderId);
-            var intent = findSell(sale.RequestId)?.Intent;
+            var record = findSell(sale.RequestId);
+            var intent = record?.Intent;
             if (observation.IdentityId != identity || observation.AccountId != accountId || entry.Side != "BUY" ||
                 entry.SecurityId != sale.SecurityId || !BrokerMarketSymbols.Matches(observation, sale.SecurityId, sale.Symbol, entry.Symbol) ||
                 intent == null || intent.IdentityId != identity || intent.AccountId != accountId || intent.RequestId != sale.RequestId ||
@@ -85,8 +86,9 @@ internal static class CompactManagedSaleHandoff
             var verified = await readOriginal(original, ct) ?? throw new InvalidDataException("The original broker sell is unavailable.");
             var (_, applied) = CompactOrderObservation.Reconcile(original, verified, clock.GetUtcNow());
             if (applied.QuantityDelta != 0 || applied.NetValueDelta != 0 || verified.LastFilledAt is not { } filledAt ||
-                filledAt.UtcDateTime < original.CreatedUtc || verified.SecurityType != entry.SecurityType)
+                verified.SecurityType != entry.SecurityType)
                 throw new InvalidDataException("The broker fill differs from the closed compact cycle.");
+            CompactOrderObservation.RequireSellFillTime(original, closed, verified, () => record);
             var fact = verified;
             if (sale.Latest is { } prior && (prior.IsTerminal && !fact.IsSameOrPostedSuccessor(prior) ||
                 prior.ExternalId != fact.ExternalId || prior.SecurityId != fact.SecurityId || prior.Side != fact.Side ||

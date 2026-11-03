@@ -36,6 +36,7 @@ public sealed record ManualSellIntent(Guid RequestId, string IdentityId, string 
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public OriginalProtectiveSale? ProtectiveSale { get; init; }
+    internal bool AllowsBrokerCreationTime(DateTimeOffset brokerCreatedAt) => brokerCreatedAt >= CreatedAt.AddMinutes(-2);
     public void Validate()
     {
         if (RequestId == Guid.Empty || Quantity < 1 || string.IsNullOrWhiteSpace(IdentityId) ||

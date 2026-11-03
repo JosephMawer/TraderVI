@@ -2,6 +2,7 @@
 using Core.Trader.Promotion;
 using Core.Trader.Storage;
 using Core.WSTrade.Accounts;
+using Core.WSTrade.Orders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -131,6 +132,45 @@ public sealed partial class TradingCompactStorageTests
         Assert.Single(broker.Sent);
         AssertAllowance(again.Current, 38, 100);
         Assert.Equal(writes, db.CommittedWrites);
+    }
+
+    [Fact]
+    public async Task EarlyOriginalSellRequiresMatchingAcknowledgedJournalAndAppliesOnce()
+    {
+        var db = new Database();
+        var position = Triggered();
+        var decision = position.ExitDecisionId!.Value;
+        var request = BrokerManagedStrategy.StableId(decision.ToString("D"));
+        var order = new TradingOrder { BindingId = Binding, PermissionId = Permission, PositionId = position.PositionId,
+            RequestId = request, DecisionId = decision, Side = "SELL", Quantity = position.Quantity,
+            ReservedQuantity = position.Quantity, SecurityId = position.SecurityId, Symbol = position.Symbol,
+            Status = "Unknown", CreatedUtc = RecoveryAt.UtcDateTime };
+        position = position with { ReservedSellQuantity = order.Quantity };
+        await db.Store.SaveAsync(ActiveBook() with { Positions = [position], Orders = [order] });
+        var state = (await db.Store.ReadAsync(Binding))!;
+        var fact = SellFact(order, "FILLED", order.Quantity) with
+        { CreatedAt = RecoveryAt.AddMilliseconds(-650), LastFilledAt = RecoveryAt.AddMilliseconds(-200) };
+        using var dir = new ManualMarketSellWorkflowTests.TempDirectory();
+        using var journal = new ManualBuyFileJournal(dir.Path, new ManualMarketSellWorkflowTests.Protector());
+        var proof = new RestartOrderJournal(journal, Binding, "identity", "account");
+        TradingStateWrite Prepare(BrokerOrderFact evidence) =>
+            OfflineAccountRestart.PrepareSale(state, OfflineAccountRestart.ReservedSalePosition(state, order),
+                order, evidence, RecoveryAt.AddSeconds(1), proof);
+        Assert.Throws<InvalidOperationException>(() => Prepare(fact));
+        var intent = new ManualSellIntent(request, "identity", "account", order.SecurityId, "Fixture",
+            order.Symbol, "XTSE", order.Quantity, RecoveryAt, null, RecoveryAt)
+            { ProtectiveSale = new(decision, position.PositionId, position.ExitTriggeredUtc!.Value) };
+        journal.SaveSell(new(intent, WealthsimpleSubmissionStatus.Acknowledged, []));
+        Assert.Throws<InvalidOperationException>(() => Prepare(fact with { CreatedAt = RecoveryAt.AddMinutes(-3) }));
+        Assert.Throws<InvalidOperationException>(() => Prepare(fact with { ExternalId = "another-request" }));
+        var write = Prepare(fact);
+        await db.Store.SaveAsync(write);
+        Assert.True((await db.Store.SaveAsync(write)).AlreadyCommitted);
+        Assert.Empty((await db.Store.ReadAsync(Binding))!.Positions);
+        var receipt = await db.Store.ReadOrderAsync(Binding, request, default);
+        Assert.Equal(order.Quantity, receipt!.AppliedFilledQuantity);
+        Assert.Equal(fact.NetValue, receipt.AppliedNetValue);
+        Assert.False(receipt.NeedsWork);
     }
 
     [Fact]
