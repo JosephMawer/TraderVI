@@ -22,6 +22,8 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   beside average cost, using the snapshot's position value divided by shares held.
   Wealthsimple supplies no quote time for that value. The gain/loss and return columns show
   positive values in green, negative values in red, and zero or unavailable values in neutral text.
+  The separate selected-holding card was removed from the installed dashboard. Trade options
+  are on the holding's row menu, and strategy details are on the status cell.
   The engine and collector continued running.
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the

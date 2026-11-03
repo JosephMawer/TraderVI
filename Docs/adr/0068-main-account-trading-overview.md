@@ -267,6 +267,15 @@ refinement. Shares/average cost stay in the panel. Selection targets, command be
 strategy evaluation and execution authority are unchanged. This authorizes the Trading presentation
 change, not an operational restart or edits to other screens.
 
+### November 3 holdings grid
+
+The expanded Trading grid now contains the selected holding's position figures. The operator
+requested removing the duplicate card. This supersedes the October 19 panel placement and
+the selected-panel placement of the secondary buy action in [ADR-0075](0075-manual-market-buy-ticket.md).
+The strategy status cell exposes the reason, next step and decision context on hover.
+The row menu exposes the existing manual order commands for that holding via right-click or
+Shift+F10. Choosing “Sell all” still requests a market sale of that holding after fresh checks.
+
 ## Review questions
 
 1. What should lead the Trading overview, and where should attention items appear?
