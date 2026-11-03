@@ -25,6 +25,10 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   check at 10:31:04 Toronto. At 10:34:30 the strategy evaluated 38 fresh symbols from the
   10:30 bar and found no confirmed entry. All 12 owned orders were reconciled with zero
   managed holdings. The separate Paper recovery restriction remains.
+  At 10:57 and 11:02 Toronto two buy selections reached final sizing. In both cases
+  cash and the strategy allocation covered a whole share, while the remaining cumulative
+  purchase allowance did not. The saved outcome was `InvalidOrderQuantity`. No new order
+  was reserved. Sale proceeds do not replenish the approved ceiling.
   [Receipt-time contract](adr/0117-compact-trading-current-storage.md#november-3-clarification--protective-sell-receipt-times).
   Both original October 29 buys were fully filled and reconciled. Their original reservation
   revisions identified the same owners still saved on the positions. The first compact transfer
