@@ -123,7 +123,7 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   Real-only verification completed at 14:33 and its 14:41 clearance retained Paper. The operator
   authorized Paper-only recovery and conditional guarded clearance on November 3. Run
   `28f8f730-76ce-471f-94d2-cde1904cef0d` started at 21:30 Toronto on the existing engine.
-  At 21:58:12 it remained Running with 20,916 verified units and no new verification failure;
+  At 22:15:20 it remained Running with 24,126 verified units and no new verification failure;
   completed recovery proof and clearance remain pending. The original restriction and the new
   verification-pending restriction remain. Private control receipts are retained under
   `artifacts/paper-recovery-20261103`; the authorized follow-up monitors this exact run.
@@ -135,6 +135,12 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   confirms recovery priority, the maximum configured 4,096-step/five-second batch and one-second
   yield; no supported live speed control exists. The installed scheduling and verification checks
   were retained. Observed speed varies with history; this is not proof of maximum possible throughput.
+  A 15-second native stack sample identified legacy full-state fingerprint hashing as the dominant
+  observed cost. Hash-verified aggregate SQL confirmed a position change ahead of 8,866 quote entries
+  in canonical checksum order, which limits the installed prefix-reuse optimization. The compact
+  Real restart did not replace this Paper path. No supported live speed adjustment was identified;
+  no host restart, priority change or verification bypass occurred.
+  [Bottleneck evidence and limits](reviews/paper-recovery-bottleneck-20261103.md).
   [Original restart and clearance evidence](project-status-history-20261101.md#october-30--real-execution-resumed-after-recovery-1446-toronto),
   [prior diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
   A separate Paper-input failure was traced to missing verified holding correspondence in
