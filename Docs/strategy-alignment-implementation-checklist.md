@@ -497,9 +497,12 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   [November 3 Paper profiling](reviews/paper-recovery-bottleneck-20261103.md) confirms a remaining
   legacy fingerprint cost despite the installed prefix repair; current recovery is still running.
   No no-restart throughput remedy or complete Paper restart redesign is established by that check.
-- [ ] Design and qualify Paper restart from saved current state and bounded unfinished work under
+- [ ] Review Paper restart and verification checks with Joseph before any implementation under
   [GitHub #28](https://github.com/JosephMawer/TraderVI/issues/28), the Paper-specific follow-up to #19.
-  Separate restart readiness from historical audit coverage; review the proposal before installation.
+  November 3 direction: incremental verification by default, full scans only when needed. Explain
+  each check's purpose, impact, cost and simplification/removal tradeoffs in plain language; obtain
+  explicit approval of scope and behavior before coding, migrations, policy changes or installation.
+  Current-state restart and verification mechanics remain candidate designs pending that review.
   The active recovery and conditional-clearance acceptance above remain independent.
 - [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine
   with execution Off; verify single ownership, normal mode, connection and original Paper cursor progress.

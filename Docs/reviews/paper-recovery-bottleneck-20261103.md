@@ -76,6 +76,15 @@ version-3 facilities must be assessed before adding storage. The issue owns desi
 and duplicate-operation tests, startup/audit budgets and explicit installation review; no replacement
 runtime or migration was installed as part of recording it.
 
+Later November 3 operator decision: incremental verification by default, full scans only when needed.
+**Implementation is explicitly deferred until Joseph reviews and approves the scope and behavior.**
+The review must explain each check's purpose, triggering conditions, operational impact and cost,
+including what simplifying or removing it would lose. The operator identifies the AI-implemented
+checks as a major hindrance and does not yet understand their necessity. Existing mechanics and
+the candidate designs above are not approved implementation requirements. Issue #28 owns this
+review gate; the installed weekly policy, current recovery and its authorized conditional clearance
+remain unchanged. This records the direction and deferral, not a deployed audit-policy amendment.
+
 Current source distinguishes these events:
 
 - Closing/reopening the dashboard does not restart the engine or start recovery.
