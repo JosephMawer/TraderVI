@@ -12,6 +12,7 @@ namespace TraderVI.WPF;
 public partial class PaperDashboardWindow
 {
     private EngineIntegrityStatus? healthIntegrity;
+    private EngineIntegrityStatus? previousHealthIntegrity;
     private DateTimeOffset? healthIntegrityObserved;
     private DateTimeOffset nextHealthRead;
     private bool readingHealth, healthReadFailed;
@@ -27,7 +28,9 @@ public partial class PaperDashboardWindow
         try
         {
             // Existing read-only RPC. Does not run an audit, recover state or change holds.
-            healthIntegrity = await engineControl.CallAsync<EngineIntegrityStatus>(EngineOperation.IntegrityStatus, ct: shutdown.Token);
+            var next = await engineControl.CallAsync<EngineIntegrityStatus>(EngineOperation.IntegrityStatus, ct: shutdown.Token);
+            previousHealthIntegrity = healthIntegrity;
+            healthIntegrity = next;
             healthIntegrityObserved = DateTimeOffset.UtcNow;
             healthReadFailed = false;
         }
@@ -81,7 +84,7 @@ public partial class PaperDashboardWindow
         if (account?.ManagedStrategy is { } strategy && (strategy.CanResumeBuying || strategy.BuyingMode.StartsWith("New buys stopped", StringComparison.Ordinal)))
             Add("buying-mode", "Status", "Real account", "Saved buying mode · new buys stopped", strategy.BuyingMode,
                 "Existing exit rules are retained, subject to their independent checks.", "Review the saved buying controls in Trading → Account tools. Resuming is an explicit operator action.", null, strategy.Status);
-        healthSnapshot = EngineHealthSnapshot.Build(latestEngineStatus, healthIntegrity, healthIntegrityObserved, healthReadFailed, manualBuys.ExecutionStatus, now, signals);
+        healthSnapshot = EngineHealthSnapshot.Build(latestEngineStatus, healthIntegrity, healthIntegrityObserved, healthReadFailed, manualBuys.ExecutionStatus, now, signals, previousHealthIntegrity);
         HealthSummaryText.Text = healthSnapshot.Summary;
         HealthCoverageText.Text = healthSnapshot.Coverage;
         HealthRestrictions.Items = healthSnapshot.Restrictions;

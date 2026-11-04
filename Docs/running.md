@@ -30,6 +30,12 @@ Choose **Open Engine** for the default **Health & issues** tab. It displays rest
 warnings/verification gaps and ordinary status/waits in flat sections with explanations, impact,
 next steps, source evidence and times. **Copy diagnostic snapshot** copies the same issue records
 as structured JSON for investigation; it runs no action. Integrity receipts refresh every 30 seconds.
+Each hold shows its matching recovery, checked records, completed groups, current group and saved
+checkpoint. Speed requires two advancing checkpoints from the same plan; group counts are not a
+percentage or an ETA. The clearance checklist distinguishes receipt evidence from the live checks
+still required by the engine. **Review recovery** opens the matching scope and incident without
+starting work; focused clearance excludes unrelated incidents. A known active pass disables a
+duplicate start for an overlapping scope. Use the normal History entry for a scope-wide review.
 Failed reads retain last-known findings and show a verification gap. Old failed audit receipts stay
 in **History** even after newer success; an unfinished receipt is not automatically a current fault.
 **Controls** contains engine start/stop, Execution setup, Stop execution host and Review switch.

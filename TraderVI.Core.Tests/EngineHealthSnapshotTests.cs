@@ -146,4 +146,87 @@ public class EngineHealthSnapshotTests
         Assert.Equal("Current applicability unknown", warning.Certainty);
         Assert.Contains(result.History, i => i.Explanation == "Earlier failure");
     }
+
+    [Fact]
+    public void Pending_hold_links_to_its_exact_run_even_when_recorded_after_the_plan_boundary()
+    {
+        var run = Audit(EngineRecoveryScope.Paper, "Running", -1);
+        var pending = Paper with { FailureCode = "RecoveryVerificationPending", EvidenceKey = "Recovery/" + run.RunId,
+            DiscoveredUtc = run.Plan.BoundaryUtc.AddSeconds(1), OriginDiscoveredUtc = null, OriginEvidenceKey = null };
+        var result = Build(new([pending], [run, Audit(EngineRecoveryScope.Paper, "Complete", 0)]));
+        var issue = Assert.Single(result.Restrictions);
+        Assert.Equal(run.RunId, issue.Recovery!.RunId);
+        Assert.Contains("expected while verification", issue.Explanation);
+        Assert.StartsWith("Not ready", issue.Recovery.Clearance);
+    }
+
+    [Fact]
+    public void Completed_proof_leaves_live_guards_and_explicit_clearance_unverified()
+    {
+        var issue = Assert.Single(Build(new([Paper], [Audit(EngineRecoveryScope.Paper, "Complete", -1)])).Restrictions);
+        Assert.Contains("live clearance checks", issue.Recovery!.Clearance);
+        Assert.Equal("Passed in receipt", issue.Recovery.Requirements.Single(r => r.Code == "CompletedPass").State);
+        Assert.Equal("Engine recheck required", issue.Recovery.Requirements.Single(r => r.Code == "CurrentHistory").State);
+        Assert.Equal("Engine recheck required", issue.Recovery.Requirements.Single(r => r.Code == "ContinuityAndGuards").State);
+    }
+
+    [Theory]
+    [InlineData(EngineIntegrityScope.Broker, false)]
+    [InlineData(EngineIntegrityScope.Paper, true)]
+    public void All_history_receipt_cannot_qualify_a_real_only_clearance(EngineIntegrityScope scope, bool qualifies)
+    {
+        var incident = Paper with { Scope = scope };
+        var recovery = Assert.Single(Build(new([incident], [Audit(EngineRecoveryScope.All, "Complete", -1)])).Restrictions).Recovery!;
+        Assert.Equal(qualifies, recovery.RunId.HasValue);
+    }
+
+    [Fact]
+    public void Complete_status_with_incomplete_cursor_cannot_claim_a_pass()
+    {
+        var run = Audit(EngineRecoveryScope.Paper, "Complete", -1) with { Progress = new(0, 0, null, 3, false) };
+        var recovery = Assert.Single(Build(new([Paper], [run])).Restrictions).Recovery!;
+        Assert.StartsWith("Not ready", recovery.Clearance);
+        Assert.Equal("Pending", recovery.Requirements.Single(r => r.Code == "CompletedPass").State);
+    }
+
+    [Fact]
+    public void Speed_requires_advancing_checkpoints_from_the_same_fixed_plan()
+    {
+        var run = Audit(EngineRecoveryScope.Paper, "Running", -1) with { UpdatedUtc = Now.UtcDateTime, Progress = new(0, 0, null, 200, false) };
+        var prior = run with { UpdatedUtc = Now.AddSeconds(-20).UtcDateTime, Progress = new(0, 0, null, 100, false) };
+        var status = new EngineIntegrityStatus([Paper], [run]);
+        EngineHealthRecovery Project(EngineAuditRun old, bool failed = false) => Assert.Single(EngineHealthSnapshot.Build(
+            Engine, status, Now, failed, Execution, Now, previousIntegrity: new([], [old])).Restrictions).Recovery!;
+        Assert.Equal(5d, Project(prior).UnitsPerSecond);
+        Assert.Contains("Progress observed", Project(prior).Progress);
+        Assert.Null(Project(prior with { RunId = Guid.NewGuid() }).UnitsPerSecond);
+        Assert.Null(Project(run).UnitsPerSecond);
+        Assert.Null(Project(prior, failed: true).UnitsPerSecond);
+        Assert.StartsWith("Cannot assess", Project(prior, failed: true).Clearance);
+    }
+
+    [Fact]
+    public void Old_running_checkpoint_requests_investigation_without_declaring_it_stuck()
+    {
+        var recovery = Assert.Single(Build(new([Paper], [Audit(EngineRecoveryScope.Paper, "Running", -1)])).Restrictions).Recovery!;
+        Assert.Contains("No checkpoint for over 15 minutes", recovery.Progress);
+        Assert.Contains("before assuming", recovery.Progress);
+    }
+
+    [Fact]
+    public void Focused_clearance_selection_excludes_unrelated_and_other_domain_incidents()
+    {
+        var original = Paper;
+        var run = Audit(EngineRecoveryScope.Paper, "Complete", -1);
+        var pending = Paper with { FailureCode = "RecoveryVerificationPending", EvidenceKey = "Recovery/" + run.RunId };
+        var unrelatedPending = Paper with { FailureCode = "RecoveryVerificationPending", EvidenceKey = "Recovery/" + Guid.NewGuid() };
+        var global = Paper with { Scope = EngineIntegrityScope.Global };
+        var status = new EngineIntegrityStatus([original, pending, unrelatedPending, global, Paper], [run]);
+        var ids = EngineHealthRecovery.SelectIncidentIds(status, run, EngineRecoveryScope.Paper, original.IncidentId);
+        Assert.Equal(new[] { original.IncidentId, pending.IncidentId }, ids);
+        using var json = JsonDocument.Parse(Build(status).ToDiagnosticJson());
+        var exported = json.RootElement.GetProperty("Issues")[0].GetProperty("Recovery");
+        Assert.True(exported.TryGetProperty("Requirements", out _));
+        Assert.False(exported.TryGetProperty("Database", out _));
+    }
 }

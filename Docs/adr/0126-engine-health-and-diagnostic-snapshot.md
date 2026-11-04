@@ -56,6 +56,32 @@ repair records. Existing explicit recovery controls remain under History, govern
 [ADR-0104](0104-scoped-recovery-and-sequential-history-audits.md) and
 [ADR-0116](0116-temporary-paper-continuation-during-reboot-recovery.md).
 
+### November 3 — issue-linked recovery evidence
+
+Each integrity issue now includes a flat recovery-progress and clearance-requirements section.
+Link a verification-pending incident only to its exact `Recovery/<run ID>` receipt, even when its
+creation time follows the plan boundary. Other incidents use a scope-compatible recovery covering
+their original boundary. Missing or stale evidence never claims eligibility.
+
+Show verified records, completed groups, current group family and last saved checkpoint. Measure
+speed only between increasing checkpoints of the same run and fixed plan; do not infer movement
+from Running, equate unequal groups with percentage, or invent an ETA. A checkpoint older than
+15 minutes asks for investigation, not an automatic restart or a definitive stuck diagnosis.
+
+The checklist distinguishes facts observed in the receipt from current history, continuity,
+database identity, immutable guards and explicit operator clearance still requiring engine checks.
+Real-only clearance also rechecks saved receipts and current broker/observation state. Neither
+the projection nor a completed receipt grants clearance. These optional structured `Recovery`
+fields extend the existing v1 diagnostic contract; original fields and stable identities remain.
+
+**Review recovery** opens the existing dialog with the incident's scope locked and matching run
+selected. Opening is read-only. Focused clearance selects that original incident and only its
+matching verification-pending hold; unrelated findings are excluded. The ordinary History entry
+retains its scope-wide workflow. A known running recovery disables a duplicate start for an
+overlapping selected scope; engine authority and explicit confirmation remain unchanged. Live
+worker cause links and underlying verification exception details are still absent from the engine
+contract and are not fabricated by this dashboard update.
+
 ## Alternatives and remaining limits
 
 A list/detail split hides impact behind selection. A system-area layout spreads a shared cause

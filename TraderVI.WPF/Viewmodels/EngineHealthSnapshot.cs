@@ -10,6 +10,90 @@ using System.Text.Json.Serialization;
 
 namespace TraderVI.WPF.Viewmodels;
 
+public sealed record EngineHealthRequirement(string Code, string State, string Detail)
+{
+    [JsonIgnore] public string Label => State + " · " + Detail;
+}
+
+// Read-only evidence, never an eligibility grant. The engine owns atomic clearance checks.
+public sealed record EngineHealthRecovery(Guid IncidentId, Guid? RunId, string Scope, string RunState,
+    long? VerifiedUnits, int? CompletedGroups, int? TotalGroups, string CurrentGroup,
+    DateTimeOffset? CheckpointAt, double? UnitsPerSecond, string Progress, string Clearance,
+    IReadOnlyList<EngineHealthRequirement> Requirements)
+{
+    [JsonIgnore] public string NavigationLabel => "Review " + Scope + " recovery…";
+    public string ActionBoundary => "Opens the existing recovery controls for this incident and scope. Opening does not start verification or clear a hold. A completed pass never enables Real trading.";
+
+    public static Guid[] SelectIncidentIds(EngineIntegrityStatus status, EngineAuditRun run, EngineRecoveryScope scope, Guid? focusedIncident) =>
+        status.Incidents.Where(i => (scope switch
+        {
+            EngineRecoveryScope.Real => i.Scope is EngineIntegrityScope.Global or EngineIntegrityScope.Broker,
+            EngineRecoveryScope.Paper => i.Scope is EngineIntegrityScope.Paper or EngineIntegrityScope.Research,
+            _ => true
+        }) && (focusedIncident is null || i.IncidentId == focusedIncident ||
+            i.FailureCode == "RecoveryVerificationPending" && i.EvidenceKey == "Recovery/" + run.RunId.ToString("D")))
+        .Select(i => i.IncidentId).ToArray();
+
+    internal static EngineHealthRecovery Describe(EngineIntegrityIncident incident, EngineAuditRun? run,
+        EngineAuditRun? previous, bool fresh, DateTimeOffset now)
+    {
+        var scope = incident.Scope is EngineIntegrityScope.Paper or EngineIntegrityScope.Research ? EngineRecoveryScope.Paper
+            : incident.Scope == EngineIntegrityScope.Broker ? EngineRecoveryScope.Real : EngineRecoveryScope.All;
+        bool complete = run?.Status == "Complete" && run.Progress.Complete;
+        bool checkpointValid = run != null && run.UpdatedUtc != default && run.UpdatedUtc <= now.UtcDateTime;
+        double? rate = null;
+        if (fresh && run?.Status == "Running" && checkpointValid && previous?.RunId == run.RunId &&
+            previous.Status == "Running" && previous.Plan.BoundaryUtc == run.Plan.BoundaryUtc &&
+            previous.Plan.Scope == run.Plan.Scope && previous.Plan.Targets.SequenceEqual(run.Plan.Targets) &&
+            previous.Progress.TargetIndex <= run.Progress.TargetIndex && previous.UpdatedUtc != default &&
+            run.UpdatedUtc > previous.UpdatedUtc && run.Progress.VerifiedUnits > previous.Progress.VerifiedUnits)
+            rate = (run.Progress.VerifiedUnits - previous.Progress.VerifiedUnits) / (run.UpdatedUtc - previous.UpdatedUtc).TotalSeconds;
+        string group = run is null ? "No matching run returned" : run.Progress.Complete ? "All planned groups checked"
+            : run.Progress.TargetIndex >= 0 && run.Progress.TargetIndex < run.Plan.Targets.Length
+                ? run.Plan.Targets[run.Progress.TargetIndex].Family switch
+                {
+                    EngineAuditFamily.PaperRevisions => "Paper portfolio history",
+                    EngineAuditFamily.LegacyInputs => "Historical research inputs",
+                    EngineAuditFamily.BrokerRevisions => "Real-account history",
+                    EngineAuditFamily.SharedInputs => "Shared market inputs",
+                    EngineAuditFamily.SharedContent => "Shared evidence content",
+                    _ => "Unknown history group"
+                } : "Group unavailable";
+        string movement = !fresh ? "Last-known receipt; refresh before relying on progress."
+            : !checkpointValid ? "Checkpoint time is unavailable or invalid."
+            : run!.Status != "Running" ? "Saved pass result; no active progress inferred."
+            : now.UtcDateTime - run.UpdatedUtc > TimeSpan.FromMinutes(15) ? "No checkpoint for over 15 minutes. Inspect the audit worker before assuming the pass is stuck."
+            : rate is { } speed ? $"Progress observed · {speed:N1} records/second between saved checkpoints."
+            : "Waiting for a second advancing checkpoint to measure speed; Running alone does not prove progress.";
+        string progress = run is null ? "No matching recovery receipt is available."
+            : $"{run.Status} · {run.Progress.VerifiedUnits:N0} records checked · {run.Progress.TargetIndex} of {run.Plan.Targets.Length} groups complete.\n" +
+              "Checking · " + group + ".\n" + movement + "\n" +
+              (checkpointValid ? "Last saved checkpoint · " + EngineHealthIssue.Local(run.UpdatedUtc) + ". " : "") +
+              "Groups vary in cost and size; a reliable percentage or finish time is not available.";
+        string clearance = !fresh ? "Cannot assess — current restriction status is unverified."
+            : run is null ? "Not ready — no recovery proof covering this incident was returned."
+            : run.Status == "Failed" ? "Not ready — verification failed. Inspect the failing evidence; do not clear or retry blindly."
+            : !complete ? "Not ready — the entire recovery pass must complete successfully."
+            : "Verification complete — live clearance checks and an explicit clearance action are still required.";
+        var requirements = new List<EngineHealthRequirement> {
+            new("CurrentReceipt", fresh ? "Observed" : "Unknown", "A fresh integrity-status read must be available."),
+            new("ScopeAndIncident", fresh && run != null ? "Receipt matches" : "Unverified",
+                "Recovery must cover this incident's scope and original boundary; a pending hold must match its exact run."),
+            new("CompletedPass", !fresh ? "Unknown" : complete ? "Passed in receipt" : run?.Status == "Failed" ? "Failed" : "Pending",
+                "Run status must be Complete and every planned group must be verified."),
+            new("CurrentHistory", "Engine recheck required", "Current history boundaries must still match the verified plan exactly."),
+            new("ContinuityAndGuards", "Engine recheck required", "Restart continuity, database identity and immutable-history guards must remain valid."),
+            new("ExplicitClearance", "Explicit action required", "Select only covered unresolved incidents and supply a truthful reason; the engine validates them together before clearing.")
+        };
+        if (scope == EngineRecoveryScope.Real)
+            requirements.Insert(5, new("CurrentRealState", "Engine recheck required",
+                "Real-only clearance also validates saved audit receipts and reconstructed broker history against current observation subscriptions."));
+        return new(incident.IncidentId, run?.RunId, scope.ToString(), run?.Status ?? "Unavailable", run?.Progress.VerifiedUnits,
+            run?.Progress.TargetIndex, run?.Plan.Targets.Length, group, checkpointValid ? run!.UpdatedUtc : null,
+            rate, progress, clearance, requirements);
+    }
+}
+
 // Display-only, allowlisted diagnostic contract. No broker balances, credentials, owner IDs,
 // raw exceptions, database identities or mutation commands enter the export.
 public sealed record EngineHealthIssue(string Id, string Code, string Category, string Domain,
@@ -17,6 +101,8 @@ public sealed record EngineHealthIssue(string Id, string Code, string Category, 
     DateTimeOffset? FirstObservedAt, DateTimeOffset? ObservedAt, string Source,
     string Certainty = "Reported", string Action = "Inspect", bool RequiresApproval = false)
 {
+    public EngineHealthRecovery? Recovery { get; init; }
+    [JsonIgnore] public bool HasRecovery => Recovery != null;
     [JsonIgnore] public string Heading => $"{Domain} · {Category}";
     [JsonIgnore] public string Color => Category == "Restriction" ? "#FF7D87" : Category == "Warning" ? "#F5B94C" : "#ADBBCC";
     [JsonIgnore] public string Timing => (FirstObservedAt is { } first ? "First recorded " + Local(first) + ". " : "") +
@@ -39,7 +125,7 @@ public sealed record EngineHealthSnapshot(DateTimeOffset GeneratedAt, string Eng
 
     public static EngineHealthSnapshot Build(IndependentEngineStatus? engine, EngineIntegrityStatus? integrity,
         DateTimeOffset? integrityObservedAt, bool integrityReadFailed, BrokerExecutionHostStatus? execution,
-        DateTimeOffset now, IEnumerable<EngineHealthIssue>? signals = null)
+        DateTimeOffset now, IEnumerable<EngineHealthIssue>? signals = null, EngineIntegrityStatus? previousIntegrity = null)
     {
         var issues = new List<EngineHealthIssue>();
         var history = new List<EngineHealthIssue>();
@@ -63,7 +149,7 @@ public sealed record EngineHealthSnapshot(DateTimeOffset GeneratedAt, string Eng
         if (integrity != null)
         {
             foreach (var incident in integrity.Incidents.OrderBy(i => i.Scope is EngineIntegrityScope.Global or EngineIntegrityScope.Broker ? 0 : 1).ThenBy(i => i.DiscoveredUtc))
-                issues.Add(DescribeIncident(incident, integrity, integrityObservedAt, integrityFresh));
+                issues.Add(DescribeIncident(incident, integrity, integrityObservedAt, integrityFresh, now, previousIntegrity));
             foreach (var run in integrity.Runs.OrderByDescending(r => r.Plan.BoundaryUtc)) history.Add(DescribeAudit(run));
             // ReadStatus retains the latest receipt per kind/status/scope. Older failures can
             // remain alongside later success; they are history, not a fresh active failure.
@@ -129,17 +215,24 @@ public sealed record EngineHealthSnapshot(DateTimeOffset GeneratedAt, string Eng
         return new(now, engineFresh ? engine!.State : "Unverified", issues.Select(Normalize).ToArray(), history.Select(Normalize).ToArray());
     }
 
-    private static EngineHealthIssue DescribeIncident(EngineIntegrityIncident incident, EngineIntegrityStatus status, DateTimeOffset? observed, bool fresh)
+    private static EngineHealthIssue DescribeIncident(EngineIntegrityIncident incident, EngineIntegrityStatus status, DateTimeOffset? observed, bool fresh,
+        DateTimeOffset now, EngineIntegrityStatus? previous)
     {
         bool inherited = incident.FailureCode == "PaperRecoveryRequired" && incident.Scope == EngineIntegrityScope.Paper &&
             incident.OriginDiscoveredUtc != null && incident.OriginEvidenceKey != null;
         bool continuity = inherited && incident.OriginEvidenceKey!.StartsWith("EngineContinuity/", StringComparison.Ordinal);
         var boundary = incident.OriginDiscoveredUtc ?? incident.DiscoveredUtc;
-        var recovery = status.Runs.Where(r => r.Plan.Kind == EngineAuditKind.Recovery && r.Plan.BoundaryUtc >= boundary &&
-            (r.Plan.Scope == EngineRecoveryScope.All || incident.Scope is EngineIntegrityScope.Paper or EngineIntegrityScope.Research && r.Plan.Scope == EngineRecoveryScope.Paper ||
-             incident.Scope == EngineIntegrityScope.Broker && r.Plan.Scope == EngineRecoveryScope.Real))
+        bool pending = incident.FailureCode == "RecoveryVerificationPending";
+        var recovery = status.Runs.Where(r => r.Plan.Kind == EngineAuditKind.Recovery && r.Plan.BoundaryUtc <= now.UtcDateTime &&
+            (pending ? incident.EvidenceKey == "Recovery/" + r.RunId.ToString("D") : r.Plan.BoundaryUtc >= boundary) &&
+            (incident.Scope switch {
+                EngineIntegrityScope.Paper or EngineIntegrityScope.Research => r.Plan.Scope is EngineRecoveryScope.All or EngineRecoveryScope.Paper,
+                EngineIntegrityScope.Broker => r.Plan.Scope == EngineRecoveryScope.Real,
+                _ => r.Plan.Scope == EngineRecoveryScope.All }))
             .OrderByDescending(r => r.Plan.BoundaryUtc).FirstOrDefault();
-        string explanation = continuity
+        string explanation = pending
+            ? "Starting verification creates a temporary restriction for that recovery run. This is expected while verification is incomplete and remains until explicit guarded clearance. It is not a second diagnosis of damaged history."
+            : continuity
             ? "At startup, the engine could not establish trusted continuity with its saved state. Real-account recovery subsequently passed, leaving Paper history outside that proof. The original receipt does not identify whether the cause was an unclean shutdown, missing evidence or a mismatch. This restriction is not proof of corrupted Paper data."
             : inherited ? "A completed Real-only recovery left this Paper restriction in place. Real recovery does not verify Paper history. The original trigger requires inspection."
             : incident.FailureCode is "EngineRecoveryRequired" or "EngineContinuityLost"
@@ -169,7 +262,8 @@ public sealed record EngineHealthSnapshot(DateTimeOffset GeneratedAt, string Eng
             (incident.Scope == EngineIntegrityScope.Paper ? "Dependent research is restricted too. This Paper-scoped finding does not itself hold the Real account." : ""),
             next, $"Code · {incident.FailureCode}\nOriginal trigger · {EngineHealthIssue.Local(boundary)}\nRestriction recorded · {EngineHealthIssue.Local(incident.DiscoveredUtc)}\n" +
                 (inherited ? "Verified origin link · " + incident.OriginEvidenceKey : "Evidence reference · " + incident.EvidenceKey),
-            boundary, observed, "Engine.IntegrityStatus.Incidents", "Recorded restriction; exact initiating cause may be unknown", "ReviewRecovery", true);
+            boundary, observed, "Engine.IntegrityStatus.Incidents", "Recorded restriction; exact initiating cause may be unknown", "ReviewRecovery", true)
+        { Recovery = EngineHealthRecovery.Describe(incident, recovery, previous?.Runs.FirstOrDefault(r => r.RunId == recovery?.RunId), fresh, now) };
     }
 
     private static EngineHealthIssue DescribeAudit(EngineAuditRun run) => new("audit/" + run.RunId.ToString("D"), "Audit/" + run.Status,

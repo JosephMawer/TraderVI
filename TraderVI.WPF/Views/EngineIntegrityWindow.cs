@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using TraderVI.WPF.Viewmodels;
 
 namespace TraderVI.WPF.Views;
 
@@ -22,8 +23,13 @@ public sealed class EngineIntegrityWindow : Window
     private readonly Button clear = new() { Content = "Clear verified holds", Margin = new(0, 10, 0, 0), IsEnabled = false };
     private readonly ComboBox scope = new() { ItemsSource = new[] { "Real account and required inputs", "Paper and research history", "All history" }, SelectedIndex = 0, Margin = new(0, 0, 0, 10) };
     private EngineIntegrityStatus? last;
-    public EngineIntegrityWindow()
+    private readonly Guid? focusedIncident;
+    private Guid? focusedRun;
+    public EngineIntegrityWindow(EngineRecoveryScope? initialScope = null, Guid? incidentId = null, Guid? runId = null)
     {
+        focusedIncident = incidentId; focusedRun = runId;
+        if (initialScope is { } selected) scope.SelectedIndex = selected switch { EngineRecoveryScope.Real => 0, EngineRecoveryScope.Paper => 1, _ => 2 };
+        scope.IsEnabled = focusedIncident is null;
         Title = "History checks and recovery"; Width = 760; Height = 610; MinWidth = 600; MinHeight = 500;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         Background = new SolidColorBrush(Color.FromRgb(26, 32, 41)); Foreground = Brushes.White;
@@ -32,6 +38,9 @@ public sealed class EngineIntegrityWindow : Window
         top.Children.Add(summary);
         top.Children.Add(new TextBlock { Text = "Real-account recovery runs separately from paper history. Ordinary archive checks run outside market hours; explicit recovery can run now. Incomplete coverage is never a pass, and recovery does not enable trading.", TextWrapping = TextWrapping.Wrap, Margin = new(0, 0, 0, 12) });
         top.Children.Add(scope);
+        if (focusedIncident is { } id) top.Children.Add(new TextBlock { Text =
+            $"Focused incident · {id:D}\nClearance selects this incident and its matching verification-pending hold only. Other issues remain separate.",
+            TextWrapping = TextWrapping.Wrap, Margin = new(0, 0, 0, 10) });
         var bottom = new StackPanel(); DockPanel.SetDock(bottom, Dock.Bottom); panel.Children.Add(bottom);
         bottom.Children.Add(new TextBlock { Text = "Recovery reason — describe the cause resolved and the verification performed:", Margin = new(0, 12, 0, 6) });
         bottom.Children.Add(reason);
@@ -55,12 +64,16 @@ public sealed class EngineIntegrityWindow : Window
                 (i.ProtectionUntrusted ? " Affected automatic protection is unavailable." : " Protection still requires independently verified account and price evidence."))) +
                 "\n\n" + string.Join("\n", last.Runs.OrderByDescending(r => r.Plan.BoundaryUtc).Select(r =>
                 $"{r.Plan.Kind} / {r.Plan.Scope}: {r.Status}; {r.Progress.VerifiedUnits:N0} records checked; {r.Progress.TargetIndex}/{r.Plan.Targets.Length} groups complete; boundary {r.Plan.BoundaryUtc:yyyy-MM-dd HH:mm} UTC."));
-            clear.IsEnabled = !last.Incidents.IsEmpty && Recovery() is not null;
+            verify.IsEnabled = !last.Runs.Any(r => r.Status == "Running" && r.Plan.Kind == EngineAuditKind.Recovery &&
+                (SelectedScope == EngineRecoveryScope.All || r.Plan.Scope == SelectedScope || r.Plan.Scope == EngineRecoveryScope.All));
+            verify.ToolTip = verify.IsEnabled ? "Starts a new explicitly confirmed verification pass." : "A recovery already covers this scope. Monitor it before starting another.";
+            clear.IsEnabled = Recovery() is { } completed && !SelectedIncidents(completed).IsEmpty;
         }
-        catch { last = null; clear.IsEnabled = false; summary.Text = "History-check status is unavailable. Reconnect before relying on it."; }
+        catch { last = null; clear.IsEnabled = false; verify.IsEnabled = false; summary.Text = "History-check status is unavailable. Reconnect before relying on it."; }
     }
     private EngineRecoveryScope SelectedScope => scope.SelectedIndex switch { 0 => EngineRecoveryScope.Real, 1 => EngineRecoveryScope.Paper, _ => EngineRecoveryScope.All };
-    private EngineAuditRun? Recovery() => last?.Runs.Where(r => r.Plan.Kind == EngineAuditKind.Recovery && r.Status == "Complete" &&
+    private EngineAuditRun? Recovery() => last?.Runs.Where(r => r.Plan.Kind == EngineAuditKind.Recovery && r.Status == "Complete" && r.Progress.Complete &&
+        (focusedRun is null || r.RunId == focusedRun) &&
         (r.Plan.Scope == SelectedScope || SelectedScope == EngineRecoveryScope.Paper && r.Plan.Scope == EngineRecoveryScope.All))
         .OrderByDescending(r => r.Plan.BoundaryUtc).FirstOrDefault();
     private async Task VerifyAsync()
@@ -68,21 +81,21 @@ public sealed class EngineIntegrityWindow : Window
         if (MessageBox.Show(this, "Verify the selected recovery scope now? It holds affected activity while checking saved records. Other domains keep their own restrictions. This does not repair data or enable trading.",
             Title, MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) != MessageBoxResult.OK) return;
         verify.IsEnabled = false;
-        try { await engine.CallAsync<Guid>(SelectedScope switch { EngineRecoveryScope.Real => EngineOperation.VerifyRealRecovery,
-            EngineRecoveryScope.Paper => EngineOperation.VerifyPaperRecovery, _ => EngineOperation.VerifyRecovery }); await RefreshAsync(); }
+        try { var started = await engine.CallAsync<Guid>(SelectedScope switch { EngineRecoveryScope.Real => EngineOperation.VerifyRealRecovery,
+            EngineRecoveryScope.Paper => EngineOperation.VerifyPaperRecovery, _ => EngineOperation.VerifyRecovery });
+            if (focusedIncident != null) focusedRun = started;
+            await RefreshAsync(); }
         catch { summary.Text = "Recovery start has not been confirmed. Refresh its status before trying again."; }
-        finally { verify.IsEnabled = true; }
     }
+    private ImmutableArray<Guid> SelectedIncidents(EngineAuditRun run) => last is null ? [] :
+        EngineHealthRecovery.SelectIncidentIds(last, run, SelectedScope, focusedIncident).ToImmutableArray();
     private async Task ClearAsync()
     {
         var run = Recovery();
         if (run is null || last is null || string.IsNullOrWhiteSpace(reason.Text))
         { summary.Text = "A completed recovery check and your recovery reason are required."; return; }
         var selectedScope = SelectedScope;
-        var ids = last.Incidents.Where(i => selectedScope switch {
-            EngineRecoveryScope.Real => i.Scope is EngineIntegrityScope.Global or EngineIntegrityScope.Broker,
-            EngineRecoveryScope.Paper => i.Scope is EngineIntegrityScope.Paper or EngineIntegrityScope.Research,
-            _ => true }).Select(i => i.IncidentId).ToImmutableArray();
+        var ids = SelectedIncidents(run);
         if (ids.IsEmpty) { summary.Text = "No holds apply to the selected recovery scope."; return; }
         if (MessageBox.Show(this, $"Resolve {ids.Length} findings for the selected scope using this completed check? Real-only recovery preserves paper restrictions. Unknown shared findings remain blocked. Existing buying permission, expiry and other risk holds still apply.",
             Title, MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) != MessageBoxResult.OK) return;

@@ -45,11 +45,17 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   from its dated local receipt. The engine and collector
   continued running.
   **Engine** now defaults to flat **Health & issues**, with **Controls** and **History** beside it.
-  Findings show explanation, impact, next step, evidence and dates. Copy diagnostic snapshot exports
-  the same presentation records for investigation. The dashboard-only update was installed November 3;
-  engine/collector processes were retained. Release build and 296 focused tests passed, followed by
-  all 15 health tests after correcting unavailable startup timestamps. Native accessibility confirmed
-  the tabs and the loaded Paper explanation. Pixel layout and clipboard interaction remain unverified.
+  Findings show explanation, impact, next step, evidence and dates. The November 3 21:56 Toronto
+  dashboard-only extension adds per-incident recovery progress, observed checkpoint speed, clearance
+  requirements and focused recovery navigation. Copy diagnostic snapshot exports the same structured
+  evidence, separating receipt facts from live checks still required by the engine. The engine and
+  collector retained their original processes; 75 shared runtime files were unchanged. A final
+  scope-compatibility correction was installed at 22:01 Toronto. Release build and 29 focused
+  health/recovery/batch tests passed (including all 23 health cases). Existing compiler
+  warnings remain; dependency-security auditing was disabled. Native accessibility confirmed the new
+  cause/impact, clearance checklist and advancing progress/speed before that final scope correction. Screenshot capture timed out and
+  automated navigation clicks failed on desktop geometry/cached targets; pixel layout, review-link
+  interaction and clipboard interaction remain unverified.
   [Diagnostic contract and coverage limits](adr/0126-engine-health-and-diagnostic-snapshot.md).
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
@@ -117,7 +123,7 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   Real-only verification completed at 14:33 and its 14:41 clearance retained Paper. The operator
   authorized Paper-only recovery and conditional guarded clearance on November 3. Run
   `28f8f730-76ce-471f-94d2-cde1904cef0d` started at 21:30 Toronto on the existing engine.
-  At 21:34:56 it remained Running with 11,402 verified units and no new verification failure;
+  At 21:58:12 it remained Running with 20,916 verified units and no new verification failure;
   completed recovery proof and clearance remain pending. The original restriction and the new
   verification-pending restriction remain. Private control receipts are retained under
   `artifacts/paper-recovery-20261103`; the authorized follow-up monitors this exact run.
@@ -125,6 +131,10 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   cause. Five Paper/dependent-Research tasks reported blocked at 21:01 November 3. Their status receipts
   do not record a causal incident ID. The engine and collector were retained without restart;
   Real execution remained enabled and waiting for regular trading hours during verification.
+  The audit worker reported zero failures and continuing five-second batches. Source inspection
+  confirms recovery priority, the maximum configured 4,096-step/five-second batch and one-second
+  yield; no supported live speed control exists. The installed scheduling and verification checks
+  were retained. Observed speed varies with history; this is not proof of maximum possible throughput.
   [Original restart and clearance evidence](project-status-history-20261101.md#october-30--real-execution-resumed-after-recovery-1446-toronto),
   [prior diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
   A separate Paper-input failure was traced to missing verified holding correspondence in
