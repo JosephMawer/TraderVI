@@ -370,11 +370,33 @@
         <views:ScorecardsView/>
       </TabItem>
       <TabItem Header="Engine" x:Name="EngineTab" views:WorkspaceNavigationState.Icon="&#xE7F4;">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-          <StackPanel Margin="24" MaxWidth="1050" HorizontalAlignment="Stretch">
-            <TextBlock Text="Engine" FontSize="28" FontWeight="SemiBold"/>
-            <TextBlock Text="Closing the dashboard leaves the engine running. Stopping the engine does not stop the separate collector."
-                       Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,6,0,20"/>
+        <TabControl x:Name="EngineSections" SelectedIndex="0" Background="Transparent" BorderThickness="0" Foreground="#E8EEF6">
+          <TabItem Header="Health &amp; issues">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Margin="24" MaxWidth="1050">
+                <TextBlock Text="Health &amp; issues" FontSize="28" FontWeight="SemiBold"/>
+                <TextBlock x:Name="HealthSummaryText" Text="Reading system status…" FontSize="16" Margin="0,8,0,12" TextWrapping="Wrap"/>
+                <WrapPanel><Button x:Name="HealthRefreshButton" Content="Refresh status" Click="RefreshHealth_Click" Margin="0,0,10,8"/>
+                  <Button Content="Copy diagnostic snapshot" Click="CopyHealth_Click" Margin="0,0,10,8" ToolTip="Copy the same issue records as structured JSON for investigation. Copying does not execute any action."/></WrapPanel>
+                <TextBlock x:Name="HealthCopyStatus" Foreground="#ADBBCC" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"/>
+                <TextBlock Text="Restrictions" FontSize="20" FontWeight="SemiBold" Margin="0,16,0,0"/>
+                <TextBlock x:Name="HealthRestrictionsEmpty" Foreground="#ADBBCC" TextWrapping="Wrap"/>
+                <views:EngineHealthList x:Name="HealthRestrictions"/>
+                <TextBlock Text="Warnings &amp; verification gaps" FontSize="20" FontWeight="SemiBold" Margin="0,20,0,0"/>
+                <TextBlock x:Name="HealthWarningsEmpty" Foreground="#ADBBCC" TextWrapping="Wrap"/>
+                <views:EngineHealthList x:Name="HealthWarnings"/>
+                <TextBlock Text="Current status, waits &amp; operator settings" FontSize="20" FontWeight="SemiBold" Margin="0,20,0,0"/>
+                <views:EngineHealthList x:Name="HealthWaiting"/>
+                <TextBlock Text="What this page covers" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,5"/>
+                <TextBlock x:Name="HealthCoverageText" Foreground="#ADBBCC" TextWrapping="Wrap"/>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+          <TabItem Header="Controls">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Margin="24" MaxWidth="1050">
+                <TextBlock Text="Engine controls" FontSize="28" FontWeight="SemiBold"/>
+                <TextBlock Text="Closing the dashboard leaves the engine running. Stopping the engine does not stop the separate collector." Foreground="#ADBBCC" TextWrapping="Wrap" Margin="0,6,0,20"/>
             <views:ExecutionReadinessView x:Name="EngineExecutionReadiness" Margin="0,0,0,20"/>
             <TextBlock Text="Trading engine" FontSize="18" FontWeight="SemiBold"/>
             <TextBlock x:Name="EngineStatusText" Text="Waiting for engine status." TextWrapping="Wrap" Margin="0,6,0,10"/>
@@ -396,11 +418,23 @@
                 <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding CanRefresh}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
               </TextBlock>
             </StackPanel>
-            <TextBlock Text="History checks" FontSize="18" FontWeight="SemiBold"/>
-            <TextBlock x:Name="HistoryDetailText" Text="Awaiting history status." TextWrapping="Wrap" Margin="0,6,0,10"/>
-            <Button Content="History checks…" Click="HistoryChecks_Click" HorizontalAlignment="Left"/>
-          </StackPanel>
-        </ScrollViewer>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+          <TabItem Header="History">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Margin="24" MaxWidth="1050">
+                <TextBlock Text="History &amp; recovery evidence" FontSize="28" FontWeight="SemiBold"/>
+                <TextBlock Text="Retained audit receipts and engine notices. Older failed receipts remain here after later success. This is not a complete incident-resolution log." Foreground="#ADBBCC" TextWrapping="Wrap" Margin="0,6,0,14"/>
+                <TextBlock x:Name="HistoryDetailText" Text="Awaiting history status." TextWrapping="Wrap" Margin="0,0,0,10"/>
+                <Button Content="History checks and recovery…" Click="HistoryChecks_Click" HorizontalAlignment="Left" Margin="0,0,0,12"/>
+                <TextBlock Text="Verification and hold clearance use the existing review controls. Reading this page does not run recovery or clear anything." Foreground="#ADBBCC" TextWrapping="Wrap"/>
+                <TextBlock x:Name="HealthHistoryEmpty" Text="No history receipts have been loaded." Foreground="#ADBBCC" Margin="0,12,0,0"/>
+                <views:EngineHealthList x:Name="HealthHistory"/>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+        </TabControl>
       </TabItem>
       <TabItem Header="Settings" x:Name="SettingsTab" views:WorkspaceNavigationState.Icon="&#xE713;">
         <views:GlobalSettingsView x:Name="SettingsTabView"/>

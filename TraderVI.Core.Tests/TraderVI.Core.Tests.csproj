@@ -44,6 +44,7 @@
     <Compile Include="..\TraderVI.WPF\Viewmodels\TradingAccountOverview.cs" Link="Presentation\TradingAccountOverview.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\ExecutionReadiness.cs" Link="Presentation\ExecutionReadiness.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\DashboardEngineOverview.cs" Link="Presentation\DashboardEngineOverview.cs" />
+    <Compile Include="..\TraderVI.WPF\Viewmodels\EngineHealthSnapshot.cs" Link="Presentation\EngineHealthSnapshot.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\DashboardCollectorOverview.cs" Link="Presentation\DashboardCollectorOverview.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\DashboardDailyPrep.cs" Link="Presentation\DashboardDailyPrep.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\PortfolioStrategyWorkspace.cs" Link="Presentation\PortfolioStrategyWorkspace.cs" />

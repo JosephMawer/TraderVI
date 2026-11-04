@@ -29,6 +29,7 @@ public partial class PaperDashboardWindow
                 "TraderVI", "Collector", "dashboard-status-path.txt");
             var display = await Task.Run(() => DashboardCollectorOverview.Read(pathFile, TimeProvider.System));
             if (shutdown.IsCancellationRequested) return;
+            healthCollector = display; healthCollectorRead = DateTimeOffset.UtcNow;
             CollectorOverviewText.Text = display.State;
             CollectorOverviewText.Foreground = (Brush)new BrushConverter().ConvertFromString(display.Color)!;
             CollectorOverviewText.ToolTip = display.Detail;
@@ -36,15 +37,17 @@ public partial class PaperDashboardWindow
             {
                 var prep = await Task.Run(DashboardDailyPrep.Read);
                 if (shutdown.IsCancellationRequested) return;
+                healthPrep = prep; healthPrepRead = DateTimeOffset.UtcNow;
                 DailyPrepText.Text = prep.Label;
                 DailyPrepText.Foreground = (Brush)new BrushConverter().ConvertFromString(prep.Color)!;
                 DailyPrepText.ToolTip = prep.Detail;
                 nextPrepCheck = DateTimeOffset.UtcNow.AddSeconds(30);
             }
         }
-        finally { readingLocalStatus = false; }
+        finally { readingLocalStatus = false; if (!shutdown.IsCancellationRequested) RenderHealth(); }
     }
-    private void OpenEngine_Click(object sender, RoutedEventArgs e) => MainTabs.SelectedItem = EngineTab;
+    private void OpenEngine_Click(object sender, RoutedEventArgs e)
+    { EngineSections.SelectedIndex = 0; MainTabs.SelectedItem = EngineTab; }
     private async void ReviewEngineSwitch_Click(object sender, RoutedEventArgs e) => await TradingRecommendationsTabView.ReviewBrokerStrategyAsync(null);
     private void RenderEngineOverview()
     {
@@ -58,6 +61,7 @@ public partial class PaperDashboardWindow
         HistoryOverviewText.ToolTip = display.HistoryDetail;
         HistoryOverviewText.Foreground = (Brush)new BrushConverter().ConvertFromString(display.HistoryColor)!;
         HistoryDetailText.Text = display.HistoryDetail;
+        RenderHealth();
     }
     private void HistoryChecks_Click(object sender, RoutedEventArgs e) => new Views.EngineIntegrityWindow { Owner = this }.Show();
     private async Task RefreshEngineStatusAsync()

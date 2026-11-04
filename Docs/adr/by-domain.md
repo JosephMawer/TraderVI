@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0126](0126-engine-health-and-diagnostic-snapshot.md) — Flat operational issues and a shared diagnostic snapshot
+
 - [ADR-0123](0123-edge-passkey-session-handoff.md) — Explicit Edge passkey login with paired local session handoff
 
 - [ADR-0122](0122-existing-output-nightly-execution.md) — Reuse pinned existing outputs at 06:30; no nightly build or copy
@@ -482,6 +484,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0006](0006-granville-light-volume-25-28.md) — Granville Light Volume indicators
 
 ## user-interface
+
+- [ADR-0126](0126-engine-health-and-diagnostic-snapshot.md) — Flat operational issues and a shared diagnostic snapshot
 
 - [ADR-0118](0118-delphi-desktop-results-only.md) — Daily settings assignment awaits nightly results; desktop refresh reads saved evidence
 

@@ -1,0 +1,21 @@
+<UserControl x:Class="TraderVI.WPF.Views.EngineHealthList"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Foreground="#E8EEF6">
+ <ItemsControl ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=UserControl}}">
+  <ItemsControl.ItemTemplate><DataTemplate>
+   <Border BorderBrush="#334153" BorderThickness="0,0,0,1" Padding="0,14,0,16">
+    <StackPanel>
+     <TextBlock Text="{Binding Heading}" Foreground="{Binding Color}" FontSize="12"/>
+     <TextBlock Text="{Binding Title}" FontSize="17" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,3,0,8"/>
+     <TextBlock Text="{Binding Explanation}" TextWrapping="Wrap"/>
+     <TextBlock Text="Impact" Foreground="#ADBBCC" Margin="0,10,0,2"/>
+     <TextBlock Text="{Binding Impact}" TextWrapping="Wrap"/>
+     <TextBlock Text="Next step" Foreground="#ADBBCC" Margin="0,10,0,2"/>
+     <TextBlock Text="{Binding NextStep}" TextWrapping="Wrap"/>
+     <TextBlock Text="{Binding Timing}" Foreground="#ADBBCC" FontSize="12" Margin="0,10,0,3" TextWrapping="Wrap"/>
+     <TextBlock Text="{Binding Evidence}" Foreground="#ADBBCC" FontSize="12" TextWrapping="Wrap"/>
+    </StackPanel>
+   </Border>
+  </DataTemplate></ItemsControl.ItemTemplate>
+ </ItemsControl>
+</UserControl>

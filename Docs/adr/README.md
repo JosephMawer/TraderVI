@@ -41,6 +41,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0126](0126-engine-health-and-diagnostic-snapshot.md) | Flat Engine health and shared human/AI diagnostic records | Accepted | user-interface, architecture |
 | [0124](0124-due-prediction-scorecard.md) | Grade due ten-session predictions and label partial coverage | Accepted | math-statistics, data-pipeline |
 | [0125](0125-reusable-strategy-sale-proceeds.md) | Reuse reconciled strategy sale proceeds under explicit ongoing approval | Accepted | risk-management, architecture |
 | [0123](0123-edge-passkey-session-handoff.md) | Existing Edge passkeys through a paired session handoff | Installed; initial native handoff confirmed November 2; live refresh pending | architecture |

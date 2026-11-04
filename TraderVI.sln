@@ -106,6 +106,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Docs\adr\0123-edge-passkey-session-handoff.md = Docs\adr\0123-edge-passkey-session-handoff.md
 		Docs\adr\0124-due-prediction-scorecard.md = Docs\adr\0124-due-prediction-scorecard.md
 		Docs\adr\0125-reusable-strategy-sale-proceeds.md = Docs\adr\0125-reusable-strategy-sale-proceeds.md
+		Docs\adr\0126-engine-health-and-diagnostic-snapshot.md = Docs\adr\0126-engine-health-and-diagnostic-snapshot.md
 		Docs\reviews\wealthsimple-auth-and-engine-diagnosis-20261102.md = Docs\reviews\wealthsimple-auth-and-engine-diagnosis-20261102.md
 		Tools\Wealthsimple.EdgeBridge\README.md = Tools\Wealthsimple.EdgeBridge\README.md
 		readme.md = readme.md

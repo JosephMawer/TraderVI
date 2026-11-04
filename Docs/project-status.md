@@ -44,6 +44,13 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   The connection control separately flags stale or unloaded holdings. Collector status comes
   from its dated local receipt. The engine and collector
   continued running.
+  **Engine** now defaults to flat **Health & issues**, with **Controls** and **History** beside it.
+  Findings show explanation, impact, next step, evidence and dates. Copy diagnostic snapshot exports
+  the same presentation records for investigation. The dashboard-only update was installed November 3;
+  engine/collector processes were retained. Release build and 296 focused tests passed, followed by
+  all 15 health tests after correcting unavailable startup timestamps. Native accessibility confirmed
+  the tabs and the loaded Paper explanation. Pixel layout and clipboard interaction remain unverified.
+  [Diagnostic contract and coverage limits](adr/0126-engine-health-and-diagnostic-snapshot.md).
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
   standard Release path in build-review mode, connected to the broker. The collector retained
@@ -105,10 +112,15 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   bid-dependent protection could not be verified even though the host reported Running. The operator
   placed the investigation on hold; reliable automatic selling must not be inferred from saved stops
   or a Running status. [Evidence and limits](project-status-history-20261101.md#october-30--held-position-bid-protection-gap-verified-1003-toronto).
-- **Paper recovery and inputs:** The Paper recovery restriction retained after the October 30 Real
-  recovery was still the sole unresolved incident at 21:24 Toronto on November 2. At 15:12 seven
-  Paper/dependent-Research workers reported blocked. At 21:25 five had reported blocked since restart.
-  [Current read-only diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
+- **Paper recovery and inputs:** The November 3 21:16 Toronto hash-verified read-only check confirmed
+  one unresolved Paper restriction inherited from the October 30 13:22:58 startup-continuity incident.
+  Real-only verification completed at 14:33 and its 14:41 clearance retained Paper. No later Paper/All
+  recovery receipt covers that interruption; the last successful Paper and All checks predate it.
+  This establishes missing recovery coverage, not corrupt Paper data or the exact preceding shutdown
+  cause. Five Paper/dependent-Research tasks reported blocked at 21:01 November 3. Their status receipts
+  do not record a causal incident ID. No verification run or clearance was performed for this UI work.
+  [Original restart and clearance evidence](project-status-history-20261101.md#october-30--real-execution-resumed-after-recovery-1446-toronto),
+  [prior diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
   A separate Paper-input failure was traced to missing verified holding correspondence in
   the service wiring; repair is planned in issue #24, not established by that diagnosis. The Real
   recovery does not clear Paper restrictions. [Diagnosis](project-status-history-20261101.md#october-30--paper-inputs-cause-confirmed-without-restart-10181020-toronto),

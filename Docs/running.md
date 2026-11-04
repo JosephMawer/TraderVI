@@ -26,10 +26,19 @@ Hover for the receipt date, last finished step and time, current step or flagged
 **Wealthsimple** keeps its sign-in status and flags an unverified or stale holdings snapshot separately.
 A failed holdings refresh or a snapshot outside the five-minute freshness window flags the retained
 holdings as stale. Hover for the retrieval time or open the control to manage the connection.
-Choose **Open Engine** or the Engine navigation entry for engine start/stop,
-Execution setup, Stop execution host, Review switch and History checks. Older dated
+Choose **Open Engine** for the default **Health & issues** tab. It displays restrictions,
+warnings/verification gaps and ordinary status/waits in flat sections with explanations, impact,
+next steps, source evidence and times. **Copy diagnostic snapshot** copies the same issue records
+as structured JSON for investigation; it runs no action. Integrity receipts refresh every 30 seconds.
+Failed reads retain last-known findings and show a verification gap. Old failed audit receipts stay
+in **History** even after newer success; an unfinished receipt is not automatically a current fault.
+**Controls** contains engine start/stop, Execution setup, Stop execution host and Review switch.
+**History** contains the retained audit/notice list and **History checks and recovery**. The recovery
+dialog still requires explicit verification and clearance actions. The view does not expose every
+possible order-level blocker or a complete resolved-incident log.
+See [the diagnostic contract](adr/0126-engine-health-and-diagnostic-snapshot.md). Older dated
 instructions below retain their historical Trading entry points; in the current installed dashboard,
-use **Engine → Execution setup** for that workflow.
+use **Engine → Controls → Execution setup** for that workflow.
 
 ## Explicit ongoing Delphi Live — installed October 27
 
