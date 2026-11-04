@@ -34,7 +34,9 @@ intentional handover without losing existing protection or financial history.
    intervene sooner only for an actual engine failure, stuck execution or trading block.
 3. **Qualify protection, recovery and market inputs.** The held-position broker bid-read failure is an
    unresolved protection gap; its investigation is on operator hold. Do not claim reliable automatic
-   selling without restored and verified bid-based protection. Resolve retained Paper recovery separately.
+   selling without restored and verified bid-based protection. With retained Paper recovery cleared,
+   review checkpoint-based Paper restart and incremental verification under
+   [issue #28](https://github.com/JosephMawer/TraderVI/issues/28) before any implementation.
    Qualify collector coverage, capacity, venue and native recovery before proposing one-minute financial
    adoption; the approved Real strategy remains five-minute. Preserve existing gates, indicator windows,
    VWAP and protection. [Dated state](project-status.md),

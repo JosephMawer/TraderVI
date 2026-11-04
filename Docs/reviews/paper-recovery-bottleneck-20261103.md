@@ -60,12 +60,50 @@ No hot patch, concurrent verifier, history conversion, skipped check or priority
 At 22:15:20 Toronto, 24,126 units were verified, the run remained Running and the audit worker had
 zero failures. Only the original Paper restriction and its matching pending hold remained. Engine
 PID 21140 and collector PID 17980 retained their original starts. Real execution was waiting for
-regular trading hours. Conditional-clearance monitoring remains active.
+regular trading hours. Conditional-clearance monitoring was active at that checkpoint; its later
+completion is recorded below.
 
 There is no identified supported no-restart change that removes the measured bottleneck. Further
 algorithm work would need representative legacy workloads and a later reviewed engine replacement;
 avoiding this scan on ordinary Paper restart is a separate recovery-policy/integration decision.
-Neither is established or installed by this investigation. Keep the existing pass and guards intact.
+Neither was established or installed by this investigation. The existing pass and guards were retained.
+
+## Completion and scoped clearance
+
+The same Paper-only Recovery run completed at **23:42:09 Toronto on November 3**, with
+`Status=Complete`, `Progress.Complete=true`, TargetIndex 4 and **212,508 verified units**.
+Elapsed time from 21:30:11 was about 2h12m. All three Paper portfolio groups and the final legacy
+research group passed. Different stage costs made the earlier finish estimate conservative; no
+algorithm or resource settings were changed while the pass ran.
+
+After inspecting fresh IntegrityStatus, Status and ExecutionStatus, the authorized
+`ClearIntegrityHolds` request selected only original incident `63d995f5-5af6-4bec-b297-07dd65cafdd7`
+and matching pending incident `c1a76ae6-7eec-41eb-8dcb-0c77d767e709`, with Scope 2 and this exact
+RecoveryRunId. Its reason records the operator's conditional authority, completed pass and unknown
+original shutdown cause. The supported engine control returned **true at approximately 23:57:44**;
+its transactional current-head, incident-boundary, identity and guard checks were not bypassed.
+
+The 23:57:59 readback contains zero unresolved incidents. Paper protection, Paper inputs, Research
+inputs, Research history and Shadow protection all started and completed ticks after clearance,
+with zero consecutive failures. All other engine workers also reported zero consecutive failures.
+This proves retry and removal of the integrity block, not fresh market-hour simulation, new fills
+or repair of the independently known symbol-correspondence issue #24. Real execution remained
+waiting for regular trading hours. Engine PID 21140 and collector PID 17980 retained their original
+November 3 11:58:39 and 09:21:05 Toronto starts.
+The final 23:59:57 readback again confirms zero incidents, all workers at zero consecutive failures
+and later successful ticks for each formerly blocked worker, with unchanged process paths and starts.
+
+The status still counts three older failed audit receipts as incomplete: October 22 All Recovery,
+October 26 Real Recovery and October 27 NewHistory. These retained records are distinct from this
+successful pass; none was rewritten or erased. They may still contribute a historical warning.
+
+Private receipts: `heartbeat-20261104T045246366Z-{IntegrityStatus,Status,ExecutionStatus}.json`,
+`clear-request-20261104T045324473Z.json`, `clear-result-20261104T045743674Z.json` and
+`after-clear-20261104T045758989Z-{IntegrityStatus,Status,ExecutionStatus}.json` and
+`final-20261104T045957013Z-{IntegrityStatus,Status,ExecutionStatus}.json` under the evidence
+folder above. No direct SQL write, broker order action, grant change, installation, engine restart
+or collector restart was performed. The completed conditional-clearance monitor was deleted from
+the app; no further polling or automatic recovery is scheduled by that monitor.
 
 ## Paper restart follow-up and scan triggers
 

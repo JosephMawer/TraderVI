@@ -454,11 +454,15 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   Worker recheck finds a separate market-input failure at09:30; clearance is not morning readiness.
 - [x] Start the operator-authorized November 3 Paper-only recovery on the existing engine while
   retaining Real execution and collector processes: run `28f8f730-76ce-471f-94d2-cde1904cef0d`.
-- [ ] Complete that exact pass and use supported guarded clearance for the original Paper incident
-  and its matching verification-pending incident only; preserve restrictions if verification or
-  current-head/identity guards reject the proof. The active authorized follow-up owns this step.
-- [ ] Recheck affected workers after clearance and explain any remaining input failure separately;
-  the independently diagnosed Paper holding-correspondence wiring issue #24 is not fixed by recovery.
+- [x] Complete that exact pass and use supported guarded clearance for the original Paper incident
+  and its matching verification-pending incident only. November 3 23:42:09 Toronto: all 212,508 units
+  complete; 23:57:44 supported Paper-only clearance returns true. The 23:57:59 readback has zero
+  unresolved incidents; engine and collector retain their original processes.
+- [x] Recheck affected workers after clearance: all five formerly blocked workers complete ticks after
+  clearance with zero consecutive failures at 23:57:59 Toronto. Older failed audit receipts remain
+  historical records. [Evidence and limits](reviews/paper-recovery-bottleneck-20261103.md#completion-and-scoped-clearance).
+- [ ] Qualify fresh market-hour Paper activity and the independently diagnosed holding-correspondence
+  wiring issue #24. Successful outside-session worker ticks and recovery do not establish that repair.
 - [x] Implement/test the requested temporary Paper continuation under ADR-0116, without falsely
   resolving incidents or changing Real authority. Full Core3,374passed/10SQLskips and final39focused
   tests pass; Release WPF/engine builds. New errors, expiry or restart stop the permission.
@@ -495,7 +499,8 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [ ] Finish remaining native concurrency/latency/restore acceptance. Recovery completion does not
   clear holds, qualify all interruption scenarios or grant financial authority.
   [November 3 Paper profiling](reviews/paper-recovery-bottleneck-20261103.md) confirms a remaining
-  legacy fingerprint cost despite the installed prefix repair; current recovery is still running.
+  legacy fingerprint cost despite the installed prefix repair; the November 3 pass subsequently
+  completed in about 2h12m and its two selected Paper holds were cleared.
   No no-restart throughput remedy or complete Paper restart redesign is established by that check.
 - [ ] Review Paper restart and verification checks with Joseph before any implementation under
   [GitHub #28](https://github.com/JosephMawer/TraderVI/issues/28), the Paper-specific follow-up to #19.
@@ -503,7 +508,7 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   each check's purpose, impact, cost and simplification/removal tradeoffs in plain language; obtain
   explicit approval of scope and behavior before coding, migrations, policy changes or installation.
   Current-state restart and verification mechanics remain candidate designs pending that review.
-  The active recovery and conditional-clearance acceptance above remain independent.
+  The completed recovery and conditional-clearance acceptance above do not authorize this redesign.
 - [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine
   with execution Off; verify single ownership, normal mode, connection and original Paper cursor progress.
 - [x] Verify fresh post-interruption Real recovery 260/260 and separately authorize/apply only its reviewed

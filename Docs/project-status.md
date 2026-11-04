@@ -74,7 +74,8 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   10:24. After operator approval and separate enable, it passed the normal restart account
   check at 10:31:04 Toronto. At 10:34:30 the strategy evaluated 38 fresh symbols from the
   10:30 bar and found no confirmed entry. All 12 owned orders were reconciled with zero
-  managed holdings. The separate Paper recovery restriction remains.
+  managed holdings. Paper recovery was separately still restricted at that morning check; its
+  November 3 evening completion and clearance are recorded below.
   At 10:57 and 11:02 Toronto two buy selections reached final sizing. In both cases
   cash and the strategy allocation covered a whole share, while the remaining cumulative
   purchase allowance did not. The saved outcome was `InvalidOrderQuantity`. No new order
@@ -123,14 +124,19 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   Real-only verification completed at 14:33 and its 14:41 clearance retained Paper. The operator
   authorized Paper-only recovery and conditional guarded clearance on November 3. Run
   `28f8f730-76ce-471f-94d2-cde1904cef0d` started at 21:30 Toronto on the existing engine.
-  At 22:15:20 it remained Running with 24,126 verified units and no new verification failure;
-  completed recovery proof and clearance remain pending. The original restriction and the new
-  verification-pending restriction remain. Private control receipts are retained under
-  `artifacts/paper-recovery-20261103`; the authorized follow-up monitors this exact run.
-  This establishes missing recovery coverage, not corrupt Paper data or the exact preceding shutdown
-  cause. Five Paper/dependent-Research tasks reported blocked at 21:01 November 3. Their status receipts
-  do not record a causal incident ID. The engine and collector were retained without restart;
-  Real execution remained enabled and waiting for regular trading hours during verification.
+  It completed at 23:42:09 Toronto with 212,508 verified units across all four groups, after about
+  2h12m. At 23:57:44, supported `ClearIntegrityHolds` returned true for only the original Paper
+  restriction and this run's matching verification-pending incident, Scope=Paper. The engine's
+  current-head, original-incident-boundary, database-identity and immutable-guard checks passed.
+  The 23:57:59 readback reports zero unresolved incidents. All five previously blocked Paper/dependent-
+  Research workers retried after clearance and completed ticks with zero consecutive failures.
+  These outside-session ticks do not prove fresh market-hour Paper activity or repair issue #24.
+  Three older failed audit receipts remain visible as incomplete history; they are not new failures
+  of this successful pass and were not erased. Private control receipts remain under
+  `artifacts/paper-recovery-20261103`; the conditional-clearance follow-up is complete.
+  The pass found no verification failure; the original shutdown cause remains unknown. Engine PID
+  21140 and collector PID 17980 retained their original November 3 starts without restart. Real
+  execution remained enabled and waiting for regular trading hours during verification and clearance.
   The audit worker reported zero failures and continuing five-second batches. Source inspection
   confirms recovery priority, the maximum configured 4,096-step/five-second batch and one-second
   yield; no supported live speed control exists. The installed scheduling and verification checks
@@ -145,7 +151,8 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   [prior diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
   A separate Paper-input failure was traced to missing verified holding correspondence in
   the service wiring; repair is planned in issue #24, not established by that diagnosis. The Real
-  recovery does not clear Paper restrictions. [Diagnosis](project-status-history-20261101.md#october-30--paper-inputs-cause-confirmed-without-restart-10181020-toronto),
+  recovery alone did not clear Paper restrictions; the explicit Paper pass and clearance above now do.
+  [Diagnosis](project-status-history-20261101.md#october-30--paper-inputs-cause-confirmed-without-restart-10181020-toronto),
   [roadmap](roadmap.md).
 - **Collector and minute data:** The independent collector runs separately from the trading engine.
   Migration 057 and the latest-minute collector were installed November 1; closed-session checks and
@@ -229,7 +236,7 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 ## Remaining qualification
 
 The roadmap and checklists retain the details and order. Key boundaries are reliable held-position
-protection, Paper recovery and symbol resolution, complete market-data/valuation coverage, native
+protection, the review-only Paper restart redesign and symbol resolution, complete market-data/valuation coverage, native
 restart and order reconciliation, and comparable mature paper evidence before broader strategy
 adoption. AI-managed portfolio components have source/tested pieces but are not an activated operating
 portfolio; valuation, cash-event, integration and host qualification remain. A reviewed short-session
