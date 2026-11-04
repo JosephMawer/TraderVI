@@ -175,7 +175,7 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   Release WPF/engine builds passed with 257 existing compiler warnings and zero errors; no dependency
   vulnerability warning was emitted, but `--no-restore` did not refresh a security audit. The SQL project
   was not built. [Consumer inventory and validation](reviews/verified-symbol-mapping-20261104.md).
-  This repair is **not installed**. At the last November 4 investigation, the broker buy was filled
+  This repair is **installed and resumed** as of November 4, 15:28 Toronto. At the earlier investigation, the broker buy was filled
   and applied to compact storage while the managed head still marked it unreconciled. Ordinary build
   review requires those records to agree. A separately authorized restored-copy rehearsal passed the
   actual SQL handoff, simulated review and fresh-process reload, preserving all four holdings, original
@@ -184,10 +184,20 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   33.8 GB of database/backup files remain retained for explicit cleanup. The guarded live original-buy
   maintenance command is now implemented and qualified on a fresh restored copy using the exact Release
   Core: maintenance, review and reload pass. Release regression: **3,707 passed, 18 opt-in skips, zero
-  failures**; WPF/engine build passed with two existing CS0168 warnings. Installation is now authorized
-  and being prepared; exact-build approval and separate resume remain operator actions.
-  Native protection and fresh market-hour Paper/Real
-  acceptance remain open. The Real
+  failures**; WPF/engine build passed with two existing CS0168 warnings. The authorized live maintenance
+  advanced the managed head once, preserved the original filled receipt and reconciled all 22 managed
+  orders; all four open positions have saved protection state and zero compact restrictions. The tested
+  package (source `32bd5119`, Core `A6B891CD…7043`) is installed. Joseph approved the exact build and
+  resumed it; normal engine 22780 started at 15:28:25 with the broker connected and collector 32356
+  unchanged. All three Paper portfolios qualified from saved state within 3.3 seconds, incremental
+  verification enabled and no new full scan or integrity incident. Fresh broker bids and matching
+  protection were observed for all four holdings. One ordinary protective sale then filled/reconciled;
+  all 23 managed orders are settled and the three remaining holdings retain matching protection.
+  **New-entry readiness remains blocked:** at 15:29, shared publication was still at the 10:20 bar
+  despite fresh 15:28 collector stock/benchmark observations. Real evaluated but waited for fresh inputs,
+  also reporting `NetAssetValueUnavailable`; fresh Paper entry evaluation is not established.
+  [Live transition evidence](reviews/verified-symbol-mapping-20261104.md#live-transition).
+  Prospective new-holding and fresh market-hour Paper/Real acceptance remain open. The Real
   recovery alone did not clear Paper restrictions; the explicit Paper pass and clearance above now do.
   [Diagnosis](project-status-history-20261101.md#october-30--paper-inputs-cause-confirmed-without-restart-10181020-toronto),
   [roadmap](roadmap.md).

@@ -42,8 +42,19 @@ The September 22 documentation cleanup preserves the
   separate authority; no repeat buy, reset protection or implicit financial approval.
   `--reconcile-filled-buy` now uses that guarded boundary; 12 focused checks and the fresh restored-copy
   Release maintenance phase pass. Installation and operator approval remain separate below.
-- [ ] After authorized installation, verify current bid/protection progress for every holding and fresh
-  Paper/Real evaluations; keep issue #20's prospective new-holding acceptance separate from offline tests.
+- [x] Run the authorized original-buy maintenance and install the exact tested #24 package into
+  build-review mode. November 4 live checks: one managed revision, unchanged original fill receipt,
+  all 22 managed orders reconciled, four open positions with saved protection, no compact restrictions;
+  broker connected and collector unchanged. [Evidence](reviews/verified-symbol-mapping-20261104.md#live-transition).
+- [x] Operator approves this exact #24 build and separately resumes it; finish normal engine startup
+  and verify Paper saved-state qualification without a full historical scan. November 4, 15:28:
+  all three portfolios qualified within 3.3 seconds; no new full scan or integrity incident.
+- [x] Verify current broker bids and matching protection for the existing holdings after #24 startup.
+  All four passed; one ordinary protective sale filled/reconciled, leaving three protected holdings.
+- [ ] Diagnose stalled shared publication: at 15:29 collector observations reached 15:28 while published
+  strategy inputs remained at 10:20; Real waited for fresh data and reported unavailable account valuation.
+- [ ] Verify sustained protection and fresh Paper/Real entry evaluations; keep issue #20's prospective
+  new-holding acceptance separate from offline tests and this existing-position transition.
 
 ### Independent collector and recovered confirmation — October 27 overnight
 

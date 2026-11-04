@@ -5,20 +5,6 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
-### Issue #24 installation transition from the interrupted buy — November 4, 2026
-
-The [source repair and offline path](verified-symbol-mapping-20261104.md) pass, but the last captured
-managed head still marks a buy unreconciled after its broker fill was applied to compact storage.
-`BrokerImplementationReviewWorkflow.RequireSession` and `CompactBuildSuccessor` require a settled,
-unchanged account; a build approval must not silently reconcile that difference. The separately
-authorized restored-copy rehearsal now passes handoff, simulated review and fresh-process reload,
-preserving the original fill, protection and financial assignment. It uses captured facts and a test-only
-old-assignment adapter. The guarded `--reconcile-filled-buy` boundary is now implemented with pinned
-revision/request, exclusive ownership and fresh broker/journal evidence. Twelve focused checks and a
-fresh restored-copy Release repair pass; use the existing build-review flow after live reconciliation.
-The [execution checklist](../strategy-alignment-implementation-checklist.md)
-owns this acceptance. No installation, restart or recovery operation is authorized by this question.
-
 ### Bounded ordinary engine recovery — October 30, 2026
 
 **November 2 release decision.** Joseph selected original-request-only maintenance followed by an
@@ -1298,6 +1284,18 @@ See [the connected workspace draft](../concepts/trading-workspace-redesign-draft
 <a id="resolved"></a>
 
 ## Resolved historical decisions
+
+### Issue #24 installation transition from the interrupted buy — November 4, 2026
+
+**Resolved November 4:** the guarded original-buy-only boundary in
+[ADR-0117](../adr/0117-compact-trading-current-storage.md#november-4-clarification--filled-buy-maintenance-before-build-review)
+passed the restored-copy rehearsal and the separately authorized live transition. It reconciled the
+original filled buy without another fill or financial approval. The package is installed in build-review
+mode and subsequently approved/resumed by Joseph. Normal startup, fresh existing-position bids and
+one protective fill/reconciliation passed. Remaining publication and prospective acceptance are
+operational tasks in the [execution checklist](../strategy-alignment-implementation-checklist.md), not
+an unresolved design choice. [Evidence](verified-symbol-mapping-20261104.md#live-transition).
+
 
 - **Missing Friday data and SPY confirmation (S8/S9)** — resolved under ADR-0058 on 2026-09-06.
   Weekday-only midnight scheduling omitted Saturday's collection of Friday's close; execution and

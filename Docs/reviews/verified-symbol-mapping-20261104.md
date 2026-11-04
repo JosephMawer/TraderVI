@@ -2,8 +2,9 @@
 
 Owner: [issue #24](https://github.com/JosephMawer/TraderVI/issues/24).
 Contract: [ADR-0088](../adr/0088-source-symbol-aliases-for-monitoring.md).
-Scope: source changes, disconnected validation and a separately authorized restored-copy rehearsal. Installation, engine restart and live
-acceptance require separate operator authorization. No SQL migration or alias seed is required.
+Scope: source changes, disconnected validation, separately authorized restored-copy rehearsals and
+the authorized live handoff/installation below. Operator build approval and normal runtime acceptance
+remain distinct. No SQL migration or alias seed is required.
 
 ## Problem and repair
 
@@ -68,11 +69,11 @@ unreconciled. `BrokerImplementationReviewWorkflow.RequireSession` / `RequireAcco
 `CompactBuildSuccessor` deliberately require a settled, unchanged account. The offline ordinary
 workflow and restored-copy rehearsal prove the corrected handoff under the same assignment. They
 initially did not provide a live maintenance entry point for installing a new implementation over that
-interrupted state. The guarded command described below now passes its exact Release copy rehearsal;
-live reconciliation and normal build review remain outstanding. This remains an
-[open installation question](open-questions.md#issue-24-installation-transition-from-the-interrupted-buy--november-4-2026).
+interrupted state. The guarded command described below passed its exact Release copy rehearsal and
+the live reconciliation. This [installation question is resolved](open-questions.md#issue-24-installation-transition-from-the-interrupted-buy--november-4-2026);
+operator build review and resume subsequently completed as recorded below.
 
-After separately approved installation, verify the existing filled buy advances the managed head once,
+For live acceptance, verify the existing filled buy advances the managed head once,
 current protection/bid timestamps advance for each holding, shared publication and Paper resume on
 current-session inputs, and subsequent new holdings resolve without alias repair. Keep
 [issue #20](https://github.com/JosephMawer/TraderVI/issues/20) native acceptance open. Generic diagnostic
@@ -153,3 +154,64 @@ The exact repair, normal simulated review and fresh-process reload passed on fre
 `780662c582a4483fab49ac33021efac0`, preserving the original fill and all four holdings/protection through
 the real SQL writer. Its captured account/source facts
 remain copy evidence, not live readiness. No SQL schema migration is required.
+
+## Live transition
+
+At Joseph's explicit installation/restart authorization, the fresh copy-only backup was verified,
+restored, hash-matched at the established backup destination and confirmed synchronized. The old
+runtime and protected checkpoints/order journal were copied and checksum-verified after a clean
+engine/dashboard stop. A timestamp-type mismatch in the wrapper initially refused before any change;
+the exact owner timestamp comparison was corrected without relaxing ownership checks.
+
+The guarded Release maintenance succeeded at approximately 15:25 Toronto, using fresh ordinary broker
+reads/imports. Read-only SQL verification confirmed one successor revision (`FilledBuyReconciled`),
+the unchanged original terminal fill receipt, all 22 managed orders reconciled, four open positions
+with saved protection and zero active compact restrictions. The guard preserved financial assignment,
+prior holdings and protection and initialized the missing managed protection from the actual fill.
+No order submission, schema change or new financial permission occurred.
+
+The 140-file tested package from source commit `32bd5119` was installed and hash-verified. Core SHA256:
+`A6B891CDD7C96D21BF01216295BEB48447D5028C2E236AE43D3551702C977043`.
+Engine PID 24284 started in build-review mode at 15:25:55; dashboard 30724 opened for the operator.
+At 15:26 the broker was connected, execution Off and no integrity incidents were reported.
+Collector PID 32356 retained its 08:53:59 start. This review-mode check alone did not establish active
+position monitoring; normal runtime evidence follows.
+
+Joseph then completed the app's exact-build approval and separate resume. SQL receipt hash and the
+protected restartable grant both matched the installed Core. Normal engine PID 22780 started at
+15:28:25. All three Paper portfolios qualified from saved state within 3,263 ms; incremental verification
+was enabled, with no new full historical scan, restart failure or integrity incident. Existing older
+incomplete audit notices remain historical and are not a new scan. Broker connection and all 15 worker
+checks passed, with zero consecutive worker failures. The collector owner remained unchanged.
+
+The verified version-2 execution diagnostics showed fresh broker bids for all four holdings at
+15:28:40–42, each with matching saved protection. The ordinary execution worker selected a
+`HardLoss5Pct` protective sale, received acknowledgement, then confirmed and reconciled its fill by
+15:29:14. The original morning buy receipt remained filled/applied; the sale was a separate ordinary
+protective action after Joseph's resume, not a resubmitted buy or installation order. At 15:29:24 all
+23 managed orders were reconciled and the three remaining holdings retained matching protection and
+the fresh bids. SQL showed zero unfinished orders. This establishes the existing-position protection
+path, not prospective acquisition of a new holding or continuing protection at all future times.
+
+**Remaining entry-data blocker:** the collector had stock and benchmark observations through 15:28,
+but shared publication still ended at 10:20 (last published 10:22). Paper's saved consumer receipts
+remained `NotActionableLate`; fresh Paper entry evaluation is not established. Real completed a new
+evaluation at 15:29:24 with zero fresh supplied inputs, `NoRecommendation`, and
+`NetAssetValueUnavailable`; its current status explicitly waited for fresh shared market inputs.
+This is not a healthy no-signal evaluation. The mapping installation and saved-state restart passed,
+but the shared publication gap and entry valuation require investigation before full entry readiness
+can be claimed. No further source change, restart, model change or historical recovery was attempted.
+
+Native capture directories under `artifacts/market-watch-20261029/`:
+`20261104T202904695Z-9edba38a39f244428d64a405d12b3be9` (four fresh bids and acknowledgement),
+`20261104T202954885Z-f091a030503f4b39a54f11a94761226b` (settled sale, three remaining holdings).
+Their `diagnostic-location.txt` pointers identify the verified execution receipts. The bounded
+`market-and-orders-result.json` query hash is
+`749FFD4D18D361D423A81DF0EA1C32EC0546BD47B9BE2CFF9DB511D353C25D18`.
+
+Private receipts are retained under `artifacts/mapping-install-20261104/`: `package.json`,
+`backup-verified.json`, `backup-sync.json`, `live-handoff.json`, `live-handoff-verified.json`,
+hash-verified `after-result.json`, `installed-review.json` and unique review control receipts.
+The initial read-only postcheck required an explicit SQL collation match; its corrected query hash is
+`DF3995848D2AB6D261BC5BC1E6CFC7F921724F7C49D64828EE88DEA01A180CAA`.
+The prior runtime and both private rehearsal copies remain retained; none was deleted by this switch.

@@ -28,14 +28,17 @@ intentional handover without losing existing protection or financial history.
 2. **Resolve known reliability work in its existing scope.** The identified Paper-input symbol-resolution
    gap and compact buy handoff are repaired in source under [issue #24](https://github.com/JosephMawer/TraderVI/issues/24),
    with offline consumer/protection tests and the exact Release guarded buy transition passing on a restored
-   copy. Complete the authorized live switch, then operator build review and resume. Prospective native new-holding
+   copy. Live handoff, installation, operator approval/resume and normal startup are complete; fresh
+   bids and an ordinary protective fill/reconciliation are verified. Investigate the remaining stalled
+   shared publication before claiming fresh Paper/Real entry readiness. Prospective native new-holding
    acceptance remains in issue #20. Safe execution-error cause logging is planned under
    [issue #23](https://github.com/JosephMawer/TraderVI/issues/23), preserving retries and trading behavior.
-   Neither change is established as installed. Keep hosts running;
+   Issue #23 remains uninstalled. Keep hosts running;
    intervene sooner only for an actual engine failure, stuck execution or trading block.
-3. **Qualify protection, recovery and market inputs.** The held-position broker bid-read failure is an
-   unresolved protection gap; its investigation is on operator hold. Do not claim reliable automatic
-   selling without restored and verified bid-based protection. The Paper checkpoint package and baseline
+3. **Qualify protection, recovery and market inputs.** November 4's authorized #24 switch restored
+   observed broker bids for all four holdings and completed one ordinary protective sale. Keep longer
+   runtime and prospective new-holding acceptance separate from that bounded evidence. Shared market
+   publication remains stale despite current collector observations. The Paper checkpoint package and baseline
    are installed under separate November 4 authority; normal saved-state restart and automatic
    empty-delta checks passed. Complete nonempty nightly delta and market-time acceptance under
    [issue #28](https://github.com/JosephMawer/TraderVI/issues/28).
