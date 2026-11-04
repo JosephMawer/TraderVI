@@ -114,11 +114,17 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   or a Running status. [Evidence and limits](project-status-history-20261101.md#october-30--held-position-bid-protection-gap-verified-1003-toronto).
 - **Paper recovery and inputs:** The November 3 21:16 Toronto hash-verified read-only check confirmed
   one unresolved Paper restriction inherited from the October 30 13:22:58 startup-continuity incident.
-  Real-only verification completed at 14:33 and its 14:41 clearance retained Paper. No later Paper/All
-  recovery receipt covers that interruption; the last successful Paper and All checks predate it.
+  Real-only verification completed at 14:33 and its 14:41 clearance retained Paper. The operator
+  authorized Paper-only recovery and conditional guarded clearance on November 3. Run
+  `28f8f730-76ce-471f-94d2-cde1904cef0d` started at 21:30 Toronto on the existing engine.
+  At 21:34:56 it remained Running with 11,402 verified units and no new verification failure;
+  completed recovery proof and clearance remain pending. The original restriction and the new
+  verification-pending restriction remain. Private control receipts are retained under
+  `artifacts/paper-recovery-20261103`; the authorized follow-up monitors this exact run.
   This establishes missing recovery coverage, not corrupt Paper data or the exact preceding shutdown
   cause. Five Paper/dependent-Research tasks reported blocked at 21:01 November 3. Their status receipts
-  do not record a causal incident ID. No verification run or clearance was performed for this UI work.
+  do not record a causal incident ID. The engine and collector were retained without restart;
+  Real execution remained enabled and waiting for regular trading hours during verification.
   [Original restart and clearance evidence](project-status-history-20261101.md#october-30--real-execution-resumed-after-recovery-1446-toronto),
   [prior diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
   A separate Paper-input failure was traced to missing verified holding correspondence in

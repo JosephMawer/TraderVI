@@ -452,6 +452,13 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [x] Resolve the separate October29 post-reboot incident through full verified recovery: all299,036
   units complete; native clearance resolves both incidents at09:28:08. Zero remain at09:36.
   Worker recheck finds a separate market-input failure at09:30; clearance is not morning readiness.
+- [x] Start the operator-authorized November 3 Paper-only recovery on the existing engine while
+  retaining Real execution and collector processes: run `28f8f730-76ce-471f-94d2-cde1904cef0d`.
+- [ ] Complete that exact pass and use supported guarded clearance for the original Paper incident
+  and its matching verification-pending incident only; preserve restrictions if verification or
+  current-head/identity guards reject the proof. The active authorized follow-up owns this step.
+- [ ] Recheck affected workers after clearance and explain any remaining input failure separately;
+  the independently diagnosed Paper holding-correspondence wiring issue #24 is not fixed by recovery.
 - [x] Implement/test the requested temporary Paper continuation under ADR-0116, without falsely
   resolving incidents or changing Real authority. Full Core3,374passed/10SQLskips and final39focused
   tests pass; Release WPF/engine builds. New errors, expiry or restart stop the permission.
