@@ -66,3 +66,30 @@ There is no identified supported no-restart change that removes the measured bot
 algorithm work would need representative legacy workloads and a later reviewed engine replacement;
 avoiding this scan on ordinary Paper restart is a separate recovery-policy/integration decision.
 Neither is established or installed by this investigation. Keep the existing pass and guards intact.
+
+## Paper restart follow-up and scan triggers
+
+The operator requested [GitHub issue #28](https://github.com/JosephMawer/TraderVI/issues/28),
+the Paper-specific follow-up to umbrella #19. The proposal is to qualify saved current Paper state
+and bounded unfinished work at restart, while keeping historical coverage separate. Existing
+version-3 facilities must be assessed before adding storage. The issue owns design review, interruption
+and duplicate-operation tests, startup/audit budgets and explicit installation review; no replacement
+runtime or migration was installed as part of recording it.
+
+Current source distinguishes these events:
+
+- Closing/reopening the dashboard does not restart the engine or start recovery.
+- A qualified engine restart does not automatically start a new full Recovery pass. The compact
+  Real path can qualify a matching interrupted run; this is not a Paper-specific restart proof.
+  Missing/mismatched continuity records, changed database identity or failed checkpoint qualification
+  can raise a new hold. Existing Paper incidents survive a restart.
+- An existing running audit resumes its saved cursor. A newly requested Recovery pass starts full
+  applicable verification; it does not increment from the previous completed Recovery pass.
+- Separately, ordinary scheduling audits new history after closed sessions and starts a full Archive
+  pass when no Archive boundary lies within seven days. Running recovery takes priority. Clearing
+  this hold does not reset or replace that schedule, so it cannot promise no further full scan soon.
+
+These are November 3 source findings in `EngineContinuity`, `TraderVI.Engine/Program.cs`,
+`EngineIntegrityRepository` and `IndependentAuditService`, not new native restart tests. Completing
+the active pass and passing guarded clearance should resolve its selected incidents, not qualify
+every future interruption or repair the independent Paper symbol-mapping issue #24.
