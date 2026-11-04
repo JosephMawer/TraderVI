@@ -66,10 +66,10 @@ rehearsal below took one production copy-only backup.
 **Transition prerequisite:** the last investigated managed head still marked the already-filled buy
 unreconciled. `BrokerImplementationReviewWorkflow.RequireSession` / `RequireAccount` and
 `CompactBuildSuccessor` deliberately require a settled, unchanged account. The offline ordinary
-workflow and restored-copy rehearsal prove the corrected handoff under the same assignment. They do
-not provide a live maintenance entry point for installing a new implementation over that interrupted
-state. Prepare and qualify that original-buy-only boundary before normal build review, without weakening
-its gates. This remains an
+workflow and restored-copy rehearsal prove the corrected handoff under the same assignment. They
+initially did not provide a live maintenance entry point for installing a new implementation over that
+interrupted state. The guarded command described below now passes its exact Release copy rehearsal;
+live reconciliation and normal build review remain outstanding. This remains an
 [open installation question](open-questions.md#issue-24-installation-transition-from-the-interrupted-buy--november-4-2026).
 
 After separately approved installation, verify the existing filled buy advances the managed head once,
@@ -131,6 +131,25 @@ final process check, engine PID 32368 retained its 01:51:41 start, collector PID
 and dashboard PID 33432 its 01:40:48 start (Toronto). This establishes no restart, not current trading
 health. This copy
 does not prove fresh live quotes, protective submissions, broker inventory today, current market
-publication or the live engine's restart behavior. The operational original-buy maintenance boundary,
-fresh broker checks, operator build review and separate resume remain outstanding. Do not run the test
+publication or the live engine's restart behavior. The operational original-buy maintenance boundary was
+subsequently prepared below; fresh broker checks, operator build review and separate resume remain outstanding. Do not run the test
 harness against production or reuse its synthetic identity/source evidence there.
+
+## Guarded installation preparation
+
+Joseph subsequently authorized the live switch and engine restart. `SettledBuyTransition` and the
+explicit `--reconcile-filled-buy` command implement the original-request maintenance boundary before
+installation: exact old build/grant, exclusive clean engine ownership, matching compact seal, resolved
+original journal, zero remaining fill delta, fresh broker account/history and unchanged risk evidence.
+No scheduler, evaluator or submission transport is constructed. The original account import uses the
+ordinary validated linked-account refresh; financial permission and all original protection remain.
+
+Twelve focused checks pass, covering a valid idempotent compact write and changed revision/request,
+quantity, cost, security, symbol, risk, position, listing, freshness and permission. The final Release
+Core suite passed 3,707 tests with 18 opt-in skips and no failures; WPF/engine build passed with two
+existing CS0168 warnings and no errors. No dependency-security warning was emitted, and no fresh audit
+was run with `--no-restore`. The tested Release Core hash matches the prepared WPF package.
+The exact repair, normal simulated review and fresh-process reload passed on fresh private copy
+`780662c582a4483fab49ac33021efac0`, preserving the original fill and all four holdings/protection through
+the real SQL writer. Its captured account/source facts
+remain copy evidence, not live readiness. No SQL schema migration is required.

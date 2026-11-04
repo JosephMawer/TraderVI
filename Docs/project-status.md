@@ -181,8 +181,11 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   actual SQL handoff, simulated review and fresh-process reload, preserving all four holdings, original
   fill and protection without a broker client. Rehearsal regression passed **3,695 tests, 18 opt-in skips,
   zero failures**; the three native phases passed separately. The private instance is stopped; its
-  33.8 GB of database/backup files remain retained for explicit cleanup. The guarded live original-buy maintenance entry point
-  remains to be prepared/qualified before installation; the test adapter is not an operational command.
+  33.8 GB of database/backup files remain retained for explicit cleanup. The guarded live original-buy
+  maintenance command is now implemented and qualified on a fresh restored copy using the exact Release
+  Core: maintenance, review and reload pass. Release regression: **3,707 passed, 18 opt-in skips, zero
+  failures**; WPF/engine build passed with two existing CS0168 warnings. Installation is now authorized
+  and being prepared; exact-build approval and separate resume remain operator actions.
   Native protection and fresh market-hour Paper/Real
   acceptance remain open. The Real
   recovery alone did not clear Paper restrictions; the explicit Paper pass and clearance above now do.

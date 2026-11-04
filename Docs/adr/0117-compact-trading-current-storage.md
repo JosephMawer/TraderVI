@@ -349,3 +349,16 @@ ownership. Reusing two full snapshots would still copy the active book on every 
 rows and two markers make growth and changed-row costs measurable, at the cost of an explicit future
 mapping and native SQL qualification. Keeping every checkpoint or applying cleanup in the engine was
 rejected; SQL job design and retention remain separate reviewed work.
+
+### November 4 clarification — filled-buy maintenance before build review
+
+For an already-applied compact opening buy whose managed handoff failed, an explicit maintenance
+command may reconcile only its pinned original request under the existing financial assignment.
+Require clean exclusive engine ownership, the exact prior installed build/grant, matching protected
+checkpoint, resolved original journal, fresh original broker fill and a complete matching account
+read. Preserve risk history, controls, prior holdings/protection and the full original fill; reject any
+additional quantity/cost delta or unrelated account change. Initialize the missing managed protection
+from that actual fill. Commit one deterministic managed revision through the ordinary compact writer.
+It creates no scheduler, strategy evaluation or order-submission transport. Repeating the same completed
+request verifies the settled checkpoint without another append. The immutable build review and separate
+operator host enable remain unchanged. Copied evidence cannot authorize the live command.

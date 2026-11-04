@@ -13,9 +13,10 @@ managed head still marks a buy unreconciled after its broker fill was applied to
 unchanged account; a build approval must not silently reconcile that difference. The separately
 authorized restored-copy rehearsal now passes handoff, simulated review and fresh-process reload,
 preserving the original fill, protection and financial assignment. It uses captured facts and a test-only
-old-assignment adapter, not a production maintenance entry point. Before installation, prepare and
-qualify that guarded original-buy-only boundary with pinned revision/request, exclusive ownership and
-fresh broker/journal evidence, then use the existing build-review flow. The [execution checklist](../strategy-alignment-implementation-checklist.md)
+old-assignment adapter. The guarded `--reconcile-filled-buy` boundary is now implemented with pinned
+revision/request, exclusive ownership and fresh broker/journal evidence. Twelve focused checks and a
+fresh restored-copy Release repair pass; use the existing build-review flow after live reconciliation.
+The [execution checklist](../strategy-alignment-implementation-checklist.md)
 owns this acceptance. No installation, restart or recovery operation is authorized by this question.
 
 ### Bounded ordinary engine recovery — October 30, 2026

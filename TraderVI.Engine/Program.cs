@@ -23,6 +23,8 @@ internal static class Program
         if (args is ["--candidate-capabilities"]) { Console.WriteLine("compact-localdb-only-v1"); return 0; }
         return args is ["--run"] ? await IsolatedCompactHost.RunAsync() : 64;
 #else
+        if (args is ["--reconcile-filled-buy", var buyPacket])
+            return await SettledBuyMaintenance.RunAsync(buyPacket);
         if (args is ["--reconcile-closed-sale", var packet])
             return await SettledSaleMaintenance.RunAsync(packet);
         if (args is ["--reconcile-original-sale", var original])

@@ -122,6 +122,15 @@ fill with its compact checkpoint before handing it to the managed account. The u
 no submission transport. Verify the terminal receipt, account restriction, original fill
 count and normal execution status after restart.
 
+For a fully applied compact opening buy still unreconciled in the managed head, use the staged
+engine's `--reconcile-filled-buy <private-target-json>` under the same clean-stop, verified backup,
+exact old installed-grant and pinned-revision procedure. It verifies the original filled journal/order,
+refreshes the complete linked account through ordinary read/import reconciliation, preserves risk
+history, and appends only that buy's managed handoff/protection. It refuses unapplied quantity/cost,
+unrelated holdings/history changes, holds or a changed owner. It cannot submit orders or enable a host.
+Verify the original receipt, all position/protection fields and protected checkpoint before installing
+the package and opening build-review mode. Approval and resume remain separate operator actions.
+
 ## Independent engine — normal mode with trading disabled, October 22
 
 The dated-permission instructions below remain historical/legacy scope; the new explicit ongoing

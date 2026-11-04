@@ -25,7 +25,7 @@ public sealed partial class BrokerManagedSessionTests
     {
         var token = Guid.ParseExact(Environment.GetEnvironmentVariable("TRADERVI_BUY_COPY")!, "N");
         string phase = Environment.GetEnvironmentVariable("TRADERVI_BUY_COPY_PHASE")!;
-        Assert.Contains(phase, new[] { "handoff", "review", "reload" });
+        Assert.Contains(phase, new[] { "handoff", "maintenance", "review", "reload" });
         var root = new DirectoryInfo(AppContext.BaseDirectory);
         while (root != null && !File.Exists(Path.Combine(root.FullName, "TraderVI.sln"))) root = root.Parent;
         string folder = Path.Combine(root!.FullName, "artifacts", "paper-rehearsal", token.ToString("N"));
@@ -49,7 +49,7 @@ public sealed partial class BrokerManagedSessionTests
         await using (var lease = await sessions.AcquireAsync(binding, default)) initial = lease.Current!;
         var book = (await store.ReadAsync(binding))!;
         string baselineFile = Path.Combine(folder, "buy-copy-baseline.json");
-        if (phase == "handoff")
+        if (phase is "handoff" or "maintenance")
         {
             if (!File.Exists(baselineFile))
             {
@@ -85,11 +85,23 @@ public sealed partial class BrokerManagedSessionTests
             var account = BrokerAccountProjector.Project(new(linked.BindingId, linked.AccountLabel, linked.BrokerKey,
                 linked.LegacyFingerprint, new DateTimeOffset(DateTime.SpecifyKind(linked.CreatedUtc, DateTimeKind.Utc)), linked.ReviewedBy),
                 import, initial.Account.Risk, evidence.Coverage, now);
+            if (phase == "maintenance")
+            {
+                var buy = initial.Orders.Single(o => !o.Reconciled);
+                var terminal = (await store.ReadOrderAsync(binding, buy.RequestId, default))!;
+                var fact = import.Plan.Observation.Orders.Single(o => o.ExternalId == buy.ExternalId) with { Symbol = buy.Symbol };
+                var next = SettledBuyTransition.Prepare(initial, book, terminal, fact, account, initial.RevisionId, buy.RequestId, now);
+                await using var lease = await sessions.AcquireAsync(binding, default);
+                await lease.AppendAsync(next, default);
+            }
+            else
+            {
             var source = new BuyCopySource(account, initial.Strategy.Strategy.ImplementationIdentity);
             var workflow = new BrokerManagedSessionWorkflow(sessions, source, new BuyCopyTransport(), clock);
             // Stop at the boundary after the real account/protection appends, before any strategy input or order.
             await Assert.ThrowsAsync<OperationCanceledException>(() => workflow.TickAsync(binding));
             Assert.True(source.InputBoundaryReached);
+            }
         }
         var baseline = JsonSerializer.Deserialize<BuyCopyBaseline>(await File.ReadAllTextAsync(baselineFile))!;
         BrokerManagedSession saved;

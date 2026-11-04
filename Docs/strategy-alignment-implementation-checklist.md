@@ -35,11 +35,13 @@ The September 22 documentation cleanup preserves the
 - [x] Rehearse the November 4 filled-but-unreconciled buy on a restored isolated copy with no broker
   access: real SQL handoff, preserved original fill/protection, repeated recovery, simulated normal build
   review and fresh-process reload. [Scope and limits](reviews/verified-symbol-mapping-20261104.md#filled-buy-transition-on-the-restored-copy).
-- [ ] Prepare and qualify the operational original-buy-only maintenance boundary before installation.
+- [x] Prepare and qualify the operational original-buy-only maintenance boundary before installation.
   The copied ordinary workflow is not a live maintenance command. Pin the original request, old assignment
   and current revision; verify fresh broker/journal evidence, preserve protection and require exclusive
   ownership before the unchanged settled-account build-review gates. Installation/restart/resume need
   separate authority; no repeat buy, reset protection or implicit financial approval.
+  `--reconcile-filled-buy` now uses that guarded boundary; 12 focused checks and the fresh restored-copy
+  Release maintenance phase pass. Installation and operator approval remain separate below.
 - [ ] After authorized installation, verify current bid/protection progress for every holding and fresh
   Paper/Real evaluations; keep issue #20's prospective new-holding acceptance separate from offline tests.
 

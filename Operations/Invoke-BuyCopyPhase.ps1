@@ -1,6 +1,7 @@
 [CmdletBinding()] param(
     [Parameter(Mandatory)][guid]$Token,
-    [Parameter(Mandatory)][ValidateSet('handoff','review','reload')][string]$Phase
+    [Parameter(Mandatory)][ValidateSet('handoff','maintenance','review','reload')][string]$Phase,
+    [ValidateSet('Debug','Release')][string]$Configuration='Debug'
 )
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -15,7 +16,7 @@ try {
     $env:TRADERVI_BUY_COPY_PHASE=$Phase
     Push-Location $root
     try {
-        & dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --artifacts-path artifacts/build --no-build --no-restore --filter FullyQualifiedName~FilledBuyCopyTransition --logger 'console;verbosity=detailed' *> $log
+        & dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj -c $Configuration --artifacts-path artifacts/build --no-build --no-restore --filter FullyQualifiedName~FilledBuyCopyTransition --logger 'console;verbosity=detailed' *> $log
         $result=$LASTEXITCODE
     } finally { Pop-Location }
 } finally {

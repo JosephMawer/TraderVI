@@ -27,8 +27,8 @@ intentional handover without losing existing protection or financial history.
    and [restart contract](adr/0117-compact-trading-current-storage.md).
 2. **Resolve known reliability work in its existing scope.** The identified Paper-input symbol-resolution
    gap and compact buy handoff are repaired in source under [issue #24](https://github.com/JosephMawer/TraderVI/issues/24),
-   with offline consumer/protection tests and the restored-copy buy transition passing. Prepare and qualify
-   the guarded original-buy maintenance entry point before separately approved installation and resume. Prospective native new-holding
+   with offline consumer/protection tests and the exact Release guarded buy transition passing on a restored
+   copy. Complete the authorized live switch, then operator build review and resume. Prospective native new-holding
    acceptance remains in issue #20. Safe execution-error cause logging is planned under
    [issue #23](https://github.com/JosephMawer/TraderVI/issues/23), preserving retries and trading behavior.
    Neither change is established as installed. Keep hosts running;
