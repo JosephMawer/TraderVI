@@ -71,6 +71,7 @@ internal static partial class SelfTests
         await Pipeline();
         await Pipeline(foreignPosition: true);
         await Pipeline(graphQlError: true);
+        await PendingReadAtRequestBudget();
         await HistoryBoundary();
         var expiredHandler = new FakeHandler();
         using (var expired = WealthsimpleAuthClient.FromReadOnlySession(Session(DateTimeOffset.UtcNow.AddMinutes(-1)), expiredHandler))
@@ -114,6 +115,26 @@ internal static partial class SelfTests
         var checkpoint = await client.ReadTfsaActivityCheckpointAsync(account);
         Require(checkpoint.Status == WealthsimpleReadStatus.Success && checkpoint.Data?.Fingerprint == history.Data!.ActivityFingerprint);
         Require(fake.Forwarded == 10 && client.RequestCount == 10);
+    }
+    // Characterize the v2 failure: exhausting its local budget looks like a provider
+    // UnsupportedResponse, even though the pending request never reaches the provider.
+    private static async Task PendingReadAtRequestBudget()
+    {
+        var fake = new FakeHandler();
+        using var client = WealthsimpleAuthClient.FromReadOnlySession(Session(), fake);
+        Require(await client.VerifyReadOnlyAsync(default));
+        var catalog = await client.ReadTfsaAccountsAsync();
+        var account = catalog.Data![0];
+        client.SelectReadOnlyAccount(account);
+        while (client.RequestCount < ReadOnlyTransport.MaximumRequests)
+        {
+            var daily = await client.ReadTfsaDailyPerformanceAsync(account);
+            Require(daily.Status == WealthsimpleReadStatus.Success);
+        }
+        int forwarded = fake.Forwarded;
+        var pending = await client.ReadTfsaPendingOrdersAsync(account);
+        Require(pending.Status == WealthsimpleReadStatus.UnsupportedResponse && pending.Data is null);
+        Require(fake.Forwarded == forwarded && forwarded == ReadOnlyTransport.MaximumRequests);
     }
     private static async Task HistoryBoundary()
     {

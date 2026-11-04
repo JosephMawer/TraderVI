@@ -179,10 +179,23 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   its existing bounded supervisor (collector PID 32356, supervisor PID 29944). Engine PID 32368 retained
   its 01:51 start. At 08:58 all 15 engine workers had zero consecutive failures, Paper's three portfolios
   remained qualified, zero integrity incidents were open, and the collector reported fresh OutsideSession
-  with today's subscription boundaries. Broker connection and regular-hours wait passed, but the
-  separate installed broker helper returned PendingOrdersUnsupportedResponse: fresh independent
-  pending-order verification is unavailable, not proof of zero broker orders. Today's market-hour
-  inputs/protection remain prospective. A read-only five-minute chat watch runs through noon November 4;
+  with today's subscription boundaries. A fresh 09:08 capture retained those engine/collector processes
+  and zero worker failures. The collector's exact exit cause remains unknown: its finalizer writes
+  Stopped even after a fatal error, and the old supervisor retained no exit details. Windows entered
+  connected standby at 03:54, but this does not establish causation; Application and PowerShell logs
+  supplied no matching collector failure. The bounded supervisor allows three restarts, but exhaustion
+  was not proven. The relaunched supervisor now retains stdout/stderr.
+  The history-reading broker v2 helper returned PendingOrdersUnsupportedResponse at 08:56. Its
+  64-request cap is the leading explanation: yesterday's successful check consumed 63 requests for
+  53 historical orders. An offline characterization reproduced that same pending-read status after
+  budget exhaustion without sending the pending request (131 checks passed; two existing CS8625
+  compiler warnings). The installed current-account v1 helper succeeded at 09:07 with seven requests
+  and zero pending orders. Its public receipt is `report-efec9e5ebeec48ba9ea09ceee11830cf.json`
+  under `artifacts/read-only-broker/`. This clears the fresh pending-read evidence gap; the installed
+  v2 failure receipt does not expose enough detail to prove its exact cause. The live engine does not
+  use that helper cap. A genuine pending-read failure can block order submission, and a collector
+  outage can block entries and impair bar-based protection. Today's market-hour inputs/protection
+  remain prospective. A read-only five-minute chat watch runs through noon November 4;
   current evidence and already-reported findings are in `artifacts/morning-readiness/2026-11-04/engine-watch/`.
   Migration 057 and the latest-minute collector were installed November 1; closed-session checks and
   a native SQL/mock-HTTP package check passed. The first market-open provider response under this
