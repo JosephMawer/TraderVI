@@ -177,8 +177,13 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   was not built. [Consumer inventory and validation](reviews/verified-symbol-mapping-20261104.md).
   This repair is **not installed**. At the last November 4 investigation, the broker buy was filled
   and applied to compact storage while the managed head still marked it unreconciled. Ordinary build
-  review requires those records to agree: qualify that transition before installation/resume, without
-  repeating the buy or bypassing financial approval. Native protection and fresh market-hour Paper/Real
+  review requires those records to agree. A separately authorized restored-copy rehearsal passed the
+  actual SQL handoff, simulated review and fresh-process reload, preserving all four holdings, original
+  fill and protection without a broker client. Rehearsal regression passed **3,695 tests, 18 opt-in skips,
+  zero failures**; the three native phases passed separately. The private instance is stopped; its
+  33.8 GB of database/backup files remain retained for explicit cleanup. The guarded live original-buy maintenance entry point
+  remains to be prepared/qualified before installation; the test adapter is not an operational command.
+  Native protection and fresh market-hour Paper/Real
   acceptance remain open. The Real
   recovery alone did not clear Paper restrictions; the explicit Paper pass and clearance above now do.
   [Diagnosis](project-status-history-20261101.md#october-30--paper-inputs-cause-confirmed-without-restart-10181020-toronto),

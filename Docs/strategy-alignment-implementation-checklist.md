@@ -32,10 +32,14 @@ The September 22 documentation cleanup preserves the
   original compact buy identity and use the same proof for progress, quotes, protection and closing orders.
   Validate the ordinary buy-to-protection-to-sale path offline, including reconciliation and reload.
   [November 4 evidence and consumer inventory](reviews/verified-symbol-mapping-20261104.md).
-- [ ] Qualify the implementation transition from the November 4 interrupted handoff: the original buy
-  is already applied in compact storage but remains unreconciled in the managed head. Establish a scoped
-  original-request reconciliation before the unchanged settled-account build-review gates; no repeat buy,
-  reset protection or implicit financial approval. Installation/restart/resume need separate authority.
+- [x] Rehearse the November 4 filled-but-unreconciled buy on a restored isolated copy with no broker
+  access: real SQL handoff, preserved original fill/protection, repeated recovery, simulated normal build
+  review and fresh-process reload. [Scope and limits](reviews/verified-symbol-mapping-20261104.md#filled-buy-transition-on-the-restored-copy).
+- [ ] Prepare and qualify the operational original-buy-only maintenance boundary before installation.
+  The copied ordinary workflow is not a live maintenance command. Pin the original request, old assignment
+  and current revision; verify fresh broker/journal evidence, preserve protection and require exclusive
+  ownership before the unchanged settled-account build-review gates. Installation/restart/resume need
+  separate authority; no repeat buy, reset protection or implicit financial approval.
 - [ ] After authorized installation, verify current bid/protection progress for every holding and fresh
   Paper/Real evaluations; keep issue #20's prospective new-holding acceptance separate from offline tests.
 

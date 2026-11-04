@@ -10,10 +10,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
 The [source repair and offline path](verified-symbol-mapping-20261104.md) pass, but the last captured
 managed head still marks a buy unreconciled after its broker fill was applied to compact storage.
 `BrokerImplementationReviewWorkflow.RequireSession` and `CompactBuildSuccessor` require a settled,
-unchanged account; a build approval must not silently reconcile that difference. Before installation,
-establish and rehearse the scoped original-request reconciliation that advances the old financial
-assignment without repeating the buy, resetting protection or broadening permissions, then uses the
-existing build-review flow. The [execution checklist](../strategy-alignment-implementation-checklist.md)
+unchanged account; a build approval must not silently reconcile that difference. The separately
+authorized restored-copy rehearsal now passes handoff, simulated review and fresh-process reload,
+preserving the original fill, protection and financial assignment. It uses captured facts and a test-only
+old-assignment adapter, not a production maintenance entry point. Before installation, prepare and
+qualify that guarded original-buy-only boundary with pinned revision/request, exclusive ownership and
+fresh broker/journal evidence, then use the existing build-review flow. The [execution checklist](../strategy-alignment-implementation-checklist.md)
 owns this acceptance. No installation, restart or recovery operation is authorized by this question.
 
 ### Bounded ordinary engine recovery — October 30, 2026

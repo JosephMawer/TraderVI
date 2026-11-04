@@ -27,6 +27,7 @@ public sealed class BrokerManagedSessionRepository : IBrokerManagedSessionStore
     private readonly bool sharedStorage;
     private readonly BrokerCurrentStateCache? currentCache;
     private readonly Func<Guid, CancellationToken, Task<bool>>? mayReuse;
+    private readonly Func<SqlConnection, SqlTransaction, BrokerManagedSession?, BrokerManagedSession, CancellationToken, Task>? publishCompact;
     public BrokerManagedSessionRepository() : this(Open) { }
     public BrokerManagedSessionRepository(Core.Trader.DelphiLive.ITsxSessionCalendar calendar, bool sharedStorage = false,
         Func<Guid, CancellationToken, Task<bool>>? mayReuse = null) : this(Open)
@@ -38,6 +39,15 @@ public sealed class BrokerManagedSessionRepository : IBrokerManagedSessionStore
     // Instance-scoped seam for isolated SQL rehearsals; never changes the application's connection.
     internal BrokerManagedSessionRepository(Func<CancellationToken, Task<SqlConnection>> open) =>
         this.open = open ?? throw new ArgumentNullException(nameof(open));
+
+    // Copy rehearsals must not write the installed protected checkpoint directory.
+    internal BrokerManagedSessionRepository(Func<CancellationToken, Task<SqlConnection>> open,
+        Core.Trader.DelphiLive.ITsxSessionCalendar calendar,
+        Func<SqlConnection, SqlTransaction, BrokerManagedSession?, BrokerManagedSession, CancellationToken, Task> publishCompact) : this(open)
+    {
+        this.calendar = calendar;
+        this.publishCompact = publishCompact ?? throw new ArgumentNullException(nameof(publishCompact));
+    }
 
     public const string RequiredMigration = "20260923_040_AddBrokerManagedSession.sql";
     public async Task<EngineBrokerDiagnostics> ReadDiagnosticsAsync(Guid binding, CancellationToken ct = default)
@@ -112,7 +122,7 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             var state = row is null ? null : Decode(row, contents);
             if (qualified && row is not null) currentCache!.Save(Key(row), state!, contents);
             return new Lease(c, bindingId, state, calendar,
-                sharedStorage || row is not null && EngineArchiveCodec.IsPacked(row.SnapshotJson), contents, qualified ? currentCache : null);
+                sharedStorage || row is not null && EngineArchiveCodec.IsPacked(row.SnapshotJson), contents, qualified ? currentCache : null, publishCompact);
         }
         catch { await ReleaseAndClose(c, bindingId); throw; }
     }
@@ -265,7 +275,8 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
     }
     private sealed class Lease(SqlConnection connection, Guid binding, BrokerManagedSession? initial,
         Core.Trader.DelphiLive.ITsxSessionCalendar? calendar, bool sharedStorage, IReadOnlyDictionary<string, string> initialContents,
-        BrokerCurrentStateCache? currentCache) : IBrokerManagedSessionLease
+        BrokerCurrentStateCache? currentCache,
+        Func<SqlConnection, SqlTransaction, BrokerManagedSession?, BrokerManagedSession, CancellationToken, Task>? publishCompact = null) : IBrokerManagedSessionLease
     {
         private IReadOnlyDictionary<string, string> known = initialContents;
         public BrokerManagedSession? Current { get; private set; } = initial;
@@ -293,7 +304,7 @@ VALUES(@Binding,@Revision,@RevisionId,@PreviousRevisionId,@SessionId,@BaselineId
 """, new { Binding = binding, next.Revision, next.RevisionId, next.PreviousRevisionId, next.SessionId,
                 next.Approval.Review.BaselineId, next.SavedAt, Hash = hash, Json = json }, t, cancellationToken: ct));
             await EngineRealObservationStore.SaveIfInstalledAsync(connection, t, next, hash, ct);
-            await CompactManagedWriter.PublishAsync(connection, t, Current, next, ct);
+            await (publishCompact ?? CompactManagedWriter.PublishAsync)(connection, t, Current, next, ct);
             t.Commit(); Current = next;
             if (packed is not null) known = packed.Contents;
             currentCache?.Save(new(next.BindingId, next.Revision, next.RevisionId, next.PreviousRevisionId,
