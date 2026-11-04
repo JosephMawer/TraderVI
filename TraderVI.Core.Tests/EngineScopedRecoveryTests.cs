@@ -27,7 +27,7 @@ public sealed class EngineScopedRecoveryTests
         Assert.Throws<InvalidOperationException>(() => (plan with { Targets = plan.Targets.Add(new(EngineAuditFamily.LegacyInputs, null, 0, 500)) }).Validate());
         Assert.Throws<InvalidOperationException>(() => (plan with { Database = null }).Validate());
         Assert.Throws<InvalidOperationException>(() => (plan with { Targets = [] }).Validate());
-        Assert.Throws<InvalidOperationException>(() => (plan with { Kind = EngineAuditKind.Archive }).Validate());
+        (plan with { Kind = EngineAuditKind.Archive }).Validate(); // Scheduled Real coverage no longer includes Paper history.
         var legacy = new EngineAuditPlan(EngineAuditKind.Recovery, Now, plan.Targets);
         var json = JsonSerializer.Serialize(legacy);
         Assert.DoesNotContain("Scope", json); Assert.DoesNotContain("Database", json);

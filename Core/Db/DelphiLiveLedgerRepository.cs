@@ -61,11 +61,16 @@ ORDER BY l.[PortfolioId];
         while (await reader.ReadAsync(cancellationToken))
             saved.Add(reader.GetString(0));
         await reader.DisposeAsync();
+        var incidents = workingState ? await EngineIntegrityRepository.ReadOpenAsync(connection, null, cancellationToken) : default;
         foreach (var json in saved)
+        {
+            if (workingState && !Core.Runtime.EngineIntegrityAccess.Evaluate(incidents, Core.Runtime.EngineIntegrityScope.Paper,
+                System.Text.Json.Nodes.JsonNode.Parse(json)!["portfolioId"]!.GetValue<Guid>()).ProtectionAllowed) continue;
             rows.Add(workingState
                 ? await ReadWorkingAsync(connection, System.Text.Json.Nodes.JsonNode.Parse(json)!["portfolioId"]!.GetValue<Guid>(), cancellationToken)
                     ?? throw new InvalidOperationException("A paper portfolio disappeared.")
                 : await DelphiLiveSnapshotStorage.ReadAsync(connection, null, json, cancellationToken));
+        }
         return rows.AsReadOnly();
     }
 

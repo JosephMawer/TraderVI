@@ -132,11 +132,14 @@ IF NOT EXISTS(SELECT 1 FROM dbo.EngineCurrentState WHERE Kind=N'PaperWorking' AN
     }
 
     private static List<Identity> Identities(DelphiLiveWorkingCheckpoint.Prepared next)
+        => Identities(next.NewIdentities, next.Archive.Contents);
+
+    private static List<Identity> Identities(IEnumerable<DelphiLiveSnapshotItem> items, IReadOnlyDictionary<string, string> contents)
     {
         var identities = new List<Identity>();
-        foreach (var item in next.NewIdentities)
+        foreach (var item in items.Where(i => i.Collection != "sessionOpeningPositions"))
         {
-            string json = next.Archive.Contents[item.ContentHash];
+            string json = contents[item.ContentHash];
             identities.Add(new(item.Collection, DelphiLiveWorkingCheckpoint.RecordId(item.Collection, json), item.Ordinal));
             var node = JsonNode.Parse(json)!;
             if (item.Collection == "fills") identities.Add(new("fillAction", node["actionId"]!.GetValue<Guid>(), item.Ordinal));
@@ -144,6 +147,21 @@ IF NOT EXISTS(SELECT 1 FROM dbo.EngineCurrentState WHERE Kind=N'PaperWorking' AN
                 identities.Add(new("buyEvaluation", id.GetValue<Guid>(), item.Ordinal));
         }
         return identities;
+    }
+
+    internal static async Task VerifyIdentitiesAsync(SqlConnection c, SqlTransaction t, Guid owner, long revision,
+        IEnumerable<DelphiLiveSnapshotItem> items, IReadOnlyDictionary<string, string> contents, bool newlyAppended, CancellationToken ct)
+    {
+        var expected = Identities(items, contents);
+        if (expected.Count == 0) return;
+        bool agrees = await c.QuerySingleAsync<bool>(new CommandDefinition("""
+SELECT CAST(CASE WHEN EXISTS(
+ SELECT 1 FROM OPENJSON(@Ids) WITH(Kind nvarchar(32),RecordId uniqueidentifier,Ordinal int) e
+ LEFT JOIN dbo.EnginePaperRecordIdentity i ON i.PortfolioId=@Owner AND i.Kind=e.Kind AND i.RecordId=e.RecordId AND i.Ordinal=e.Ordinal
+ WHERE i.RecordId IS NULL OR i.CreatedRevision>@Revision OR (@New=1 AND i.CreatedRevision<>@Revision)
+) THEN 0 ELSE 1 END AS bit);
+""", new { Owner = owner, Revision = revision, New = newlyAppended, Ids = JsonSerializer.Serialize(expected) }, t, cancellationToken: ct));
+        if (!agrees) throw new InvalidDataException("Paper operation identities disagree with their original archived records.");
     }
     private static async Task SaveIdentitiesAsync(SqlConnection c, SqlTransaction t, DelphiLiveWorkingCheckpoint.Prepared next,
         bool qualification, CancellationToken ct)
@@ -259,7 +277,7 @@ SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger ORDER BY PortfolioId;
         }
     }
 
-    private static async Task<Dictionary<string, string>> ReadContentsAsync(SqlConnection c, SqlTransaction? t,
+    internal static async Task<Dictionary<string, string>> ReadContentsAsync(SqlConnection c, SqlTransaction? t,
         IEnumerable<string> hashes, CancellationToken ct)
     {
         var keys = hashes.Distinct(StringComparer.Ordinal).ToArray();

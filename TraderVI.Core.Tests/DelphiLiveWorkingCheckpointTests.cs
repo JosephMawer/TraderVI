@@ -91,6 +91,9 @@ public sealed class DelphiLiveWorkingCheckpointTests
         var changed = prepared.ChangedItems.Single();
         changed.Collection.ShouldBe("positions"); changed.Ordinal.ShouldBe(1_000);
         foreach (var pair in prepared.NewContents) all[pair.Key] = pair.Value;
+        var audited = await DelphiLiveIncrementalVerification.VerifyAsync(qualified.Checkpoint, package.SnapshotJson,
+            prepared.Archive.SnapshotJson, prepared.ChangedItems, all, (key, _) => Task.FromResult(all.GetValueOrDefault(key)), default);
+        audited.Checkpoint.RequireSameReconstruction(prepared.Checkpoint);
         var items = package.Items.Select(i => i.Collection == "positions" && i.Ordinal == 1_000 ? changed : i).ToArray();
         var restored = DelphiLiveSnapshotCodec.Unpack(prepared.Archive.SnapshotJson, items, all);
         DelphiLiveLedgerIntegrity.ValidateTransition(full, restored);
@@ -132,6 +135,9 @@ public sealed class DelphiLiveWorkingCheckpointTests
             prepared.NewContents.Count.ShouldBe(1); // Candidate state was qualified once and is shared by every current/archive root.
             foreach (var item in prepared.ChangedItems) archiveItems[(item.Collection, item.Ordinal)] = item;
             foreach (var pair in prepared.NewContents) contents[pair.Key] = pair.Value;
+            var audited = await DelphiLiveIncrementalVerification.VerifyAsync(checkpoint, archiveRoot,
+                prepared.Archive.SnapshotJson, prepared.ChangedItems, contents, (key, _) => Task.FromResult(contents.GetValueOrDefault(key)), default);
+            audited.Checkpoint.RequireSameReconstruction(prepared.Checkpoint);
             archiveRoot = prepared.Archive.SnapshotJson;
             checkpoint = prepared.Checkpoint;
             var reopened = DelphiLiveSnapshotCodec.Unpack(archiveRoot, archiveItems.Values.ToArray(), contents);

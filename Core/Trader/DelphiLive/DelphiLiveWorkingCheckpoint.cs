@@ -88,10 +88,19 @@ public sealed record DelphiLiveWorkingCheckpoint(int Version, string SnapshotRoo
         return snapshot;
     }
 
-    public async Task<Prepared> AdvanceAsync(DelphiLivePortfolioSnapshot prior, DelphiLivePortfolioSnapshot next,
+    public Task<Prepared> AdvanceAsync(DelphiLivePortfolioSnapshot prior, DelphiLivePortfolioSnapshot next,
         IReadOnlyDictionary<string, string> priorContents, Func<string, CancellationToken, Task<string?>> read, CancellationToken ct)
+        => AdvanceCoreAsync(prior, next, priorContents, read, ct, false);
+
+    internal Task<Prepared> AdvanceVerifiedAsync(DelphiLivePortfolioSnapshot prior, DelphiLivePortfolioSnapshot next,
+        IReadOnlyDictionary<string, string> priorContents, Func<string, CancellationToken, Task<string?>> read, CancellationToken ct)
+        => AdvanceCoreAsync(prior, next, priorContents, read, ct, true);
+
+    private async Task<Prepared> AdvanceCoreAsync(DelphiLivePortfolioSnapshot prior, DelphiLivePortfolioSnapshot next,
+        IReadOnlyDictionary<string, string> priorContents, Func<string, CancellationToken, Task<string?>> read, CancellationToken ct,
+        bool transitionAlreadyValidated)
     {
-        DelphiLiveLedgerIntegrity.ValidateTransition(prior, next);
+        if (!transitionAlreadyValidated) DelphiLiveLedgerIntegrity.ValidateTransition(prior, next);
         if (prior.WorkingTotals != Totals) throw new InvalidDataException("Paper working totals differ from their verified source.");
         var package = DelphiLiveSnapshotCodec.Pack(next);
         var counts = Counts.ToBuilder(); var roots = Roots.ToBuilder();

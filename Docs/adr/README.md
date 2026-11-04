@@ -41,6 +41,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0127](0127-paper-checkpoint-restart-and-incremental-verification.md) | Paper checkpoint restart and incremental overnight verification | Approved implementation; not installed | architecture, data-pipeline |
 | [0126](0126-engine-health-and-diagnostic-snapshot.md) | Flat Engine health and shared human/AI diagnostic records | Accepted | user-interface, architecture |
 | [0124](0124-due-prediction-scorecard.md) | Grade due ten-session predictions and label partial coverage | Accepted | math-statistics, data-pipeline |
 | [0125](0125-reusable-strategy-sale-proceeds.md) | Reuse reconciled strategy sale proceeds under explicit ongoing approval | Accepted | risk-management, architecture |

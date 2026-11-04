@@ -14,6 +14,29 @@ namespace TraderVI.Core.Tests;
 
 public sealed class DelphiLiveActionWorkflowTests
 {
+    [Theory]
+    [InlineData("QuoteAttemptStarted", 0)]
+    [InlineData("QuoteAttemptPersisted", 0)]
+    [InlineData("BuyFillCommitted", 1)]
+    [InlineData("PortfolioCycleCompleted", 1)]
+    public async Task RestartAfterCommittedButUnacknowledgedSaveDoesNotRepeatTheBuy(string interruptedEvent, int fills)
+    {
+        var h = new Harness(working: true);
+        var input = h.Input("AAA");
+        h.Source.Enqueue(10m, 9.99m, 10m);
+        h.Store.LoseAcknowledgementAfter = interruptedEvent;
+        await Assert.ThrowsAsync<System.IO.IOException>(() => h.Workflow.RunCycleAsync(input, Policy, h.Lease));
+        var savedCash = h.Store.State.Cash;
+        var pending = h.Store.State.PendingActions.Where(a => a.Intent.Side == DelphiLiveActionSide.Buy).Select(a => a.Intent.ActionId).ToArray();
+        var restarted = new DelphiLiveActionWorkflow(h.Store, h.Source, h.Clock);
+        await restarted.ExpireRestartBuysAsync(h.Store.State.PortfolioId, pending, h.Lease);
+        await restarted.ExpireRestartBuysAsync(h.Store.State.PortfolioId, pending, h.Lease);
+        await restarted.RunCycleAsync(input, Policy, h.Lease);
+        await restarted.RunCycleAsync(input, Policy, h.Lease);
+        Assert.Equal(fills, h.Store.State.Fills.Length);
+        Assert.Equal(savedCash, h.Store.State.Cash);
+        Assert.Empty(h.Store.State.PendingActions);
+    }
     private static readonly DateOnly Date = new(2026, 9, 8);
     private static readonly DateTime Open = new(2026, 9, 8, 13, 30, 0, DateTimeKind.Utc);
     private static readonly DelphiLivePolicyDefinition Policy = DelphiLivePolicyDefinition.Version1;
@@ -546,6 +569,7 @@ public sealed class DelphiLiveActionWorkflowTests
         public DelphiLivePortfolioSnapshot State;
         private DelphiLivePortfolioSnapshot history;
         private DelphiLiveWorkingCheckpoint? checkpoint;
+        private string? archiveRoot;
         private readonly Dictionary<string, string> contents = new();
         private readonly Dictionary<(string, int), DelphiLiveSnapshotItem> items = new();
         public DelphiLivePortfolioSnapshot FullState => checkpoint is null ? State : history;
@@ -554,12 +578,14 @@ public sealed class DelphiLiveActionWorkflowTests
             State = history = initial;
             if (!working) return;
             var package = DelphiLiveSnapshotCodec.Pack(initial);
+            archiveRoot = package.SnapshotJson;
             var prepared = DelphiLiveWorkingCheckpoint.Qualify(initial, package);
             checkpoint = prepared.Checkpoint; State = prepared.Snapshot;
             foreach (var pair in package.Contents.Concat(prepared.NewContents)) contents[pair.Key] = pair.Value;
             foreach (var item in package.Items) items[(item.Collection, item.Ordinal)] = item;
         }
         public readonly List<DelphiLiveLedgerEvent> Events = new();
+        public string? LoseAcknowledgementAfter;
         public Task<DelphiLivePortfolioSnapshot?> LoadPortfolioAsync(Guid portfolioId, CancellationToken cancellationToken = default) => Task.FromResult<DelphiLivePortfolioSnapshot?>(Roundtrip(State));
         public Task<IReadOnlyList<DelphiLivePortfolioSnapshot>> GetPortfoliosForSessionAsync(DateOnly tradingDate, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<DelphiLivePortfolioSnapshot>>(new[] { Roundtrip(State) });
         public Task<DelphiLivePortfolioSnapshot> CreateGenerationAsync(DelphiLiveGenerationRequest request, CancellationToken cancellationToken = default) => throw new NotSupportedException();
@@ -573,6 +599,12 @@ public sealed class DelphiLiveActionWorkflowTests
                 var prepared = await checkpoint.AdvanceAsync(State, next, contents,
                     (key, _) => Task.FromResult(contents.GetValueOrDefault(key)), cancellationToken);
                 foreach (var pair in prepared.NewContents) contents[pair.Key] = pair.Value;
+                // Verify every real workflow transition independently from its saved delta, including
+                // partial quotes, protection updates, fills, expiry and overnight pending sells.
+                var verified = await DelphiLiveIncrementalVerification.VerifyAsync(checkpoint, archiveRoot!, prepared.Archive.SnapshotJson,
+                    prepared.ChangedItems, contents, (key, _) => Task.FromResult(contents.GetValueOrDefault(key)), cancellationToken);
+                verified.Checkpoint.RequireSameReconstruction(prepared.Checkpoint);
+                archiveRoot = prepared.Archive.SnapshotJson;
                 foreach (var item in prepared.ChangedItems) items[(item.Collection, item.Ordinal)] = item;
                 var counts = prepared.Checkpoint.Counts;
                 var full = DelphiLiveSnapshotCodec.Unpack(prepared.Archive.SnapshotJson,
@@ -583,6 +615,11 @@ public sealed class DelphiLiveActionWorkflowTests
                 State = checkpoint.Restore(prepared.Archive.SnapshotJson, contents);
             }
             Events.AddRange(events);
+            if (events.Any(e => e.Kind == LoseAcknowledgementAfter))
+            {
+                LoseAcknowledgementAfter = null;
+                throw new System.IO.IOException("Synthetic acknowledgement loss after atomic save.");
+            }
             return State;
         }
         private static DelphiLivePortfolioSnapshot Roundtrip(DelphiLivePortfolioSnapshot state) =>

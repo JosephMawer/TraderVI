@@ -502,13 +502,27 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   legacy fingerprint cost despite the installed prefix repair; the November 3 pass subsequently
   completed in about 2h12m and its two selected Paper holds were cleared.
   No no-restart throughput remedy or complete Paper restart redesign is established by that check.
-- [ ] Review Paper restart and verification checks with Joseph before any implementation under
+- [x] Review and approve Paper checkpoint restart and incremental verification under
   [GitHub #28](https://github.com/JosephMawer/TraderVI/issues/28), the Paper-specific follow-up to #19.
-  November 3 direction: incremental verification by default, full scans only when needed. Explain
-  each check's purpose, impact, cost and simplification/removal tradeoffs in plain language; obtain
-  explicit approval of scope and behavior before coding, migrations, policy changes or installation.
-  Current-state restart and verification mechanics remain candidate designs pending that review.
-  The completed recovery and conditional-clearance acceptance above do not authorize this redesign.
+  November 4: Joseph approved implementation and offline validation using the completed November 3
+  recovery as baseline. Installation and engine restart require separate approval.
+  [ADR-0127](adr/0127-paper-checkpoint-restart-and-incremental-verification.md) owns scope and trust limits;
+  retention, database-size investigation and issue #24 remain separate.
+- [x] Implement compact Paper restart qualification, original pending-buy expiry, per-portfolio
+  verification boundaries, atomic boundary/progress saves and separate nightly Paper delta checks.
+  Automatic weekly/full Paper scans are disabled; original explicit recovery remains available.
+- [x] Complete offline validation for ADR-0127: full core suite 3,655 passed/16 native skips,
+  followed by 84/84 focused checks including added complete-workflow delta verification and
+  owner-scoped health display. Isolated Debug engine/WPF build passed. Existing nullable/compiler
+  warnings remain; dependency-security auditing was disabled, not qualified. Maintained-document
+  link check passed (851 links). Logs: `artifacts/build/paper-full-tests.log`,
+  `paper-final-focused.log`, `paper-build.log`. No database/external operation or host launch.
+- [ ] Obtain separate authority for installation, stopped-engine baseline preparation and restart.
+  Preparation must adopt the successful cleared recovery and check any intervening legacy tail.
+  Its one-time cumulative snapshot read cost is not a routine restart cost and remains unmeasured.
+- [ ] After authorized installation, verify native SQL atomic resume/lost-acknowledgement behavior,
+  current-state startup time, owner-scoped rejection, overnight new-only coverage and market-hour
+  operation. Offline tests do not establish any of these installed outcomes.
 - [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine
   with execution Off; verify single ownership, normal mode, connection and original Paper cursor progress.
 - [x] Verify fresh post-interruption Real recovery 260/260 and separately authorize/apply only its reviewed

@@ -27,6 +27,17 @@ internal static class Program
             return await SettledSaleMaintenance.RunAsync(packet);
         if (args is ["--reconcile-original-sale", var original])
             return await SettledSaleMaintenance.RunAsync(original, allowReservedFill: true);
+        if (args is ["--prepare-paper-verification", var paperRecovery])
+        {
+            if (!Guid.TryParse(paperRecovery, out var recoveryId)) return 64;
+            try
+            {
+                using var ownership = new EngineOwnershipLease(EnginePaths.OwnershipPath);
+                await new EnginePaperVerificationRepository().PrepareAsync(recoveryId);
+                return 0;
+            }
+            catch { return 1; }
+        }
         if (args is ["--sign-in"])
         {
             try { await RunSignInAsync(); return 0; }
@@ -129,6 +140,17 @@ internal static class Program
                     await continuity.StartAsync(compact.QualifyAsync, CancellationToken.None);
                 }
                 else await continuity.StartAsync();
+                if (!verificationOnly)
+                {
+                    try { await new EnginePaperVerificationRepository().QualifyRestartAsync(continuity.StartupWitnessMatched); }
+                    catch (Exception error) when (error is InvalidDataException or InvalidOperationException or JsonException or Microsoft.Data.SqlClient.SqlException)
+                    {
+                        PaperRestartQualification.Fail(error is InvalidDataException or InvalidOperationException ? error.Message :
+                            "Paper current-state storage could not be read or decoded. Investigate that boundary; no full scan was started.");
+                        await new EngineIntegrityRepository().RaiseAsync(EngineIntegrityScope.Paper, null,
+                            "PaperCurrentState", "PaperRestartQualificationFailed", true);
+                    }
+                }
             }
             var market = new IndependentMarketService(calendar);
             var paper = new IndependentPaperService(calendar, () => market.CurrentLease, market);

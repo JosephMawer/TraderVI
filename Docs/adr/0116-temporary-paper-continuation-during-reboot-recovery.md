@@ -4,6 +4,7 @@
 - **Date:** October 29, 2026
 - **Domains:** architecture, data-pipeline
 - **Related:** ADR-0103, ADR-0104, ADR-0115
+- **Successor:** [ADR-0127](0127-paper-checkpoint-restart-and-incremental-verification.md) supplies durable Paper checkpoint restart after adoption; source prepared, not installed. This run's dated temporary permission remains historical.
 
 ## Context
 

@@ -68,6 +68,19 @@ public static class DelphiLiveSnapshotStorage
     private static async Task<string> SavePackageAsync(SqlConnection connection, SqlTransaction transaction,
         DelphiLiveSnapshotPackage package, CancellationToken token, PreparedSnapshot? prepared = null)
     {
+        if (prepared?.CurrentStateManaged != true && await EnginePaperWorkingStore.InstalledAsync(connection, transaction, token))
+        {
+            // Rare full/admin writers use the same v3 commitments as working appends.
+            // The full state is already in memory; no new historical copy or scan is needed.
+            var full = DelphiLiveSnapshotCodec.Unpack(package.SnapshotJson, package.Items, package.Contents);
+            var qualified = DelphiLiveWorkingCheckpoint.Qualify(full, package);
+            var contents = package.Contents.ToDictionary(p => p.Key, p => p.Value);
+            foreach (var entry in qualified.NewContents) contents[entry.Key] = entry.Value;
+            string root = DelphiLiveSnapshotCodec.CreateIncrementalRoot(package.SnapshotJson,
+                qualified.Checkpoint.Counts, qualified.Checkpoint.Roots, qualified.Checkpoint.CandidateStateHash);
+            package = new(root, DelphiLiveSnapshotCodec.Hash(root), contents, package.Items);
+            prepared = null; // Retain the full administrative write/readback contract.
+        }
         var identity = JsonNode.Parse(package.SnapshotJson)!;
         await using var setup = new SqlCommand("""
 DECLARE @lock int;
@@ -161,14 +174,14 @@ IF EXISTS(SELECT 1 FROM #LiveItems n OUTER APPLY
     // Callers await each operation before reusing its connection/transaction. A worker boundary
     // also protects display readers when SQL completes synchronously on the UI dispatcher.
     public static Task<DelphiLivePortfolioSnapshot> ReadAsync(SqlConnection connection, SqlTransaction? transaction,
-        string json, CancellationToken token = default)
+        string json, CancellationToken token = default, bool fresh = false)
         => Task.Run(async () =>
         {
             if (!DelphiLiveSnapshotCodec.IsCompact(json))
                 return DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(json);
             var saved = await ReadPartsAsync(connection, transaction, json, token);
             using var timing = PaperCycleTimings.Start(PaperCycleStage.SnapshotUnpack);
-            return verifiedReads.Read(json, saved.Items, saved.Contents);
+            return fresh ? DelphiLiveSnapshotCodec.Unpack(json, saved.Items, saved.Contents) : verifiedReads.Read(json, saved.Items, saved.Contents);
         }, token);
 
     public static Task<string> ReadJsonAsync(SqlConnection connection, SqlTransaction? transaction,

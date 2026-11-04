@@ -2,6 +2,7 @@
 
 **Date:** October 21, 2026. **Status:** Accepted architecture; source implemented and October22 migrations/checkpoints installed. Normal-mode cutover and real-only recovery/clearance are checked with trading disabled; full acceptance remains pending the linked cutover review.
 **Domains:** architecture, data-pipeline.
+**Paper amendment:** [ADR-0127](0127-paper-checkpoint-restart-and-incremental-verification.md) supersedes routine Paper restart/full-audit requirements; approved source work, not installed. Real authority is unchanged.
 **Related:** ADR-0053, ADR-0062, ADR-0082, ADR-0083, ADR-0085, ADR-0086, ADR-0098, ADR-0099.
 
 ## Problem and decision

@@ -149,7 +149,23 @@ public sealed record EngineHealthSnapshot(DateTimeOffset GeneratedAt, string Eng
         if (integrity != null)
         {
             foreach (var incident in integrity.Incidents.OrderBy(i => i.Scope is EngineIntegrityScope.Global or EngineIntegrityScope.Broker ? 0 : 1).ThenBy(i => i.DiscoveredUtc))
-                issues.Add(DescribeIncident(incident, integrity, integrityObservedAt, integrityFresh, now, previousIntegrity));
+            {
+                var described = DescribeIncident(incident, integrity, integrityObservedAt, integrityFresh, now, previousIntegrity);
+                if (integrityFresh && incident.Scope == EngineIntegrityScope.Paper && integrity.PaperRestart is { } qualification &&
+                    qualification.Allows(integrity.Incidents, EngineIntegrityScope.Paper, incident.OwnerId))
+                    described = described with { Category = "Warning", Title = "Paper historical finding retained after current-state qualification",
+                        Impact = "Paper current state was qualified separately. The original finding and dependent historical results remain unverified; this Paper finding does not block Real trading.",
+                        NextStep = "Review the retained finding and incremental coverage. Do not infer full historical clearance or start a full scan merely to restart." };
+                issues.Add(described);
+            }
+            if (integrity.PaperIncrementalVerification)
+                issues.Add(new("paper-incremental", "PaperIncrementalVerification", integrity.PaperRestart == null ? "Warning" : "Status", "Paper",
+                    integrity.PaperRestart == null ? "Paper restart qualification is unavailable" : $"Paper current state qualified for {integrity.PaperRestart.Portfolios.Length} portfolios",
+                    integrity.PaperRestartFailure ?? "Paper resumes from saved state and unfinished actions. Overnight verification checks only revisions after each saved verified boundary.",
+                    "Current-state qualification does not certify older history or dependent performance results. Real trading health is separate.",
+                    "Review Paper audit receipts for actual coverage; investigate a specific failed boundary before considering a wider scan.",
+                    integrity.PaperRestart is { } restart ? "Current-state check · " + EngineHealthIssue.Local(restart.QualifiedUtc) : "No current-state qualification returned.",
+                    integrity.PaperRestart?.QualifiedUtc, integrityObservedAt, "Engine.IntegrityStatus"));
             foreach (var run in integrity.Runs.OrderByDescending(r => r.Plan.BoundaryUtc)) history.Add(DescribeAudit(run));
             // ReadStatus retains the latest receipt per kind/status/scope. Older failures can
             // remain alongside later success; they are history, not a fresh active failure.
@@ -166,7 +182,7 @@ public sealed record EngineHealthSnapshot(DateTimeOffset GeneratedAt, string Eng
             var archive = integrity.Runs.Where(r => r.Plan.Kind == EngineAuditKind.Archive && r.Status == "Complete")
                 .OrderByDescending(r => r.Plan.BoundaryUtc).FirstOrDefault();
             if (archive is null || now.UtcDateTime - archive.Plan.BoundaryUtc > TimeSpan.FromDays(7))
-                issues.Add(new("archive-coverage", "ArchiveCoverage", "Warning", "History", archive is null ? "Archive coverage is unverified" : "Archive verification is overdue",
+                issues.Add(new("archive-coverage", "ArchiveCoverage", "Warning", integrity.PaperIncrementalVerification ? "Real/shared history" : "History", archive is null ? "Archive coverage is unverified" : "Archive verification is overdue",
                     archive is null ? "No completed archive audit was returned." : "The newest completed archive boundary is over seven days old.",
                     "Older history has not been qualified through a current archive boundary.", "Review the audit receipts in History and investigate unfinished or failed checks.",
                     archive is null ? "Coverage is unknown." : "Last completed boundary · " + EngineHealthIssue.Local(archive.Plan.BoundaryUtc), null, integrityObservedAt, "Engine.IntegrityStatus"));

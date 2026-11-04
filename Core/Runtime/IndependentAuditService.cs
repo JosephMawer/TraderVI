@@ -4,6 +4,7 @@ using Core.Trader.DelphiLive;
 using System;
 using System.Collections.Immutable;
 using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -64,17 +65,32 @@ public sealed class IndependentAuditService(ReviewedTsxSessionCalendar calendar,
                 if (end <= now) { closed = end; break; }
             }
             if (closed is null) throw new InvalidOperationException("The reviewed calendar cannot establish the audit session boundary.");
-            if (!recovery && !status.Runs.Any(r => r.Plan.Kind == EngineAuditKind.NewHistory && r.Plan.BoundaryUtc >= closed))
-                await repository.StartAsync(EngineAuditKind.NewHistory).ConfigureAwait(false);
-            if (!recovery && !status.Runs.Any(r => r.Plan.Kind == EngineAuditKind.Archive && now - r.Plan.BoundaryUtc < TimeSpan.FromDays(7)))
-                await repository.StartAsync(EngineAuditKind.Archive).ConfigureAwait(false);
+            if (!recovery && !status.Runs.Any(r => r.Plan.Kind == EngineAuditKind.NewHistory && r.Plan.Scope == EngineRecoveryScope.Real && r.Plan.BoundaryUtc >= closed))
+                await repository.StartAsync(EngineAuditKind.NewHistory, scope: EngineRecoveryScope.Real).ConfigureAwait(false);
+            if (!recovery && !status.Runs.Any(r => r.Plan.Kind == EngineAuditKind.Archive && r.Plan.Scope is EngineRecoveryScope.Real or EngineRecoveryScope.All && now - r.Plan.BoundaryUtc < TimeSpan.FromDays(7)))
+                await repository.StartAsync(EngineAuditKind.Archive, scope: EngineRecoveryScope.Real).ConfigureAwait(false);
+            if (!recovery && !status.Runs.Any(r => r.Plan.Kind == EngineAuditKind.NewHistory && r.Plan.Scope == EngineRecoveryScope.Paper && r.Plan.BoundaryUtc >= closed))
+            {
+                try { await repository.StartAsync(EngineAuditKind.NewHistory, scope: EngineRecoveryScope.Paper).ConfigureAwait(false); }
+                catch (Exception error) when (error is InvalidDataException or InvalidOperationException)
+                {
+                    await notifier.NotifyAsync(new("Warning", "PaperHistoryUnavailable",
+                        "Paper incremental verification needs a qualified boundary. Historical results remain unverified; no full scan was started.")).ConfigureAwait(false);
+                }
+            }
             status = await repository.ReadStatusAsync().ConfigureAwait(false);
             var run = status.Runs.Where(r => r.Status == "Running" && (!realRecoveryOnly ||
-                r.Plan.Kind == EngineAuditKind.Recovery && r.Plan.Scope == EngineRecoveryScope.Real)).OrderByDescending(r => r.Plan.Kind == EngineAuditKind.Recovery)
+                r.Plan.Kind == EngineAuditKind.Recovery && r.Plan.Scope == EngineRecoveryScope.Real) &&
+                CanRunAutomatically(r)).OrderByDescending(r => r.Plan.Kind == EngineAuditKind.Recovery)
                 .ThenByDescending(r => r.Plan.Scope == EngineRecoveryScope.Real)
                 .ThenBy(r => r.Plan.Kind).ThenBy(r => r.Plan.BoundaryUtc).FirstOrDefault();
             if (run is null) return;
             nextObservation = DateTime.MinValue;
+            if (run.Plan.Kind == EngineAuditKind.NewHistory && run.Plan.Scope == EngineRecoveryScope.Paper)
+            {
+                await VerifyPaperBatchAsync(run).ConfigureAwait(false);
+                return;
+            }
             EngineAuditProgress next;
             bool prerequisitesVerified = false;
             try
@@ -108,6 +124,28 @@ public sealed class IndependentAuditService(ReviewedTsxSessionCalendar calendar,
             if (next != run.Progress) await repository.SaveProgressAsync(run, next).ConfigureAwait(false);
         }
         finally { gate.Release(); }
+    }
+    internal static bool CanRunAutomatically(EngineAuditRun run) => run.Plan.Kind == EngineAuditKind.Recovery ||
+        run.Plan.Scope == EngineRecoveryScope.Real || run.Plan.Kind == EngineAuditKind.NewHistory && run.Plan.Scope == EngineRecoveryScope.Paper;
+
+    private async Task VerifyPaperBatchAsync(EngineAuditRun run)
+    {
+        var timer = Stopwatch.StartNew();
+        var paper = new EnginePaperVerificationRepository();
+        try
+        {
+            for (int step = 0; step < 4096 && !closing && !run.Progress.Complete && timer.Elapsed < TimeSpan.FromSeconds(5) && OutsideTradingWindow(DateTime.UtcNow); step++)
+                run = await paper.VerifyNextAsync(run).ConfigureAwait(false);
+        }
+        catch (Exception error) when (error is InvalidDataException or InvalidOperationException or JsonException or ArgumentException)
+        {
+            var target = run.Plan.Targets[run.Progress.TargetIndex];
+            await repository.RaiseAsync(EngineIntegrityScope.Paper, target.OwnerId,
+                $"PaperRevisions/{target.OwnerId:D}/{run.Progress.NextRevision}", "PaperIncrementalVerificationFailed", true).ConfigureAwait(false);
+            await repository.SaveProgressAsync(run, run.Progress, failed: true).ConfigureAwait(false);
+            await notifier.NotifyAsync(new("Error", "PaperHistoryVerification",
+                "A Paper revision disagrees with its verified boundary. The affected portfolio requires targeted investigation. No full scan was started; Real authority is unchanged.")).ConfigureAwait(false);
+        }
     }
     public async Task<Guid> StartRecoveryAsync(EngineRecoveryScope scope = EngineRecoveryScope.All)
     {

@@ -141,15 +141,23 @@ WHERE @Last IS NULL OR EvaluationId>CONVERT(uniqueidentifier,@Last) ORDER BY Eva
             previousPaper = revision > 0 ? (await paperReader.ReadAsync(c, revision - 1, ct)).State : null;
         }
         var next = await paperReader.ReadAsync(c, revision, ct);
+        await VerifyPaperTransitionAsync(c, null, owner, revision, next.Row.SettingsAssignmentId, previousPaper, next.State, ct);
+        previousPaper = next.State;
+    }
+
+    internal static async Task VerifyPaperTransitionAsync(SqlConnection c, SqlTransaction? transaction, Guid owner, long revision,
+        Guid? settingsAssignment, DelphiLivePortfolioSnapshot? previousPaper, DelphiLivePortfolioSnapshot state, CancellationToken ct)
+    {
+        var next = (State: state, Row: new EnginePaperAuditReader.Row(owner, revision, "", settingsAssignment));
         if (revision == 0)
         {
             var authorization = await c.QuerySingleAsync<AuthorizationRow>(new CommandDefinition(
                 "SELECT AuthorizationJson,EngineeringTrialId FROM dbo.DelphiLivePortfolioGeneration WHERE GenerationId=@Generation;",
-                new { Generation = next.State.GenerationId }, cancellationToken: ct));
+                new { Generation = next.State.GenerationId }, transaction, cancellationToken: ct));
             var created = authorization.EngineeringTrialId is null
                 ? DelphiLiveLedgerIntegrity.Create(DelphiLiveLedgerJson.Deserialize<DelphiLiveGenerationRequest>(authorization.AuthorizationJson))
                 : ReadEngineeringInitial(authorization.EngineeringTrialId.Value, authorization.AuthorizationJson);
-            RequireSame(created, next.State); previousPaper = next.State; return;
+            RequireSame(created, next.State with { WorkingTotals = null }); return;
         }
         var previous = previousPaper!;
         if (next.Row.SettingsAssignmentId is Guid assignment)
@@ -159,7 +167,7 @@ SELECT v.SettingsJson,a.TargetId,a.VersionId,a.AssignedUtc FROM dbo.EngineStrate
 JOIN dbo.EngineStrategyVersion v ON v.VersionId=a.VersionId
 WHERE a.AssignmentId=@Assignment AND v.Family=N'DelphiLive'
  AND v.SettingsHash=CONVERT(char(64),HASHBYTES('SHA2_256',v.SettingsJson),2);
-""", new { Assignment = assignment }, cancellationToken: ct));
+""", new { Assignment = assignment }, transaction, cancellationToken: ct));
             if (settings.TargetId != owner || settings.VersionId != next.State.PolicyVersionId ||
                 !EngineIntegrityRepository.MatchesStoredBoundary(next.State.UpdatedUtc, settings.AssignedUtc))
                 throw new InvalidDataException("Historical settings assignment identity failed.");
@@ -171,11 +179,10 @@ WHERE a.AssignmentId=@Assignment AND v.Family=N'DelphiLive'
             DelphiLiveLedgerIntegrity.ValidatePolicyPromotion(previous, next.State);
             if (await c.QuerySingleAsync<int>(new CommandDefinition("""
 SELECT COUNT(*) FROM dbo.DelphiLiveLedgerEvent WHERE PortfolioId=@Owner AND Revision=@Revision AND EventKind=N'HumanApprovedPolicyPromotion';
-""", new { Owner = owner, Revision = revision }, cancellationToken: ct)) != 1)
+""", new { Owner = owner, Revision = revision }, transaction, cancellationToken: ct)) != 1)
                 throw new InvalidDataException("Historical policy promotion has no original event.");
         }
         else DelphiLiveLedgerIntegrity.ValidateTransition(previous, next.State);
-        previousPaper = next.State;
     }
     internal static void RequireSame(DelphiLivePortfolioSnapshot expected, DelphiLivePortfolioSnapshot actual)
     {

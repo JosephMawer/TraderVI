@@ -32,7 +32,9 @@ public sealed record EngineIntegrityAccess(bool NewExposureAllowed, bool Protect
             (i.Scope == scope || scope == EngineIntegrityScope.Research && i.Scope == EngineIntegrityScope.Paper) &&
             (i.OwnerId is null || owner is null || i.OwnerId == owner)).ToArray();
         bool temporaryPaper = permission?.Allows(open, scope, nowUtc, paperSharedInputs) == true;
-        return new(temporaryPaper || affected.Length == 0, temporaryPaper || affected.All(i => !i.ProtectionUntrusted), affected.Select(i => i.IncidentId).ToImmutableArray());
+        bool qualifiedPaper = PaperRestartQualification.Current?.Allows(open, scope, owner, paperSharedInputs) == true;
+        return new(temporaryPaper || qualifiedPaper || affected.Length == 0,
+            temporaryPaper || qualifiedPaper || affected.All(i => !i.ProtectionUntrusted), affected.Select(i => i.IncidentId).ToImmutableArray());
     }
 }
 
@@ -48,7 +50,8 @@ public sealed record EngineAuditPlan(EngineAuditKind Kind, DateTime BoundaryUtc,
     public EngineDatabaseIdentity? Database { get; init; }
     public void Validate()
     {
-        if (!Enum.IsDefined(Kind) || !Enum.IsDefined(Scope) || Scope != EngineRecoveryScope.All && Kind != EngineAuditKind.Recovery ||
+        if (!Enum.IsDefined(Kind) || !Enum.IsDefined(Scope) || Scope != EngineRecoveryScope.All && Kind != EngineAuditKind.Recovery &&
+            !(Kind == EngineAuditKind.NewHistory || Kind == EngineAuditKind.Archive && Scope == EngineRecoveryScope.Real) ||
             Scope != EngineRecoveryScope.All && Database is null ||
             BoundaryUtc.Kind != DateTimeKind.Utc || BoundaryUtc == default || Targets.IsDefault || Targets.Length > 4096 ||
             Targets.Any(t => !Enum.IsDefined(t.Family) || t.FromRevision < 0 || t.ThroughRevision < 0 || t.ThroughRevision == long.MaxValue ||
@@ -104,6 +107,9 @@ public sealed record EngineIntegrityStatus(ImmutableArray<EngineIntegrityInciden
     ImmutableArray<EngineAuditRun> Runs)
 {
     public EnginePaperRecoveryContinuation? PaperContinuation { get; init; }
+    public PaperRestartQualification? PaperRestart { get; init; }
+    public bool PaperIncrementalVerification { get; init; }
+    public string? PaperRestartFailure { get; init; }
     public string Summary(DateTime now)
     {
         int incomplete = Runs.Count(r => r.Status != "Complete");
@@ -112,6 +118,7 @@ public sealed record EngineIntegrityStatus(ImmutableArray<EngineIntegrityInciden
         return (PaperContinuation?.Matches(Incidents, now) == true
             ? $"Temporary Paper continuation until {PaperContinuation.ExpiresUtc:O}; historical integrity remains unverified. Real and research holds remain. " : "") +
             $"Integrity: {Incidents.Length} unresolved incident(s); {incomplete} incomplete latest audit(s). " +
+            (PaperIncrementalVerification ? "Paper history uses incremental verification; current-state qualification does not certify unverified history. " : "") +
             (last is null ? "Older archive has no completed audit." :
                 $"Older archive verified through {last:yyyy-MM-dd HH:mm} UTC" + (now - last > TimeSpan.FromDays(7) ? " (overdue)." : "."));
     }

@@ -53,6 +53,17 @@ ORDER BY i.DiscoveredUtc,i.IncidentId;
     public Task<EngineIntegrityAccess> ReadAccessAsync(EngineIntegrityScope scope, Guid? owner, CancellationToken ct = default)
         => ReadAccessCoreAsync(scope, owner, ct, paperSharedInputs: false);
 
+    internal async Task<EngineIntegrityAccess> ReadPaperWorkerAccessAsync(CancellationToken ct = default)
+    {
+        await using var c = await OpenAsync(ct);
+        if (!await RequiredGuardsAsync(c, null, ct)) throw new InvalidOperationException("Immutable history guards are unavailable.");
+        var open = await ReadOpenAsync(c, null, ct);
+        // Owner-specific findings are enforced by portfolio selection and again by each SQL append.
+        if (PaperRestartQualification.Current?.AllowsWorker(open) == true)
+            return new(true, true, open.Select(i => i.IncidentId).ToImmutableArray());
+        return EngineIntegrityAccess.Evaluate(open.Where(i => i.OwnerId == null || i.Scope != EngineIntegrityScope.Paper).ToImmutableArray(), EngineIntegrityScope.Paper, null);
+    }
+
     public Task<EngineIntegrityAccess> ReadPaperSharedInputAccessAsync(CancellationToken ct = default)
         => ReadAccessCoreAsync(EngineIntegrityScope.Global, null, ct, paperSharedInputs: true);
 
@@ -122,7 +133,11 @@ SELECT a.* FROM dbo.EngineAuditRun a JOIN
  (SELECT RunId,ROW_NUMBER() OVER(PARTITION BY Kind,Status,ISNULL(JSON_VALUE(PlanJson,'$.Scope'),'0') ORDER BY BoundaryUtc DESC,UpdatedUtc DESC) n
  FROM dbo.EngineAuditRun) r ON r.RunId=a.RunId WHERE r.n=1;
 """, cancellationToken: ct));
-        return new(incidents, rows.Select(Decode).ToImmutableArray()) { PaperContinuation = EnginePaperRecoveryContinuationGate.Current };
+        bool paperPolicy = await c.QuerySingleAsync<bool>(new CommandDefinition(
+            "SELECT CAST(CASE WHEN EXISTS(SELECT 1 FROM dbo.EngineCurrentState WHERE Kind=N'PaperVerificationPolicy') THEN 1 ELSE 0 END AS bit);", cancellationToken: ct));
+        return new(incidents, rows.Select(Decode).ToImmutableArray()) { PaperContinuation = EnginePaperRecoveryContinuationGate.Current,
+            PaperRestart = PaperRestartQualification.Current, PaperIncrementalVerification = paperPolicy,
+            PaperRestartFailure = PaperRestartQualification.LastFailure };
     }
     public async Task<bool> GuardsAvailableAsync(CancellationToken ct = default)
     {
@@ -135,17 +150,20 @@ SELECT a.* FROM dbo.EngineAuditRun a JOIN
     {
         await using var c = await OpenAsync(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
-        if (!Enum.IsDefined(scope) || scope != EngineRecoveryScope.All && kind != EngineAuditKind.Recovery)
-            throw new ArgumentException("Only recovery may select a domain.");
+        if (!Enum.IsDefined(scope) || scope != EngineRecoveryScope.All && kind != EngineAuditKind.Recovery &&
+            !(kind == EngineAuditKind.NewHistory || kind == EngineAuditKind.Archive && scope == EngineRecoveryScope.Real))
+            throw new ArgumentException("This audit kind cannot select this domain.");
         if (!await RequiredGuardsAsync(c, t, ct)) throw new InvalidOperationException("Immutable guards are unavailable.");
         // One owner per audit kind/domain, including across restart. Original plans remain immutable.
         var existing = await c.QuerySingleOrDefaultAsync<RunRow>(new CommandDefinition(
             "SELECT * FROM dbo.EngineAuditRun WITH(UPDLOCK,HOLDLOCK) WHERE Kind=@Kind AND Status=N'Running' AND ISNULL(TRY_CONVERT(int,JSON_VALUE(PlanJson,'$.Scope')),0)=@Scope;",
             new { Kind = kind.ToString(), Scope = (int)scope }, t, cancellationToken: ct));
         if (existing is not null) { t.Commit(); return Decode(existing); }
-        var prior = kind == EngineAuditKind.NewHistory ? await c.QueryFirstOrDefaultAsync<RunRow>(new CommandDefinition(
-            "SELECT TOP(1) * FROM dbo.EngineAuditRun WHERE Kind=N'NewHistory' AND Status=N'Complete' ORDER BY BoundaryUtc DESC;", transaction: t, cancellationToken: ct)) : null;
-        var targets = await CaptureTargetsAsync(c, t, kind, prior is null ? null : Decode(prior).Plan, ct, scope);
+        var prior = kind == EngineAuditKind.NewHistory && scope != EngineRecoveryScope.Paper ? await c.QueryFirstOrDefaultAsync<RunRow>(new CommandDefinition(
+            "SELECT TOP(1) * FROM dbo.EngineAuditRun WHERE Kind=N'NewHistory' AND Status=N'Complete' AND ISNULL(JSON_VALUE(PlanJson,'$.Scope'),'0') IN ('0','1') ORDER BY BoundaryUtc DESC;", transaction: t, cancellationToken: ct)) : null;
+        var targets = kind == EngineAuditKind.NewHistory && scope == EngineRecoveryScope.Paper
+            ? await EnginePaperVerificationRepository.TargetsAsync(c, t, ct)
+            : await CaptureTargetsAsync(c, t, kind, prior is null ? null : Decode(prior).Plan, ct, scope);
         DateTime now = await c.QuerySingleAsync<DateTime>(new CommandDefinition("SELECT SYSUTCDATETIME();", transaction: t, cancellationToken: ct));
         now = DateTime.SpecifyKind(now, DateTimeKind.Utc);
         var plan = new EngineAuditPlan(kind, now, targets) { Scope = scope,
@@ -175,7 +193,7 @@ UNION ALL SELECT N'BrokerRevisions',BindingId,MAX(Revision) FROM dbo.BrokerManag
 UNION ALL SELECT N'SharedInputs',NULL,ISNULL(MAX(PublicationSequence),0) FROM dbo.EngineInputPublication
 UNION ALL SELECT N'SharedContent',NULL,ISNULL(MAX(EvidenceSequence),0) FROM dbo.EngineEvidenceContent;
 """, new { Scope = (int)scope }, t, cancellationToken: ct))).ToArray();
-        if (previous is not null && previous.Targets.Any(p => !heads.Any(h => h.Family == p.Family.ToString() && h.OwnerId == p.OwnerId)))
+        if (previous is not null && previous.Targets.Where(p => EngineAuditPlan.Includes(scope, p.Family)).Any(p => !heads.Any(h => h.Family == p.Family.ToString() && h.OwnerId == p.OwnerId)))
             throw new InvalidDataException("A previously audited history owner is missing.");
         var targets = heads.Select(h =>
         {

@@ -2,6 +2,7 @@
 
 **Date:** October 22, 2026. **Status:** Accepted direction; installed, real-only recovery/clearance verified; Paper coverage and full native capacity qualification remain pending.
 **Domains:** architecture, data-pipeline. **Related:** ADR-0103, ADR-0082, ADR-0098.
+**Paper amendment:** [ADR-0127](0127-paper-checkpoint-restart-and-incremental-verification.md) replaces automatic Paper lifetime verification with saved boundaries and nightly deltas; approved source work, not installed. Explicit recovery and Real audits remain.
 
 ## Problem
 

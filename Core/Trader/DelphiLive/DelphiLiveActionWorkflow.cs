@@ -37,6 +37,14 @@ public sealed class DelphiLiveActionWorkflow
     private readonly IDelphiLiveClock clock;
     public bool NewBuysPaused { get; set; }
 
+    public async Task ExpireRestartBuysAsync(Guid portfolioId, IReadOnlyCollection<Guid> originalActions,
+        DelphiLiveLease lease, CancellationToken ct = default)
+    {
+        var state = await store.LoadPortfolioAsync(portfolioId, ct) ?? throw new InvalidOperationException("Portfolio disappeared.");
+        foreach (var action in state.PendingActions.Where(a => a.Intent.Side == DelphiLiveActionSide.Buy && originalActions.Contains(a.Intent.ActionId)).ToArray())
+            state = await EndBuy(state, action, "BuyRestartExpired", lease, ct);
+    }
+
     public async Task CancelOperatorPausedBuysAsync(Guid portfolioId, DelphiLiveLease lease, CancellationToken ct = default)
     {
         var state = await store.LoadPortfolioAsync(portfolioId, ct);

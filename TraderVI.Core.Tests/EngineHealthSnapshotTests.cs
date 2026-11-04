@@ -10,6 +10,28 @@ namespace TraderVI.Core.Tests;
 
 public class EngineHealthSnapshotTests
 {
+    [Fact]
+    public void PaperCurrentReadinessAndUnverifiedHistoryAreSeparateFromRealHealth()
+    {
+        var incident = Paper;
+        var qualification = new PaperRestartQualification(new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()), Now.UtcDateTime,
+            [Guid.NewGuid()], [incident]);
+        var status = new EngineIntegrityStatus([incident], []) { PaperRestart = qualification, PaperIncrementalVerification = true };
+        var health = Build(status);
+        Assert.DoesNotContain(health.Restrictions, i => i.Domain.StartsWith("Paper"));
+        Assert.Contains(health.Warnings, i => i.Code == "PaperRecoveryRequired" && i.Impact.Contains("remain unverified"));
+        Assert.Contains(health.Issues, i => i.Code == "PaperIncrementalVerification" && i.Domain == "Paper");
+        Assert.Contains(health.Issues, i => i.Code == "ArchiveCoverage" && i.Domain == "Real/shared history");
+    }
+    [Fact]
+    public void FailedIndividualCheckpointRemainsRestrictedBesideQualifiedPortfolios()
+    {
+        var failed = Paper with { OwnerId = Guid.NewGuid(), EvidenceKey = "PaperCurrentState", FailureCode = "PaperRestartQualificationFailed" };
+        var qualification = new PaperRestartQualification(new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()), Now.UtcDateTime,
+            [Guid.NewGuid()], [failed]);
+        var health = Build(new([failed], []) { PaperRestart = qualification, PaperIncrementalVerification = true });
+        Assert.Contains(health.Restrictions, i => i.Code == "PaperRestartQualificationFailed");
+    }
     private static readonly DateTimeOffset Now = new(2026, 11, 3, 21, 0, 0, TimeSpan.Zero);
     private static IndependentEngineStatus Engine => new(Guid.NewGuid(), "Running", Now, []);
     private static BrokerExecutionHostStatus Execution => new("Waiting", "Execution is waiting for a reviewed regular TSX session.", Now);

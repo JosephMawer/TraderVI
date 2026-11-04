@@ -81,6 +81,7 @@ public sealed class EngineContinuity(IEngineContinuityStore store, IEngineContin
     public Task StartAsync(CancellationToken ct = default) => StartAsync(null, ct);
 
     internal bool ResumedInterruptedRun { get; private set; }
+    internal bool StartupWitnessMatched { get; private set; }
     internal async Task StartAsync(Func<CancellationToken, Task<bool>>? qualifyCompactCheckpoint, CancellationToken ct)
     {
         await gate.WaitAsync(ct).ConfigureAwait(false);
@@ -94,6 +95,7 @@ public sealed class EngineContinuity(IEngineContinuityStore store, IEngineContin
             var saved = await store.ReadAsync(ct).ConfigureAwait(false); saved.Database.Validate();
             Guid run = Guid.NewGuid();
             bool matching = local != null && local == saved.Stamp && local.Database == saved.Database;
+            StartupWitnessMatched = matching;
             bool qualified = false;
             if (matching && qualifyCompactCheckpoint != null)
             {

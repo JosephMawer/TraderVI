@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0127](0127-paper-checkpoint-restart-and-incremental-verification.md) — Paper current-state restart and incremental verification from the completed recovery
+
 - [ADR-0126](0126-engine-health-and-diagnostic-snapshot.md) — Flat operational issues and a shared diagnostic snapshot
 
 - [ADR-0123](0123-edge-passkey-session-handoff.md) — Explicit Edge passkey login with paired local session handoff
@@ -147,6 +149,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-pipeline
+
+- [ADR-0127](0127-paper-checkpoint-restart-and-incremental-verification.md) — Paper verification boundaries and changed-revision audits without routine lifetime replay
 
 - [ADR-0124](0124-due-prediction-scorecard.md) — Count observed XIU sessions to distinguish waiting from missing or unusable due outcomes
 

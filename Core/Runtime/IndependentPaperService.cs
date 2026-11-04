@@ -3,6 +3,7 @@ using Core.Calibration;
 using Core.Db;
 using Core.Trader.DelphiLive;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ public sealed class IndependentPaperService
     private readonly Func<DelphiLiveLease?> currentLease;
     private readonly SemaphoreSlim gate = new(1, 1);
     private volatile bool closing;
+    private readonly HashSet<Guid> restartPrepared = [];
     public void BeginStop() => closing = true;
     public async Task DrainAsync()
     {
@@ -75,9 +77,17 @@ public sealed class IndependentPaperService
 
     private async Task ApplyControlsAsync(DelphiLiveLease lease)
     {
+        if (PaperRestartQualification.Current is { } restart)
+            foreach (var portfolio in restart.PendingBuys)
+                if (!restartPrepared.Contains(portfolio.Key) &&
+                    (await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Paper, portfolio.Key).ConfigureAwait(false)).ProtectionAllowed)
+                {
+                    await actions.ExpireRestartBuysAsync(portfolio.Key, portfolio.Value, lease).ConfigureAwait(false);
+                    restartPrepared.Add(portfolio.Key);
+                }
         var controls = new TradingControlRepository();
         bool paused = await controls.IsPausedAsync(EngineStrategySettings.Live).ConfigureAwait(false) ||
-            !(await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Paper, null).ConfigureAwait(false)).NewExposureAllowed;
+            !(await new EngineIntegrityRepository().ReadPaperWorkerAccessAsync().ConfigureAwait(false)).NewExposureAllowed;
         workflow.NewBuysPaused = paused;
         if (paused)
         {
@@ -96,7 +106,7 @@ public sealed class IndependentPaperService
         if (!await gate.WaitAsync(0).ConfigureAwait(false)) return;
         try
         {
-            var integrity = await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Paper, null).ConfigureAwait(false);
+            var integrity = await new EngineIntegrityRepository().ReadPaperWorkerAccessAsync().ConfigureAwait(false);
             if (!integrity.ProtectionAllowed) throw new InvalidOperationException("Paper execution is unavailable under the integrity hold.");
             await using var settings = await EngineSettingsLease.AcquireAsync().ConfigureAwait(false);
             var lease = currentLease();

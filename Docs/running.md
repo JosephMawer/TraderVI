@@ -155,6 +155,32 @@ recovery verification and clear controls after inspecting the cause. A runtime w
 engine stop/restart before recovery. Never delete the protected witness to bypass a hold. Working-state
 qualification now also prepares observation projections for ended accounts included in recovery.
 
+### Prepared Paper checkpoint transition (not installed)
+
+[ADR-0127](adr/0127-paper-checkpoint-restart-and-incremental-verification.md) replaces routine Paper
+restart history replay with current-state checks and saved overnight verification boundaries.
+Implementation/offline validation authority does **not** authorize installation or restarting the engine.
+After separate approval, stop the engine normally and retain the existing collector. With the reviewed
+compatible engine package, run the explicit database-writing maintenance command:
+
+```text
+TraderVI.Engine --prepare-paper-verification 28f8f730-76ce-471f-94d2-cde1904cef0d
+```
+
+This requires exclusive engine ownership, the successful recovery/clearance receipt, matching database
+identity, intact guards/current checkpoints and no unresolved Paper/global finding. It saves compact
+verification boundaries in existing current-state storage; no schema migration is needed. Any legacy
+revisions written after recovery are checked once, starting from that recovery's boundary. This bridge
+can hydrate cumulative snapshots; its native cost is unmeasured. It cannot reset an existing baseline.
+Do not substitute `--prepare-working-state`, delete a receipt or request another full recovery when
+preparation fails. Investigate the specific boundary and retain the failed evidence.
+
+After the separately authorized restart, inspect current Paper qualification and original pending-buy
+expiry independently from historical coverage. Confirm the next Paper NewHistory plan starts after
+each saved boundary, resumes its exact progress and does not schedule weekly Paper Archive work.
+Real/shared archive checks and Real permission remain independent. Installation acceptance includes
+native SQL interruption and latency checks; offline tests alone do not establish operational readiness.
+
 `TraderVI.Engine --verify` persistently disables the saved execution grant and rejects broker access,
 order and enable commands for that process. It otherwise exercises the actual engine/audit schedules.
 The engine and dashboard share the installed Windows desktop runtime; matching engine files must be

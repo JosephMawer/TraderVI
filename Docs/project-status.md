@@ -147,6 +147,11 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   Real restart did not replace this Paper path. No supported live speed adjustment was identified;
   no host restart, priority change or verification bypass occurred.
   [Bottleneck evidence and limits](reviews/paper-recovery-bottleneck-20261103.md).
+  November 4: the Paper checkpoint restart/incremental-verification scope was approved for source
+  implementation and offline validation. The source passed offline checks; it is not installed, no baseline
+  adoption command has run and no host was restarted by this work. Installation/native acceptance
+  remain in the [owning checklist](strategy-alignment-implementation-checklist.md) under
+  [ADR-0127](adr/0127-paper-checkpoint-restart-and-incremental-verification.md).
   [Original restart and clearance evidence](project-status-history-20261101.md#october-30--real-execution-resumed-after-recovery-1446-toronto),
   [prior diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
   A separate Paper-input failure was traced to missing verified holding correspondence in
@@ -236,7 +241,7 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 ## Remaining qualification
 
 The roadmap and checklists retain the details and order. Key boundaries are reliable held-position
-protection, the review-only Paper restart redesign and symbol resolution, complete market-data/valuation coverage, native
+protection, the offline-validated Paper restart redesign's separate installation acceptance, symbol resolution, complete market-data/valuation coverage, native
 restart and order reconciliation, and comparable mature paper evidence before broader strategy
 adoption. AI-managed portfolio components have source/tested pieces but are not an activated operating
 portfolio; valuation, cash-event, integration and host qualification remain. A reviewed short-session
