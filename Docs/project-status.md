@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-Last reconciled **November 3, 2026**. This page records the latest dated evidence and its limits;
+Last reconciled **November 4, 2026**. This page records the latest dated evidence and its limits;
 it is not a live health check or authority to trade. [Roadmap](roadmap.md) owns priority;
 [execution checklist](strategy-alignment-implementation-checklist.md) and
 [Live checklist](delphi-live-implementation-checklist.md) own remaining acceptance work.
@@ -173,6 +173,17 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   [Diagnosis](project-status-history-20261101.md#october-30--paper-inputs-cause-confirmed-without-restart-10181020-toronto),
   [roadmap](roadmap.md).
 - **Collector and minute data:** The independent collector runs separately from the trading engine.
+  November 4 morning readiness found it absent, with its last receipt Stopped at 04:30:33 Toronto,
+  no surviving supervisor and no deliberate stop marker. No matching Application error event explained
+  the exit. Joseph explicitly approved restarting the unchanged hash-verified package at 08:54 under
+  its existing bounded supervisor (collector PID 32356, supervisor PID 29944). Engine PID 32368 retained
+  its 01:51 start. At 08:58 all 15 engine workers had zero consecutive failures, Paper's three portfolios
+  remained qualified, zero integrity incidents were open, and the collector reported fresh OutsideSession
+  with today's subscription boundaries. Broker connection and regular-hours wait passed, but the
+  separate installed broker helper returned PendingOrdersUnsupportedResponse: fresh independent
+  pending-order verification is unavailable, not proof of zero broker orders. Today's market-hour
+  inputs/protection remain prospective. A read-only five-minute chat watch runs through noon November 4;
+  current evidence and already-reported findings are in `artifacts/morning-readiness/2026-11-04/engine-watch/`.
   Migration 057 and the latest-minute collector were installed November 1; closed-session checks and
   a native SQL/mock-HTTP package check passed. The first market-open provider response under this
   policy, coverage/capacity and venue qualification remain unverified. The Real strategy remains
@@ -181,8 +192,16 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   [acceptance work](strategy-alignment-implementation-checklist.md#independent-collector-and-recovered-confirmation--october-27-overnight).
 - **Nightly:** The task was changed November 1 to 06:30 Toronto local time daily and selects verified
   existing outputs for Hermes, DataAudit, Delphi and Athena. Successful Windows Release builds register
-  per-app outputs for future selection. Preflight and offline tests passed; the first scheduled run
-  under this configuration remains pending. Selected output directories are runtime dependencies and
+  per-app outputs for future selection. November 4 inspection confirmed the scheduled 06:30–06:37 run
+  completed all four stages for November 4, overall Attention; Windows recorded zero missed runs and
+  the next occurrence November 5 at 06:30. At Joseph's request, one preflight-verified forced rerun ran
+  08:55–08:57 with the existing outputs. Delphi and Athena succeeded; Hermes still reported two missing
+  daily-bar sources, and DataAudit retained one error/ten warnings (no new or resolved findings).
+  Today's valid Delphi preparation uses November 3 market data. Athena's earlier one invalid prediction
+  outcome had MissingSymbolSession; zero newly invalid outcomes on rerun does not repair that record.
+  No models were trained, outputs rebuilt, engine restarted or order/permission settings changed by
+  the rerun. Receipts/log pointers are retained in the morning-watch evidence directory above.
+  Selected output directories are runtime dependencies and
   must be protected. [ADR-0122](adr/0122-existing-output-nightly-execution.md),
   [configuration and evidence](project-status-history-20261101.md#november-1--nightly-reuses-existing-outputs-at-0630).
 

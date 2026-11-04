@@ -1,6 +1,6 @@
 # ADR-0122: Reuse existing nightly outputs at 06:30
 
-- **Status:** Accepted; runner validated and Windows task updated; first scheduled execution pending
+- **Status:** Accepted and installed; scheduled existing-output execution observed November 4 (all stages completed, overall Attention)
 - **Date:** 2026-11-01
 - **Domains:** architecture, data-pipeline
 - **Supersedes:** [ADR-0078](0078-isolated-latest-source-nightly-builds.md) source capture/restore/build preparation, and the 00:30 clock in [ADR-0046](0046-guarded-nightly-operations-runner.md) / [ADR-0058](0058-daily-ingestion-and-observed-benchmark-confirmation.md)
@@ -104,8 +104,11 @@ the selected outputs without starting programs or writing operational status. Th
 and source-copy/build implementation are removed; changing source cannot silently re-enable them.
 
 Installation evidence and protected-host checks are in [project status](../project-status.md), with
-private records under `artifacts/nightly-existing-outputs-20261101/`. The first scheduled run is not
-claimed successful until observed. This runner change performed no cleanup. The subsequent separately
+private records under `artifacts/nightly-existing-outputs-20261101/`. November 4 inspection confirmed
+the scheduled 06:30 run completed every stage for that date; source/audit warnings produced Attention,
+not a missed run or fully clean data. An explicitly requested 08:55 rerun also completed every stage.
+[Current evidence and limits](../project-status.md#operating-state-and-immediate-risks).
+This runner change performed no cleanup. The subsequent separately
 authorized removal of retired nightly copies is recorded in
 [project status](../project-status-history-20261101.md#november-1--retired-nightly-copies-removed). Other artifact cleanup,
 log/cache retention, single-file packaging and a dashboard Run now action remain separate decisions.
