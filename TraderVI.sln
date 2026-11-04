@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Docs\reviews\documentation-consolidation-20261023.md = Docs\reviews\documentation-consolidation-20261023.md
 		Docs\reviews\restart-recovery-design-20261030.md = Docs\reviews\restart-recovery-design-20261030.md
 		Docs\reviews\paper-recovery-bottleneck-20261103.md = Docs\reviews\paper-recovery-bottleneck-20261103.md
+		Docs\reviews\paper-restart-copy-rehearsal-20261104.md = Docs\reviews\paper-restart-copy-rehearsal-20261104.md
 		Docs\reviews\sql-cleanup-inventory-20261031.md = Docs\reviews\sql-cleanup-inventory-20261031.md
 		Operations\RecoveryCodecProfile\README.md = Operations\RecoveryCodecProfile\README.md
 		Operations\RecoveryCodecProfile\RecoveryCodecProfile.csproj = Operations\RecoveryCodecProfile\RecoveryCodecProfile.csproj

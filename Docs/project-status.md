@@ -148,8 +148,10 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   no host restart, priority change or verification bypass occurred.
   [Bottleneck evidence and limits](reviews/paper-recovery-bottleneck-20261103.md).
   November 4: the Paper checkpoint restart/incremental-verification scope was approved for source
-  implementation and offline validation. The source passed offline checks; it is not installed, no baseline
-  adoption command has run and no host was restarted by this work. Installation/native acceptance
+  implementation and offline validation, followed by a separately authorized isolated-copy rehearsal.
+  Offline checks and six copy-only SQL phases passed; the source is not installed and no production
+  baseline adoption or host restart occurred. [Rehearsal evidence](reviews/paper-restart-copy-rehearsal-20261104.md).
+  Installation/native acceptance
   remain in the [owning checklist](strategy-alignment-implementation-checklist.md) under
   [ADR-0127](adr/0127-paper-checkpoint-restart-and-incremental-verification.md).
   [Original restart and clearance evidence](project-status-history-20261101.md#october-30--real-execution-resumed-after-recovery-1446-toronto),

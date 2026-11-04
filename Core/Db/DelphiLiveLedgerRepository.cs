@@ -15,14 +15,20 @@ namespace Core.Db;
 /// action, quote attempt, fill, floor and exact mark remains reconstructible in
 /// its original revision; no existing Shadow or tracked-position row is used.
 /// </summary>
-public sealed class DelphiLiveLedgerRepository(bool workingState = false) : SQLBase, IDelphiLiveLedgerStore
+public sealed class DelphiLiveLedgerRepository(bool workingState = false, Func<CancellationToken, Task<SqlConnection>>? connectionFactory = null) : SQLBase, IDelphiLiveLedgerStore
 {
+    private async Task<SqlConnection> OpenAsync(CancellationToken ct)
+    {
+        if (connectionFactory != null) return await connectionFactory(ct);
+        var connection = new SqlConnection(ConnectionString);
+        try { await connection.OpenAsync(ct); return connection; }
+        catch { await connection.DisposeAsync(); throw; }
+    }
     public const string MigrationFileName = DelphiLiveSnapshotStorage.Migration;
 
     public async Task<bool> HasSchemaAsync(CancellationToken cancellationToken = default)
     {
-        await using var connection = new SqlConnection(ConnectionString);
-        await connection.OpenAsync(cancellationToken);
+        await using var connection = await OpenAsync(cancellationToken);
         await using var command = new SqlCommand("""
 SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePortfolioGeneration', N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.DelphiLivePortfolioLedger', N'U') IS NOT NULL
@@ -36,16 +42,14 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePortfolioGeneration', N'U') IS N
 
     public async Task<DelphiLivePortfolioSnapshot?> LoadPortfolioAsync(Guid portfolioId, CancellationToken cancellationToken = default)
     {
-        await using var connection = new SqlConnection(ConnectionString);
-        await connection.OpenAsync(cancellationToken);
+        await using var connection = await OpenAsync(cancellationToken);
         if (workingState) return await ReadWorkingAsync(connection, portfolioId, cancellationToken);
         return await Read(connection, null, portfolioId, false, cancellationToken);
     }
 
     public async Task<IReadOnlyList<DelphiLivePortfolioSnapshot>> GetPortfoliosForSessionAsync(DateOnly tradingDate, CancellationToken cancellationToken = default)
     {
-        await using var connection = new SqlConnection(ConnectionString);
-        await connection.OpenAsync(cancellationToken);
+        await using var connection = await OpenAsync(cancellationToken);
         await using var command = new SqlCommand("""
 SELECT l.[SnapshotJson]
 FROM [dbo].[DelphiLivePortfolioLedger] l
@@ -79,8 +83,7 @@ ORDER BY l.[PortfolioId];
         var state = DelphiLiveLedgerIntegrity.Create(request);
         if (request.Role != "OperationalChampion" || request.ExperimentId is not null)
             throw new NotSupportedException("Comparison activation requires its separately validated aligned experiment coordinator.");
-        await using var connection = new SqlConnection(ConnectionString);
-        await connection.OpenAsync(cancellationToken);
+        await using var connection = await OpenAsync(cancellationToken);
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         await using (var gate = new SqlCommand("""
 DECLARE @result int;
@@ -147,8 +150,7 @@ VALUES (@Event, @Portfolio, 0, N'InitialCapitalActivationAuthorized', @Authorize
     {
         if (events.Count == 0 || lease.LeaseId == Guid.Empty || lease.FencingToken < 1)
             throw new ArgumentException("Every portfolio revision requires auditable events and a durable host lease.");
-        await using var connection = new SqlConnection(ConnectionString);
-        await connection.OpenAsync(cancellationToken);
+        await using var connection = await OpenAsync(cancellationToken);
         string originalRoot;
         await using (var read = new SqlCommand("SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger WHERE PortfolioId=@Id;", connection))
         {

@@ -21,8 +21,9 @@ internal sealed record PaperVerificationPolicy(EngineDatabaseIdentity Database, 
     ImmutableArray<Guid> OriginalOwners);
 
 /// <summary>Small audit resume records in the existing current-state store. No portfolio/history copy.</summary>
-public sealed class EnginePaperVerificationRepository
+public sealed class EnginePaperVerificationRepository(Func<CancellationToken, Task<SqlConnection>>? connectionFactory = null)
 {
+    private readonly Func<CancellationToken, Task<SqlConnection>> connect = connectionFactory ?? EngineIntegrityRepository.OpenAsync;
     private static readonly Guid PolicyOwner = new("BA811619-70E5-4CF6-B8B5-3A4AEFAE0999");
     private const string BoundaryKind = "PaperVerifiedBoundary", PolicyKind = "PaperVerificationPolicy";
 
@@ -53,7 +54,7 @@ public sealed class EnginePaperVerificationRepository
     /// <summary>Explicit offline transition. Requires the engine ownership lease held by the command.</summary>
     public async Task PrepareAsync(Guid recovery, CancellationToken ct = default)
     {
-        await using var c = await EngineIntegrityRepository.OpenAsync(ct);
+        await using var c = await connect(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         await RequireGuardsAsync(c, t, ct);
         if (await PolicyAsync(c, t, ct) != null) throw new InvalidOperationException("Paper verification is already prepared; it cannot be reset by preparation.");
@@ -122,7 +123,7 @@ public sealed class EnginePaperVerificationRepository
     {
         PaperRestartQualification.Set(null);
         if (!continuityMatched) throw new InvalidDataException("Paper restart continuity is uncertain; investigate the saved boundary without starting a full scan.");
-        await using var c = await EngineIntegrityRepository.OpenAsync(ct);
+        await using var c = await connect(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         await RequireGuardsAsync(c, t, ct);
         var policy = await PolicyAsync(c, t, ct) ?? throw new InvalidOperationException("Adopt the completed Paper recovery before enabling checkpoint restart.");
@@ -158,7 +159,7 @@ public sealed class EnginePaperVerificationRepository
         if (incidents.Any(i => (i.Scope == EngineIntegrityScope.Global || i.Scope == EngineIntegrityScope.Paper && i.OwnerId == null) && !PaperRestartQualification.IsStartupFinding(i)))
             throw new InvalidOperationException("A current Paper or shared finding requires targeted investigation.");
         t.Commit();
-        var repository = new EngineIntegrityRepository();
+        var repository = new EngineIntegrityRepository(connect);
         foreach (var owner in failedOwners)
             await repository.RaiseAsync(EngineIntegrityScope.Paper, owner, "PaperCurrentState", "PaperRestartQualificationFailed", true, ct);
         // Owner findings remain local; a damaged portfolio cannot qualify through its own startup finding.
@@ -208,7 +209,7 @@ public sealed class EnginePaperVerificationRepository
 
     internal async Task<EngineAuditRun> VerifyNextAsync(EngineAuditRun run, CancellationToken ct = default)
     {
-        await using var c = await EngineIntegrityRepository.OpenAsync(ct);
+        await using var c = await connect(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         await RequireGuardsAsync(c, t, ct);
         var policy = await PolicyAsync(c, t, ct) ?? throw new InvalidDataException("Missing Paper verification policy.");

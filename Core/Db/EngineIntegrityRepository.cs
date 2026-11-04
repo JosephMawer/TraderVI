@@ -16,8 +16,9 @@ using System.Threading.Tasks;
 namespace Core.Db;
 
 /// <summary>Durable findings are independent of audit progress. A clean later batch never clears a hold.</summary>
-public sealed class EngineIntegrityRepository
+public sealed class EngineIntegrityRepository(Func<CancellationToken, Task<SqlConnection>>? connectionFactory = null)
 {
+    private readonly Func<CancellationToken, Task<SqlConnection>> connect = connectionFactory ?? OpenAsync;
     internal static async Task<SqlConnection> OpenAsync(CancellationToken ct)
     {
         var c = new SqlConnection(new SQLBase().ConnectionString);
@@ -55,7 +56,7 @@ ORDER BY i.DiscoveredUtc,i.IncidentId;
 
     internal async Task<EngineIntegrityAccess> ReadPaperWorkerAccessAsync(CancellationToken ct = default)
     {
-        await using var c = await OpenAsync(ct);
+        await using var c = await connect(ct);
         if (!await RequiredGuardsAsync(c, null, ct)) throw new InvalidOperationException("Immutable history guards are unavailable.");
         var open = await ReadOpenAsync(c, null, ct);
         // Owner-specific findings are enforced by portfolio selection and again by each SQL append.
@@ -70,7 +71,7 @@ ORDER BY i.DiscoveredUtc,i.IncidentId;
     private async Task<EngineIntegrityAccess> ReadAccessCoreAsync(EngineIntegrityScope scope, Guid? owner, CancellationToken ct,
         bool paperSharedInputs)
     {
-        await using var c = await OpenAsync(ct);
+        await using var c = await connect(ct);
         if (!await InstalledAsync(c, null, ct)) throw new InvalidOperationException("Independent integrity storage is not installed.");
         if (!await RequiredGuardsAsync(c, null, ct)) throw new InvalidOperationException("Immutable history guards are unavailable.");
         return EngineIntegrityAccess.Evaluate(await ReadOpenAsync(c, null, ct), scope, owner, paperSharedInputs);
@@ -86,7 +87,7 @@ ORDER BY i.DiscoveredUtc,i.IncidentId;
     }
     public async Task<IManualBuySafetyLease> AcquireProtectionLeaseAsync(Guid binding, CancellationToken ct)
     {
-        var c = await OpenAsync(ct);
+        var c = await connect(ct);
         SqlTransaction? t = null;
         try
         {
@@ -113,7 +114,7 @@ ORDER BY i.DiscoveredUtc,i.IncidentId;
         if (!Enum.IsDefined(scope) || scope == EngineIntegrityScope.Global && owner is not null ||
             string.IsNullOrWhiteSpace(evidenceKey) || evidenceKey.Length > 200 || string.IsNullOrWhiteSpace(code) || code.Length > 64)
             throw new ArgumentException("Invalid integrity incident identity.");
-        await using var c = await OpenAsync(ct);
+        await using var c = await connect(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         await c.ExecuteAsync(new CommandDefinition("""
 IF NOT EXISTS(SELECT 1 FROM dbo.EngineIntegrityIncident i WITH(UPDLOCK,HOLDLOCK)
@@ -126,7 +127,7 @@ IF NOT EXISTS(SELECT 1 FROM dbo.EngineIntegrityIncident i WITH(UPDLOCK,HOLDLOCK)
     }
     public async Task<EngineIntegrityStatus> ReadStatusAsync(CancellationToken ct = default)
     {
-        await using var c = await OpenAsync(ct);
+        await using var c = await connect(ct);
         var incidents = await ReadOpenAsync(c, null, ct);
         var rows = await c.QueryAsync<RunRow>(new CommandDefinition("""
 SELECT a.* FROM dbo.EngineAuditRun a JOIN
@@ -141,14 +142,14 @@ SELECT a.* FROM dbo.EngineAuditRun a JOIN
     }
     public async Task<bool> GuardsAvailableAsync(CancellationToken ct = default)
     {
-        await using var c = await OpenAsync(ct);
+        await using var c = await connect(ct);
         return await InstalledAsync(c, null, ct) && await RequiredGuardsAsync(c, null, ct);
     }
 
     public async Task<EngineAuditRun> StartAsync(EngineAuditKind kind, CancellationToken ct = default,
         EngineRecoveryScope scope = EngineRecoveryScope.All)
     {
-        await using var c = await OpenAsync(ct);
+        await using var c = await connect(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         if (!Enum.IsDefined(scope) || scope != EngineRecoveryScope.All && kind != EngineAuditKind.Recovery &&
             !(kind == EngineAuditKind.NewHistory || kind == EngineAuditKind.Archive && scope == EngineRecoveryScope.Real))
@@ -219,7 +220,7 @@ UNION ALL SELECT N'SharedContent',NULL,ISNULL(MAX(EvidenceSequence),0) FROM dbo.
     {
         progress.Validate(original.Plan);
         var next = original with { Progress = progress, Revision = original.Revision + 1, Status = failed ? "Failed" : progress.Complete ? "Complete" : "Running", UpdatedUtc = DateTime.UtcNow };
-        await using var c = await OpenAsync(ct);
+        await using var c = await connect(ct);
         if (await c.ExecuteAsync(new CommandDefinition("""
 UPDATE dbo.EngineAuditRun SET ProgressJson=@ProgressJson,ProgressHash=@ProgressHash,Revision=@Revision,Status=@Status,UpdatedUtc=SYSUTCDATETIME()
 WHERE RunId=@RunId AND Revision=@Revision-1 AND PlanHash=@PlanHash AND Status=N'Running';
@@ -232,7 +233,7 @@ WHERE RunId=@RunId AND Revision=@Revision-1 AND PlanHash=@PlanHash AND Status=N'
         if (incidents.IsDefaultOrEmpty || incidents.Length != incidents.Distinct().Count() ||
             string.IsNullOrWhiteSpace(reason) || reason.Trim().Length > 500)
             throw new ArgumentException("Select the original incidents and supply a recovery reason.");
-        await using var c = await OpenAsync(ct);
+        await using var c = await connect(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         var row = await c.QuerySingleAsync<RunRow>(new CommandDefinition("SELECT * FROM dbo.EngineAuditRun WHERE RunId=@Id;",
             new { Id = recoveryRunId }, t, cancellationToken: ct));

@@ -517,12 +517,19 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   warnings remain; dependency-security auditing was disabled, not qualified. Maintained-document
   link check passed (851 links). Logs: `artifacts/build/paper-full-tests.log`,
   `paper-final-focused.log`, `paper-build.log`. No database/external operation or host launch.
+- [x] November 4 separately authorized isolated-copy rehearsal: fresh copy-only backup restored into
+  private LocalDB; six phases passed for adoption, saved-state restart, duplicate retry, SQL rollback,
+  fresh-process audit resume and owner-scoped rejection. No broker client or normal engine launch.
+  Full regression suite after the connection-factory test seam: 3,656 passed/17 native skips;
+  isolated Debug engine/WPF build passed with existing warnings.
+  [Evidence and limits](reviews/paper-restart-copy-rehearsal-20261104.md). The copy had no legacy tail;
+  actual installed scheduling, broker checks and market-time operation remain unverified.
 - [ ] Obtain separate authority for installation, stopped-engine baseline preparation and restart.
   Preparation must adopt the successful cleared recovery and check any intervening legacy tail.
   Its one-time cumulative snapshot read cost is not a routine restart cost and remains unmeasured.
-- [ ] After authorized installation, verify native SQL atomic resume/lost-acknowledgement behavior,
-  current-state startup time, owner-scoped rejection, overnight new-only coverage and market-hour
-  operation. Offline tests do not establish any of these installed outcomes.
+- [ ] After authorized installation, verify actual engine startup time, pending-action handling,
+  owner-scoped rejection, scheduled overnight new-only coverage and market-hour operation. The copy
+  rehearsal proves bounded SQL behavior, not those installed outcomes or a network/power-loss trial.
 - [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine
   with execution Off; verify single ownership, normal mode, connection and original Paper cursor progress.
 - [x] Verify fresh post-interruption Real recovery 260/260 and separately authorize/apply only its reviewed

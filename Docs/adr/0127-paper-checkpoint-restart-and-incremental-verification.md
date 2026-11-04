@@ -1,7 +1,7 @@
 # ADR-0127: Paper checkpoint restart and incremental verification
 
 - **Date:** November 4, 2026
-- **Status:** Approved, implemented and offline validated; not installed
+- **Status:** Approved, implemented, offline validated and rehearsed on an isolated SQL copy; not installed
 - **Domains:** architecture, data-pipeline
 - **Amends:** [ADR-0103](0103-real-execution-independent-of-paper-research.md), [ADR-0104](0104-scoped-recovery-and-sequential-history-audits.md) and [ADR-0116](0116-temporary-paper-continuation-during-reboot-recovery.md), for Paper restart, operational qualification and automatic historical verification only
 - **Related:** [issue #28](https://github.com/JosephMawer/TraderVI/issues/28), [ADR-0117](0117-compact-trading-current-storage.md)
@@ -120,3 +120,9 @@ In a synthetic in-memory test, four cold restores plus incremental checks took 2
 trades and 27.7 ms for 10,000, with four content records in either case. These are illustrative single-run
 measurements, not SQL latency or an installed service guarantee. The original archive remains intact.
 Evidence logs and pending native acceptance are in the [owning checklist](../strategy-alignment-implementation-checklist.md).
+
+Subsequent explicit authority allowed a fresh copy-only backup and isolated SQL rehearsal with no broker
+access. Six phases passed against the copied three-portfolio book, including fresh-process current-state
+qualification without archive-item reads, atomic audit rollback and exact incremental resume. The ordinary
+engine was not launched; restored identity was mapped only through a marked synthetic copy receipt.
+See [native copy evidence and remaining limits](../reviews/paper-restart-copy-rehearsal-20261104.md).

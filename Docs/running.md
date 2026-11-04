@@ -181,6 +181,14 @@ each saved boundary, resumes its exact progress and does not schedule weekly Pap
 Real/shared archive checks and Real permission remain independent. Installation acceptance includes
 native SQL interruption and latency checks; offline tests alone do not establish operational readiness.
 
+The separately authorized [November 4 copy rehearsal](reviews/paper-restart-copy-rehearsal-20261104.md)
+passed six repository-level SQL phases without a normal engine launch or broker access. Its source
+scripts are `Operations/New-PaperRestartCopy.ps1` and `Operations/Invoke-PaperRestartCopyPhase.ps1`.
+They are operational test tools, not routine validation or installation commands: the former takes a
+fresh copy-only production backup and restores it to a private marked LocalDB; the latter mutates only
+that copy. The test-only restored-identity proof must never be used to bypass production recovery.
+Keep the distinction between isolated repository startup and installed engine/market-time acceptance.
+
 `TraderVI.Engine --verify` persistently disables the saved execution grant and rejects broker access,
 order and enable commands for that process. It otherwise exercises the actual engine/audit schedules.
 The engine and dashboard share the installed Windows desktop runtime; matching engine files must be

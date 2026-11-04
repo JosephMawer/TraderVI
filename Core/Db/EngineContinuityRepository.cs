@@ -12,8 +12,9 @@ using System.Threading.Tasks;
 
 namespace Core.Db;
 
-public sealed class EngineContinuityRepository : IEngineContinuityStore
+public sealed class EngineContinuityRepository(Func<CancellationToken, Task<SqlConnection>>? connectionFactory = null) : IEngineContinuityStore
 {
+    private readonly Func<CancellationToken, Task<SqlConnection>> connect = connectionFactory ?? EngineIntegrityRepository.OpenAsync;
     private static readonly Guid Owner = new("EEC83433-0955-4502-A26E-2BFD1BEDF4F3");
     internal static Task<EngineDatabaseIdentity> IdentityAsync(SqlConnection c, SqlTransaction t, CancellationToken ct) =>
         c.QuerySingleAsync<EngineDatabaseIdentity>(new CommandDefinition("""
@@ -22,7 +23,7 @@ FROM sys.database_recovery_status WHERE database_id=DB_ID();
 """, transaction: t, cancellationToken: ct));
     public async Task<EngineContinuityObservation> ReadAsync(CancellationToken ct)
     {
-        await using var c = await EngineIntegrityRepository.OpenAsync(ct);
+        await using var c = await connect(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         if (!await EngineIntegrityRepository.RequiredGuardsAsync(c, t, ct))
             throw new InvalidDataException("Immutable guards are unavailable; engine continuity cannot be verified.");
@@ -43,7 +44,7 @@ SELECT Revision,SourceHash,StateHash,StateJson FROM dbo.EngineCurrentState WHERE
     public async Task WriteAsync(EngineContinuityStamp? expected, EngineContinuityStamp next, CancellationToken ct)
     {
         next.Validate();
-        await using var c = await EngineIntegrityRepository.OpenAsync(ct);
+        await using var c = await connect(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         if (await IdentityAsync(c, t, ct) != next.Database) throw new InvalidDataException("Database identity changed during engine checkpoint.");
         await c.ExecuteAsync(new CommandDefinition("""
@@ -63,7 +64,7 @@ END
 """, new { Owner, Revision = next.Sequence, Previous = expected?.Hash, Hash = next.Hash, Json = next.Json }, t, cancellationToken: ct));
         t.Commit();
     }
-    public Task HoldAsync(string key, string code, CancellationToken ct) => new EngineIntegrityRepository()
+    public Task HoldAsync(string key, string code, CancellationToken ct) => new EngineIntegrityRepository(connect)
         .RaiseAsync(EngineIntegrityScope.Global, null, key, code, true, ct);
     private sealed record Row(long Revision, string SourceHash, string StateHash, string StateJson);
 }
