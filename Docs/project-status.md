@@ -149,9 +149,16 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   [Bottleneck evidence and limits](reviews/paper-recovery-bottleneck-20261103.md).
   November 4: the Paper checkpoint restart/incremental-verification scope was approved for source
   implementation and offline validation, followed by a separately authorized isolated-copy rehearsal.
-  Offline checks and six copy-only SQL phases passed; the source is not installed and no production
-  baseline adoption or host restart occurred. [Rehearsal evidence](reviews/paper-restart-copy-rehearsal-20261104.md).
-  Installation/native acceptance
+  Offline checks and six copy-only SQL phases passed. Separately authorized cleanup and installation
+  completed November 4 at 01:40 Toronto: matching Release engine/dashboard installed, original recovery
+  adopted in 0.742 seconds with zero legacy tail and all three portfolio revisions unchanged. Fresh
+  backup/copy verified and synchronized; approximately 33.7 GB of disposable rehearsal files removed.
+  **The app is in build-review mode with automatic trading Off, awaiting operator exact-build review
+  before normal startup.** No normal Paper restart or scheduled delta pass is yet operationally verified.
+  Collector PID 21964 reports fresh OutsideSession status; it replaced PID 17980 before installation,
+  with unchanged verified package/configuration and an unestablished restart cause.
+  [Installation and remaining boundary](reviews/paper-restart-copy-rehearsal-20261104.md#live-installation-and-rehearsal-cleanup).
+  Normal startup/native acceptance
   remain in the [owning checklist](strategy-alignment-implementation-checklist.md) under
   [ADR-0127](adr/0127-paper-checkpoint-restart-and-incremental-verification.md).
   [Original restart and clearance evidence](project-status-history-20261101.md#october-30--real-execution-resumed-after-recovery-1446-toronto),

@@ -505,7 +505,7 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [x] Review and approve Paper checkpoint restart and incremental verification under
   [GitHub #28](https://github.com/JosephMawer/TraderVI/issues/28), the Paper-specific follow-up to #19.
   November 4: Joseph approved implementation and offline validation using the completed November 3
-  recovery as baseline. Installation and engine restart require separate approval.
+  recovery as baseline. Separate installation/restart authority was subsequently granted November 4.
   [ADR-0127](adr/0127-paper-checkpoint-restart-and-incremental-verification.md) owns scope and trust limits;
   retention, database-size investigation and issue #24 remain separate.
 - [x] Implement compact Paper restart qualification, original pending-buy expiry, per-portfolio
@@ -524,9 +524,15 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   isolated Debug engine/WPF build passed with existing warnings.
   [Evidence and limits](reviews/paper-restart-copy-rehearsal-20261104.md). The copy had no legacy tail;
   actual installed scheduling, broker checks and market-time operation remain unverified.
-- [ ] Obtain separate authority for installation, stopped-engine baseline preparation and restart.
-  Preparation must adopt the successful cleared recovery and check any intervening legacy tail.
-  Its one-time cumulative snapshot read cost is not a routine restart cost and remains unmeasured.
+- [x] Obtain separate authority for installation, stopped-engine baseline preparation and restart.
+- [x] Install the matching Release engine/dashboard and adopt the successful cleared recovery.
+  November 4 01:40 Toronto: preparation passed in 0.742 seconds with zero intervening legacy revisions;
+  all three portfolio heads remained unchanged. Release suite: 3,656 passed/17 native skips. Fresh
+  checksum-verified backup/copy synchronized; old runtime and protected records preserved. Disposable
+  rehearsal instance/database/backup removed. [Evidence](reviews/paper-restart-copy-rehearsal-20261104.md#live-installation-and-rehearsal-cleanup).
+- [ ] Complete the existing exact-build Real review, then start the normal engine. The installed app
+  is in build-review mode, execution Off; no financial approval or normal startup was performed.
+  Real's compact startup qualifier requires the saved build to match before Paper qualification runs.
 - [ ] After authorized installation, verify actual engine startup time, pending-action handling,
   owner-scoped rejection, scheduled overnight new-only coverage and market-hour operation. The copy
   rehearsal proves bounded SQL behavior, not those installed outcomes or a network/power-loss trial.

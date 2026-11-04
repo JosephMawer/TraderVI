@@ -1,7 +1,7 @@
 # ADR-0127: Paper checkpoint restart and incremental verification
 
 - **Date:** November 4, 2026
-- **Status:** Approved, implemented, offline validated and rehearsed on an isolated SQL copy; not installed
+- **Status:** Implemented, offline/copy validated and installed November 4; production baseline adopted; normal restart awaits exact-build review
 - **Domains:** architecture, data-pipeline
 - **Amends:** [ADR-0103](0103-real-execution-independent-of-paper-research.md), [ADR-0104](0104-scoped-recovery-and-sequential-history-audits.md) and [ADR-0116](0116-temporary-paper-continuation-during-reboot-recovery.md), for Paper restart, operational qualification and automatic historical verification only
 - **Related:** [issue #28](https://github.com/JosephMawer/TraderVI/issues/28), [ADR-0117](0117-compact-trading-current-storage.md)
@@ -15,9 +15,12 @@ the Paper checkpoint review chat: adopt tonight's completed recovery, reuse curr
 qualify restart without lifetime replay, verify new history overnight, investigate failures at their
 affected scope, and separate Paper health from historical coverage and Real health.
 
-This authorizes implementation and offline validation. Installation, production database writes,
-engine restart and financial operations require separate approval. Retention/deletion and measuring
-database size remain deferred. Issue #24's symbol correspondence is separate. The recovery monitor
+The initial approval authorized implementation and offline validation. Joseph subsequently authorized
+rehearsal cleanup and live installation/restart on November 4. The tested package is installed and the
+production baseline adopted; the app is in build-review mode. Existing exact-build financial review
+still precedes normal startup of the compact Real account. [Installation evidence](../reviews/paper-restart-copy-rehearsal-20261104.md#live-installation-and-rehearsal-cleanup).
+General retention/deletion and measuring database size remain deferred. Issue #24's symbol
+correspondence is separate. The recovery monitor
 and clearance remained with their original chat and have completed.
 
 ## Existing verified baseline

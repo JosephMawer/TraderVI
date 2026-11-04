@@ -1,6 +1,6 @@
 # TraderVI Roadmap
 
-Last reconciled **November 3, 2026**. This page owns priority order; [project status](project-status.md)
+Last reconciled **November 4, 2026**. This page owns priority order; [project status](project-status.md)
 records dated evidence, the relevant checklists own acceptance and dependencies, and
 [design rules](design-rules.md) and accepted ADRs govern behavior. A roadmap item does not authorize
 live operations, trading, training, market access or deployment.
@@ -34,9 +34,9 @@ intentional handover without losing existing protection or financial history.
    intervene sooner only for an actual engine failure, stuck execution or trading block.
 3. **Qualify protection, recovery and market inputs.** The held-position broker bid-read failure is an
    unresolved protection gap; its investigation is on operator hold. Do not claim reliable automatic
-   selling without restored and verified bid-based protection. With retained Paper recovery cleared,
-   obtain separate installation and engine-restart authority for the offline-validated Paper checkpoint
-   restart and incremental verification under [issue #28](https://github.com/JosephMawer/TraderVI/issues/28).
+   selling without restored and verified bid-based protection. The Paper checkpoint package and baseline
+   are installed under separate November 4 authority. Complete existing exact-build review, normal
+   restart and native incremental-verification acceptance under [issue #28](https://github.com/JosephMawer/TraderVI/issues/28).
    [Scope and acceptance](adr/0127-paper-checkpoint-restart-and-incremental-verification.md).
    Qualify collector coverage, capacity, venue and native recovery before proposing one-minute financial
    adoption; the approved Real strategy remains five-minute. Preserve existing gates, indicator windows,

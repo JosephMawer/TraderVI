@@ -155,12 +155,14 @@ recovery verification and clear controls after inspecting the cause. A runtime w
 engine stop/restart before recovery. Never delete the protected witness to bypass a hold. Working-state
 qualification now also prepares observation projections for ended accounts included in recovery.
 
-### Prepared Paper checkpoint transition (not installed)
+### Paper checkpoint transition
 
 [ADR-0127](adr/0127-paper-checkpoint-restart-and-incremental-verification.md) replaces routine Paper
 restart history replay with current-state checks and saved overnight verification boundaries.
-Implementation/offline validation authority does **not** authorize installation or restarting the engine.
-After separate approval, stop the engine normally and retain the existing collector. With the reviewed
+The November 4 separately approved installation adopted the baseline below; **do not rerun preparation**.
+The installed app currently awaits exact-build review before its first normal restart; see
+[dated installation evidence](reviews/paper-restart-copy-rehearsal-20261104.md#live-installation-and-rehearsal-cleanup).
+For an approved initial transition, stop the engine normally and retain the existing collector. With the reviewed
 compatible engine package, run the explicit database-writing maintenance command:
 
 ```text
@@ -180,6 +182,10 @@ expiry independently from historical coverage. Confirm the next Paper NewHistory
 each saved boundary, resumes its exact progress and does not schedule weekly Paper Archive work.
 Real/shared archive checks and Real permission remain independent. Installation acceptance includes
 native SQL interruption and latency checks; offline tests alone do not establish operational readiness.
+The existing compact Real account's startup qualifier requires its saved settings to match the new
+Core build. Complete the existing build-review procedure above before normal startup. A mismatched
+build must not be started merely to test Paper: it would fail the Real continuity qualification before
+Paper qualification runs. Do not change the grant or startup checks to bypass that review.
 
 The separately authorized [November 4 copy rehearsal](reviews/paper-restart-copy-rehearsal-20261104.md)
 passed six repository-level SQL phases without a normal engine launch or broker access. Its source
