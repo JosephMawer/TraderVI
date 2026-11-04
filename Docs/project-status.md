@@ -153,12 +153,16 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   completed November 4 at 01:40 Toronto: matching Release engine/dashboard installed, original recovery
   adopted in 0.742 seconds with zero legacy tail and all three portfolio revisions unchanged. Fresh
   backup/copy verified and synchronized; approximately 33.7 GB of disposable rehearsal files removed.
-  **The app is in build-review mode with automatic trading Off, awaiting operator exact-build review
-  before normal startup.** No normal Paper restart or scheduled delta pass is yet operationally verified.
+  Joseph completed exact-build review, approval and resume. Normal engine PID 32368 started at 01:51:41
+  Toronto; all three Paper portfolios qualified within 2.967 seconds, with zero pending buys captured
+  and zero integrity incidents. The automatic Paper NewHistory pass completed with zero verified units:
+  all targets began after their unchanged saved boundaries. No full Paper scan was started.
+  Real's restart account check passed; Wealthsimple is connected and approved execution waits for
+  regular trading hours. The separate Real/shared new-history pass completed 440 units.
   Collector PID 21964 reports fresh OutsideSession status; it replaced PID 17980 before installation,
   with unchanged verified package/configuration and an unestablished restart cause.
   [Installation and remaining boundary](reviews/paper-restart-copy-rehearsal-20261104.md#live-installation-and-rehearsal-cleanup).
-  Normal startup/native acceptance
+  Nonempty overnight delta and market-time acceptance
   remain in the [owning checklist](strategy-alignment-implementation-checklist.md) under
   [ADR-0127](adr/0127-paper-checkpoint-restart-and-incremental-verification.md).
   [Original restart and clearance evidence](project-status-history-20261101.md#october-30--real-execution-resumed-after-recovery-1446-toronto),

@@ -160,7 +160,7 @@ qualification now also prepares observation projections for ended accounts inclu
 [ADR-0127](adr/0127-paper-checkpoint-restart-and-incremental-verification.md) replaces routine Paper
 restart history replay with current-state checks and saved overnight verification boundaries.
 The November 4 separately approved installation adopted the baseline below; **do not rerun preparation**.
-The installed app currently awaits exact-build review before its first normal restart; see
+Exact-build review and the first normal saved-state restart passed November 4; see
 [dated installation evidence](reviews/paper-restart-copy-rehearsal-20261104.md#live-installation-and-rehearsal-cleanup).
 For an approved initial transition, stop the engine normally and retain the existing collector. With the reviewed
 compatible engine package, run the explicit database-writing maintenance command:

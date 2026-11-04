@@ -110,15 +110,36 @@ no synthetic restored-copy proof was used. Preflight showed zero intervening leg
 Hash-verified read-only postconditions confirmed one policy, three boundaries at the unchanged current
 revisions, the original recovery reference, zero unresolved incidents and no newly created audit run.
 
-The installed engine is PID 24068 in **Build review only**, with dashboard PID 33432. Native controls
-report automatic trading Off and Wealthsimple connected. Core SHA-256 is
+The initial installed engine was PID 24068 in **Build review only**, with dashboard PID 33432. Native
+controls reported automatic trading Off and Wealthsimple connected. Core SHA-256 is
 `0724D67C143F2A26EA6231AC58E452F6AF96B8C57476FD843A68ECB8570368A6`.
 The existing compact Real qualifier requires the saved settings' exact build identity even when trading
 is stopped. Therefore normal startup was not attempted before the operator's existing build-review
-procedure. No financial approval or grant edit was made. This leaves Paper qualification timing,
-pending-action handling, overnight scheduling and market-hour acceptance open; 0.742 seconds measures
-baseline preparation, not an actual engine restart. After review, use the normal controlled transition
-and verify Paper qualification and delta coverage without requesting full recovery.
+procedure. No agent-created financial approval or grant edit was made. The 0.742-second measurement
+above is baseline preparation, not an actual engine restart.
+
+Joseph then confirmed completing review, approval and resume in the app. Read-only SQL verified the
+saved exact build, and the controlled switch verified the protected enabled/restartable grant without
+editing it. The review owner stopped normally; normal engine PID 32368 started at 01:51:41 Toronto.
+All three Paper portfolios qualified within 2,967.184 ms of launch, including one-second polling and
+local control observations; this is an observed upper bound, not a direct SQL timing guarantee.
+Paper incremental verification was enabled, no pending buys were captured, and zero incidents were open.
+The native restart account worker completed successfully; connection was true and execution reported
+waiting for regular trading hours. Hash-verified SQL checked `NeedsWork`, terminal states and
+reservations and confirmed zero unfinished compact orders.
+
+Automatic Paper NewHistory run `7dc1ddab-7039-4ee5-88a2-23e8d1304332` completed with zero verified units.
+Its three revision intervals were 8521–8520, 29278–29277 and 7441–7440: empty intervals starting exactly
+one revision after each adopted boundary. All three portfolio heads remained unchanged. The separate
+Real/shared NewHistory run `a7144b7b-0b7d-4e46-8ada-a37758df31b4` completed 440 units. No new Recovery or
+Paper Archive run was created. These installed results establish ordinary saved-state startup and
+automatic no-new-history behavior; they do not establish a production nonempty delta, market-hour
+pending-buy expiry/protection, native network/power-loss recovery or general long-running latency.
+At 01:53:33 Toronto, the final native control check reported Running, all 15 workers with successful
+completions and zero consecutive failures, three qualified Paper portfolios, incremental verification
+enabled, no Paper qualification failure and zero open incidents. Wealthsimple remained connected;
+execution remained in the regular-hours wait. This is a short off-session observation.
 
 Private release evidence: `artifacts/paper-install-20261104/` (package/installation/preparation receipts,
-backup verification/synchronization, before/after read-only results, controls, cleanup and Release tests).
+backup verification/synchronization, before/after read-only results, controls, cleanup and Release tests;
+`normal-start.json`, `normal-qualified.json` and `normal-state-result.json` record the approved restart).

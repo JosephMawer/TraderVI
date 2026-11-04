@@ -35,8 +35,9 @@ intentional handover without losing existing protection or financial history.
 3. **Qualify protection, recovery and market inputs.** The held-position broker bid-read failure is an
    unresolved protection gap; its investigation is on operator hold. Do not claim reliable automatic
    selling without restored and verified bid-based protection. The Paper checkpoint package and baseline
-   are installed under separate November 4 authority. Complete existing exact-build review, normal
-   restart and native incremental-verification acceptance under [issue #28](https://github.com/JosephMawer/TraderVI/issues/28).
+   are installed under separate November 4 authority; normal saved-state restart and automatic
+   empty-delta checks passed. Complete nonempty nightly delta and market-time acceptance under
+   [issue #28](https://github.com/JosephMawer/TraderVI/issues/28).
    [Scope and acceptance](adr/0127-paper-checkpoint-restart-and-incremental-verification.md).
    Qualify collector coverage, capacity, venue and native recovery before proposing one-minute financial
    adoption; the approved Real strategy remains five-minute. Preserve existing gates, indicator windows,

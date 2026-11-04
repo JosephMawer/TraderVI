@@ -530,12 +530,18 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   all three portfolio heads remained unchanged. Release suite: 3,656 passed/17 native skips. Fresh
   checksum-verified backup/copy synchronized; old runtime and protected records preserved. Disposable
   rehearsal instance/database/backup removed. [Evidence](reviews/paper-restart-copy-rehearsal-20261104.md#live-installation-and-rehearsal-cleanup).
-- [ ] Complete the existing exact-build Real review, then start the normal engine. The installed app
-  is in build-review mode, execution Off; no financial approval or normal startup was performed.
-  Real's compact startup qualifier requires the saved build to match before Paper qualification runs.
-- [ ] After authorized installation, verify actual engine startup time, pending-action handling,
-  owner-scoped rejection, scheduled overnight new-only coverage and market-hour operation. The copy
-  rehearsal proves bounded SQL behavior, not those installed outcomes or a network/power-loss trial.
+- [x] Complete the existing exact-build Real review, then start the normal engine. Joseph reviewed,
+  approved and resumed in the app; saved SQL build/grant matched the installed package. Normal engine
+  PID 32368 started November 4 01:51:41 Toronto. Broker connection and restart account check passed;
+  execution waits for regular hours, with no unfinished compact orders or open integrity incidents.
+- [x] Verify installed saved-state startup and automatic empty-delta Paper scheduling. All three
+  portfolios qualified within 2.967 seconds including process launch/control observation. Paper
+  NewHistory completed zero units, with each start revision exactly one beyond its saved boundary;
+  no full Paper scan or portfolio revision change occurred. Real/shared delta completed separately.
+- [ ] Verify a nonempty scheduled production delta, market-time pending-action handling and operation,
+  and remaining interruption/latency acceptance. No pending buys existed at this restart. Owner-scoped
+  rejection and nonempty atomic resume were proved on the copy, not by corrupting production; native
+  network/power-loss trials remain unperformed.
 - [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine
   with execution Off; verify single ownership, normal mode, connection and original Paper cursor progress.
 - [x] Verify fresh post-interruption Real recovery 260/260 and separately authorize/apply only its reviewed
