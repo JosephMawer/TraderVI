@@ -28,6 +28,16 @@ The September 22 documentation cleanup preserves the
   execution must still wait for regular hours and fresh account, risk and source evidence.
 - [ ] Verify prospective resolution for a newly acquired managed holding without another alias write.
   Synthetic successive-purchase tests and successful restart do not establish this native acceptance.
+- [x] Implement issue #24's common verified mapping and actual consumer construction; preserve the
+  original compact buy identity and use the same proof for progress, quotes, protection and closing orders.
+  Validate the ordinary buy-to-protection-to-sale path offline, including reconciliation and reload.
+  [November 4 evidence and consumer inventory](reviews/verified-symbol-mapping-20261104.md).
+- [ ] Qualify the implementation transition from the November 4 interrupted handoff: the original buy
+  is already applied in compact storage but remains unreconciled in the managed head. Establish a scoped
+  original-request reconciliation before the unchanged settled-account build-review gates; no repeat buy,
+  reset protection or implicit financial approval. Installation/restart/resume need separate authority.
+- [ ] After authorized installation, verify current bid/protection progress for every holding and fresh
+  Paper/Real evaluations; keep issue #20's prospective new-holding acceptance separate from offline tests.
 
 ### Independent collector and recovered confirmation — October 27 overnight
 
@@ -462,7 +472,8 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   clearance with zero consecutive failures at 23:57:59 Toronto. Older failed audit receipts remain
   historical records. [Evidence and limits](reviews/paper-recovery-bottleneck-20261103.md#completion-and-scoped-clearance).
 - [ ] Qualify fresh market-hour Paper activity and the independently diagnosed holding-correspondence
-  wiring issue #24. Successful outside-session worker ticks and recovery do not establish that repair.
+  wiring issue #24. Its source/offline repair is recorded in the tracked-purchase section; successful
+  outside-session worker ticks and recovery do not establish installation or native acceptance.
 - [x] Implement/test the requested temporary Paper continuation under ADR-0116, without falsely
   resolving incidents or changing Real authority. Full Core3,374passed/10SQLskips and final39focused
   tests pass; Release WPF/engine builds. New errors, expiry or restart stop the permission.

@@ -19,16 +19,24 @@ namespace Core.Trader.Storage;
 internal sealed record CompactDelphiAssignment(BrokerExecutionHostGrant Grant, Guid Permission, Guid Strategy, Guid Source,
     Guid Baseline, string Identity, string Account, ImmutableArray<BuyOpeningTerms> Opening)
 {
-    internal static ImmutableArray<TradingSymbolCurrent> CurrentSymbols(BrokerManagedSession saved)
+    internal static ImmutableArray<TradingSymbolCurrent> CurrentSymbols(BrokerManagedSession saved, TradingCurrentState? current = null)
     {
+        var names = current is null ? ImmutableDictionary<string, string>.Empty : BrokerMarketSymbols.ForCompactProgress(saved, current);
+        string Name(string symbol) => names.GetValueOrDefault(symbol) ?? symbol;
+        var memories = saved.Memory.Symbols.GroupBy(p => Name(p.Key), StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g =>
+        {
+            var owned = g.Where(p => p.Value.PositionId is not null).ToArray();
+            if (owned.Length > 1) throw new InvalidOperationException("Conflicting protection memory for compact symbol progress.");
+            return owned.Length == 1 ? owned[0].Value : g.Single().Value;
+        }, StringComparer.OrdinalIgnoreCase);
         var date = saved.Account.Risk.TradingDate;
         var symbols = saved.Memory.Symbols.Keys.Concat(saved.Account.Positions.Select(p => p.Symbol))
-            .Concat(saved.Orders.Where(o => !o.Reconciled).Select(o => o.Symbol)).Distinct(StringComparer.OrdinalIgnoreCase);
-        var fills = saved.Account.Fills.ToLookup(f => f.Symbol, StringComparer.OrdinalIgnoreCase);
+            .Concat(saved.Orders.Where(o => !o.Reconciled).Select(o => o.Symbol)).Select(Name).Distinct(StringComparer.OrdinalIgnoreCase);
+        var fills = saved.Account.Fills.ToLookup(f => Name(f.Symbol), StringComparer.OrdinalIgnoreCase);
         var strategy = saved.Strategy.VersionId;
         return symbols.Select(symbol =>
         {
-            saved.Memory.Symbols.TryGetValue(symbol, out var memory);
+            memories.TryGetValue(symbol, out var memory);
             var minute = memory?.MinuteSignal;
             var last = memory?.LastLiveResult;
             var exit = fills[symbol].Where(f => f.Side == "SELL").MaxBy(f => f.FillUtc);
@@ -53,7 +61,7 @@ internal sealed record CompactDelphiAssignment(BrokerExecutionHostGrant Grant, G
             saved.Phase != BrokerManagedPhase.Active || !saved.Blocks.IsEmpty || saved.ReviewInvalidated)
             throw new InvalidDataException("Assignment is not qualified for automatic restart.");
         var review = saved.EffectiveReview;
-        if (!CurrentSymbols(saved).OrderBy(s => s.Symbol, StringComparer.Ordinal).SequenceEqual(
+        if (!CurrentSymbols(saved, state).OrderBy(s => s.Symbol, StringComparer.Ordinal).SequenceEqual(
             state.Symbols.OrderBy(s => s.Symbol, StringComparer.Ordinal).Select(s => s with { Version = 0 })))
             throw new InvalidDataException("Saved Delphi symbol progress differs from the compact rows.");
         var observation = saved.Account.Import.Plan.Observation;

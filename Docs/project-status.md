@@ -168,7 +168,18 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   [Original restart and clearance evidence](project-status-history-20261101.md#october-30--real-execution-resumed-after-recovery-1446-toronto),
   [prior diagnosis](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md).
   A separate Paper-input failure was traced to missing verified holding correspondence in
-  the service wiring; repair is planned in issue #24, not established by that diagnosis. The Real
+  the service wiring. The November 4 source repair under issue #24 now supplies one resolver to
+  market collection, Paper, research and desktop, preserves the compact buy's original position
+  identity, and carries the verified correspondence through progress, quotes and protective sales.
+  Full offline Core validation: **3,695 passed, 17 native/operational skips, zero failures**. Isolated
+  Release WPF/engine builds passed with 257 existing compiler warnings and zero errors; no dependency
+  vulnerability warning was emitted, but `--no-restore` did not refresh a security audit. The SQL project
+  was not built. [Consumer inventory and validation](reviews/verified-symbol-mapping-20261104.md).
+  This repair is **not installed**. At the last November 4 investigation, the broker buy was filled
+  and applied to compact storage while the managed head still marked it unreconciled. Ordinary build
+  review requires those records to agree: qualify that transition before installation/resume, without
+  repeating the buy or bypassing financial approval. Native protection and fresh market-hour Paper/Real
+  acceptance remain open. The Real
   recovery alone did not clear Paper restrictions; the explicit Paper pass and clearance above now do.
   [Diagnosis](project-status-history-20261101.md#october-30--paper-inputs-cause-confirmed-without-restart-10181020-toronto),
   [roadmap](roadmap.md).

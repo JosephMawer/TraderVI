@@ -34,11 +34,12 @@ internal sealed class RestartSellAdmission(BrokerManagedSession session, BrokerE
         var saved = session.Protection.Single(p => p.PositionId == position.PositionId);
         var held = session.Account.Positions.Single(p => p.PositionId == position.PositionId);
         var trigger = saved.FirstExit ?? throw new InvalidOperationException("Original protective decision is missing.");
+        BrokerMarketSymbols.RequirePosition(session, position);
         if (state.Account.BindingId != session.BindingId || position.BindingId != session.BindingId ||
             state.Account.AssignmentId != session.SessionId || state.Settings.FinancialPermissionId != session.EffectiveReview.RequestId ||
             trigger.PermissionId != session.EffectiveReview.RequestId || state.Account.StrategyId != session.Strategy.VersionId ||
             state.Account.BaselineId != session.EffectiveReview.BaselineId || position.ProtectionOwner != saved.Owner ||
-            position.SecurityId != held.SecurityId || position.Symbol != held.Symbol || position.Quantity != held.Quantity ||
+            position.SecurityId != held.SecurityId || position.Quantity != held.Quantity ||
             position.CostBasis != held.CostBasis ||
             trigger.DecisionId == Guid.Empty || trigger.TriggeredUtc.Kind != DateTimeKind.Utc ||
             trigger.TriggeredUtc < position.FirstEntryUtc || trigger.TriggeredUtc > session.SavedAt.UtcDateTime)

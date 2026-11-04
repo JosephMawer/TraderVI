@@ -190,8 +190,9 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
                 if (original.Any(o => o.Latest is null || !o.Reconciled)) return state;
                 var decision = BrokerManagedStrategy.StableId($"{state.SessionId:D}:transition:{exit.PositionId:D}:{account.Fingerprint}");
                 if (state.Orders.Any(o => o.DecisionId == decision)) return state;
+                string exitSymbol = await source.ReadPositionOrderSymbolAsync(state, exit.PositionId, ct);
                 return await Submit(lease, state, new(BrokerManagedStrategy.StableId(decision.ToString("D")), decision,
-                    exit.PositionId, exit.SecurityId, exit.Symbol, "SELL", exit.Quantity, 0, "TransitionExit", null, clock.GetUtcNow()), ct);
+                    exit.PositionId, exit.SecurityId, exitSymbol, "SELL", exit.Quantity, 0, "TransitionExit", null, clock.GetUtcNow()), ct);
             }
             if (!account.NewRiskBlocks.IsEmpty) return state;
             if (!state.Approval.Review.RetainedPositions.Order().SequenceEqual(account.Positions.Select(p => p.PositionId).Order()))
@@ -417,8 +418,10 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         if (quantity < 1 || !sell && (price <= 0 || quantity * price >
             System.Math.Min(account.Account.AvailableCash ?? 0, state.RemainingPurchaseAllowance)))
             return await SaveDecisionOutcome(lease, state, quantity < 1 ? "InvalidOrderQuantity" : "PurchaseCeilingOrCashExceeded", ct);
+        string orderSymbol = sell && recommendation.PositionId is { } positionId
+            ? await source.ReadPositionOrderSymbolAsync(state, positionId, ct) : recommendation.Symbol;
         return await Submit(lease, state, new BrokerStrategyOrder(BrokerManagedStrategy.StableId(decisionId.ToString("D")), decisionId,
-            recommendation.PositionId, security, recommendation.Symbol, sell ? "SELL" : "BUY", quantity,
+            recommendation.PositionId, security, orderSymbol, sell ? "SELL" : "BUY", quantity,
             price, sell ? recommendation.Reason : recommendation.Kind, recommendation.PositionTarget, clock.GetUtcNow())
             { BuyReference = buyReference, SignalExpiresUtc = recommendation.SignalExpiresUtc }, ct, evaluatedDecision: true,
             referenceQuote: !sell && input.Assignment.Strategy.Family == TradingStrategyFamily.DelphiLive

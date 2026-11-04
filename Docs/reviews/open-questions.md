@@ -5,6 +5,17 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Issue #24 installation transition from the interrupted buy — November 4, 2026
+
+The [source repair and offline path](verified-symbol-mapping-20261104.md) pass, but the last captured
+managed head still marks a buy unreconciled after its broker fill was applied to compact storage.
+`BrokerImplementationReviewWorkflow.RequireSession` and `CompactBuildSuccessor` require a settled,
+unchanged account; a build approval must not silently reconcile that difference. Before installation,
+establish and rehearse the scoped original-request reconciliation that advances the old financial
+assignment without repeating the buy, resetting protection or broadening permissions, then uses the
+existing build-review flow. The [execution checklist](../strategy-alignment-implementation-checklist.md)
+owns this acceptance. No installation, restart or recovery operation is authorized by this question.
+
 ### Bounded ordinary engine recovery — October 30, 2026
 
 **November 2 release decision.** Joseph selected original-request-only maintenance followed by an

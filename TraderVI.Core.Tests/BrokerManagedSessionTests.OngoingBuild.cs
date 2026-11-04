@@ -29,7 +29,8 @@ public sealed partial class BrokerManagedSessionTests
             bought, WealthsimpleSubmissionStatus.Acknowledged);
         var fact = new BrokerOrderFact(order.ExternalId, order.SecurityId, "FIX.TO", "BUY", "POSTED", "CAD", "EQUITY", 2, 2, 20, 20, 0, 0, bought, bought.AddSeconds(1));
         order = order with { Latest = fact, Reconciled = true };
-        var position = new BrokerPositionCycle(Guid.NewGuid(), order.SecurityId, fact.Symbol, 2, 20, bought.AddSeconds(1), order.ExternalId, null);
+        var position = new BrokerPositionCycle(BrokerManagedStrategy.StableId($"{prior.BindingId:D}:{order.SecurityId}:{order.ExternalId}"),
+            order.SecurityId, fact.Symbol, 2, 20, bought.AddSeconds(1), order.ExternalId, null);
         var observed = prior.Account.Import.Plan.Observation with { SnapshotAt = x.F.Now, CheckedAt = x.F.Now,
             Cash = prior.OngoingManagement!.CashAnchor.Cash - 20,
             Orders = prior.OngoingManagement.CashAnchor.Orders.Append(fact).ToArray(),

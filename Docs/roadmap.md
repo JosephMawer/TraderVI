@@ -26,11 +26,12 @@ intentional handover without losing existing protection or financial history.
    remains a separate proposal. [November 2 investigation](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md)
    and [restart contract](adr/0117-compact-trading-current-storage.md).
 2. **Resolve known reliability work in its existing scope.** The identified Paper-input symbol-resolution
-   gap is planned under [issue #24](https://github.com/JosephMawer/TraderVI/issues/24), including real
-   service wiring and verified identity, without arbitrary suffix stripping. Prospective native new-holding
+   gap and compact buy handoff are repaired in source under [issue #24](https://github.com/JosephMawer/TraderVI/issues/24),
+   with offline consumer/protection tests passing. Qualify the transition from the already-filled but
+   managed-unreconciled buy before separately approved installation and resume. Prospective native new-holding
    acceptance remains in issue #20. Safe execution-error cause logging is planned under
    [issue #23](https://github.com/JosephMawer/TraderVI/issues/23), preserving retries and trading behavior.
-   Both were planned, not established as installed, at the last roadmap checkpoint. Keep hosts running;
+   Neither change is established as installed. Keep hosts running;
    intervene sooner only for an actual engine failure, stuck execution or trading block.
 3. **Qualify protection, recovery and market inputs.** The held-position broker bid-read failure is an
    unresolved protection gap; its investigation is on operator hold. Do not claim reliable automatic

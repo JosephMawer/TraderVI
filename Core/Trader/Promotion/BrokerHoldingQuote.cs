@@ -18,7 +18,8 @@ internal static class BrokerHoldingQuote
         if (holding is null || input.BrokerHoldingSecurityIds is null ||
             !input.BrokerHoldingSecurityIds.TryGetValue(symbol, out var security) || context.Security.Id != security ||
             context.Security.SourceIdentity is null || context.Security.Exchange != "XTSE" ||
-            !string.Equals(context.Security.Symbol, symbol, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(BrokerMarketSymbols.Market(input, context.Security.Symbol), BrokerMarketSymbols.Market(input, symbol),
+                StringComparison.OrdinalIgnoreCase) ||
             context.Account != account || context.Snapshot.Account != account || context.PendingOrders.Account != account ||
             context.HeldQuantity != holding.Quantity || context.PendingOrders.Orders.Count != 0 ||
             context.Snapshot.Holdings.Single(h => h.SecurityId == security).Value?.Currency != "CAD" ||

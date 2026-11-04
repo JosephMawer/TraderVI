@@ -35,6 +35,7 @@ public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
     private readonly string codeIdentity;
     private readonly List<string> notifications = [];
     private readonly IEngineRpc? engineClient;
+    internal DelphiLiveHoldingSource? HoldingSource { get; }
     public bool IsEngineClient => engineClient is not null;
     public Func<Func<DelphiLiveLease, CancellationToken, Task>, CancellationToken, Task>? OperatorExecutor { get; set; }
     public bool DeferResearchRecovery { get; set; }
@@ -49,6 +50,9 @@ public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
     public string? CalendarWarning { get; }
 
     public DelphiLiveDesktopService(IEngineRpc? engineClient = null)
+        : this(engineClient, null, new HoldingMarketSymbolResolver()) { }
+    internal DelphiLiveDesktopService(IEngineRpc? engineClient, ReviewedTsxSessionCalendar? reviewedCalendar,
+        HoldingMarketSymbolResolver symbols)
     {
         this.engineClient = engineClient;
         ledger = new(workingState: engineClient is not null);
@@ -58,18 +62,18 @@ public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
         using (var assembly = File.OpenRead(typeof(DelphiLiveDesktopService).Assembly.Location))
             codeIdentity = $"{code.Commit}/{code.WorkingTreeState}/CoreSha256:{Convert.ToHexString(SHA256.HashData(assembly))}";
         string? path = Environment.GetEnvironmentVariable(CalendarPathEnvironmentVariable);
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        if (reviewedCalendar is null && (string.IsNullOrWhiteSpace(path) || !File.Exists(path)))
         {
             CalendarWarning = "A reviewed official TSX calendar file is required before activation. Set TRADERVI_TSX_CALENDAR_PATH to its local path.";
             return;
         }
-        try { calendar = ReviewedTsxSessionCalendar.Load(path); }
+        try { calendar = reviewedCalendar ?? ReviewedTsxSessionCalendar.Load(path!); }
         catch (Exception exception) when (exception is IOException or ArgumentException or System.Text.Json.JsonException)
         {
             CalendarWarning = "The reviewed TSX calendar could not be validated. Activation remains unavailable.";
             return;
         }
-        var holdings = new DelphiLiveHoldingSource(ledger);
+        var holdings = HoldingSource = new DelphiLiveHoldingSource(ledger, null, null, symbols);
         sessions = new(calendar, holdings, code);
         var collection = new DelphiLiveCollectionRepository(code);
         var clock = new SystemDelphiLiveClock();

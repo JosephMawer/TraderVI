@@ -20,8 +20,9 @@ internal static class CompactManagedPublication
             next.SessionId != book.Account.AssignmentId || next.EffectiveReview.RequestId != book.Settings.FinancialPermissionId ||
             next.Strategy.VersionId != book.Account.StrategyId || next.Strategy.Strategy.ImplementationIdentity != book.Settings.ImplementationIdentity)
             throw new InvalidDataException("The strategy revision does not own this compact assignment.");
-        var before = RestartAccountRehearsal.Positions(prior, true).ToDictionary(p => p.PositionId);
-        var after = RestartAccountRehearsal.Positions(next, true).ToDictionary(p => p.PositionId);
+        _ = BrokerMarketSymbols.From(next.Account, next.Orders);
+        var before = RestartAccountRehearsal.Positions(prior, true, book.Positions).ToDictionary(p => p.PositionId);
+        var after = RestartAccountRehearsal.Positions(next, true, book.Positions).ToDictionary(p => p.PositionId);
         var current = book.Positions.ToDictionary(p => p.PositionId);
         var positions = ImmutableArray.CreateBuilder<TradingPositionCurrent>();
         var orders = ImmutableArray.CreateBuilder<TradingOrder>();
@@ -42,9 +43,8 @@ internal static class CompactManagedPublication
             {
                 if (fact.Symbol != order.Symbol)
                 {
-                    var instrument = next.Account.Import.Plan.Observation.Instruments?.SingleOrDefault(i => i.SecurityId == order.SecurityId);
-                    if (instrument == null || instrument.Symbol != fact.Symbol || instrument.Currency != fact.Currency ||
-                        instrument.SecurityType != fact.SecurityType || !BrokerAccountImport.CanadianTickerPair(order.Symbol, fact.Symbol, instrument.PrimaryMic))
+                    if (fact.Currency != "CAD" || fact.SecurityType != "EQUITY" ||
+                        !BrokerMarketSymbols.Matches(next.Account.Import.Plan.Observation, order.SecurityId, order.Symbol, fact.Symbol))
                         throw new InvalidDataException("The broker listing differs from the saved order.");
                     fact = fact with { Symbol = order.Symbol };
                 }
@@ -77,10 +77,12 @@ internal static class CompactManagedPublication
             return new(next.RevisionId, "PublishManagedRevision", next.SavedAt.UtcDateTime, book.Account.Version, book.Account)
                 { AdvanceCheckpoint = true };
         }
-        var previousSymbols = CompactDelphiAssignment.CurrentSymbols(prior).ToDictionary(s => s.Symbol);
-        var symbols = CompactDelphiAssignment.CurrentSymbols(next).ToDictionary(s => s.Symbol);
+        var previousSymbols = CompactDelphiAssignment.CurrentSymbols(prior, book).ToDictionary(s => s.Symbol);
+        var symbols = CompactDelphiAssignment.CurrentSymbols(next, book).ToDictionary(s => s.Symbol);
+        var references = BrokerMarketSymbols.ForCompactProgress(next, book);
         var changed = symbols.Values.Where(s => !previousSymbols.TryGetValue(s.Symbol, out var old) || old != s)
-            .Concat(book.Symbols.Where(s => previousSymbols.ContainsKey(s.Symbol) && !symbols.ContainsKey(s.Symbol)).Select(s => s with { IsRelevant = false }));
+            .Concat(book.Symbols.Where(s => !symbols.ContainsKey(s.Symbol) && (previousSymbols.ContainsKey(s.Symbol) ||
+                references.TryGetValue(s.Symbol, out var name) && symbols.ContainsKey(name))).Select(s => s with { IsRelevant = false }));
         var account = RestartAccountRehearsal.Account(next, book.Account.ExecutionEnabled) with { PermissionId = book.Settings.PermissionId,
             CommittedPurchaseCost = book.Account.CommittedPurchaseCost, ReservedPurchaseCost = book.Account.ReservedPurchaseCost,
             BrokerCursor = book.Account.BrokerCursor, LastAppliedBrokerFactId = book.Account.LastAppliedBrokerFactId };

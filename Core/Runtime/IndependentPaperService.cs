@@ -18,6 +18,7 @@ public sealed class IndependentPaperService
     private readonly DelphiLiveMonitorWorkflow workflow;
     private readonly DelphiLiveSessionRepository sessions;
     private readonly DelphiLiveActionWorkflow actions;
+    internal DelphiLiveHoldingSource HoldingSource { get; }
     private readonly Func<DelphiLiveLease?> currentLease;
     private readonly SemaphoreSlim gate = new(1, 1);
     private volatile bool closing;
@@ -43,10 +44,13 @@ public sealed class IndependentPaperService
 
     public IndependentPaperService(ReviewedTsxSessionCalendar calendar, Func<DelphiLiveLease?> currentLease,
         IDelphiLiveNotifier notifier)
+        : this(calendar, currentLease, notifier, new HoldingMarketSymbolResolver()) { }
+    internal IndependentPaperService(ReviewedTsxSessionCalendar calendar, Func<DelphiLiveLease?> currentLease,
+        IDelphiLiveNotifier notifier, HoldingMarketSymbolResolver symbols)
     {
         this.currentLease = currentLease;
         var code = CalibrationProvenance.ResolveCode();
-        var holdings = new DelphiLiveHoldingSource(ledger, new EnginePaperObservationStore());
+        var holdings = HoldingSource = new DelphiLiveHoldingSource(ledger, new EnginePaperObservationStore(), null, symbols);
         sessions = new DelphiLiveSessionRepository(calendar, holdings, code);
         var clock = new SystemDelphiLiveClock();
         var source = new TmxDelphiLiveMarketDataSource();

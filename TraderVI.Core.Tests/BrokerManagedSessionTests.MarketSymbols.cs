@@ -25,7 +25,8 @@ public sealed partial class BrokerManagedSessionTests
         var order = new BrokerStrategyOrder(Guid.NewGuid(), Guid.NewGuid(), null, "fixture-security", "FIX", "BUY", 2, 10, "Initial", null, x.F.Now);
         var fact = new BrokerOrderFact(order.ExternalId, order.SecurityId, "FIX.TO", "BUY", "FILLED", "CAD", "EQUITY", 2, 2, 20, 20, 0, 0, x.F.Now, x.F.Now);
         order = order with { Latest = fact, Reconciled = true };
-        var holding = new BrokerPositionCycle(Guid.NewGuid(), order.SecurityId, "FIX.TO", 2, 20, x.F.Now, order.ExternalId, null);
+        var holding = new BrokerPositionCycle(BrokerManagedStrategy.StableId($"{state.BindingId:D}:{order.SecurityId}:{order.ExternalId}"),
+            order.SecurityId, "FIX.TO", 2, 20, x.F.Now, order.ExternalId, null);
         var listing = new BrokerInstrumentIdentity(evidence == "wrong-security" ? "other" : order.SecurityId,
             evidence == "wrong-symbol" ? "OTHER.TO" : "FIX.TO", evidence == "wrong-exchange" ? "XTSX" : "XTSE", "CAD", "EQUITY");
         var observation = state.Account.Import.Plan.Observation with { Instruments = evidence switch {
@@ -83,7 +84,7 @@ public sealed partial class BrokerManagedSessionTests
                 name, "BUY", 2, 10, "Initial", null, x.F.Now);
             order = order with { Reconciled = true, Latest = new(order.ExternalId, order.SecurityId, name + ".TO", "BUY",
                 "FILLED", "CAD", "EQUITY", 2, 2, 20, 20, 0, 0, x.F.Now, x.F.Now) };
-            var holding = new BrokerPositionCycle(Guid.NewGuid(), order.SecurityId, name + ".TO", 2, 20,
+            var holding = new BrokerPositionCycle(BrokerManagedStrategy.StableId($"{state.BindingId:D}:{order.SecurityId}:{order.ExternalId}"), order.SecurityId, name + ".TO", 2, 20,
                 x.F.Now, order.ExternalId, null);
             var observation = state.Account.Import.Plan.Observation;
             observation = observation with { Instruments = (observation.Instruments ?? []).Append(

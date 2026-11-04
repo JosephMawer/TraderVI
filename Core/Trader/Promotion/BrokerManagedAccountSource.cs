@@ -106,6 +106,25 @@ public sealed class BrokerManagedAccountSource(IBrokerReconciliationWorkflow rec
             return BrokerHoldingQuote.Validate(input, brokerAccount, symbol, requested, clock.GetUtcNow().UtcDateTime, read.Data);
         }, ct);
     public Task<string> ResolveSecurityAsync(string symbol, CancellationToken ct) => resolveSecurity(symbol, ct);
+    public async Task<string> ReadPositionOrderSymbolAsync(BrokerManagedSession session, Guid positionId, CancellationToken ct)
+    {
+        if (!session.HasReviewedCompactRestart) return session.Account.Positions.Single(p => p.PositionId == positionId).Symbol;
+        var book = await new SqlTradingStorageDatabase(EngineIntegrityRepository.OpenAsync).CreateStore().ReadAsync(session.BindingId, ct)
+            ?? throw new InvalidOperationException("The current position book is unavailable.");
+        return PositionOrderSymbol(session, positionId, book);
+    }
+    internal static string PositionOrderSymbol(BrokerManagedSession session, Guid positionId, Storage.TradingCurrentState book)
+    {
+        if (book.Account.BindingId != session.BindingId || book.Account.AssignmentId != session.SessionId ||
+            book.Settings.FinancialPermissionId != session.EffectiveReview.RequestId)
+            throw new InvalidOperationException("The position book does not belong to this execution assignment.");
+        var position = book.Positions.Single(p => p.PositionId == positionId);
+        BrokerMarketSymbols.RequirePosition(session, position);
+        var held = session.Account.Positions.Single(p => p.PositionId == positionId);
+        if (position.Quantity != held.Quantity || position.CostBasis != held.CostBasis)
+            throw new InvalidOperationException("The position book must reconcile its shares before another order.");
+        return position.Symbol;
+    }
     public async Task PreserveRiskHoldsAsync(BrokerAccountProjection account, TradingRecommendationMemory memory, CancellationToken ct)
     {
         if ((!memory.DailyLossHold || account.Risk.DailyLossHold) && (!memory.CapitalReviewRequired || account.Risk.CapitalReviewRequired)) return;

@@ -1,6 +1,6 @@
 # ADR-0088: Source symbol aliases for monitoring
 
-- **Status:** October 29 tracked-purchase extension installed; restart/storage checks pass, prospective new-purchase verification pending.
+- **Status:** October 29 extension installed; November 4 centralized consumer and compact-handoff repair implemented for offline validation under issue #24. The November 4 repair is not installed; prospective native acceptance remains open.
 - **Date:** 2026-09-28
 - **Domains:** architecture, data-sources
 
@@ -77,3 +77,26 @@ conflicts and rejection of alias chains. Build/test results and installation sta
 status. Authorized installation and restart on September 28 preserved the checked account records,
 resolved the tracked holding to its canonical monitoring symbol and restored adoption for all eight
 Shadow comparison accounts. This does not qualify AI valuation readers or enable AI execution.
+
+### November 4 shared consumers and compact buy handoff
+
+Under [issue #24](https://github.com/JosephMawer/TraderVI/issues/24), symbol verification is a required
+dependency of every holding source. Whether a lane includes broker portfolios is a separate choice:
+Paper, research and desktop readers still need the verified current head when a tracked Real holding
+requires correspondence. They use the same resolver as collection. Canonical/manual references keep
+their cheap path; no history scan, alias creation or change of observation ownership follows.
+
+The original compact fill keeps its persisted symbol, security, cycle ID and first-entry time. When
+the managed projection uses the verified broker listing, publication derives the compact reference
+from that same original purchase proof instead of renaming the position. This also governs its
+per-symbol entry/exit progress, protective-decision copy, closing-order identity, sale reconciliation
+and build-successor comparison. Ambiguous progress or a changed position still fails closed. The
+immutable storage identity and first-exit guards are unchanged; no fill is replayed or protection reset.
+
+Market valuation, observations and quotes continue to use `BrokerMarketSymbols`. A broker bid may
+use either spelling only through that verified map and the existing security, exchange, account,
+inventory and freshness checks. A closing order retains the saved compact position's spelling; native
+preflight still independently verifies the broker security and holdings. Original broker imports,
+managed holdings, buy intents and historical receipts are unchanged.
+
+[Consumer inventory, offline evidence and remaining native acceptance](../reviews/verified-symbol-mapping-20261104.md).

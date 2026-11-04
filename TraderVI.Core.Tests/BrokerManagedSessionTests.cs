@@ -381,6 +381,7 @@ public sealed partial class BrokerManagedSessionTests
         internal int Synchronizations;
         internal Func<TradingRecommendationInput, TradingRecommendationInput>? TransformInput;
         internal Func<TradingRecommendationInput, ImmutableArray<TradingQuote>>? QuoteRead;
+        internal Func<BrokerManagedSession, Guid, Task<string>>? PositionOrderSymbolRead;
         internal Func<BrokerAccountProjection, BrokerAccountProjection>? TransformAccount;
         internal string? RunningImplementation;
         internal Func<ImmutableArray<BrokerStrategyOrder>, bool>? TrialOrderReview;
@@ -444,6 +445,8 @@ public sealed partial class BrokerManagedSessionTests
             Task.FromResult(account.Positions.Select(p => new BrokerProtectionMark(p.PositionId, 11, Now, Hash)).ToImmutableArray());
         public Task PreserveRiskHoldsAsync(BrokerAccountProjection account, TradingRecommendationMemory memory, CancellationToken ct) => Task.CompletedTask;
         public Task<string> ResolveSecurityAsync(string symbol, CancellationToken ct) => Task.FromResult("security-" + symbol);
+        public Task<string> ReadPositionOrderSymbolAsync(BrokerManagedSession session, Guid positionId, CancellationToken ct) =>
+            PositionOrderSymbolRead?.Invoke(session, positionId) ?? Task.FromResult(session.Account.Positions.Single(p => p.PositionId == positionId).Symbol);
         public Task<ImmutableArray<TradingQuote>> ReadQuotesAsync(TradingRecommendationInput input, CancellationToken ct) =>
             Task.FromResult(QuoteRead?.Invoke(input) ?? input.Quotes);
         public Task<TradingRecommendationInput> ReadStrategyInputAsync(BrokerManagedSession session, CancellationToken ct)

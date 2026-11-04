@@ -36,9 +36,9 @@ internal static class CompactBuildSuccessor
             book.Account.ReservedPurchaseCost != 0 || book.Account.CommittedPurchaseCost != next.CommittedPurchaseCost)
             throw new InvalidDataException("Build review and the settled compact assignment must agree.");
         BrokerOctober21Continuation.RequireSameDefinition(prior.Strategy, next.Strategy);
-        var priorPositions = RestartAccountRehearsal.Positions(prior).OrderBy(p => p.PositionId);
+        var priorPositions = RestartAccountRehearsal.Positions(prior, current: book.Positions).OrderBy(p => p.PositionId);
         if (!priorPositions.SequenceEqual(book.Positions.OrderBy(p => p.PositionId).Select(p => p with { Version = 0 })) ||
-            !priorPositions.SequenceEqual(RestartAccountRehearsal.Positions(next).OrderBy(p => p.PositionId)))
+            !priorPositions.SequenceEqual(RestartAccountRehearsal.Positions(next, current: book.Positions).OrderBy(p => p.PositionId)))
             throw new InvalidDataException("Build review requires unchanged compact positions and protection.");
 
         var verifiedOwners = await CompactOpeningProtection.RestoreAsync(prior, book, readIntent, ct);

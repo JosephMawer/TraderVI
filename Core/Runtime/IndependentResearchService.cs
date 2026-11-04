@@ -19,6 +19,7 @@ public sealed class IndependentResearchService
     private readonly DelphiLiveExperimentWorkflow protocol;
     private readonly DelphiLiveResearchCoordinator research;
     private readonly DelphiLiveSessionRepository sessions;
+    internal DelphiLiveHoldingSource HoldingSource { get; }
     private readonly DelphiLiveLedgerRepository ledger = new();
     private readonly ReviewedTsxSessionCalendar calendar;
     private readonly Func<DelphiLiveLease?> currentLease;
@@ -39,12 +40,16 @@ public sealed class IndependentResearchService
 
     public IndependentResearchService(ReviewedTsxSessionCalendar calendar, Func<DelphiLiveLease?> currentLease,
         IDelphiLiveNotifier notifier)
+        : this(calendar, currentLease, notifier, new HoldingMarketSymbolResolver()) { }
+    internal IndependentResearchService(ReviewedTsxSessionCalendar calendar, Func<DelphiLiveLease?> currentLease,
+        IDelphiLiveNotifier notifier, HoldingMarketSymbolResolver symbols)
     {
         this.calendar = calendar; this.currentLease = currentLease; this.notifier = notifier;
         var code = CalibrationProvenance.ResolveCode();
         using var assembly = File.OpenRead(typeof(IndependentResearchService).Assembly.Location);
         string identity = $"{code.Commit}/{code.WorkingTreeState}/CoreSha256:{Convert.ToHexString(SHA256.HashData(assembly))}";
-        sessions = new(calendar, new DelphiLiveHoldingSource(ledger, new EnginePaperObservationStore()), code);
+        HoldingSource = new(ledger, new EnginePaperObservationStore(), null, symbols);
+        sessions = new(calendar, HoldingSource, code);
         protocol = new(experiments);
         research = new(experiments, experiments, new DelphiLiveResearchEvidenceRepository(calendar),
             sessions, ledger, calendar, new SystemDelphiLiveClock(), () => identity);

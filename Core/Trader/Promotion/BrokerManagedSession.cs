@@ -223,6 +223,9 @@ public interface IBrokerManagedAccountSource
         new(await ReadQuotesAsync(input, ct), [], ["SourceDoesNotProvideAttemptDiagnostics"]);
     Task PreserveRiskHoldsAsync(BrokerAccountProjection account, TradingRecommendationMemory memory, CancellationToken ct);
     Task<string> ResolveSecurityAsync(string symbol, CancellationToken ct);
+    // Keep a closing order on the same persisted identity as its opening fill.
+    Task<string> ReadPositionOrderSymbolAsync(BrokerManagedSession session, Guid positionId, CancellationToken ct) =>
+        Task.FromResult(session.Account.Positions.Single(p => p.PositionId == positionId).Symbol);
 }
 public interface IBrokerManagedOrderTransport
 {

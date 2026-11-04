@@ -96,9 +96,12 @@ public static class RestartAccountRehearsal
         };
     }
 
-    internal static ImmutableArray<TradingPositionCurrent> Positions(BrokerManagedSession saved, bool includeNewFills = false) =>
+    internal static ImmutableArray<TradingPositionCurrent> Positions(BrokerManagedSession saved, bool includeNewFills = false,
+        System.Collections.Generic.IReadOnlyList<TradingPositionCurrent>? current = null) =>
         saved.Account.Positions.Select(h =>
         {
+            var original = current?.SingleOrDefault(p => p.PositionId == h.PositionId);
+            if (original is not null) BrokerMarketSymbols.RequirePosition(saved, original);
             var p = saved.Protection.SingleOrDefault(x => x.PositionId == h.PositionId);
             if (p == null && includeNewFills && saved.ActivatedAt.HasValue)
                 p = BrokerLiveProtection.Transfer(saved.Strategy, h, null, h.EntryCompletedAt);
@@ -109,7 +112,7 @@ public static class RestartAccountRehearsal
             var entries = saved.Account.Fills.Where(f => f.PositionId == h.PositionId && f.Side == "BUY").OrderBy(f => f.FillUtc).ToArray();
             return new TradingPositionCurrent
             {
-                BindingId = saved.BindingId, PositionId = h.PositionId, SecurityId = h.SecurityId, Symbol = h.Symbol, Quantity = h.Quantity,
+                BindingId = saved.BindingId, PositionId = h.PositionId, SecurityId = h.SecurityId, Symbol = original?.Symbol ?? h.Symbol, Quantity = h.Quantity,
                 CostBasis = h.CostBasis, IsOpen = true, FirstEntryUtc = h.EntryCompletedAt.UtcDateTime,
                 LastEntryUtc = entries.Select(f => f.FillUtc).Append(h.EntryCompletedAt.UtcDateTime).Max(),
                 EntryCount = entries.Length, AddOnCount = entries.Count(f => f.RecommendationKind == "AddOn"),

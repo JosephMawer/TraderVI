@@ -63,12 +63,13 @@ internal static class CompactManagedSaleHandoff
             var holding = saved.Account.Positions.Single(p => p.PositionId == sale.PositionId);
             var original = await store.ReadOrderAsync(saved.BindingId, sale.RequestId, ct);
             var closed = await store.ReadClosedPositionAsync(saved.BindingId, holding.PositionId, ct);
+            BrokerMarketSymbols.RequirePosition(saved, closed);
             if (original is not { Status: "Filled", NeedsWork: false, Side: "SELL" } ||
                 book.Settings.FinancialPermissionId != saved.EffectiveReview.RequestId || original.PermissionId != book.Settings.PermissionId ||
                 original.DecisionId != sale.DecisionId || original.PositionId != sale.PositionId ||
                 original.SecurityId != sale.SecurityId || original.Symbol != sale.Symbol || original.Quantity != sale.Quantity ||
                 original.CreatedUtc != sale.CreatedAt.UtcDateTime || original.ReferencePrice != sale.ReferencePrice ||
-                closed.SecurityId != sale.SecurityId || closed.Symbol != holding.Symbol || closed.FirstEntryUtc != holding.EntryCompletedAt.UtcDateTime)
+                closed.SecurityId != sale.SecurityId || closed.Symbol != sale.Symbol || closed.FirstEntryUtc != holding.EntryCompletedAt.UtcDateTime)
                 throw new InvalidDataException("The closed compact cycle and original managed sell terms differ.");
 
             var observation = saved.Account.Import.Plan.Observation;
