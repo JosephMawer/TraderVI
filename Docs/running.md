@@ -674,6 +674,9 @@ not establish healthy execution: [the separate engine diagnosis](reviews/wealths
 records the current reconciliation block and retained Paper recovery hold.
 
 On **Trading → Main account**, review the self-directed TFSA's performance, holdings and strategy.
+The approved strategy is a read-only label with full version details on hover. **View strategy**
+opens **Portfolios → Strategy workspace** at its saved Paper source. Use **Review for Real** there
+for strategy changes; viewing the workspace does not approve or enable execution.
 Buying power appears below available cash. Use **Refresh Wealthsimple** below Today and Overall
 to read the account again. The dashboard loads the sole eligible TFSA automatically. If discovery
 finds several, it leaves the account unselected. Refresh can update the linked local ledger through

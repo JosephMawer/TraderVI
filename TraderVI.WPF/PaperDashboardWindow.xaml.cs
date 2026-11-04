@@ -196,10 +196,10 @@ public partial class PaperDashboardWindow : Window
         TradingSections.SelectedItem = AccountToolsTab;
         await load;
     }
-    public async void OpenPortfolios(string account = "TFSA", Guid? livePortfolio = null)
+    public async void OpenPortfolios(string account = "TFSA", Guid? livePortfolio = null, bool strategyWorkspace = false)
     {
         SelectWorkspace(PortfoliosTabView);
-        try { await PortfoliosTabView.NavigateAsync(account, livePortfolio); }
+        try { await PortfoliosTabView.NavigateAsync(account, livePortfolio, strategyWorkspace); }
         catch (Exception error) { MessageBox.Show(this, error.Message, "Portfolio view unavailable", MessageBoxButton.OK, MessageBoxImage.Information); }
     }
     public Task ReviewPortfolioForRealAsync(Guid sourceId) => TradingRecommendationsTabView.ReviewBrokerStrategyAsync(sourceId);

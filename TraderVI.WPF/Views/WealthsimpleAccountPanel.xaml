@@ -5,16 +5,6 @@
   <Style x:Key="TradingNumber" TargetType="TextBlock"><Setter Property="FontSize" Value="19"/><Setter Property="Margin" Value="0,4,0,0"/><Setter Property="TextWrapping" Value="Wrap"/></Style>
   <Style x:Key="TradingCell" TargetType="TextBlock"><Setter Property="Margin" Value="8,10"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
   <Style x:Key="TradingPeriod" TargetType="RadioButton"><Setter Property="Foreground" Value="#E8EEF6"/><Setter Property="Margin" Value="10,0,0,0"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
-  <Style x:Key="TradingStrategyPicker" TargetType="ComboBox">
-   <Setter Property="Foreground" Value="#E8EEF6"/><Setter Property="Background" Value="#1A222D"/>
-   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox"><Grid>
-    <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
-     <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="#1A222D" BorderBrush="#52657B" BorderThickness="1" CornerRadius="5" Padding="10,8"><ContentPresenter/></Border></ControlTemplate></ToggleButton.Template>
-     <DockPanel><TextBlock DockPanel.Dock="Right" Text="▾" Foreground="#ADBBCC" Margin="12,0,0,0"/><TextBlock Text="{Binding SelectedItem.Label, RelativeSource={RelativeSource AncestorType=ComboBox}}" Foreground="#E8EEF6" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/></DockPanel>
-    </ToggleButton>
-    <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False"><Border Background="#1A222D" BorderBrush="#52657B" BorderThickness="1" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"><ScrollViewer MaxHeight="300" HorizontalScrollBarVisibility="Disabled"><ItemsPresenter/></ScrollViewer></Border></Popup>
-   </Grid><ControlTemplate.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
-  </Style>
  </UserControl.Resources>
  <StackPanel>
   <Border Style="{StaticResource WorkspacePanel}" Padding="18,14"><Grid>
@@ -98,15 +88,12 @@
    <TextBlock Text="Right-click a holding or press Shift+F10 for trade options. Hover over its strategy status for details." Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,0"/>
    <TextBlock Text="{Binding Status}" Style="{StaticResource WorkspaceLabel}" Margin="0,8,0,0" AutomationProperties.LiveSetting="Polite"/>
   </StackPanel>
-  <Grid Margin="0,16,0,18">
-   <StackPanel><TextBlock Text="Strategy" Style="{StaticResource WorkspaceLabel}"/>
-    <ComboBox x:Name="StrategyPicker" MinHeight="36" Width="360" HorizontalAlignment="Left" DisplayMemberPath="Label" Style="{StaticResource TradingStrategyPicker}"
-     DropDownOpened="StrategyPicker_Opened" SelectionChanged="StrategyPicker_SelectionChanged" IsEnabled="{Binding CanRefresh}"
-     AutomationProperties.Name="Strategy to review for this account" ToolTip="Choose a strategy to review its transition. Selection does not activate trading.">
-     <ComboBox.ItemContainerStyle><Style TargetType="ComboBoxItem"><Setter Property="Foreground" Value="#E8EEF6"/><Setter Property="Background" Value="#1A222D"/><Setter Property="IsEnabled" Value="{Binding IsSupported}"/><Setter Property="ToolTip" Value="{Binding Explanation}"/></Style></ComboBox.ItemContainerStyle>
-    </ComboBox>
-    <TextBlock x:Name="StrategyPickerStatus" Style="{StaticResource WorkspaceLabel}" FontSize="11" Margin="0,4,0,0" AutomationProperties.LiveSetting="Polite"/>
-   </StackPanel>
-  </Grid>
+  <WrapPanel Margin="0,16,0,18" VerticalAlignment="Center">
+   <TextBlock Text="Approved strategy · " Style="{StaticResource WorkspaceLabel}" VerticalAlignment="Center"/>
+   <TextBlock Text="{Binding ManagedStrategy.StrategyName, TargetNullValue=No approved strategy loaded}" VerticalAlignment="Center"
+    ToolTip="{Binding ManagedStrategy.StrategyDetails}" ToolTipService.ShowDuration="30000"/>
+   <TextBlock Margin="16,0,0,0" VerticalAlignment="Center"><Hyperlink Click="ViewStrategy_Click" Foreground="#83BFFF"
+    ToolTip="Open the approved strategy's source in Portfolios. Review strategy changes there.">View strategy</Hyperlink></TextBlock>
+  </WrapPanel>
  </StackPanel>
 </UserControl>

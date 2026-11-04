@@ -20,6 +20,10 @@ public sealed class BrokerManagedStrategyViewModel(IBrokerManagedSessionControls
     private DateTimeOffset checkedAt;
     public event PropertyChangedEventHandler? PropertyChanged;
     public string StrategyName => saved?.Strategy.Strategy.Name ?? "No approved strategy loaded";
+    // Saved identity remains inspectable when account verification expires; it grants no authority.
+    public Guid? PaperSourceId => saved?.Strategy.PaperAccountId;
+    public string StrategyDetails => saved is null ? "No approved strategy loaded. Open Portfolios to inspect available strategies."
+        : $"{saved.Strategy.Strategy.Name}\nComplete version · {saved.Strategy.Strategy.VersionId:D}\nPolicy version · {saved.Strategy.Strategy.PolicyVersionId:D}\nPaper source · {saved.Strategy.PaperAccountId:D}\n{Status}\nApproval and execution permission are separate.";
     public string BuyingMode => saved is null ? "Refresh the linked account to restore its saved selection."
         : saved.NewBuysStopped ? "New buys stopped · existing exit rules retained" : "Buying allowed after account and risk checks";
     public string Duration => saved is null ? "" : saved.OngoingManagement is not null ? "Ongoing management until paused"

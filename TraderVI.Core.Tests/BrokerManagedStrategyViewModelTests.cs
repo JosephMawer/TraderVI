@@ -23,6 +23,9 @@ public sealed class BrokerManagedStrategyViewModelTests
         Assert.False(model.CanResumeBuying);
         await model.RestoreAsync(f.Binding.BindingId);
         Assert.Equal(f.Strategy.Strategy.Name, model.StrategyName); Assert.Equal("Ongoing strategy selection", model.Duration);
+        Assert.Equal(f.Strategy.PaperAccountId, model.PaperSourceId);
+        Assert.Contains(f.Strategy.Strategy.VersionId.ToString("D"), model.StrategyDetails);
+        Assert.Contains(f.Strategy.Strategy.PolicyVersionId.ToString("D"), model.StrategyDetails);
         Assert.True(model.CanResumeBuying); Assert.False(model.CanStopBuying);
         Assert.Contains("New buys stopped", model.BuyingMode); Assert.Contains("execution host status", model.Status);
         Assert.Equal(0, f.Transport.Sent);
@@ -47,6 +50,8 @@ public sealed class BrokerManagedStrategyViewModelTests
         await model.RestoreAsync(f.Binding.BindingId); await model.ResumeBuyingAsync(); await model.StopBuyingAsync();
         Assert.False(model.CanStopBuying); Assert.False(model.CanResumeBuying); Assert.Null(f.Store.State);
         Assert.Contains("No strategy has been approved", model.Status);
+        Assert.Null(model.PaperSourceId);
+        Assert.Contains("No approved strategy loaded", model.StrategyDetails);
     }
 
     [Fact]
@@ -69,8 +74,12 @@ public sealed class BrokerManagedStrategyViewModelTests
         using var model = new BrokerManagedStrategyViewModel(Controls(f), new Clock(f)); await model.RestoreAsync(f.Binding.BindingId);
         f.Now = f.Now.AddMinutes(6); await model.StopBuyingAsync(); Assert.False(f.Store.State!.NewBuysStopped);
         model.Invalidate(); Assert.Equal(f.Strategy.Strategy.Name, model.StrategyName); Assert.False(model.CanStopBuying);
+        Assert.Equal(f.Strategy.PaperAccountId, model.PaperSourceId);
+        Assert.Contains("Refresh the linked account", model.StrategyDetails);
         await model.RestoreAsync(f.Binding.BindingId); Assert.True(model.CanStopBuying);
         model.Invalidate(true); Assert.Equal("No approved strategy loaded", model.StrategyName); Assert.False(model.CanStopBuying);
+        Assert.Null(model.PaperSourceId);
+        Assert.DoesNotContain(f.Strategy.Strategy.VersionId.ToString("D"), model.StrategyDetails);
     }
 
     [Fact]

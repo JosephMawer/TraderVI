@@ -59,6 +59,16 @@ Paper data uses the existing display refresh; Real uses Trading's shared display
 is the route for loading broker facts and inspecting broker history. No strategy, gate, database schema
 or financial permission changes are part of this UI increment.
 
+## November 3 — approved strategy navigation
+
+Trading's Main account shows the saved approved strategy as a read-only label with full version
+and source identities on hover. **View strategy** opens Strategy workspace at that exact Paper
+source when available; an unavailable source is reported rather than substituted. Without a loaded
+approval, the link opens the workspace for inspection. This replaces the Main account dropdown
+so occasional strategy changes live alongside comparison and the existing **Review for Real** action.
+Saved identity remains inspectable after account verification expires; it grants no approval or
+execution permission. Existing account-activity links retain their destination.
+
 ## Alternatives and consequences
 
 A new top-level destination would duplicate Portfolios and split account selection. Retaining the

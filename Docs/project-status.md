@@ -24,6 +24,12 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   positive values in green, negative values in red, and zero or unavailable values in neutral text.
   The separate selected-holding card was removed from the installed dashboard. Trade options
   are on the holding's row menu, and strategy details are on the status cell.
+  The November 3 dashboard update replaces the strategy dropdown with the saved approved strategy
+  and a **View strategy** link to its source in **Portfolios → Strategy workspace**. Full version
+  details are on hover; strategy changes retain **Review for Real**. The dashboard-only update was
+  installed with the engine and collector retained. Release build and 255 focused tests passed;
+  native accessibility verified the loaded label, link and removed dropdown. Link click verification
+  remains pending because desktop automation could not resolve input geometry.
   **Main account** shows buying power below available cash and Refresh Wealthsimple below the
   performance period choice. The single eligible TFSA loads automatically. **Account tools**
   groups broker status with pending orders, manual buys with sells, and reconciliation with import.
