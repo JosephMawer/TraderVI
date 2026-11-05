@@ -50,6 +50,11 @@
     <DataGrid.Columns>
      <DataGridTextColumn Header="Ticker" Binding="{Binding Symbol}" ElementStyle="{StaticResource TradingCell}" Width="70"/>
      <DataGridTextColumn Header="Company name" Binding="{Binding Name}" ElementStyle="{StaticResource TradingCell}" Width="*" MinWidth="145"/>
+     <DataGridTextColumn Header="Sector" Binding="{Binding Sector}" Width="145">
+      <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource TradingCell}">
+       <Setter Property="ToolTip" Value="{Binding SectorDetails}"/>
+      </Style></DataGridTextColumn.ElementStyle>
+     </DataGridTextColumn>
      <DataGridTextColumn Header="Shares held" Binding="{Binding Quantity, StringFormat=0.########}" ElementStyle="{StaticResource TradingCell}" Width="95"/>
      <DataGridTextColumn Header="Avg. cost/share" Binding="{Binding AverageCost}" ElementStyle="{StaticResource TradingCell}" Width="115"/>
      <DataGridTextColumn Header="Current price/share" Binding="{Binding CurrentPricePerShare}" Width="140">

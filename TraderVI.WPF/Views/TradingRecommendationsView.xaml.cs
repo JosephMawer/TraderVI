@@ -41,7 +41,8 @@ public partial class TradingRecommendationsView : UserControl
         brokerConnection = connection;
         reconcileAccount = reconcile;
         broker = new WealthsimpleAccountViewModel(connection, synchronize: synchronize, canSynchronize: canSynchronize,
-            managedStrategy: new(new BrokerManagedSessionControls(new BrokerManagedSessionRepository())));
+            managedStrategy: new(new BrokerManagedSessionControls(new BrokerManagedSessionRepository())),
+            readSectors: Services.HoldingSectorReader.ReadAsync);
         BrokerTools.DataContext = broker;
         BrokerPanel.DataContext = broker;
         _ = broker.RefreshAsync();

@@ -1597,6 +1597,24 @@ milestone are also recorded there; their remaining scope stays visible above.
 
 ## Four-screen UI redesign — October 18 design track
 
+### Main account market context — November 5
+
+[Selected layout, source evidence and limits](reviews/trading-market-context-20261105.md).
+
+- [x] Accept Holdings and sectors with a compact market summary, one percentage-change baseline
+  label, and a Sector column; one- to five-minute refreshes are acceptable.
+- [x] Implement and test the dashboard-only Sector column using saved classifications and verified
+  aliases, with Unknown/retained-failure states and unchanged broker selection behavior.
+- [x] Check TMX benchmark/sector/breadth availability after close and record the timestamp limits.
+- [ ] Measure the proposed sources during a regular session before implementing the intraday feed;
+  confirm corrected Composite identity, source timing where available and partial-data behavior.
+- [ ] Implement the compact market summary, sector/exposure panels and a bounded shared collection
+  path/cache with explicit freshness states; preserve trading/collector priorities and source ownership.
+- [ ] Install the Sector column under dashboard restart authority and verify populated native layout
+  and mapping coverage. Intraday collection installation requires its own reviewed scope.
+
+### Earlier four-screen acceptance
+
 October 30 shell follow-up, governed by [ADR-0094](adr/0094-real-tfsa-execution-status-presentation.md#october-30--accepted-dashboard-placement):
 
 - [x] Accept and implement Status overview plus an Engine page, removing Trading's execution side

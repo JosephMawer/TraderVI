@@ -17,6 +17,9 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
     private readonly CancellationTokenSource lifetime = new();
     private readonly Func<WealthsimpleTfsaAccount, long, CancellationToken, Task<BrokerAccountSynchronization>>? synchronize;
     private readonly Func<bool> canSynchronize;
+    private readonly Func<CancellationToken, Task<IReadOnlyDictionary<string, HoldingSectorInfo>>>? readSectors;
+    private IReadOnlyDictionary<string, HoldingSectorInfo> sectors = new Dictionary<string, HoldingSectorInfo>();
+    private bool sectorReadFailed;
     private CancellationTokenSource? activeRead;
     private TaskCompletionSource? refreshCompletion;
     private bool refreshRequested;
@@ -29,10 +32,12 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
     public event PropertyChangedEventHandler? PropertyChanged;
     public WealthsimpleAccountViewModel(IWealthsimpleAccountSource source, TimeProvider? clock = null,
         Func<WealthsimpleTfsaAccount, long, CancellationToken, Task<BrokerAccountSynchronization>>? synchronize = null,
-        Func<bool>? canSynchronize = null, BrokerManagedStrategyViewModel? managedStrategy = null)
+        Func<bool>? canSynchronize = null, BrokerManagedStrategyViewModel? managedStrategy = null,
+        Func<CancellationToken, Task<IReadOnlyDictionary<string, HoldingSectorInfo>>>? readSectors = null)
     {
         this.source = source; this.clock = clock ?? TimeProvider.System;
         this.synchronize = synchronize; this.canSynchronize = canSynchronize ?? (() => true);
+        this.readSectors = readSectors;
         ManagedStrategy = managedStrategy;
         if (ManagedStrategy != null) ManagedStrategy.PropertyChanged += StrategyChanged;
         revision = source.SessionRevision;
@@ -76,7 +81,11 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
                 rowSnapshot = Snapshot;
                 holdingRows = Snapshot?.Holdings.Select(h => new WealthsimpleHoldingRow(h, Snapshot, source.SessionRevision)).ToArray() ?? [];
             }
-            foreach (var row in holdingRows) row.StrategyDecision = DecisionFor(row);
+            foreach (var row in holdingRows)
+            {
+                row.StrategyDecision = DecisionFor(row);
+                row.ApplySector(sectors.GetValueOrDefault(row.Symbol.Trim()) ?? HoldingSectorInfo.Unknown, sectorReadFailed);
+            }
             return holdingRows;
         }
     }
@@ -226,6 +235,17 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
         catch { if (IsCurrent(expected)) { holdingsReadFailed = true; message = "Account refresh could not complete. Previous saved history is retained; new orders still need fresh checks. Use Refresh to retry."; TradeSyncStatus = "Trade synchronization could not complete. Refresh to verify saved records."; } }
         finally
         {
+            // Metadata failure must never turn a successful holdings read into an account failure.
+            if (readSectors != null && IsCurrent(expected) && Snapshot != null)
+            {
+                Notify();
+                try
+                {
+                    var loaded = await readSectors(cancellation.Token);
+                    if (IsCurrent(expected)) { sectors = loaded; sectorReadFailed = false; }
+                }
+                catch { if (IsCurrent(expected)) sectorReadFailed = true; }
+            }
             activeRead = null;
             if (IsCurrent(expected))
             {
@@ -283,6 +303,18 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
 
 public sealed class WealthsimpleHoldingRow(WealthsimpleHolding holding, WealthsimpleTfsaSnapshot? snapshot = null, long revision = 0) : INotifyPropertyChanged
 {
+    private HoldingSectorInfo sector = HoldingSectorInfo.Unknown;
+    private bool sectorReadFailed;
+    public string Sector => sector.Sector;
+    public string SectorDetails => sector.Details + (sectorReadFailed
+        ? " The latest metadata read failed; any saved classification shown is retained." : "");
+    internal void ApplySector(HoldingSectorInfo value, bool readFailed)
+    {
+        if (sector == value && sectorReadFailed == readFailed) return;
+        sector = value; sectorReadFailed = readFailed;
+        PropertyChanged?.Invoke(this, new(nameof(Sector)));
+        PropertyChanged?.Invoke(this, new(nameof(SectorDetails)));
+    }
     public global::Core.WSTrade.Orders.ManualSellSelection? SellSelection { get; } = snapshot == null ? null :
         global::Core.WSTrade.Orders.ManualSellSelection.FromHolding(holding, snapshot, revision);
     public string SellAllToolTip => SellSelection?.IsWholeHolding == true

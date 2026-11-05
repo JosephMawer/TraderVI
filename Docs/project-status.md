@@ -82,6 +82,17 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   interaction and pixel layout remain unverified. Installation receipts and rollback files:
   `artifacts/trade-history-ui-20261105/`.
 
+  **November 5 market-context follow-up:** The operator selected Holdings and sectors with a compact
+  benchmark/breadth summary and accepts one- to five-minute updates. The dashboard Sector column is
+  implemented in source; 239 focused tests and the isolated WPF Release build pass. It uses saved
+  classifications/verified aliases, exposes classification dates and preserves Unknown/failure states.
+  It is not installed. The 16:32–16:35 Toronto read-only TMX check returned all 11 sector indices and
+  both benchmarks after correcting the display candidate's Composite symbol to `^TSX`. Four separate
+  dated-feed samples report today's 16:00 close. This after-close check does not establish intraday
+  delay. No feed implementation, operational restart or database mutation was performed.
+  [Evidence and selected design](reviews/trading-market-context-20261105.md);
+  [remaining acceptance](strategy-alignment-implementation-checklist.md#main-account-market-context--november-5).
+
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
   standard Release path in build-review mode, connected to the broker. The collector retained
   its process. After approval and separate enable, the 10:01 SQL read verified both owner
