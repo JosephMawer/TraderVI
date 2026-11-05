@@ -150,6 +150,18 @@ Receipts: `artifacts/market-panels-binding-install-20261105/`; the pre-panel rol
 in `artifacts/market-panels-install-20261105/original/` (the binding-install backup is the failed first
 panel build and is not the preferred rollback).
 
+### Exposure refresh correction
+
+The operator reported the exposure bars repeatedly refreshing despite unchanged holdings. Routine
+account status/age notifications reevaluated a getter that returned a new array each time, rebuilding
+the ItemsControl and restarting its bar animations. The display now retains its collection and rows
+when the computed sector/value/share results are unchanged, including after a new identical broker
+snapshot. Actual holding values or sector changes still replace the results; empty/disconnected or
+incomplete-CAD snapshots clear them. Equal-value sectors use a stable name ordering. This does not
+change broker polling, account refresh, market requests or financial logic. All 246 focused tests pass,
+including stable row identity across status polls and unchanged reads, followed by buy, classification
+change and sale updates. Installation evidence follows separately.
+
 ## Next source check and implementation boundary
 
 Use a bounded regular-session sample of benchmark/sector quotes and TSX breadth across several

@@ -45,6 +45,42 @@ public sealed class HoldingSectorPresentationTests
 public sealed partial class WealthsimpleAccountTests
 {
     [Fact]
+    public async Task ExposureKeepsItsRowsAcrossStatusPollsAndUnchangedHoldingsButUpdatesOnChanges()
+    {
+        var source = new Source();
+        decimal quantity = 1, value = 10;
+        string sector = "Energy";
+        source.Read = a => Task.FromResult(new WealthsimpleReadResult<WealthsimpleTfsaSnapshot>(WealthsimpleReadStatus.Success,
+            Snapshot(a) with { Holdings = quantity == 0 ? [] :
+                [new("FIX", "Fixture", "EQUITY", quantity, new(value, "CAD"), new(9, "CAD"), null)] }));
+        using var vm = new WealthsimpleAccountViewModel(source, readSectors: _ =>
+            Task.FromResult(HoldingSectorInfo.From([new("FIX", "FIX", sector, null, null, DateTime.UtcNow)])));
+        await vm.RefreshAsync();
+        var original = vm.SectorExposure;
+        await vm.PollAsync();
+        vm.ShowOverallPerformance = true;
+        Assert.Same(original, vm.SectorExposure);
+        Assert.Same(original[0], vm.SectorExposure[0]);
+        await vm.RefreshAsync(); // New broker snapshot and metadata receipt, same exposure.
+        Assert.Same(original, vm.SectorExposure);
+
+        quantity = 2; value = 20;
+        await vm.RefreshAsync();
+        Assert.NotSame(original, vm.SectorExposure);
+        Assert.Equal(20m, Assert.Single(vm.SectorExposure).Value);
+        var afterBuy = vm.SectorExposure;
+        sector = "Materials";
+        await vm.RefreshAsync();
+        Assert.NotSame(afterBuy, vm.SectorExposure);
+        Assert.Equal("Materials", Assert.Single(vm.SectorExposure).Sector);
+        quantity = 0;
+        await vm.RefreshAsync();
+        Assert.Empty(vm.SectorExposure);
+        source.Disconnect();
+        Assert.Empty(vm.SectorExposure);
+    }
+
+    [Fact]
     public async Task SectorReadEnrichesHoldingsAndFailureDoesNotInvalidateAccountOrTradingSelection()
     {
         var source = new Source();

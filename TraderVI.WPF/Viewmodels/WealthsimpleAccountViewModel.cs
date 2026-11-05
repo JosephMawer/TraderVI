@@ -48,16 +48,21 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
     public IReadOnlyList<WealthsimpleTfsaAccount> Accounts { get; private set; } = [];
     public BrokerManagedStrategyViewModel? ManagedStrategy { get; }
     public MarketContextViewModel? Market { get; }
+    private IReadOnlyList<SectorExposureRow> sectorExposure = [];
     public IReadOnlyList<SectorExposureRow> SectorExposure
     {
         get
         {
             var rows = Holdings;
-            if (Snapshot == null || rows.Count == 0 || rows.Any(row => row.CadValue is null or < 0)) return [];
+            if (Snapshot == null || rows.Count == 0 || rows.Any(row => row.CadValue is null or < 0)) return sectorExposure = [];
             decimal total = rows.Sum(row => row.CadValue!.Value);
-            return rows.GroupBy(row => row.Sector).Select(group => new SectorExposureRow(group.Key,
+            var updated = rows.GroupBy(row => row.Sector).Select(group => new SectorExposureRow(group.Key,
                 group.Sum(row => row.CadValue!.Value), total > 0 ? group.Sum(row => row.CadValue!.Value) / total : 0))
-                .OrderByDescending(row => row.Value).ToArray();
+                .OrderByDescending(row => row.Value).ThenBy(row => row.Sector, StringComparer.Ordinal).ToArray();
+            // Status/age notifications also reevaluate this binding. Keep the same ItemsSource
+            // when exposure is unchanged so WPF does not recreate and animate the progress bars.
+            if (!sectorExposure.SequenceEqual(updated)) sectorExposure = updated;
+            return sectorExposure;
         }
     }
     public string ExposureContext => Snapshot == null ? "Load holdings to see exposure." :
