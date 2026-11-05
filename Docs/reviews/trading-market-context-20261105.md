@@ -131,6 +131,13 @@ build passes with 257 existing compiler warnings (including shared-project nulla
 The test compilation reports one existing nullable warning. No restore/dependency-security audit or
 full solution/SQL-project build was run. Logs: `artifacts/market-context-20261105/market-panels-*.log`.
 
+The first installation at 16:58 loaded the market snapshot, then the dashboard exited when populated
+exposure controls bound two-way to a read-only percentage. Engine and collector retained their processes.
+The repair explicitly makes that ProgressBar binding one-way. A disconnected native WPF harness
+rendered the actual market/exposure markup at 1050 and 700 pixels with synthetic data and verified
+both read-only bar values; it opened no operational host or database. Evidence:
+`artifacts/market-panels-render/`. The corrected staged WPF Release build also passes.
+
 ## Next source check and implementation boundary
 
 Use a bounded regular-session sample of benchmark/sector quotes and TSX breadth across several
