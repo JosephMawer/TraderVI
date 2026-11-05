@@ -100,6 +100,37 @@ that sector classification is absent or that engine resolution failed. No alias 
 changed. Private evidence: `artifacts/read-only-db/result-20261105T215014631Z-a7190e9abfa14dbb82a63341bef914db.json`,
 query SHA-256 `49FB621800343222E480F48864DE9478C006BF8D45FF5D14F58F13091D1B3FCD`.
 
+## Snapshot panels and verified mapping repair
+
+The operator subsequently requested the market sections now, populated with the latest available
+values on this after-hours start, while retaining the market-hours check before automatic intraday
+updates. The dashboard issues **one bounded TMX request on opening**, with no recurring timer or
+retry loop. It requests only the 13 index percentage changes and TSX breadth; it does not request
+stock bars, modify collector subscriptions, write SQL market evidence or affect trading inputs.
+This display snapshot is distinct from the future shared collector feed governed by ADR-0111.
+There is no automatic refresh across the next session; the received time remains visible.
+
+The compact Market now strip shows the two benchmarks and TSX breadth above holdings. The shared
+percentage-change baseline appears once. Below holdings, all 11 sector indices are sorted by change,
+alongside sector exposure calculated from the broker's CAD holding values, excluding cash. Missing
+values remain unavailable; incomplete CAD valuations suppress exposure rather than presenting a
+partial account as complete. The ordinary TMX batch lacks a source timestamp: labels report receipt
+time and unverified provider quote time/delay, never claim an exact closing observation or real-time feed.
+
+Sector resolution now uses the already linked and verified managed session. It matches the displayed
+holding's security, broker spelling and quantity to its position, then uses the public
+`EngineRealObservation.From` projection, which invokes the existing `BrokerMarketSymbols` verifier.
+Original purchase, listing, cycle and fill checks remain intact. The resulting canonical symbol
+selects saved sector metadata; conflicting direct/derived metadata remains Unknown. No new alias,
+financial behavior or shared Core library change is needed. The original SQL reader remains read-only.
+
+Validation: 245 focused tests pass, covering verified mapping, wrong security/quantity, changed
+purchase evidence, mapping conflicts, exposure denominator, nullable/partial market data, duplicate
+rows, TSX-only breadth, one-shot loading, failure and disposal during a read. The staged WPF Release
+build passes with 257 existing compiler warnings (including shared-project nullable warnings).
+The test compilation reports one existing nullable warning. No restore/dependency-security audit or
+full solution/SQL-project build was run. Logs: `artifacts/market-context-20261105/market-panels-*.log`.
+
 ## Next source check and implementation boundary
 
 Use a bounded regular-session sample of benchmark/sector quotes and TSX breadth across several

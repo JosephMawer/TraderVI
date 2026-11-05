@@ -57,6 +57,11 @@ public sealed partial class WealthsimpleAccountTests
         await vm.RefreshAsync();
         var row = Assert.Single(vm.Holdings);
         Assert.Equal("Energy", row.Sector);
+        var exposure = Assert.Single(vm.SectorExposure);
+        Assert.Equal("Energy", exposure.Sector);
+        Assert.Equal(10m, exposure.Value);
+        Assert.Equal(1m, exposure.Share);
+        Assert.Contains("cash excluded", vm.ExposureContext);
         Assert.True(vm.IsCurrentSellSelection(row.SellSelection!));
         fail = true;
         await vm.RefreshAsync();

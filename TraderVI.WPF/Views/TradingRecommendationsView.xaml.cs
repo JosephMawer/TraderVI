@@ -42,10 +42,12 @@ public partial class TradingRecommendationsView : UserControl
         reconcileAccount = reconcile;
         broker = new WealthsimpleAccountViewModel(connection, synchronize: synchronize, canSynchronize: canSynchronize,
             managedStrategy: new(new BrokerManagedSessionControls(new BrokerManagedSessionRepository())),
-            readSectors: Services.HoldingSectorReader.ReadAsync);
+            readSectors: Services.HoldingSectorReader.ReadAsync,
+            market: new MarketContextViewModel(Services.MarketContextReader.ReadAsync));
         BrokerTools.DataContext = broker;
         BrokerPanel.DataContext = broker;
         _ = broker.RefreshAsync();
+        _ = broker.Market!.LoadOnceAsync();
     }
     public void StopWealthsimple() => broker?.Dispose();
     public WealthsimpleAccountViewModel? BrokerAccountDisplay => broker;

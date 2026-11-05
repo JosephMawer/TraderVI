@@ -1608,13 +1608,17 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [x] Check TMX benchmark/sector/breadth availability after close and record the timestamp limits.
 - [ ] Measure the proposed sources during a regular session before implementing the intraday feed;
   confirm corrected Composite identity, source timing where available and partial-data behavior.
-- [ ] Implement the compact market summary, sector/exposure panels and a bounded shared collection
-  path/cache with explicit freshness states; preserve trading/collector priorities and source ownership.
+- [x] Implement the compact market summary and sector/exposure panels with an operator-requested
+  latest-available snapshot on opening; one request, no automatic after-hours polling, explicit timing limits.
+- [ ] Implement the automatic shared collection path/cache with explicit freshness states after the
+  regular-session source check; preserve trading/collector priorities and source ownership.
 - [x] Install the Sector column under dashboard restart authority (November 5, 16:47 Toronto);
   native accessibility confirms the column and populated classifications. Engine/collector retained.
-- [ ] Verify pixel layout and close the display's symbol-resolution gap using verified holding
-  correspondence where available; the diagnosed Unknown already has canonical sector metadata.
-  Intraday collection installation requires its own reviewed scope.
+- [x] Close the display's symbol-resolution gap using the existing verified managed-purchase
+  projection and matched holding security/quantity; no alias or shared engine change.
+- [ ] Install the mapping repair and snapshot panels with only the dashboard restarted; verify
+  populated controls and classification coverage. Pixel-layout verification remains separate.
+  Automatic intraday collection installation requires its own reviewed scope.
 
 ### Earlier four-screen acceptance
 

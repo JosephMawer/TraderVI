@@ -24,6 +24,19 @@
     <TextBlock Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Text="{Binding BuyingPowerText, StringFormat='Buying power · {0}'}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,0"/>
     <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding PerformanceContext}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,0"/>
   </Grid></Border>
+  <Border Style="{StaticResource WorkspacePanel}" Padding="16,10" Margin="0,12,0,0" DataContext="{Binding Market}">
+   <StackPanel>
+    <DockPanel><TextBlock Text="Market now" FontSize="15" FontWeight="SemiBold"/>
+     <TextBlock Text="{Binding Status}" Style="{StaticResource WorkspaceLabel}" HorizontalAlignment="Right"/></DockPanel>
+    <WrapPanel Margin="0,7,0,0">
+     <StackPanel Orientation="Horizontal" Margin="0,0,24,0"><TextBlock Text="TSX Composite"/><TextBlock Text="{Binding Composite.ChangeText}" Foreground="{Binding Composite.Color}" FontWeight="SemiBold" Margin="8,0,0,0"/></StackPanel>
+     <StackPanel Orientation="Horizontal" Margin="0,0,24,0"><TextBlock Text="TSX 60"/><TextBlock Text="{Binding Tsx60.ChangeText}" Foreground="{Binding Tsx60.Color}" FontWeight="SemiBold" Margin="8,0,0,0"/></StackPanel>
+     <TextBlock Text="{Binding Breadth}" Margin="0,0,14,0"/><TextBlock Text="{Binding Unchanged}" Style="{StaticResource WorkspaceLabel}"/>
+    </WrapPanel>
+    <TextBlock Text="Index and sector %: change from previous close" Style="{StaticResource WorkspaceLabel}" FontSize="11" Margin="0,6,0,0"/>
+    <TextBlock Text="{Binding Timing}" Style="{StaticResource WorkspaceLabel}" FontSize="11" Margin="0,2,0,0" TextWrapping="Wrap"/>
+   </StackPanel>
+  </Border>
   <StackPanel x:Name="HoldingsTable" Margin="0,18,0,0">
    <TextBlock Text="Your holdings" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="{Binding HoldingsStatus}" Style="{StaticResource WorkspaceLabel}" Margin="0,5,0,10"/>
    <DataGrid x:Name="HoldingsGrid" ItemsSource="{Binding Holdings}" SelectedItem="{Binding SelectedHolding, Mode=TwoWay}"
@@ -93,6 +106,37 @@
    <TextBlock Text="Right-click a holding or press Shift+F10 for trade options. Hover over its strategy status for details." Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,0"/>
    <TextBlock Text="{Binding Status}" Style="{StaticResource WorkspaceLabel}" Margin="0,8,0,0" AutomationProperties.LiveSetting="Polite"/>
   </StackPanel>
+  <Grid Margin="0,16,0,0">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+   <Border Style="{StaticResource WorkspacePanel}" Padding="16,12" DataContext="{Binding Market}">
+    <StackPanel>
+     <TextBlock Text="TSX sectors" FontSize="16" FontWeight="SemiBold"/>
+     <TextBlock Text="Sector indices · strongest to weakest" Style="{StaticResource WorkspaceLabel}" Margin="0,4,0,8"/>
+     <ItemsControl ItemsSource="{Binding Sectors}"><ItemsControl.ItemTemplate><DataTemplate>
+      <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <TextBlock Text="{Binding Name}" TextWrapping="Wrap" Margin="0,0,12,0"/>
+       <TextBlock Grid.Column="1" Text="{Binding ChangeText}" Foreground="{Binding Color}" FontWeight="SemiBold"/>
+      </Grid>
+     </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+    </StackPanel>
+   </Border>
+   <Border Grid.Column="2" Style="{StaticResource WorkspacePanel}" Padding="16,12" VerticalAlignment="Top">
+    <StackPanel>
+     <TextBlock Text="Your sector exposure" FontSize="16" FontWeight="SemiBold"/>
+     <TextBlock Text="{Binding ExposureContext}" Style="{StaticResource WorkspaceLabel}" Margin="0,4,0,10" TextWrapping="Wrap"/>
+     <ItemsControl ItemsSource="{Binding SectorExposure}"><ItemsControl.ItemTemplate><DataTemplate>
+      <StackPanel Margin="0,0,0,13">
+       <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+        <TextBlock Text="{Binding Sector}" TextWrapping="Wrap" Margin="0,0,12,0"/>
+        <TextBlock Grid.Column="1" Text="{Binding ShareText}" FontWeight="SemiBold"/>
+       </Grid>
+       <ProgressBar Value="{Binding Percent}" Maximum="100" Height="5" Foreground="#83BFFF" Background="#263442" BorderThickness="0" Margin="0,5"/>
+       <TextBlock Text="{Binding Amount}" Style="{StaticResource WorkspaceLabel}" FontSize="11"/>
+      </StackPanel>
+     </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+    </StackPanel>
+   </Border>
+  </Grid>
   <WrapPanel Margin="0,16,0,18" VerticalAlignment="Center">
    <TextBlock Text="Approved strategy · " Style="{StaticResource WorkspaceLabel}" VerticalAlignment="Center"/>
    <TextBlock Text="{Binding ManagedStrategy.StrategyName, TargetNullValue=No approved strategy loaded}" VerticalAlignment="Center"

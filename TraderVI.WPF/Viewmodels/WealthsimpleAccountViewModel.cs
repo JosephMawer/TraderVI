@@ -33,11 +33,13 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
     public WealthsimpleAccountViewModel(IWealthsimpleAccountSource source, TimeProvider? clock = null,
         Func<WealthsimpleTfsaAccount, long, CancellationToken, Task<BrokerAccountSynchronization>>? synchronize = null,
         Func<bool>? canSynchronize = null, BrokerManagedStrategyViewModel? managedStrategy = null,
-        Func<CancellationToken, Task<IReadOnlyDictionary<string, HoldingSectorInfo>>>? readSectors = null)
+        Func<CancellationToken, Task<IReadOnlyDictionary<string, HoldingSectorInfo>>>? readSectors = null,
+        MarketContextViewModel? market = null)
     {
         this.source = source; this.clock = clock ?? TimeProvider.System;
         this.synchronize = synchronize; this.canSynchronize = canSynchronize ?? (() => true);
         this.readSectors = readSectors;
+        Market = market;
         ManagedStrategy = managedStrategy;
         if (ManagedStrategy != null) ManagedStrategy.PropertyChanged += StrategyChanged;
         revision = source.SessionRevision;
@@ -45,6 +47,23 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
     }
     public IReadOnlyList<WealthsimpleTfsaAccount> Accounts { get; private set; } = [];
     public BrokerManagedStrategyViewModel? ManagedStrategy { get; }
+    public MarketContextViewModel? Market { get; }
+    public IReadOnlyList<SectorExposureRow> SectorExposure
+    {
+        get
+        {
+            var rows = Holdings;
+            if (Snapshot == null || rows.Count == 0 || rows.Any(row => row.CadValue is null or < 0)) return [];
+            decimal total = rows.Sum(row => row.CadValue!.Value);
+            return rows.GroupBy(row => row.Sector).Select(group => new SectorExposureRow(group.Key,
+                group.Sum(row => row.CadValue!.Value), total > 0 ? group.Sum(row => row.CadValue!.Value) / total : 0))
+                .OrderByDescending(row => row.Value).ToArray();
+        }
+    }
+    public string ExposureContext => Snapshot == null ? "Load holdings to see exposure." :
+        Holdings.Count == 0 ? "No holdings in this account snapshot." :
+        Holdings.Any(row => row.CadValue is null or < 0) ? "Exposure unavailable: complete CAD holding values are required." :
+        $"Share of invested holdings · cash excluded · broker snapshot {TradingAccountOverview.Local(Snapshot.RetrievedAt.UtcDateTime)}";
     private WealthsimpleTfsaAccount? selected;
     public WealthsimpleTfsaAccount? SelectedAccount
     {
@@ -84,7 +103,7 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
             foreach (var row in holdingRows)
             {
                 row.StrategyDecision = DecisionFor(row);
-                row.ApplySector(sectors.GetValueOrDefault(row.Symbol.Trim()) ?? HoldingSectorInfo.Unknown, sectorReadFailed);
+                row.ApplySector(HoldingSectorInfo.Resolve(row.Symbol, row.SellSelection, ManagedStrategy?.VerifiedSession, sectors), sectorReadFailed);
             }
             return holdingRows;
         }
@@ -296,6 +315,7 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
     {
         if (disposed) return;
         disposed = true; source.PropertyChanged -= ConnectionChanged; lifetime.Cancel(); lifetime.Dispose();
+        Market?.Dispose();
         if (ManagedStrategy != null) ManagedStrategy.PropertyChanged -= StrategyChanged;
         ManagedStrategy?.Dispose();
     }
@@ -325,6 +345,7 @@ public sealed class WealthsimpleHoldingRow(WealthsimpleHolding holding, Wealthsi
     public string Name => holding.Name;
     public decimal Quantity => holding.Quantity;
     public string Value => holding.Value?.ToString() ?? "—";
+    public decimal? CadValue => holding.Value is { Currency: "CAD" } value ? value.Amount : null;
     public string BookValue => holding.BookValue?.ToString() ?? "—";
     public decimal? GainAmount => holding.Value is { } value && holding.BookValue is { } cost && value.Currency == cost.Currency
         ? value.Amount - cost.Amount : null;
