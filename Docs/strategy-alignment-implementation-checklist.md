@@ -1616,9 +1616,11 @@ milestone are also recorded there; their remaining scope stays visible above.
   native accessibility confirms the column and populated classifications. Engine/collector retained.
 - [x] Close the display's symbol-resolution gap using the existing verified managed-purchase
   projection and matched holding security/quantity; no alias or shared engine change.
-- [ ] Install the mapping repair and snapshot panels with only the dashboard restarted; verify
-  populated controls and classification coverage. Pixel-layout verification remains separate.
-  Automatic intraday collection installation requires its own reviewed scope.
+- [x] Install the mapping repair and snapshot panels with only the dashboard restarted (November 5,
+  17:00 Toronto); native accessibility verifies all displayed holdings classified, 11 sector rows,
+  benchmark/breadth snapshot and exposure controls. Background host identities/files retained.
+- [ ] Verify full-dashboard pixel layout; disconnected native panel rendering passed at two widths,
+  but live screenshot capture timed out. Automatic intraday collection remains separately scoped.
 
 ### Earlier four-screen acceptance
 

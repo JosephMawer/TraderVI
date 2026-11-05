@@ -138,6 +138,18 @@ rendered the actual market/exposure markup at 1050 and 700 pixels with synthetic
 both read-only bar values; it opened no operational host or database. Evidence:
 `artifacts/market-panels-render/`. The corrected staged WPF Release build also passes.
 
+The corrected dashboard (`58c791ab` plus binding repair `b5d2bc8e`) was installed at **17:00 Toronto**,
+process 22624. Native accessibility at 17:01 confirmed the market snapshot received at 17:00:39,
+all 11 sector rows, the exposure panel and saved classifications for all displayed holdings, including
+the previously Unknown row. The dashboard remained responsive after holdings populated. Engine 22780
+and collector 32356 retained their original November 4 starts; 116 other runtime-file hashes remained
+unchanged. No alias/database migration, financial control or collector configuration changed.
+The ordinary dashboard account synchronization resumed; the one-shot display request was authorized.
+The live screenshot capture still timed out, limiting full-dashboard pixel verification.
+Receipts: `artifacts/market-panels-binding-install-20261105/`; the pre-panel rollback DLL/symbols remain
+in `artifacts/market-panels-install-20261105/original/` (the binding-install backup is the failed first
+panel build and is not the preferred rollback).
+
 ## Next source check and implementation boundary
 
 Use a bounded regular-session sample of benchmark/sector quotes and TSX breadth across several

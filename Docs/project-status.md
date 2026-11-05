@@ -83,16 +83,19 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   `artifacts/trade-history-ui-20261105/`.
 
   **November 5 market-context follow-up:** The operator selected Holdings and sectors with a compact
-  benchmark/breadth summary and accepts one- to five-minute updates. The dashboard Sector column is
-  implemented in source; 239 focused tests and the isolated WPF Release build pass. It uses saved
-  classifications/verified aliases, exposes classification dates and preserves Unknown/failure states.
-  Dashboard change `6f61c278` was installed at 16:47 Toronto with a dashboard-only restart. Native
-  accessibility confirmed the Sector column and populated classifications, with an Unknown mapping
-  still visible. Engine/collector process identities and 116 other runtime-file hashes were retained.
-  Screenshot capture timed out, so pixel layout remains unverified. The 16:32–16:35 Toronto read-only TMX check returned all 11 sector indices and
+  benchmark/breadth summary and accepts one- to five-minute updates. At 17:00 Toronto, dashboard
+  changes `58c791ab`/`b5d2bc8e` installed the compact summary, sector/exposure panels and repaired
+  sector resolution through the existing verified managed-purchase projection. Native accessibility
+  confirmed all displayed holdings classified and all 11 sector indices populated. The snapshot is
+  fetched once on opening, as requested for this after-hours start; automatic intraday refresh is off.
+  The first panel installation exposed a read-only progress binding error; the corrected one-way
+  binding passed disconnected native rendering at two widths before reinstall. 245 focused tests
+  and the staged WPF Release build passed, with existing compiler warnings. Engine/collector process
+  identities and 116 other runtime-file hashes were retained. Live screenshot capture timed out;
+  full-dashboard pixel layout remains unverified. The 16:32–16:35 read-only TMX check returned all 11 sector indices and
   both benchmarks after correcting the display candidate's Composite symbol to `^TSX`. Four separate
   dated-feed samples report today's 16:00 close. This after-close check does not establish intraday
-  delay. No intraday feed was installed, and neither background host was restarted. No manual database
+  delay. The visible snapshot states receipt time and unverified provider timing. Neither background host was restarted. No manual database
   mutation was performed; the dashboard resumed its existing account-refresh workflow.
   [Evidence and selected design](reviews/trading-market-context-20261105.md);
   [remaining acceptance](strategy-alignment-implementation-checklist.md#main-account-market-context--november-5).
