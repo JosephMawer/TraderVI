@@ -88,6 +88,9 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   sector resolution through the existing verified managed-purchase projection. Native accessibility
   confirmed all displayed holdings classified and all 11 sector indices populated. The snapshot is
   fetched once on opening, as requested for this after-hours start; automatic intraday refresh is off.
+  Follow-up `09293f17` installed at 17:04:58 Toronto preserves exposure rows across unchanged status
+  checks and holdings snapshots, preventing repeated bar recreation. 246 focused tests and the staged
+  WPF build passed; engine/collector identities and 116 other runtime-file hashes were retained.
   The first panel installation exposed a read-only progress binding error; the corrected one-way
   binding passed disconnected native rendering at two widths before reinstall. 245 focused tests
   and the staged WPF Release build passed, with existing compiler warnings. Engine/collector process

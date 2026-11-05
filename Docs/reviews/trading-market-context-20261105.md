@@ -160,7 +160,15 @@ snapshot. Actual holding values or sector changes still replace the results; emp
 incomplete-CAD snapshots clear them. Equal-value sectors use a stable name ordering. This does not
 change broker polling, account refresh, market requests or financial logic. All 246 focused tests pass,
 including stable row identity across status polls and unchanged reads, followed by buy, classification
-change and sale updates. Installation evidence follows separately.
+change and sale updates. The WPF Release build passes with two existing unused-variable warnings;
+test compilation reports one existing nullable warning. No new dependency audit was run.
+
+Installed `09293f17` at 17:04:58 Toronto with only the dashboard restarted (process 30896). Native
+accessibility confirmed three populated exposure rows and no Unknown holding cells after account
+refresh. Their accessibility element identities remained stable across successive advancing status
+updates; automated tests establish retained collection/row object identity. Engine 22780 and collector
+32356 retained their original starts, and 116 other runtime-file
+hashes were unchanged. Receipts and rollback: `artifacts/exposure-refresh-install-20261105/`.
 
 ## Next source check and implementation boundary
 
