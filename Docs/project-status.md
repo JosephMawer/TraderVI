@@ -86,10 +86,14 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   benchmark/breadth summary and accepts one- to five-minute updates. The dashboard Sector column is
   implemented in source; 239 focused tests and the isolated WPF Release build pass. It uses saved
   classifications/verified aliases, exposes classification dates and preserves Unknown/failure states.
-  It is not installed. The 16:32–16:35 Toronto read-only TMX check returned all 11 sector indices and
+  Dashboard change `6f61c278` was installed at 16:47 Toronto with a dashboard-only restart. Native
+  accessibility confirmed the Sector column and populated classifications, with an Unknown mapping
+  still visible. Engine/collector process identities and 116 other runtime-file hashes were retained.
+  Screenshot capture timed out, so pixel layout remains unverified. The 16:32–16:35 Toronto read-only TMX check returned all 11 sector indices and
   both benchmarks after correcting the display candidate's Composite symbol to `^TSX`. Four separate
   dated-feed samples report today's 16:00 close. This after-close check does not establish intraday
-  delay. No feed implementation, operational restart or database mutation was performed.
+  delay. No intraday feed was installed, and neither background host was restarted. No manual database
+  mutation was performed; the dashboard resumed its existing account-refresh workflow.
   [Evidence and selected design](reviews/trading-market-context-20261105.md);
   [remaining acceptance](strategy-alignment-implementation-checklist.md#main-account-market-context--november-5).
 

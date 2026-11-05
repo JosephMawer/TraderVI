@@ -1610,8 +1610,10 @@ milestone are also recorded there; their remaining scope stays visible above.
   confirm corrected Composite identity, source timing where available and partial-data behavior.
 - [ ] Implement the compact market summary, sector/exposure panels and a bounded shared collection
   path/cache with explicit freshness states; preserve trading/collector priorities and source ownership.
-- [ ] Install the Sector column under dashboard restart authority and verify populated native layout
-  and mapping coverage. Intraday collection installation requires its own reviewed scope.
+- [x] Install the Sector column under dashboard restart authority (November 5, 16:47 Toronto);
+  native accessibility confirms the column and populated classifications. Engine/collector retained.
+- [ ] Verify pixel layout and resolve remaining Unknown classification coverage through reviewed
+  reference-data work. Intraday collection installation requires its own reviewed scope.
 
 ### Earlier four-screen acceptance
 

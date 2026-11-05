@@ -73,6 +73,22 @@ restore/security audit was run. The revised interactive concept passed local, ne
 browser checks at 1024, 736 and 320 pixels with working sector highlighting and no page overflow.
 This does not establish native WPF layout or installation.
 
+## Dashboard-only installation
+
+At **16:47 Toronto November 5**, the operator-authorized installation replaced only
+`TraderVI.WPF.dll` and its symbols from tested commit `6f61c278`, after a normal dashboard close.
+The new dashboard process is 20208. Engine 22780 and collector 32356 retained their original
+November 4 start times, and all 116 other runtime files retained their hashes. Both installed
+host manifests continue to select root Core/Calibration assemblies; neither manifest was changed.
+Rollback files and hash/process receipts are in `artifacts/sector-column-install-20261105/`.
+
+At 16:48, native accessibility confirmed Sector after Company name, populated saved classifications
+and an Unknown mapping. The account snapshot had refreshed; the footer reported Engine Running
+and Collector Outside session. This verifies populated controls, not complete mapping coverage.
+Screenshot capture timed out, so pixel layout remains unverified. No engine/collector restart,
+manual database mutation, financial-control change or intraday-feed installation was performed.
+The dashboard resumed its existing account refresh/synchronization workflow.
+
 ## Next source check and implementation boundary
 
 Use a bounded regular-session sample of benchmark/sector quotes and TSX breadth across several
