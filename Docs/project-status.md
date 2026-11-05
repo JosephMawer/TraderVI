@@ -1,12 +1,25 @@
 # TraderVI Project Status
 
-Last reconciled **November 4, 2026**. This page records the latest dated evidence and its limits;
+Last reconciled **November 5, 2026**. This page records the latest dated evidence and its limits;
 it is not a live health check or authority to trade. [Roadmap](roadmap.md) owns priority;
 [execution checklist](strategy-alignment-implementation-checklist.md) and
 [Live checklist](delphi-live-implementation-checklist.md) own remaining acceptance work.
 Design and authority are governed by [design rules](design-rules.md) and applicable ADRs.
 
 ## Operating state and immediate risks
+
+- **November 5 pre-open readiness:** At 09:11 Toronto, the dashboard, engine and collector were
+  running with their November 4 starts retained. Fresh read-only native controls showed Wealthsimple
+  connected, all 15 workers with zero consecutive failures, zero integrity incidents and execution
+  waiting for 09:30. The collector reported fresh OutsideSession. Hash-verified SQL confirmed today's
+  valid official Delphi preparation using November 4 data, zero unfinished compact orders and zero
+  unresolved integrity incidents. The latest shared publication covered November 4's 16:00 close,
+  published at 16:02; yesterday's morning publication stall was not the latest saved state. Collected
+  observations reached 15:59 across 40 symbols with zero stored conflicts; this does not prove complete
+  per-symbol coverage. Verified archived execution diagnostics were dated November 4 at 16:00 and
+  do not establish today's quotes, opening risk evidence or protection. Fresh market-hour Paper/Real
+  evaluation remains unverified. No nightly rerun or host restart was needed. Private evidence:
+  `artifacts/morning-readiness/2026-11-05/manual-readiness/`.
 
 - **Trading dashboard holdings:** At 14:24 Toronto November 3, independent read-only broker
   checks confirmed two TFSA holdings and matching broker order history. The dashboard showed
@@ -234,12 +247,19 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   [acceptance work](strategy-alignment-implementation-checklist.md#independent-collector-and-recovered-confirmation--october-27-overnight).
 - **Nightly:** The task was changed November 1 to 06:30 Toronto local time daily and selects verified
   existing outputs for Hermes, DataAudit, Delphi and Athena. Successful Windows Release builds register
-  per-app outputs for future selection. November 4 inspection confirmed the scheduled 06:30–06:37 run
+  per-app outputs for future selection. November 5's scheduled 06:30–06:37 run completed all four
+  stages, overall Attention. Delphi succeeded; Hermes reported individual-source warnings, DataAudit
+  retained one error/ten warnings with no new, escalated or resolved findings, and Athena reported two
+  invalid prediction outcomes. SQL verified one valid November 5 official preparation using November 4
+  market data. At 09:10, Windows reported the task Ready, zero missed runs and next occurrence November 6
+  at 06:30. The requested conditional catch-up was unnecessary; no rerun occurred. Private receipt,
+  log and SQL evidence are retained in the November 5 manual-readiness directory above.
+  November 4 inspection confirmed the scheduled 06:30–06:37 run
   completed all four stages for November 4, overall Attention; Windows recorded zero missed runs and
   the next occurrence November 5 at 06:30. At Joseph's request, one preflight-verified forced rerun ran
   08:55–08:57 with the existing outputs. Delphi and Athena succeeded; Hermes still reported two missing
   daily-bar sources, and DataAudit retained one error/ten warnings (no new or resolved findings).
-  Today's valid Delphi preparation uses November 3 market data. Athena's earlier one invalid prediction
+  That date's valid Delphi preparation uses November 3 market data. Athena's earlier one invalid prediction
   outcome had MissingSymbolSession; zero newly invalid outcomes on rerun does not repair that record.
   No models were trained, outputs rebuilt, engine restarted or order/permission settings changed by
   the rerun. Receipts/log pointers are retained in the morning-watch evidence directory above.
