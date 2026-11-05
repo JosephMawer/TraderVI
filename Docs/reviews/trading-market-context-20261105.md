@@ -89,6 +89,17 @@ Screenshot capture timed out, so pixel layout remains unverified. No engine/coll
 manual database mutation, financial-control change or intraday-feed installation was performed.
 The dashboard resumed its existing account refresh/synchronization workflow.
 
+### Unknown-classification diagnosis
+
+The November 5 16:50 hash-verified read-only check found the displayed Unknown has a populated
+canonical sector record, but the broker spelling has neither an exact sector record nor a saved
+Broker alias. The new display reader therefore cannot join it. It does not yet reuse the verified
+tracked-holding correspondence available through `HoldingMarketSymbolResolver`; that correspondence
+must be checked for the current holding before use. This is a display-resolution gap, not evidence
+that sector classification is absent or that engine resolution failed. No alias or trading state was
+changed. Private evidence: `artifacts/read-only-db/result-20261105T215014631Z-a7190e9abfa14dbb82a63341bef914db.json`,
+query SHA-256 `49FB621800343222E480F48864DE9478C006BF8D45FF5D14F58F13091D1B3FCD`.
+
 ## Next source check and implementation boundary
 
 Use a bounded regular-session sample of benchmark/sector quotes and TSX breadth across several

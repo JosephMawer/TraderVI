@@ -1612,8 +1612,9 @@ milestone are also recorded there; their remaining scope stays visible above.
   path/cache with explicit freshness states; preserve trading/collector priorities and source ownership.
 - [x] Install the Sector column under dashboard restart authority (November 5, 16:47 Toronto);
   native accessibility confirms the column and populated classifications. Engine/collector retained.
-- [ ] Verify pixel layout and resolve remaining Unknown classification coverage through reviewed
-  reference-data work. Intraday collection installation requires its own reviewed scope.
+- [ ] Verify pixel layout and close the display's symbol-resolution gap using verified holding
+  correspondence where available; the diagnosed Unknown already has canonical sector metadata.
+  Intraday collection installation requires its own reviewed scope.
 
 ### Earlier four-screen acceptance
 
