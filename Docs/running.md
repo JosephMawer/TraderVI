@@ -864,13 +864,17 @@ and let an active nightly run finish before rebuilding it. Keep logs and receipt
 separate from these reusable compiler outputs.
 
 The installed Windows desktop and approved engine share `TraderVI.WPF/bin/Release/net10.0-windows/`.
-The November 3 desktop update uses a WPF-specific entry in `TraderVI.WPF.deps.json` to load
-`desktop-libraries/TraderVI.Calibration.dll`. The engine resolves the original DLL at the root.
-Preserve both paths and the WPF manifest when maintaining this installation. Building WPF directly
+The November 3 desktop update used a WPF-specific entry in `TraderVI.WPF.deps.json` to load
+`desktop-libraries/TraderVI.Calibration.dll`, while the engine resolved the DLL at the root.
+The November 5 read-only host-resolution check found both installed hosts resolving the root
+`TraderVI.Calibration.dll` and `Core.dll`. Preserve the currently installed manifests and dependencies;
+do not restore the historical split without checking the selected runtime. Building WPF directly
 into the shared folder can overwrite the manifest and the engine's dependencies. Stage future
 changes in the reusable build folder and check each host's assembly resolution before installation.
-The prior WPF DLL, symbols and manifest are in `artifacts/desktop-scorecard-install/original/` for
-rollback with only the desktop closed. The validated before/after file hashes are alongside them.
+The November 3 rollback files and resolution evidence remain in `artifacts/desktop-scorecard-install/`.
+The November 5 dashboard-only rollback DLL and symbols are in
+`artifacts/trade-history-ui-20261105/original/`, with installation/hash receipts in its parent folder.
+Use rollback files matching the selected runtime, with only the desktop closed.
 
 ## Safe validation commands
 

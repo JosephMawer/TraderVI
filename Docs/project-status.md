@@ -71,12 +71,16 @@ Design and authority are governed by [design rules](design-rules.md) and applica
   interaction and clipboard interaction remain unverified.
   [Diagnostic contract and coverage limits](adr/0126-engine-health-and-diagnostic-snapshot.md).
 
-  **November 5 trade-history layout:** Prepared a dashboard-only change moving **Trade history**
+  **November 5 trade-history layout:** Installed dashboard change `276a458f` at 15:01 Toronto, moving **Trade history**
   into its own tab immediately beside **Main account**. The grid fills the tab, with wider columns,
   scrollbars and full reason text on hover; durable poll history uses the vacated monitor width.
   Existing trade data and refresh behavior are unchanged. The staged WPF Release build passed.
-  Installation, dashboard restart and native layout verification remain pending; the running
-  dashboard, engine and collector were left in place.
+  Only the dashboard DLL and symbols were replaced after a normal dashboard close; the engine and
+  collector retained their process IDs and start times, and 116 other runtime files retained their
+  hashes. Native accessibility confirmed the new adjacent tab. Automated tab clicks were rejected
+  after detected user input, and screenshot capture timed out on both attempts, so populated-grid
+  interaction and pixel layout remain unverified. Installation receipts and rollback files:
+  `artifacts/trade-history-ui-20261105/`.
 
 - **Real trading:** At 09:58 Toronto November 3, repair build `0e2f6a22` started from the
   standard Release path in build-review mode, connected to the broker. The collector retained
