@@ -8,6 +8,20 @@ Design and authority are governed by [design rules](design-rules.md) and applica
 
 ## Operating state and immediate risks
 
+- **November 5 evening restart:** At 21:13 Toronto all three applications were stopped. The last
+  collector receipt was 20:26:08; Windows AppX events show a Codex package update attempt stopping
+  `CodexSandboxService.OpenAI.Codex` at 20:26:09. The timing strongly suggests termination through
+  their shared launch environment, but individual TraderVI process termination causes were not recorded.
+  No new TraderVI crash event was found at that time; the 16:58 dashboard binding crash was the earlier,
+  already repaired incident. No collector stop request was present and installed package hashes matched.
+  On explicit operator instruction, the reviewed collector supervisor, engine and dashboard were started
+  at 21:17 (collector 15936, engine 21836, dashboard 13292; supervisor 35164). Read-only engine status at
+  21:18 showed all 15 workers with zero consecutive failures; execution reported waiting for regular
+  trading hours. The collector reported fresh OutsideSession and the dashboard showed broker connected.
+  No binaries, configuration or financial permissions were changed. This verifies startup, not the next
+  market session or survival of a future Codex service shutdown. Private launch receipts, local logs and
+  Windows-event evidence: `artifacts/startup-20261105-2116/`.
+
 - **November 5 pre-open readiness:** At 09:11 Toronto, the dashboard, engine and collector were
   running with their November 4 starts retained. Fresh read-only native controls showed Wealthsimple
   connected, all 15 workers with zero consecutive failures, zero integrity incidents and execution
