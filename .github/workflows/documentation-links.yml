@@ -15,7 +15,23 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          fetch-depth: 0
       - name: Test link checker
         run: python3 -m unittest discover -s Operations/DocumentationChecks -p 'test_*.py' -v
       - name: Check maintained documentation links
         run: python3 Operations/DocumentationChecks/check_links.py
+      - name: Check changed documentation review records
+        env:
+          DOC_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$DOC_BASE" ] || [ "$DOC_BASE" = "0000000000000000000000000000000000000000" ]; then
+            echo "No comparison revision for this new branch; review check will run on its next push or pull request."
+            python3 Operations/DocumentationChecks/check_consolidation.py
+          else
+            # Do not retroactively require review markers for the earlier cleanup
+            # when that checkpoint and this policy are pushed together.
+            if git merge-base --is-ancestor "$DOC_BASE" 178fcb88 && git merge-base --is-ancestor 178fcb88 HEAD; then
+              DOC_BASE=178fcb88
+            fi
+            python3 Operations/DocumentationChecks/check_consolidation.py --base "$DOC_BASE"
+          fi
