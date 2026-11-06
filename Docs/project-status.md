@@ -71,6 +71,9 @@ check or authority to trade. [Roadmap](roadmap.md) owns priority; the
 - **Build and storage:** DataAudit, Hermes and Athena build independently of Core under ADRs
   [0119](adr/0119-independent-data-audit-build.md), [0120](adr/0120-independent-hermes-build.md) and
   [0121](adr/0121-independent-athena-build.md). Source/build tests are not installation evidence.
+  November 5's CI registration failure came after Delphi compiled: its Windows PowerShell child could
+  not resolve `Get-FileHash`. Registration now hashes streams through .NET SHA-256; offline regressions
+  verify the original fingerprint format and operation with that command unavailable.
   Receipt compression migration 056 was installed November 1 after a verified synchronized backup;
   a separate test-database restore drill remains outstanding. [Conversion evidence](reviews/sql-cleanup-inventory-20261031.md#production-conversion--november-1).
 

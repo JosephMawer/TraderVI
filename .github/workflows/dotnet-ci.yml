@@ -21,6 +21,10 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Run offline nightly registration regressions
+        shell: pwsh
+        run: ./Operations/Test-TraderVINightly.ps1
+
       - name: Restore Core tests
         run: dotnet restore TraderVI.Core.Tests/TraderVI.Core.Tests.csproj
 

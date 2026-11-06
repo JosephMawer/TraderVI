@@ -315,6 +315,20 @@ try {
     [IO.File]::WriteAllText((Join-Path (Split-Path -Parent $nextHermes) 'Hermes.deps.json'), '{}')
     [IO.File]::WriteAllText((Join-Path (Split-Path -Parent $nextHermes) 'Hermes.runtimeconfig.json'), '{}')
     $beforeRegistration = Get-ArtifactSnapshot $fixture $nextHermes
+    [string[]] $originalHashRecords = @(Get-NightlyOutputFiles (Split-Path -Parent $nextHermes) | ForEach-Object {
+        $relative = Get-RepoRelativePath (Split-Path -Parent $nextHermes) $_.FullName
+        "$relative`t$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash)"
+    })
+    [Array]::Sort($originalHashRecords, [StringComparer]::Ordinal)
+    Assert ($beforeRegistration.sha256 -eq (Get-Sha256ForText ($originalHashRecords -join "`n"))) 'Streamed hashing preserves the existing pinned directory fingerprint format.'
+    & {
+        # A PowerShell 7 build can launch Windows PowerShell without its
+        # Get-FileHash command available. Fingerprinting must still hash the bytes.
+        function Get-FileHash { throw 'Get-FileHash is unavailable in this child environment.' }
+        $withoutFileHash = Get-ArtifactSnapshot $fixture $nextHermes
+        Assert ($withoutFileHash.sha256 -eq $beforeRegistration.sha256) 'Output fingerprints do not depend on Get-FileHash command discovery.'
+        Assert ($withoutFileHash.fileCount -eq $beforeRegistration.fileCount) 'Hashing without Get-FileHash preserves the complete file inventory.'
+    }
     $receipt = Register-NightlyBuildOutput 'Hermes' $nextHermes $fixture $registry
     Assert ($receipt.workingTreeState -eq 'Unknown') 'Registration never infers compiled working-tree state from the current checkout.'
     Assert ($receipt.sha256 -eq $beforeRegistration.sha256) 'Registration reads existing binaries without changing them.'

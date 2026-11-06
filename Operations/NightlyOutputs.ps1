@@ -60,7 +60,20 @@ function Get-ArtifactSnapshot {
     $records = New-Object System.Collections.Generic.List[string]
     foreach ($file in @(Get-NightlyOutputFiles $artifactDirectory | Sort-Object FullName)) {
         $relativePath = Get-RepoRelativePath -BasePath $artifactDirectory -TargetPath $file.FullName
-        $records.Add("$relativePath`t$((Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash)")
+        # Read the existing bytes with the same read-sharing as the output locks.
+        # Do not depend on Get-FileHash autoloading in a Windows PowerShell child
+        # launched by an MSBuild process running under PowerShell 7.
+        $stream = $null
+        $hasher = [Security.Cryptography.SHA256]::Create()
+        try {
+            $stream = [IO.File]::Open($file.FullName, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+            $hash = ([BitConverter]::ToString($hasher.ComputeHash($stream))).Replace('-', '')
+            $records.Add("$relativePath`t$hash")
+        }
+        finally {
+            $hasher.Dispose()
+            if ($null -ne $stream) { $stream.Dispose() }
+        }
     }
 
     # Ordinal ordering makes the fingerprint identical in Windows PowerShell 5.1
