@@ -43,6 +43,17 @@ class LinkChecks(unittest.TestCase):
         self.assertEqual(1, len(errors))
         self.assertIn("missing anchor", errors[0])
 
+    def test_adr_index_detects_missing_duplicate_and_wrong_targets(self):
+        self.write("Docs/adr/0001-one.md", "# One\n")
+        self.write("Docs/adr/0002-two.md", "# Two\n")
+        self.write("Docs/adr/README.md", "| [0001](wrong.md) | One |\n| [0001](0001-one.md) | One |\n")
+        errors = check_links.check_adr_index(self.root)
+        self.assertTrue(any("missing 0002" in error for error in errors))
+        self.assertTrue(any("occurs 2 times" in error for error in errors))
+        self.assertTrue(any("mismatched target" in error for error in errors))
+        self.write("Docs/adr/README.md", "| [0001](0001-one.md) | One |\n| [0002](0002-two.md) | Two |\n")
+        self.assertEqual([], check_links.check_adr_index(self.root))
+
     def test_missing_history_target_is_reported(self):
         source = self.write("other.md", "[Moved](Docs/project-status-history-20261201.md#old)\n")
         count, errors = check_links.check(self.root, [source])

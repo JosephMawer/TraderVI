@@ -19,8 +19,9 @@ intentional handover without losing existing protection or financial history.
    ([issue #19](https://github.com/JosephMawer/TraderVI/issues/19)). The original sell reconciled,
    the approved engine passed its after-hours restart account check and the dashboard restored
    the strategy. Both November 3 sells reconciled once. Normal restart, the broker account
-   check and a fresh strategy evaluation passed on the permanent repair. Verification of a
-   future exit through ordinary reconciliation remains open.
+   check and a fresh strategy evaluation passed on the permanent repair. A later November 4
+   ordinary protective sale filled and reconciled under the #24 repair; sustained and prospective
+   new-holding acceptance remain separate.
    See the [opening evidence](project-status.md#operating-state-and-immediate-risks).
    Reducing ordinary history reads and writes
    remains a separate proposal. [November 2 investigation](reviews/wealthsimple-auth-and-engine-diagnosis-20261102.md)
@@ -38,7 +39,8 @@ intentional handover without losing existing protection or financial history.
 3. **Qualify protection, recovery and market inputs.** November 4's authorized #24 switch restored
    observed broker bids for all four holdings and completed one ordinary protective sale. Keep longer
    runtime and prospective new-holding acceptance separate from that bounded evidence. Shared market
-   publication remains stale despite current collector observations. The Paper checkpoint package and baseline
+   publication was stale at 15:29 November 4; the November 5 pre-open check found the prior close
+   published. Current-session entry readiness still requires fresh evidence. The Paper checkpoint package and baseline
    are installed under separate November 4 authority; normal saved-state restart and automatic
    empty-delta checks passed. Complete nonempty nightly delta and market-time acceptance under
    [issue #28](https://github.com/JosephMawer/TraderVI/issues/28).
@@ -92,8 +94,10 @@ intentional handover without losing existing protection or financial history.
 
 ## Explicit holds and deferrals
 
-- The broker bid investigation remains on hold. The October 30 below-one-share sizing decision was
-  scheduled for a later read-only investigation; consult its follow-up before assuming an outcome.
+- The October 30 bid-read investigation was put on hold; November 4 observed fresh bids and a
+  protective sale under the #24 repair, without proving uninterrupted future protection. The later
+  below-one-share sizing finding and approved reinvestment terms are recorded in
+  [status](project-status.md#operating-state-and-immediate-risks) and [ADR-0125](adr/0125-reusable-strategy-sale-proceeds.md).
 - Exceptional damaged-database/old-backup recovery design is deferred to
   [issue #25](https://github.com/JosephMawer/TraderVI/issues/25); separate SQL cleanup is tracked in
   [issue #26](https://github.com/JosephMawer/TraderVI/issues/26). Neither blocks the current restart increment.

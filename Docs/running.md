@@ -849,7 +849,9 @@ See [ADR-0060](adr/0060-central-settings-and-scoped-configuration.md), the
 [system map](concepts/settings-system-map.md) and the
 [implementation and rollout review](reviews/central-settings-implementation-20260907.md).
 
-TraderVI currently operates in advisory and ghost-execution modes. None of these commands should be used as routine code-change validation: several call external services, write SQL Server, train models, or create model artifacts.
+TraderVI includes paper/advisory workflows and separately approved Real execution. None of these
+commands should be used as routine code-change validation: several call external services, write SQL
+Server, train models, or create model artifacts.
 
 Read `Docs/project-status.md` before restarting a workflow after a long pause.
 
@@ -859,7 +861,9 @@ now implements manual recommendation promotion under [ADR-0062](adr/0062-complet
 as described below. Delphi Live's separate research promotion control changes its own paper policy only.
 Hercules saves replacement model candidates without selecting them. Training still writes private artifacts
 and SQL and needs explicit authorization; model selection is a separate reviewed operation under
-[ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md). Strategy-directed broker execution is not implemented; the separate manual-buy ticket does not activate a strategy.
+[ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md). Strategy-directed broker execution
+is implemented under separate approval and execution controls; the manual-buy ticket does not activate
+a strategy. See [current status](project-status.md) and the ongoing-management procedure above.
 
 ## Manual strategy promotion to Trading
 

@@ -116,8 +116,9 @@ reference with the broker ask, not with Paper's purchase price.
 - [x] Inventory families, baseline volume/churn, initial local-link scan and S54 recovery.
 - [x] First orientation and workflow cleanup; preserve safety and operational evidence boundaries.
 - [ ] Walk through daily selection, intraday confirmation, then permission/order/fill/protection.
-- [ ] Compact status, roadmap and strategy checklist after a unique-information/anchor accounting.
-  Retain Friday's failure history and Monday's active dependencies without duplicating the narratives.
+- [x] Consolidate status and roadmap, preserving previous records and repairing inbound links.
+- [ ] Continue section-by-section strategy-checklist reconciliation; preserve acceptance dependencies,
+  dated evidence and Friday's failure history without duplicating narratives.
 - [ ] Reduce the register to useful source/unfinished-idea pointers, or merge those pointers if a
   separate file adds no value. Its final disposition is undecided; no source rows were discarded.
 - [ ] Reconcile architecture/models/strategy and other concept/current-decision overlaps. In particular,

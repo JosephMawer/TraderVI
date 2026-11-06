@@ -368,7 +368,7 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   The exact Release replay restored both owners without changing either original decision.
   [November 3 implementation](adr/0117-compact-trading-current-storage.md#november-3-clarification--original-protection-ownership-across-builds).
 - [ ] Verify that an ordinary regular-session cycle proceeds through protection after the original
-  sell's recovery. The [November 3 opening check](project-status.md#operating-state-and-immediate-risks)
+  sell's recovery. The [November 3 opening check](project-status-history-20261105.md#operating-state-and-immediate-risks)
   verified both ownership links after approval, one original request per exit and an empty
   broker portfolio. Both original sales reconciled by 10:23. The second required bounded
   original-order maintenance. The separate held-position bid investigation remains on operator hold.
@@ -379,7 +379,7 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   deposit, duplicate polls, legacy approval and a separately enabled immutable settings
   successor. Exact Release passed 3,592 tests with 16 opt-in skips and opened in review mode.
 - [x] Verify operator approval, separate enable and normal restart under the reusable terms.
-  [November 3 readback and fresh evaluation](project-status.md#operating-state-and-immediate-risks).
+  [November 3 readback and fresh evaluation](project-status-history-20261105.md#operating-state-and-immediate-risks).
 - [ ] Verify the first naturally qualifying live buy funded by returned proceeds and its
   original-order reconciliation.
 - Separate proposal: reducing the regular strategy's cumulative writes and repeated broker history reads.

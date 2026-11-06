@@ -87,12 +87,32 @@ def check(root, files):
     return checked, errors
 
 
+def check_adr_index(root):
+    """Keep the navigation index complete without maintaining operational status in it."""
+    directory = root / "Docs/adr"
+    text = (directory / "README.md").read_text(encoding="utf-8-sig")
+    entries = re.findall(r"^\| \[(\d{4})\]\(([^)]+)\)", text, flags=re.M)
+    counts = Counter(number for number, _ in entries)
+    files = {p.name[:4]: p.name for p in directory.glob("[0-9][0-9][0-9][0-9]-*.md")}
+    errors = []
+    for number, count in counts.items():
+        if count != 1:
+            errors.append(f"ADR index: {number} occurs {count} times")
+    for number in sorted(files.keys() - counts.keys()):
+        errors.append(f"ADR index: missing {number}")
+    for number, path in entries:
+        if files.get(number) != path:
+            errors.append(f"ADR index: {number} has missing or mismatched target {path}")
+    return errors
+
+
 def main():
     names = subprocess.check_output(["git", "ls-files", "--", "*.md"], cwd=ROOT, text=True).splitlines()
     checked, errors = check(ROOT, [ROOT / name for name in names if (ROOT / name).is_file()])
+    errors.extend(check_adr_index(ROOT))
     if errors:
         print("\n".join(errors), file=sys.stderr)
-    print(f"Checked {checked} local Markdown links in and into maintained documentation; {len(errors)} errors.")
+    print(f"Checked {checked} local Markdown links and ADR index; {len(errors)} errors.")
     return bool(errors)
 
 
