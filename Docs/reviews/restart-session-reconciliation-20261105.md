@@ -247,9 +247,11 @@ affected issue bodies, labels, states and comments were inspected before mutatio
 
 Readback verified all ten updated issues and the single new issue against their intended bodies/titles
 and states. The planning [workflow run](https://github.com/JosephMawer/TraderVI/actions/runs/42161650451)
-verified the relevant issues as Agreed, including #19/#28/#29. Its overall result remains failure solely
-because unrelated #27 lacks exactly one decision label; #27 and workflow configuration were not changed.
-No manual board-field edits were needed for the reconciled items. Repository commits were not pushed.
+verified the relevant issues as Agreed, including #19/#28/#29, but failed because #27 lacked a decision
+label. The operator subsequently authorized marking #27 Needs discussion and Deferred. Readback confirmed
+both labels, and the [follow-up sync](https://github.com/JosephMawer/TraderVI/actions/runs/42163957448)
+passed its test and sync jobs, reporting `#27: Deferred`, 27 verified issues and one changed Planning value.
+No manual board-field or workflow configuration edits were needed. Repository commits were not pushed.
 
 ## Source index
 
