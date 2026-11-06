@@ -336,6 +336,48 @@ Starting the normal desktop below does not enable this coordinator yet.
 
 ## Build and run the local desktop checkout
 
+### Launch independently of Codex
+
+[ADR-0128](adr/0128-windows-owned-application-launch.md) uses three on-demand Windows tasks.
+Once installed, run these from PowerShell (including a Codex command with operational permission):
+
+```powershell
+Start-ScheduledTask -TaskName 'TraderVI Collector'
+Start-ScheduledTask -TaskName 'TraderVI Engine'
+Start-ScheduledTask -TaskName 'TraderVI Dashboard'
+Get-ScheduledTask -TaskName 'TraderVI Collector','TraderVI Engine','TraderVI Dashboard'
+```
+
+Windows Task Scheduler owns the processes, using the signed-in user's normal privileges and Windows
+PowerShell. No Codex executable or runtime is required. Tasks have no automatic trigger, no execution
+time limit and no stop-on-battery setting. Closing the dashboard leaves the engine and collector
+running. Windows sleep, sign-out and shutdown remain operating limits. Task Running is not proof of
+application health; inspect engine status and the collector's dated receipt as well.
+
+The engine/dashboard use `TraderVI.WPF/bin/Release/net10.0-windows`; the collector uses
+`TraderVI.Collector/bin/Release/net10.0`. Starting a task never builds or copies files. Launcher
+configuration, the collector's hash manifest and one current lifecycle receipt per app live under
+`%LOCALAPPDATA%\TraderVI\Launchers`. Collector control/history paths are retained, not moved into a
+build folder. The collector preserves deliberate `stop.request` files and allows three unexpected
+failure restarts. Engine/dashboard failure requires an explicit start.
+
+For explicit first installation or a stopped-host collector rebuild, validate then register:
+
+```powershell
+.\Operations\Install-TraderVIApplicationTasks.ps1 `
+  -CollectorConfigurationPath C:\src\TraderVI\artifacts\collector-install-20261028\collector.json -ValidateOnly
+.\Operations\Install-TraderVIApplicationTasks.ps1 `
+  -CollectorConfigurationPath C:\src\TraderVI\artifacts\collector-install-20261028\collector.json
+```
+
+Registration changes Windows tasks and launcher configuration; it does not start the applications.
+Do not use Task Scheduler's End command for a routine stop: use the dashboard's engine-stop control
+or the engine's `--control Stop <new-receipt-path>`, close the dashboard normally, and request a
+collector drain via its existing `stop.request`. Wait for the hosts/supervisor to exit before rebuilding
+their output. Removing a deliberate collector stop requires explicit restart authority.
+
+### Build from the main checkout
+
 After the reviewed strategy branch is merged into the main checkout, close the running TraderVI
 window and use the normal source command:
 
@@ -357,7 +399,8 @@ After building reviewed source with the app normally closed, the unchanged norma
 dotnet run --project TraderVI.WPF -c Release --no-build
 ```
 
-This uses normal output; it requires no separate launcher or proof rewrite. A build-enabled run can
+This developer command uses normal output; for an operational launch independent of Codex, use the
+Windows tasks above. A build-enabled run can
 change the engine hash, including embedded Git revision metadata. Approval still reviews the exact
 running build, and a changed build cannot inherit an old host enable. The reviewed calendar path was persisted
 under explicit approval in the Windows user environment and verified outside the sandbox; open a

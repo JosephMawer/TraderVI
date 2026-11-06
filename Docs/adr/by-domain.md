@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0128](0128-windows-owned-application-launch.md) — On-demand Windows-owned hosts using ordinary Release outputs
+
 - [ADR-0127](0127-paper-checkpoint-restart-and-incremental-verification.md) — Paper current-state restart and incremental verification from the completed recovery
 
 - [ADR-0126](0126-engine-health-and-diagnostic-snapshot.md) — Flat operational issues and a shared diagnostic snapshot

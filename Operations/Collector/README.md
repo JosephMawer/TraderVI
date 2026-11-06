@@ -65,6 +65,10 @@ matching control directory and an explicit maximum of zero to five restarts. Kee
 files outside that immutable runtime directory. It starts
 hidden, owns an exclusive supervisor lock and never clears a stop. It is not registered or launched by
 builds. Startup registration and live use are part of the guarded cutover, not these source changes.
+The Windows-owned on-demand launcher is documented in the
+[running guide](../../Docs/running.md#launch-independently-of-codex). The supervisor supports Windows
+PowerShell 5.1; `-ValidateOnly` checks the package/configuration without creating control state or
+starting a process. `Test-CollectorSupervisor.ps1` exercises this boundary using synthetic files only.
 
 An opt-in native rehearsal is prepared in `TraderVI.Core.Tests/MarketCollectorSqlTests.cs`. With explicit
 authorization only, `TRADERVI_COLLECTOR_SQL_QUALIFICATION=1` enables its single filtered test. It creates
