@@ -1,6 +1,6 @@
 # ADR-0128: Windows-owned application launch from ordinary build outputs
 
-- **Status:** Accepted
+- **Status:** Codex-independent hosting requested; task-based implementation prepared, installation declined and approach awaiting renewed operator review
 - **Date:** 2026-11-05
 - **Domains:** architecture
 - **Related:** [ADR-0103](0103-real-execution-independent-of-paper-research.md), [ADR-0111](0111-independent-collector-and-recovered-confirmation.md)
@@ -15,9 +15,21 @@ without accumulating copied source/runtime workspaces. A build folder and a proc
 separate concerns: launching an ordinary executable through a developer tool still gives it that
 tool's process ancestry.
 
-## Decision
+## Prepared approach and later operator disposition
 
-Register separate on-demand Windows tasks for Engine, Collector and Dashboard, using the signed-in
+The November 5 request established the desired outcome: independent application lifetime and ordinary
+source build outputs. Scripts, documentation and the collector Release build were prepared in
+`647da521`, with 90 tests reported passing. The operator then declined registration of the three manual
+tasks and challenged the unexplained implementation; work stopped. No tasks were installed, and that
+launcher work did not stop, restart or replace the running applications.
+
+The following describes the prepared candidate, not an installed or finally approved hosting mechanism.
+Explain and review the approach before resuming installation. Automatic reboot/login startup was not
+selected. The engine/dashboard already used ordinary Release output; moving the collector from its
+older artifact package is a separate remaining operational step. Source chat and disposition are in the
+[restart reconciliation](../reviews/restart-session-reconciliation-20261105.md#november-5-host-lifetime-and-remaining-boundaries).
+
+The prepared scripts register separate on-demand Windows tasks for Engine, Collector and Dashboard, using the signed-in
 operator's interactive Windows token with limited privileges. Use Windows' installed PowerShell,
 not a runtime bundled with Codex. Keep each task active for its application's lifetime. Configure no
 execution time limit, no battery stop, no schedule/sign-in trigger and no overlapping task instances.

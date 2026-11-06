@@ -14,8 +14,10 @@ check or authority to trade. [Roadmap](roadmap.md) owns priority; the
   engine's 15 workers reported zero consecutive failures, execution was waiting for regular hours, the
   collector reported OutsideSession and the dashboard showed broker connected. Startup does not prove
   the next session or survival of another service shutdown. Private evidence: `artifacts/startup-20261105-2116/`.
-  [ADR-0128](adr/0128-windows-owned-application-launch.md) accepts Windows-owned on-demand launch;
-  its [procedure](running.md#launch-independently-of-codex) distinguishes installation from starting hosts.
+  Codex-independent hosting is requested, but [ADR-0128](adr/0128-windows-owned-application-launch.md)'s
+  prepared on-demand tasks were **not installed**: the operator declined registration and work stopped.
+  Review the approach before any installation; its [procedure](running.md#launch-independently-of-codex)
+  is conditional, not evidence that Windows owns the running hosts.
 - **Real execution and protection:** November 4's installed [issue #24 repair](reviews/verified-symbol-mapping-20261104.md#live-transition)
   reconciled the original filled buy, preserved saved protection and passed operator build review and
   resume. Fresh bids and matching protection were observed for all four holdings; one ordinary protective
@@ -27,11 +29,13 @@ check or authority to trade. [Roadmap](roadmap.md) owns priority; the
 - **Paper, shared inputs and recovery:** The November 3 Paper recovery completed and its scoped hold was
   cleared; older failed receipts remain immutable. On November 4 the Paper checkpoint package and
   baseline were installed; normal saved-state restart and an empty incremental verification passed.
-  Nonempty overnight delta and market-session acceptance remain open under
+  Nonempty overnight delta, pending-action restart and sustained market-session acceptance remain open under
   [ADR-0127](adr/0127-paper-checkpoint-restart-and-incremental-verification.md).
-  At 15:29 November 4 shared publication remained at 10:20 despite fresh collector observations, blocking
-  new-entry readiness; on November 5 at 09:11 the latest saved publication had reached November 4's close.
-  That pre-open read does not prove fresh November 5 market-hour Paper/Real evaluation.
+  The November 4 15:29 stale-publication observation was superseded by three published/applied cycles
+  through 15:40, verified at 15:43; Real consumed fresh inputs without the earlier valuation block.
+  Indicators were still immature, so this was not entry qualification. A November 5 10:06 chat check
+  separately reported fresh Real evaluation without account-risk or quote-read blocks; it did not prove
+  sustained Paper operation. [Chronological reconciliation and evidence limits](reviews/restart-session-reconciliation-20261105.md#publication-recovery-and-dashboard-reconnection).
   [Paper installation evidence](reviews/paper-restart-copy-rehearsal-20261104.md#live-installation-and-rehearsal-cleanup),
   [mapping transition](reviews/verified-symbol-mapping-20261104.md#live-transition).
 - **Collector and minute data:** The independent collector and latest-minute policy are installed; the
@@ -49,7 +53,11 @@ check or authority to trade. [Roadmap](roadmap.md) owns priority; the
 ## Evidence and development
 
 - **Dashboard:** The November 3 holdings-refresh repair was installed; the original trade-synchronization
-  failure remains undiagnosed. Later dashboard-only updates added the holdings grid, strategy link and
+  failure remains undiagnosed. A separate November 4 post-engine-restart stale snapshot cleared after
+  reopening only the dashboard at 15:53:36; automatic reconnection remains outstanding, and an expired
+  account ticket is a supported hypothesis, not a captured failing request.
+  [Acceptance](strategy-alignment-implementation-checklist.md#restart-follow-through--november-5-reconciliation).
+  Later dashboard-only updates added the holdings grid, strategy link and
   Engine health view. Native accessibility checks passed in their stated scopes; some clicks, clipboard
   behavior and pixel layout remain unverified. [Health contract](adr/0126-engine-health-and-diagnostic-snapshot.md).
   November 5 updates installed a separate Trade history tab and market-context panels. Sector classifications

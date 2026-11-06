@@ -1,9 +1,17 @@
 # ADR-0117: Compact trading current-state storage
 
-- **Status:** Accepted for the first disconnected implementation increment; not installed or activated
+- **Status:** Accepted; compact restart installed and activated November 1, with November 2–4 handoff repairs; broader native interruption/capacity acceptance remains open
 - **Date:** October 30, 2026
 - **Domains:** architecture, data-pipeline
 - **Related:** ADR-0103, ADR-0109; [restart design](../reviews/restart-recovery-design-20261030.md), [#19](https://github.com/JosephMawer/TraderVI/issues/19)
+
+**Reading this record:** the initial disconnected increment and October 31 candidate/release proposal
+below preserve their historical authority and test limits. Later dated clarifications govern the
+installed path; the November 1 release boundary supersedes the earlier proposed rollback with the
+operator's fix-forward choice. The original sales-contribute-zero allowance applies to legacy terms;
+[ADR-0125](0125-reusable-strategy-sale-proceeds.md) supplies separately approved reusable-sale terms.
+Installation does not complete the acceptance matrix. See the [chronological reconciliation](../reviews/restart-session-reconciliation-20261105.md)
+and [execution checklist](../strategy-alignment-implementation-checklist.md) for dated operational evidence.
 
 ## Context
 

@@ -10,6 +10,32 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+### Restart follow-through — November 5 reconciliation
+
+The [chronological review](reviews/restart-session-reconciliation-20261105.md) reconciles October 21–November 5
+chats, source and dated evidence. Ordinary Real compact restart and Paper checkpoint restart are installed;
+the remaining restart acceptance is in the scoped items below, not another lifetime-scan implementation.
+Dated installation/preparation entries retain their original limits: an old unchecked one-day approval or
+capture step is not an instruction to repeat an expired workflow. Use its governing successor and current
+acceptance; do not infer completion of broader qualification from a later successful launch.
+
+- [ ] Reproduce the dashboard's failed account request after an engine restart, implement automatic
+  account rediscovery/reconnection and test a restart with the same connection revision; verify fresh
+  holdings/history without reopening the dashboard or disturbing engine protection. November 4 reopening
+  restored refresh; a stale account ticket remains a hypothesis, distinct from the November 3 fallback fix.
+- [ ] Review the Codex-independent hosting approach before installing it, then qualify single ownership,
+  deliberate stops, normal collector output/manifest handling and process independence. ADR-0128's scripts
+  and collector build exist, but task registration was declined on November 5 and work stopped; automatic
+  reboot/login startup is a separate unresolved hosting decision, not part of the prepared manual tasks.
+- [ ] Retain safe execution failure stage/cause, retry and recovery evidence under
+  [#23](https://github.com/JosephMawer/TraderVI/issues/23), preserving cancellation, retry timing,
+  permissions and original orders; keep sensitive data out of bounded diagnostics and test failure/recovery.
+  The current host still catches the exception with a generic message; this work is not installed.
+
+Paper nonempty-delta/pending-action acceptance remains with ADR-0127 below; native interruption/capacity
+remains with #13/#14/#19; collector and recovered-confirmation acceptance remains in the next section.
+The review's issue mapping is preparation for a later GitHub update, not a new parallel backlog.
+
 ### Tracked purchase symbol continuity — October 29
 
 - [x] Restore the current missing name through one independently verified alias and backup, without
@@ -51,9 +77,11 @@ The September 22 documentation cleanup preserves the
   all three portfolios qualified within 3.3 seconds; no new full scan or integrity incident.
 - [x] Verify current broker bids and matching protection for the existing holdings after #24 startup.
   All four passed; one ordinary protective sale filled/reconciled, leaving three protected holdings.
-- [ ] Diagnose stalled shared publication: at 15:29 collector observations reached 15:28 while published
-  strategy inputs remained at 10:20; Real waited for fresh data and reported unavailable account valuation.
-- [ ] Verify sustained protection and fresh Paper/Real entry evaluations; keep issue #20's prospective
+- [x] Resolve the apparent post-restart publication stall: the 15:29 baseline preceded the next scheduled
+  15:30 bar plus collection offset; by 15:43 three cycles were published/applied and Real consumed 15:40
+  with no entry-risk/valuation block. No additional runtime repair was required after #24.
+  [Evidence and warm-up limits](reviews/restart-session-reconciliation-20261105.md#publication-recovery-and-dashboard-reconnection).
+- [ ] Verify sustained protection and entry evaluation after restart; keep issue #20's prospective
   new-holding acceptance separate from offline tests and this existing-position transition.
 
 ### Independent collector and recovered confirmation — October 27 overnight
@@ -334,8 +362,10 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   production integrity-store checks, and unrelated background workers. The installation at
   the time of that rehearsal used the legacy gate. [Rehearsal](../TraderVI.Core.Tests/TradingCompactStorageTests.NormalStartup.cs).
   Local receipts are under `artifacts/restart-release/normal-*.trx`.
-- [ ] Finish writer/consumer mapping and the replacement's failure/latency contract, record exact
-  supersession of installed behavior and update #19 before integrating or activating that replacement.
+- [x] Integrate the compact writer/consumer mapping and scoped restart permission under ADR-0117;
+  November 1 activation and the November 2–4 handoff repairs below supersede the disconnected candidate.
+- [ ] Finish broader failure/latency acceptance and reconcile #19 with the installed scope when GitHub
+  updates are authorized; installation did not complete every native scenario or performance target.
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
   broker-coverage, writer-fencing and history-size acceptance. Preserve the remaining qualification
   work separately from the operator-approved first production switch.
@@ -367,11 +397,14 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   during build review, and exercise two unknown sell replies through repeated restart and fill.
   The exact Release replay restored both owners without changing either original decision.
   [November 3 implementation](adr/0117-compact-trading-current-storage.md#november-3-clarification--original-protection-ownership-across-builds).
-- [ ] Verify that an ordinary regular-session cycle proceeds through protection after the original
+- [x] Verify that an ordinary regular-session cycle proceeds through protection after the original
   sell's recovery. The [November 3 opening check](project-status-history-20261105.md#operating-state-and-immediate-risks)
   verified both ownership links after approval, one original request per exit and an empty
   broker portfolio. Both original sales reconciled by 10:23. The second required bounded
-  original-order maintenance. The separate held-position bid investigation remains on operator hold.
+  original-order maintenance. November 4's installed #24 repair subsequently verified fresh bids and an
+  ordinary protective sale/fill/reconciliation; sustained and prospective new-holding acceptance remain
+  in the tracked-purchase section. The earlier bid investigation's hold is historical, not a claim that
+  this later bounded protective outcome remains unobserved.
 - [x] Verify normal restart and a fresh ordinary Real strategy evaluation on the permanent
   receipt-time repair. The November 3 10:34 Toronto evaluation found no confirmed entry.
 - [x] Implement and test the [ongoing reinvestment approval](adr/0125-reusable-strategy-sale-proceeds.md).
@@ -451,7 +484,8 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   independence. Test direct-input freshness and same-session evidence conflicts in the installed path.
 - [ ] Qualify SQL concurrency, current-state/replay/immutable guards, witness metadata permissions,
   abnormal interruption/restore, durable holds and explicit verified recovery under concurrent access.
-- [ ] Measure realistic latency, growth, archive/recovery throughput and weekly coverage. Changed broker
+- [ ] Measure realistic latency, growth, archive/recovery throughput and Real/shared weekly coverage.
+  ADR-0127 replaces automatic Paper lifetime/weekly scans with incremental verification. Changed broker
   appends still serialize full logical history under8MiB; historical revision audits still reconstruct
   full history. Extend these paths if measured capacity fails the accepted objectives.
 - [x] Obtain explicit authority for backup, migrations047–051, checkpoint preparation and native
@@ -488,9 +522,10 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
 - [x] Recheck affected workers after clearance: all five formerly blocked workers complete ticks after
   clearance with zero consecutive failures at 23:57:59 Toronto. Older failed audit receipts remain
   historical records. [Evidence and limits](reviews/paper-recovery-bottleneck-20261103.md#completion-and-scoped-clearance).
-- [ ] Qualify fresh market-hour Paper activity and the independently diagnosed holding-correspondence
-  wiring issue #24. Its source/offline repair is recorded in the tracked-purchase section; successful
-  outside-session worker ticks and recovery do not establish installation or native acceptance.
+- [x] Verify #24 installation and bounded fresh market-hour Paper activity after restart: November 4
+  publication and Paper application advanced through three cycles by 15:43, as recorded above.
+- [ ] Qualify sustained Paper operation and the prospective new-holding path; the three-cycle observation
+  does not close issue #20 or the broader Paper restart acceptance below.
 - [x] Implement/test the requested temporary Paper continuation under ADR-0116, without falsely
   resolving incidents or changing Real authority. Full Core3,374passed/10SQLskips and final39focused
   tests pass; Release WPF/engine builds. New errors, expiry or restart stop the permission.
@@ -520,16 +555,17 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   2.74 revisions/s after versus 1.69/s before installation, not a controlled whole-run benchmark or ETA.
   Early changes/cold reads and the separate legacy input scan limit gains. This installed repair does
   not complete native Paper activity or broader weekly-capacity acceptance, retained below.
-- [ ] Obtain Joseph's normal review of the installed strategy/build before Real execution resumes;
-  post-install ExecutionStatus is Blocked because the build changed. Preserved grant is not new approval.
-  No archive deletion or silent conversion. The existing follow-up continues beyond hold clearance.
+- [x] Obtain Joseph's normal review of the October 29 installed strategy/build and separate enable;
+  the later 10:19 native Running/fresh-input observation above supersedes the initial post-install block.
+  Preserved grant alone was not approval; no archive deletion or silent conversion occurred.
   [Evidence and progress](reviews/independent-engine-implementation-20261022.md#october-29-recovery-repair-installation--0006-toronto).
 - [ ] Finish remaining native concurrency/latency/restore acceptance. Recovery completion does not
   clear holds, qualify all interruption scenarios or grant financial authority.
   [November 3 Paper profiling](reviews/paper-recovery-bottleneck-20261103.md) confirms a remaining
   legacy fingerprint cost despite the installed prefix repair; the November 3 pass subsequently
   completed in about 2h12m and its two selected Paper holds were cleared.
-  No no-restart throughput remedy or complete Paper restart redesign is established by that check.
+  That profiling check alone established neither a throughput remedy nor a Paper restart redesign;
+  the separately approved and installed ADR-0127 work follows below.
 - [x] Review and approve Paper checkpoint restart and incremental verification under
   [GitHub #28](https://github.com/JosephMawer/TraderVI/issues/28), the Paper-specific follow-up to #19.
   November 4: Joseph approved implementation and offline validation using the completed November 3
@@ -551,7 +587,8 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   Full regression suite after the connection-factory test seam: 3,656 passed/17 native skips;
   isolated Debug engine/WPF build passed with existing warnings.
   [Evidence and limits](reviews/paper-restart-copy-rehearsal-20261104.md). The copy had no legacy tail;
-  actual installed scheduling, broker checks and market-time operation remain unverified.
+  those copy phases alone did not verify installed scheduling, broker checks or market-time operation;
+  subsequent installed evidence is recorded below and in the tracked-purchase section.
 - [x] Obtain separate authority for installation, stopped-engine baseline preparation and restart.
 - [x] Install the matching Release engine/dashboard and adopt the successful cleared recovery.
   November 4 01:40 Toronto: preparation passed in 0.742 seconds with zero intervening legacy revisions;
@@ -566,10 +603,13 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   portfolios qualified within 2.967 seconds including process launch/control observation. Paper
   NewHistory completed zero units, with each start revision exactly one beyond its saved boundary;
   no full Paper scan or portfolio revision change occurred. Real/shared delta completed separately.
-- [ ] Verify a nonempty scheduled production delta, market-time pending-action handling and operation,
-  and remaining interruption/latency acceptance. No pending buys existed at this restart. Owner-scoped
-  rejection and nonempty atomic resume were proved on the copy, not by corrupting production; native
-  network/power-loss trials remain unperformed.
+- [ ] Verify a nonempty scheduled production Paper delta, recording its original boundary, newly
+  referenced content, verified progress and atomic resume; the installed zero-unit run is insufficient.
+- [ ] Verify market-time pending-action expiry/recovery and preserved protection across Paper restart;
+  no pending buys existed in the observed normal restart, and late expired buys must not replay.
+- [ ] Complete Paper interruption and representative latency/SQL-contention acceptance alongside
+  #13/#14/#19; owner-scoped rejection and nonempty atomic resume passed on the isolated copy, while
+  network/power-loss trials and sustained native operation remain unqualified.
 - [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine
   with execution Off; verify single ownership, normal mode, connection and original Paper cursor progress.
 - [x] Verify fresh post-interruption Real recovery 260/260 and separately authorize/apply only its reviewed
@@ -774,12 +814,16 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   Recovery13:18:39/revision168 consumes13:10bar; nativeepoch10/start13:10 verified13:21.37symbols
   remainimmature/unconfirmed,0orders/holds/blocks,same16:00; no renewed purchase ETA is promised.
 
+**Historical October 18–21 preparation and evidence:** the records below preserve the original first-day
+contracts, approvals and gaps; later installed ongoing management/restart milestones above govern their
+superseded boundaries. Do not repeat old capture/activation steps solely because a historical box is open.
+
 **Goal:** choose a paper portfolio and let its exact reviewed strategy manage the permanent real TFSA,
-while keeping paper and real histories independent. **October21 Portfolio rules only source is
-operator-approved/enabled, with first real evaluation verified; automatic orders/fills remain unobserved.**
+while keeping paper and real histories independent. **At the October21 checkpoint, Portfolio rules only source was
+operator-approved/enabled, with first real evaluation verified; automatic orders/fills were still unobserved.**
 Any portfolio must be promotable and keep managing across days until pause or switch (ADR-0085).
 Ungated Breakout Top 3 is the initial September 23 review candidate. The
-[current launch verdict is NO-GO](reviews/supervised-session-20260923.md).
+[September 23 launch verdict was NO-GO](reviews/supervised-session-20260923.md).
 
 **October 18 requested Live route:** the operator targets the most successful Delphi Live variant
 for October 19. Normal is the recommended integration candidate; all three recorded inception
@@ -799,7 +843,7 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [ ] Verify exact executable Normal source and Live protection natively with the remaining proofs.
 - [ ] Complete native risk/baseline/continuation, source, broker lifecycle and shared-host checks
   in items 1–7, then prepare a fresh activation packet. Conditional no-transfer coverage cannot
-  manufacture the original required qualifications. Monday automatic execution remains NO-GO.
+  manufacture the original required qualifications. At this preparation checkpoint, Monday automatic execution was NO-GO.
 - [ ] Operator-controlled real orders/activation and subsequent confirmed fills/protection remain
   separate operational steps; none was performed by this preparation session.
 - [x] After the requested Codex restart/resume, verify both exact installed helpers execute without
@@ -1417,8 +1461,10 @@ The prerequisites below cover the broader real-account execution work and remain
 - [x] October 27: first managed purchase is reconciled; the existing holding and original protection
   survive the explicitly reviewed repair/restart. Native checks through 15:20 confirm two usable broker bids,
   advancing completed-bar protection and no account/valuation blocks on buying.
-- [ ] Verify sustained protective bid cadence, an actual protective exit/fill and native multi-day
-  continuation without weakening holds. A passing protection check does not prove a sale or fill.
+- [x] Observe actual protective exits/fills and reconciliation, including the November 4 ordinary
+  protective sale under #24; see the tracked-purchase and compact restart evidence above.
+- [ ] Verify sustained protective bid cadence and native multi-day continuation without weakening holds;
+  individual protective fills do not establish uninterrupted operation.
 
 The bounded
 no-transfer agreement is explicitly accepted; a complete native cash-flow feed remains unqualified.
@@ -1561,8 +1607,11 @@ Optional older-history import remains a proposal; no historical reset is approve
   [Last health evidence](project-status-history-20261101.md#latest-operational-evidence).
 - [ ] Finish native opening-value qualification and the actual setup/continuation caller before treating
   offline valuation tests as operational account references.
-- [ ] Extract shared Core into a standalone host and arrange pre-session Windows Task Scheduler startup
-  with one active owner; no such host/task was installed by the valuation increment.
+- [x] Extract the standalone independent engine under ADR-0103 and install it October 22;
+  dashboard-close continuation was observed, with broader hosting acceptance still separate.
+- [ ] Qualify unattended pre-session startup with one active owner after reviewing its hosting behavior;
+  ADR-0128's prepared on-demand tasks have no automatic trigger and were not installed, as recorded in
+  [restart follow-through](#restart-follow-through--november-5-reconciliation).
 
 ## Remaining audit work
 
@@ -1582,7 +1631,7 @@ source before implementation; historical phase labels are not new priorities or 
 | S1 | References, mapping and protection transfer source tested; qualify native risk producer and actual ownership before cutover. |
 | S2 | Reconcile published versus eligible consumers without changing entry gates; a published Hold is not a Buy. |
 | S3 | Make Oracle cache identity/replacement correct; Oracle gains no trading authority. |
-| S4 | Bound account-history CPU/memory and establish capacity. October 20 worker/display correction 55e429d5 and serialization follow-up 30775d12 are separately installed, execution off/both prior copies preserved. Four follow-up wakes have bounded UI timing but no clear full-cycle speedup; snapshot/protection/action cost remains substantial. Further history-cost investigation/fix explicitly deferred by operator, retaining integrity/freshness, both copies/history, execution off and separate validation/switch boundaries. Actual setup idle/interactive acceptance and sustained memory/capacity remain open. Same-copy recovery still requires fresh proof. [Evidence/steps](reviews/desktop-paper-responsiveness-20261020.md). |
+| S4 | Qualify sustained account-history memory/capacity under #13. The [October 20 fixes, timings and deferral](reviews/desktop-paper-responsiveness-20261020.md) are historical; later independent hosting, compact Real restart and Paper checkpoint restart are installed. Preserve integrity/freshness and scope each measurement. Routine-trading history/read-write optimization remains a separate proposal, not an agreed second restart phase; see the [chronological reconciliation](reviews/restart-session-reconciliation-20261105.md#decisions-that-must-not-regress). |
 | S5 | Improve Core boundaries incrementally after consequential contracts are protected. |
 | S6 | Broaden CI host coverage beyond existing five-host checks; retain failure propagation. |
 | S7 | Resolve short sessions/calendar coverage before 2026-12-24, including carried-position protection. |

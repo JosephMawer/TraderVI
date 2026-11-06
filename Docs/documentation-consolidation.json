@@ -4,6 +4,12 @@
     { "path": "AGENTS.md", "reviewed": "2026-11-05" },
     { "path": "Docs/adr/README.md", "reviewed": "2026-11-05" },
     { "path": "Docs/project-status.md", "reviewed": "2026-11-05" },
-    { "path": "Docs/roadmap.md", "reviewed": "2026-11-05" }
+    { "path": "Docs/roadmap.md", "reviewed": "2026-11-05" },
+    { "path": "Docs/strategy-alignment-implementation-checklist.md", "reviewed": "2026-11-05" },
+    { "path": "Docs/adr/0104-scoped-recovery-and-sequential-history-audits.md", "reviewed": "2026-11-05" },
+    { "path": "Docs/adr/0116-temporary-paper-continuation-during-reboot-recovery.md", "reviewed": "2026-11-05" },
+    { "path": "Docs/adr/0117-compact-trading-current-storage.md", "reviewed": "2026-11-05" },
+    { "path": "Docs/adr/0128-windows-owned-application-launch.md", "reviewed": "2026-11-05" },
+    { "path": "Docs/reviews/restart-session-reconciliation-20261105.md", "reviewed": "2026-11-05" }
   ]
 }

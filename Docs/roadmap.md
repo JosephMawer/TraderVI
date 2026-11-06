@@ -1,6 +1,6 @@
 # TraderVI Roadmap
 
-Last reconciled **November 4, 2026**. This page owns priority order; [project status](project-status.md)
+Last reconciled **November 5, 2026**. This page owns priority order; [project status](project-status.md)
 records dated evidence, the relevant checklists own acceptance and dependencies, and
 [design rules](design-rules.md) and accepted ADRs govern behavior. A roadmap item does not authorize
 live operations, trading, training, market access or deployment.
@@ -30,17 +30,17 @@ intentional handover without losing existing protection or financial history.
    gap and compact buy handoff are repaired in source under [issue #24](https://github.com/JosephMawer/TraderVI/issues/24),
    with offline consumer/protection tests and the exact Release guarded buy transition passing on a restored
    copy. Live handoff, installation, operator approval/resume and normal startup are complete; fresh
-   bids and an ordinary protective fill/reconciliation are verified. Investigate the remaining stalled
-   shared publication before claiming fresh Paper/Real entry readiness. Prospective native new-holding
-   acceptance remains in issue #20. Safe execution-error cause logging is planned under
+   bids and an ordinary protective fill/reconciliation are verified. Later November 4 evidence confirms
+   resumed shared publication and Paper/Real consumption; sustained entry/protection qualification remains.
+   Prospective native new-holding acceptance remains in issue #20. Safe execution-error cause logging is planned under
    [issue #23](https://github.com/JosephMawer/TraderVI/issues/23), preserving retries and trading behavior.
    Issue #23 remains uninstalled. Keep hosts running;
    intervene sooner only for an actual engine failure, stuck execution or trading block.
 3. **Qualify protection, recovery and market inputs.** November 4's authorized #24 switch restored
    observed broker bids for all four holdings and completed one ordinary protective sale. Keep longer
-   runtime and prospective new-holding acceptance separate from that bounded evidence. Shared market
-   publication was stale at 15:29 November 4; the November 5 pre-open check found the prior close
-   published. Current-session entry readiness still requires fresh evidence. The Paper checkpoint package and baseline
+   runtime and prospective new-holding acceptance separate from that bounded evidence. The November 4
+   publication stall cleared through three cycles by 15:43, and a November 5 10:06 check reported fresh
+   Real inputs; neither proves sustained readiness or a qualifying signal. The Paper checkpoint package and baseline
    are installed under separate November 4 authority; normal saved-state restart and automatic
    empty-delta checks passed. Complete nonempty nightly delta and market-time acceptance under
    [issue #28](https://github.com/JosephMawer/TraderVI/issues/28).
@@ -88,7 +88,12 @@ intentional handover without losing existing protection or financial history.
   and Granville evidence before changing weights. Keep the individual-stock gain-retention research goal
   visible ([scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon)).
 - **Hosting and product:** Qualify unattended pre-session hosting and sustained native operation; the
-  independent engine itself is already installed. Consider Scorecards charts after enough mature cohorts,
+  independent engine itself is already installed. Review Codex-independent launch and the collector's
+  ordinary-output move: November 5 task registration was declined, so the prepared manual-start mechanism
+  remains uninstalled and does not establish reboot/login startup. Fix dashboard automatic reconnection
+  after engine restart; reopening it recovered the November 4 stale snapshot, but the precise failed request
+  remains uncaptured. [Restart follow-through](strategy-alignment-implementation-checklist.md#restart-follow-through--november-5-reconciliation).
+  Consider Scorecards charts after enough mature cohorts,
   Hermes/System Log surfaces, Oracle Phase 3, later indicator groups and broader walk-forward simulation.
   [Operational follow-through](strategy-alignment-implementation-checklist.md#operational-follow-through).
 

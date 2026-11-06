@@ -1,8 +1,8 @@
 # ADR-0104: Scoped recovery and sequential history audits
 
-**Date:** October 22, 2026. **Status:** Accepted direction; installed, real-only recovery/clearance verified; Paper coverage and full native capacity qualification remain pending.
+**Date:** October 22, 2026. **Status:** Accepted and installed; scoped Real and dated Paper recovery/clearance completed; full native capacity qualification remains open.
 **Domains:** architecture, data-pipeline. **Related:** ADR-0103, ADR-0082, ADR-0098.
-**Paper amendment:** [ADR-0127](0127-paper-checkpoint-restart-and-incremental-verification.md) replaces automatic Paper lifetime verification with saved boundaries and nightly deltas; approved source work, not installed. Explicit recovery and Real audits remain.
+**Paper amendment:** [ADR-0127](0127-paper-checkpoint-restart-and-incremental-verification.md), installed November 4, replaces automatic Paper lifetime/weekly verification with saved boundaries and nightly deltas. Explicit recovery and Real/shared audits remain; nonempty native Paper delta and broader restart acceptance are still open in the [execution checklist](../strategy-alignment-implementation-checklist.md).
 
 ## Problem
 
@@ -37,7 +37,8 @@ archive roots retain their existing verification contract.
 
 Active audits admit up to 4,096 records or five seconds of work, then yield for one second. The time
 budget is checked between records; an admitted large record may exceed it. Idle checks retain their
-30-second interval. Ordinary audits retain ADR-0103's nightly/weekly off-hours policy. Explicit recovery
+30-second interval. Ordinary audits retain ADR-0103's nightly/weekly off-hours policy as amended for
+Paper by ADR-0127 above. Explicit recovery
 may run now. Real recovery has priority; immutable original full-recovery progress is preserved.
 
 Offer explicit Real, Paper, and All recovery scopes using optional hashed plan metadata in the existing
