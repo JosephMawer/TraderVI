@@ -23,10 +23,12 @@ acceptance; do not infer completion of broader qualification from a later succes
   account rediscovery/reconnection and test a restart with the same connection revision; verify fresh
   holdings/history without reopening the dashboard or disturbing engine protection. November 4 reopening
   restored refresh; a stale account ticket remains a hypothesis, distinct from the November 3 fallback fix.
+  Owner: [#29](https://github.com/JosephMawer/TraderVI/issues/29).
 - [ ] Review the Codex-independent hosting approach before installing it, then qualify single ownership,
   deliberate stops, normal collector output/manifest handling and process independence. ADR-0128's scripts
   and collector build exist, but task registration was declined on November 5 and work stopped; automatic
   reboot/login startup is a separate unresolved hosting decision, not part of the prepared manual tasks.
+  Owner: [#5](https://github.com/JosephMawer/TraderVI/issues/5), including host lifetime and collector recovery.
 - [ ] Retain safe execution failure stage/cause, retry and recovery evidence under
   [#23](https://github.com/JosephMawer/TraderVI/issues/23), preserving cancellation, retry timing,
   permissions and original orders; keep sensitive data out of bounded diagnostics and test failure/recovery.
@@ -34,7 +36,8 @@ acceptance; do not infer completion of broader qualification from a later succes
 
 Paper nonempty-delta/pending-action acceptance remains with ADR-0127 below; native interruption/capacity
 remains with #13/#14/#19; collector and recovered-confirmation acceptance remains in the next section.
-The review's issue mapping is preparation for a later GitHub update, not a new parallel backlog.
+The [authorized GitHub reconciliation](reviews/restart-session-reconciliation-20261105.md#github-reconciliation)
+updated the existing owners and created only #29; this checklist does not create a parallel backlog.
 
 ### Tracked purchase symbol continuity — October 29
 
@@ -364,8 +367,8 @@ October 30 restart reassessment, owned by [#19](https://github.com/JosephMawer/T
   Local receipts are under `artifacts/restart-release/normal-*.trx`.
 - [x] Integrate the compact writer/consumer mapping and scoped restart permission under ADR-0117;
   November 1 activation and the November 2–4 handoff repairs below supersede the disconnected candidate.
-- [ ] Finish broader failure/latency acceptance and reconcile #19 with the installed scope when GitHub
-  updates are authorized; installation did not complete every native scenario or performance target.
+- [ ] Finish broader failure/latency acceptance under #19; the GitHub scope is reconciled, but installation
+  did not complete every native scenario or performance target.
 - [ ] Complete the accepted ordinary-restart protocol's offline and separately authorized native interruption,
   broker-coverage, writer-fencing and history-size acceptance. Preserve the remaining qualification
   work separately from the operator-approved first production switch.

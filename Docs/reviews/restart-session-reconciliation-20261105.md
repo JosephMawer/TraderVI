@@ -18,8 +18,9 @@ cross-checked; no operational state was refreshed in this review.
 The [execution checklist](../strategy-alignment-implementation-checklist.md) owns acceptance,
 [status](../project-status.md) owns dated current facts, and [roadmap](../roadmap.md) owns priority.
 This report owns the cross-chat chronology, supersession and recovered evidence, not a parallel backlog.
-GitHub issues were read only for ownership: several bodies predate subsequent approved/installed work.
-They were not changed, and their old checkboxes were not treated as current implementation facts.
+The initial review read GitHub issues only for ownership: several bodies predated subsequent
+approved/installed work. Their old checkboxes were not treated as current implementation facts.
+The subsequent operator-authorized [GitHub reconciliation](#github-reconciliation) is recorded below.
 
 ## Chronological reconciliation
 
@@ -198,15 +199,15 @@ policy. They should not become another prerequisite for the installed restart pa
 
 ## Outstanding work and existing ownership
 
-Each row is a concise extraction, with acceptance retained in the linked checklist/issue owner; this is
-preparation for later issue reconciliation, not authorization to update GitHub or perform native tests.
+Each row is a concise extraction, with acceptance retained in the linked checklist/issue owner.
+The later authorized issue reconciliation updates these pointers without granting native-test authority.
 
 | Outstanding item | Existing owner / disposition |
 |---|---|
 | Verify nonempty scheduled Paper deltas, pending-action expiry/protection across restart and sustained market-session operation. | #28; ADR-0127 acceptance in the [execution checklist](../strategy-alignment-implementation-checklist.md). |
 | Complete representative startup/audit latency, SQL contention, memory and interruption/ownership qualification while proving unrelated historical work cannot stall current trading. | #13/#14/#19; preserve already-passed proofs and separate native authority. |
 | Qualify independent collector/trader outage recovery and recovered confirmation before any explicitly reviewed successor adoption. | #5/#6; [collector acceptance](../strategy-alignment-implementation-checklist.md#independent-collector-and-recovered-confirmation--october-27-overnight). |
-| Reproduce and fix dashboard account reconnection after engine restart so fresh holdings/history return without reopening the app. | Recovered follow-up; [restart follow-through](../strategy-alignment-implementation-checklist.md#restart-follow-through--november-5-reconciliation), not yet matched to a dedicated issue. |
+| Reproduce and fix dashboard account reconnection after engine restart so fresh holdings/history return without reopening the app. | [#29](https://github.com/JosephMawer/TraderVI/issues/29); [restart follow-through](../strategy-alignment-implementation-checklist.md#restart-follow-through--november-5-reconciliation). |
 | Review and complete Codex-independent hosting and the collector's ordinary-output move, then verify ownership and deliberate-stop behavior. | ADR-0128 / #5 hosting boundary; prepared mechanism uninstalled, review required before installation. |
 | Retain safe execution failure causes, retry state and recovery evidence without changing order or permission behavior. | #23; current generic catch in [BrokerExecutionHost](../../Core/Trader/Promotion/BrokerExecutionHost.cs) remains. |
 | Verify sustained protective operation and the next naturally occurring qualifying new-holding path through subscriptions, publication and reconciliation. | #19/#20; #24's installed repair and bounded existing-holding evidence are complete. |
@@ -214,8 +215,41 @@ preparation for later issue reconciliation, not authorization to update GitHub o
 Separate proposals/deferrals: ordinary history/read-write optimization, damaged-state/old-backup design
 (#25), retention/SQL cleanup (#16/#26), optional clock-skew monitoring, display wording and general
 manual-fill adoption. Preserve these for review without converting them into accepted implementation
-requirements or reviving completed #15 restoration. Existing #19/#24/#28 descriptions need later
-reconciliation with the installed evidence rather than duplicate new issues.
+requirements or reviving completed #15 restoration. Existing #19/#24/#28 descriptions were reconciled
+with the installed evidence in the subsequent authorized update below.
+
+## GitHub reconciliation
+
+After reviewing the extraction, the operator authorized updating existing issues and creating only
+uncovered outstanding work. All 26 existing repository issues were searched for overlap, and the
+affected issue bodies, labels, states and comments were inspected before mutation.
+
+- Updated [#19](https://github.com/JosephMawer/TraderVI/issues/19) and
+  [#28](https://github.com/JosephMawer/TraderVI/issues/28) to distinguish accepted/installed restart work
+  from remaining qualification; preserved their earlier discussions as explicitly historical text.
+  #19 is now Agreed rather than deferred/design-pending; #28 has its missing Agreed label.
+- Updated [#5](https://github.com/JosephMawer/TraderVI/issues/5),
+  [#6](https://github.com/JosephMawer/TraderVI/issues/6),
+  [#13](https://github.com/JosephMawer/TraderVI/issues/13),
+  [#14](https://github.com/JosephMawer/TraderVI/issues/14),
+  [#20](https://github.com/JosephMawer/TraderVI/issues/20) and
+  [#23](https://github.com/JosephMawer/TraderVI/issues/23) with their scoped evidence and remaining work.
+  Existing #5 owns Codex-independent host lifetime and collector output/recovery follow-through;
+  declined Windows-task registration remains uninstalled, with approach review before installation.
+- Closed [#24](https://github.com/JosephMawer/TraderVI/issues/24) as completed for the finite mapping,
+  filled-buy handoff, regression coverage and bounded installed recovery; prospective new-holding
+  acceptance remains open in #20 and sustained/recovery acceptance in #19/#14.
+- Created only [#29](https://github.com/JosephMawer/TraderVI/issues/29), for dashboard account reconnection
+  after an engine restart; recorded the stale-ticket diagnosis as provisional and required reproduction.
+- Updated [#8](https://github.com/JosephMawer/TraderVI/issues/8) with the completed restart documentation
+  slice and ownership handoff, leaving its broader consolidation work open. #15 remained closed;
+  #16/#25/#26 retained their separate discussion/deferral boundaries without duplicate issues.
+
+Readback verified all ten updated issues and the single new issue against their intended bodies/titles
+and states. The planning [workflow run](https://github.com/JosephMawer/TraderVI/actions/runs/42161650451)
+verified the relevant issues as Agreed, including #19/#28/#29. Its overall result remains failure solely
+because unrelated #27 lacks exactly one decision label; #27 and workflow configuration were not changed.
+No manual board-field edits were needed for the reconciled items. Repository commits were not pushed.
 
 ## Source index
 
@@ -250,5 +284,6 @@ The changed ADRs were reviewed as historical decision records, preserving eviden
 identifying supersession. The execution checklist was reviewed for ownership, duplicate/stale restart
 claims, mixed completion states, dated approvals, links and unresolved work; safe corrections remain
 within its role. Unrelated strategy/AI qualification was not re-certified. Registry dates attest to this
-documentation review, not renewed operational verification. No code, database, broker, running host,
-trading permission or GitHub issue was changed by the reconciliation.
+documentation review, not renewed operational verification. The initial documentation pass changed no
+GitHub issues; the subsequent authorized issue updates are recorded above. Neither pass changed code,
+database, broker, running hosts or trading permission.
